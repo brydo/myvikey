@@ -1,1 +1,162 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Robbie Memorial</title>
+
+<style>
+  body {
+    margin: 0;
+    padding: 0;
+    font-family: "Segoe UI", sans-serif;
+    background: radial-gradient(circle at top, #222 0%, #050505 60%);
+    color: #eee;
+    text-align: center;
+  }
+
+  .container {
+    max-width: 700px;
+    margin: auto;
+    padding: 20px;
+  }
+
+  .hero img {
+    width: 100%;
+    max-width: 420px;
+    border-radius: 12px;
+    box-shadow: 0 0 25px rgba(255,255,255,0.15);
+    margin-top: 20px;
+  }
+
+  h1 {
+    font-size: 32px;
+    margin-top: 25px;
+    font-weight: 600;
+  }
+
+  .subtitle {
+    font-size: 20px;
+    color: #ccc;
+    margin-bottom: 25px;
+  }
+
+  .audio-card {
+    background: rgba(255,255,255,0.05);
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 0 15px rgba(255,255,255,0.1);
+    margin-top: 25px;
+    backdrop-filter: blur(4px);
+  }
+
+  audio {
+    width: 100%;
+    margin-top: 10px;
+  }
+
+  .divider {
+    margin: 40px auto 20px;
+    width: 120px;
+    height: 2px;
+    background: linear-gradient(to right, transparent, #888, transparent);
+    border-radius: 2px;
+  }
+
+  .tribute-line {
+    font-size: 18px;
+    color: #ccc;
+    letter-spacing: 0.5px;
+    margin-bottom: 30px;
+  }
+
+  .site-footer {
+    text-align: center;
+    padding: 2rem 1.5rem;
+    background: #3a5566;
+    color: #cdd8de;
+    font-size: 0.9rem;
+  }
+
+  .site-footer a {
+    color: #a8c4d0;
+    text-decoration: none;
+  }
+
+  .site-footer a:hover {
+    text-decoration: underline;
+  }
+
+  .logout-btn {
+    display: inline-block;
+    margin-top: 1rem;
+    padding: 0.5rem 1.5rem;
+    background: transparent;
+    border: 1px solid #cdd8de;
+    border-radius: 5px;
+    color: #cdd8de;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.85rem;
+    transition: all 0.2s;
+  }
+
+  .logout-btn:hover {
+    background: #cdd8de;
+    color: #3a5566;
+  }
+
+  .back-link {
+    display: inline-block;
+    margin-top: 20px;
+    color: #888;
+    font-size: 14px;
+    text-decoration: none;
+    transition: 0.25s ease;
+  }
+
+  .back-link:hover {
+    color: #ccc;
+  }
+</style>
+</head>
+
+<body>
+<div class="container">
+
+  <h1>In Loving Memory</h1>
+  <div class="subtitle">of Robbie</div>
+
+  <div class="hero">
+    <img src="https://pub-07ed0b0955a4401f9956c3ca7a33c40e.r2.dev/robbi1.jpg" alt="Memorial Photo">
+    <img src="https://pub-07ed0b0955a4401f9956c3ca7a33c40e.r2.dev/robbi2.jpg" alt="Memorial Photo" style="margin-top: 15px;">
+  </div>
+
+  <div class="audio-card">
+    <p>Play Robbie&rsquo;s song:</p>
+    <audio controls>
+      <source src="https://pub-07ed0b0955a4401f9956c3ca7a33c40e.r2.dev/mbl.mp3" type="audio/mpeg">
+      Your browser does not support the audio element.
+    </audio>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="tribute-line">
+    Made with love in memory of Robbie &bull; Forever in our hearts
+  </div>
+
+  <a class="back-link" href="/">&larr; Back to home</a>
+
+  <footer class="site-footer">
+    <p>In loving memory of Robbie &mdash; gone but never forgotten.</p>
+    <p style="margin-top: 0.5rem;">For inquiries: <a href="mailto:brydo@outlook.com">brydo@outlook.com</a></p>
+    <form method="POST" action="/__logout">
+      <button type="submit" class="logout-btn">Log out</button>
+    </form>
+  </footer>
+
+</div>
+</body>
+</html>
