@@ -1,1 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>In Loving Memory of Vikey</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: Georgia, 'Times New Roman', serif; background: #f5f3f0; color: #333; line-height: 1.7; }
+
+    /* LOGIN SCREEN */
+    #login-screen {
+      min-height: 100vh; display: flex; align-items: center; justify-content: center;
+      background: linear-gradient(135deg, #6b8e9e 0%, #4a6b7c 50%, #3a5566 100%);
+    }
+    .login-card { background: #fff; padding: 3rem 2.5rem; border-radius: 12px; box-shadow: 0 8px 40px rgba(0,0,0,0.2); text-align: center; max-width: 380px; width: 90%; }
+    .login-card h1 { font-size: 1.6rem; font-weight: normal; color: #4a6b7c; margin-bottom: 0.5rem; }
+    .login-card p { color: #888; font-size: 0.95rem; margin-bottom: 2rem; font-style: italic; }
+    .login-card input { width: 100%; padding: 0.8rem 1rem; border: 1px solid #ccc; border-radius: 6px; font-family: inherit; font-size: 1rem; text-align: center; margin-bottom: 1rem; outline: none; }
+    .login-card input:focus { border-color: #6b8e9e; }
+    .login-card button { width: 100%; padding: 0.8rem; background: #4a6b7c; color: #fff; border: none; border-radius: 6px; font-family: inherit; font-size: 1rem; cursor: pointer; }
+    .login-card button:hover { background: #3a5566; }
+    .error { color: #c0392b; font-size: 0.9rem; margin-bottom: 1rem; display: none; }
+
+    /* MEMORIAL CONTENT */
+    #memorial { display: none; }
+    .banner { width: 100%; height: 280px; background: linear-gradient(135deg, #6b8e9e 0%, #4a6b7c 50%, #3a5566 100%); display: flex; align-items: center; justify-content: center; flex-direction: column; color: #fff; text-align: center; padding: 2rem; }
+    .banner h1 { font-size: 2.8rem; font-weight: normal; letter-spacing: 2px; text-shadow: 1px 2px 4px rgba(0,0,0,0.3); margin-bottom: 0.5rem; }
+    .banner .dates { font-size: 1.2rem; opacity: 0.85; font-style: italic; }
+    .container { max-width: 800px; margin: 0 auto; padding: 2.5rem 1.5rem; }
+    .photo-section { text-align: center; margin-bottom: 2.5rem; }
+    .photo-section img { width: 220px; height: 220px; border-radius: 50%; object-fit: cover; border: 6px solid #fff; box-shadow: 0 4px 20px rgba(0,0,0,0.15); }
+    .audio-section { text-align: center; margin-bottom: 2.5rem; }
+    .audio-section audio { width: 100%; max-width: 400px; }
+    .audio-section p { font-size: 0.9rem; color: #888; margin-top: 0.5rem; font-style: italic; }
+    .tribute { background: #fff; padding: 2.5rem; border-radius: 10px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); margin-bottom: 2.5rem; }
+    .tribute h2 { font-size: 1.6rem; font-weight: normal; color: #4a6b7c; margin-bottom: 1.2rem; text-align: center; }
+    .tribute p { margin-bottom: 1rem; font-size: 1.05rem; color: #555; }
+    .tribute .quote { font-style: italic; text-align: center; font-size: 1.15rem; color: #6b8e9e; margin: 1.5rem 0; padding: 0 1rem; }
+    .gallery { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2.5rem; }
+    .gallery img { width: 100%; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    .footer { text-align: center; padding: 2rem 1.5rem; background: #3a5566; color: #cdd8de; font-size: 0.9rem; }
+    .footer a { color: #a8c4d0; text-decoration: none; }
+    .footer a:hover { text-decoration: underline; }
+    .logout-btn { display: inline-block; margin-top: 1rem; padding: 0.5rem 1.5rem; background: transparent; border: 1px solid #cdd8de; border-radius: 5px; color: #cdd8de; cursor: pointer; font-family: inherit; font-size: 0.85rem; }
+    .logout-btn:hover { background: #cdd8de; color: #3a5566; }
+    @media (max-width: 600px) { .banner { height: 200px; } .banner h1 { font-size: 2rem; } .container { padding: 1.5rem 1rem; } .tribute { padding: 1.5rem; } }
+  </style>
+</head>
+<body>
+
+  <!-- LOGIN SCREEN -->
+  <div id="login-screen">
+    <div class="login-card">
+      <h1>In Loving Memory of Vikey</h1>
+      <p>Please enter the password to continue</p>
+      <div class="error" id="error-msg">Incorrect password. Please try again.</div>
+      <input type="password" id="password-input" placeholder="Password" autofocus>
+      <button onclick="checkPassword()">Enter</button>
+    </div>
+  </div>
+
+  <!-- MEMORIAL CONTENT (hidden until login) -->
+  <div id="memorial">
+    <div class="banner">
+      <h1>In Loving Memory of Vikey</h1>
+      <p class="dates">Forever in our hearts</p>
+    </div>
+    <div class="container">
+      <div class="photo-section">
+        <img src="https://images.unsplash.com/photo-1517849845537-4d257902454a?w=440&h=440&fit=crop" alt="Vikey">
+      </div>
+      <div class="audio-section">
+        <audio controls><source src="" type="audio/mpeg"></audio>
+        <p>A song in memory of Vikey</p>
+      </div>
+      <div class="tribute">
+        <h2>A Life Well Lived</h2>
+        <p>Vikey brought joy, laughter, and love to everyone fortunate enough to know them. Their kindness knew no bounds, and their spirit touched the lives of so many.</p>
+        <p>Though we mourn their passing, we also celebrate the beautiful life they lived and the memories they left behind. Those memories will forever remain in our hearts.</p>
+        <div class="quote">"Those we love don't go away, they walk beside us every day. Unseen, unheard, but always near — still loved, still missed, and very dear."</div>
+        <p>Vikey's legacy lives on through the stories we share, the lessons they taught, and the love that continues to grow in their absence. May we honor their memory by living each day with the same warmth and compassion they showed us.</p>
+      </div>
+      <div class="gallery">
+        <img src="https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?w=400&h=300&fit=crop" alt="Memory 1">
+        <img src="https://images.unsplash.com/photo-1583334485027-8cbcb1c33e3b?w=400&h=300&fit=crop" alt="Memory 2">
+        <img src="https://images.unsplash.com/photo-1530281700549-e82e7bf110d6?w=400&h=300&fit=crop" alt="Memory 3">
+      </div>
+    </div>
+    <div class="footer">
+      <p>In loving memory of Vikey &mdash; gone but never forgotten.</p>
+      <p style="margin-top: 0.5rem;">For inquiries: <a href="mailto:brydo@outlook.com">brydo@outlook.com</a></p>
+      <button class="logout-btn" onclick="logout()">Log out</button>
+    </div>
+  </div>
+
+  <script>
+    // ⚠️ CHANGE THIS PASSWORD to your own
+    const PASSWORD = "testpage";
+
+    function checkPassword() {
+      const input = document.getElementById('password-input').value;
+      if (input === PASSWORD) {
+        sessionStorage.setItem('auth', 'ok');
+        showMemorial();
+      } else {
+        document.getElementById('error-msg').style.display = 'block';
+      }
+    }
+
+    function showMemorial() {
+      document.getElementById('login-screen').style.display = 'none';
+      document.getElementById('memorial').style.display = 'block';
+    }
+
+    function logout() {
+      sessionStorage.removeItem('auth');
+      location.reload();
+    }
+
+    // Check if already logged in
+    if (sessionStorage.getItem('auth') === 'ok') {
+      showMemorial();
+    }
+
+    // Allow Enter key to submit
+    document.getElementById('password-input').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') checkPassword();
+    });
+  </script>
+
+</body>
+</html>
 
