@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Protected Page</title>
+    <style>
+        body {
+            background: #111;
+            color: #fff;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding-top: 80px;
+        }
+        #content {
+            display: none;
+        }
+        input {
+            padding: 10px;
+            font-size: 18px;
+            border-radius: 6px;
+            border: none;
+            margin-top: 20px;
+            width: 220px;
+            text-align: center;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 18px;
+            margin-top: 10px;
+            border-radius: 6px;
+            border: none;
+            background: #444;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>Enter Password</h2>
+    <input type="password" id="pass" placeholder="Password">
+    <button onclick="checkPass()">Unlock</button>
+
+    <div id="content">
+        <!-- Your private page content goes here -->
+        <!-- Everything inside this div stays hidden until the correct password is entered -->
+    </div>
+
+    <script>
+        function checkPass() {
+            const correct = "YOURPASSWORD"; // change this
+            const input = document.getElementById("pass").value;
+
+            if (input === correct) {
+                document.getElementById("content").style.display = "block";
+            } else {
+                alert("Incorrect password");
+            }
+        }
+    </script>
+
+</body>
+</html>
