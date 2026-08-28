@@ -74,6 +74,96 @@
       <a class="contact-link" href="mailto:vikeyshop@outlook.com">Email</a>
       <span class="contact-separator">&bull;</span>
       <p>V I key&reg; 2026<br></p>
+
+         .divider {
+    margin: 50px auto 30px;
+    width: 120px;
+    height: 2px;
+    background: linear-gradient(to right, transparent, #888, transparent);
+    border-radius: 2px;
+  }
+
+  .nfc-section h2 {
+    font-size: 28px;
+    font-weight: 600;
+    margin-bottom: 15px;
+  }
+
+  .nfc-intro {
+    font-size: 17px;
+    color: #ccc;
+    line-height: 1.6;
+    margin-bottom: 35px;
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .nfc-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    margin-bottom: 35px;
+  }
+
+  .nfc-card {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px;
+    padding: 20px 16px;
+    text-align: center;
+    transition: 0.3s ease;
+    backdrop-filter: blur(4px);
+  }
+
+  .nfc-card:hover {
+    background: rgba(255,255,255,0.1);
+    box-shadow: 0 0 15px rgba(255,255,255,0.08);
+  }
+
+  .nfc-icon {
+    font-size: 32px;
+    margin-bottom: 10px;
+  }
+
+  .nfc-card h3 {
+    font-size: 16px;
+    font-weight: 600;
+    margin: 0 0 8px;
+  }
+
+  .nfc-card p {
+    font-size: 13px;
+    color: #aaa;
+    line-height: 1.5;
+    margin: 0;
+  }
+
+  .nfc-cta {
+    display: inline-block;
+    padding: 14px 32px;
+    font-size: 16px;
+    font-weight: 600;
+    color: #eee;
+    background: rgba(37,211,102,0.12);
+    border: 1px solid rgba(37,211,102,0.3);
+    border-radius: 12px;
+    text-decoration: none;
+    transition: 0.3s ease;
+    backdrop-filter: blur(4px);
+  }
+
+  .nfc-cta:hover {
+    background: rgba(37,211,102,0.2);
+    box-shadow: 0 0 20px rgba(37,211,102,0.15);
+  }
+
+  @media (max-width: 480px) {
+    .nfc-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
     </div>
   </footer>
 </div>
