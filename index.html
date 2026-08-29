@@ -12,7 +12,9 @@
 
         body {
             font-family: 'Georgia', 'Times New Roman', serif;
-            background: #0c0c0c;
+            /* updated background: subtle radial gradient for a softer, warm feel */
+            background: radial-gradient(ellipse at top left, #0f1213 0%, #0a0a0a 45%, #030303 100%);
+            background-attachment: fixed;
             color: #d4d4d4;
             line-height: 1.8;
             min-height: 100vh;
@@ -21,22 +23,31 @@
             align-items: center;
         }
 
-        body::before {
-            content: '';
+        /* top banner image (candles.jpg) blended softly with a gradient overlay */
+        .top-image {
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
-            height: 3px;
-            background: linear-gradient(90deg, transparent, #c9a96e, transparent);
-            opacity: 0.6;
-            z-index: 100;
+            height: 180px;
+            background-image: linear-gradient(to bottom, rgba(10,10,10,0.65), rgba(10,10,10,0.18)), url('candles.jpg');
+            background-size: cover;
+            background-position: center top;
+            background-repeat: no-repeat;
+            background-blend-mode: soft-light;
+            filter: blur(1.5px) saturate(0.95) brightness(0.9);
+            opacity: 0.75;
+            z-index: 0;
+            pointer-events: none;
         }
 
         main {
             max-width: 720px;
-            padding: 60px 30px;
+            /* add top padding so content sits below the banner */
+            padding: 120px 30px 60px;
             width: 100%;
+            position: relative;
+            z-index: 1; /* ensure main content appears above the top-image */
         }
 
         .hero {
@@ -243,6 +254,8 @@
         }
 
         @media (max-width: 480px) {
+            .top-image { height: 120px; filter: blur(1px); opacity: 0.7; }
+            main { padding: 90px 20px 40px; }
             .hero .key-icon-top { font-size: 3rem; }
             h2 { font-size: 1rem; letter-spacing: 2px; }
             p { font-size: 1rem; }
@@ -253,8 +266,24 @@
     </style>
 </head>
 <body>
+
+    <div class="top-image" aria-hidden="true"></div>
+
     <main>
-                </div>
+        <div class="hero">
+            <div class="key-icon-top">🗝️</div>
+            <div class="divider"></div>
+            <p>A gentle place to remember those we have lost — family, friends, and cherished animals who touched our lives in ways words can barely express. Forever in our hearts.</p>
+        </div>
+
+        <div class="meaning">
+            <div class="meaning-box">
+                <div class="bg-key">🗝️</div>
+                <div class="key-icon">🗝️</div>
+                <h2>The Key to What Matters Most</h2>
+                <p><strong style="color: #c9a96e; font-weight: 400;">V I Key</strong> stands for <strong style="color: #e0e0e0; font-weight: 400;">Very Important Key</strong>.</p>
+                <div class="meaning-divider"></div>
+            </div>
         </div>
 
         <section>
