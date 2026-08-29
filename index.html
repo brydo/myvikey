@@ -23,31 +23,13 @@
             align-items: center;
         }
 
-        /* top banner image (candles.jpg) blended softly with a gradient overlay */
-        .top-image {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 180px;
-            background-image: linear-gradient(to bottom, rgba(10,10,10,0.65), rgba(10,10,10,0.18)), url('candles.jpg');
-            background-size: cover;
-            background-position: center top;
-            background-repeat: no-repeat;
-            background-blend-mode: soft-light;
-            filter: blur(1.5px) saturate(0.95) brightness(0.9);
-            opacity: 0.75;
-            z-index: 0;
-            pointer-events: none;
-        }
-
         main {
             max-width: 720px;
-            /* add top padding so content sits below the banner */
-            padding: 120px 30px 60px;
+            /* reduced top padding (removed candle/banner) */
+            padding: 60px 30px 60px;
             width: 100%;
             position: relative;
-            z-index: 1; /* ensure main content appears above the top-image */
+            z-index: 1;
         }
 
         .hero {
@@ -254,8 +236,7 @@
         }
 
         @media (max-width: 480px) {
-            .top-image { height: 120px; filter: blur(1px); opacity: 0.7; }
-            main { padding: 90px 20px 40px; }
+            main { padding: 40px 20px 40px; }
             .hero .key-icon-top { font-size: 3rem; }
             h2 { font-size: 1rem; letter-spacing: 2px; }
             p { font-size: 1rem; }
@@ -266,8 +247,6 @@
     </style>
 </head>
 <body>
-
-    <div class="top-image" aria-hidden="true"></div>
 
     <main>
         <div class="hero">
@@ -288,33 +267,33 @@
 
         <section>
             <h2>About Us</h2>
-            <p>V I key® was created to offer a private, personal space where memories can be kept close. Every tribute page is crafted with care, allowing you to honour someone special in a way that [...]
+            <p>V I key® was created to offer a private, personal space where memories can be kept close. Every tribute page is crafted with care, allowing you to honour someone special in a way [...]
             <p>Whether it's for a loved one, a close friend, or a beloved pet, your memorial page becomes a place to hold photos, audio, stories, and moments that deserve to be remembered.</p>
         </section>
 
         <section>
             <h2>Why We Started</h2>
-            <p>We started V I key® from a deeply personal place — after losing someone who meant the world to us. We searched for a way to keep their memory alive that felt dignified, private, and [...]
-            <p>We wanted something different. A quiet, beautiful space that belonged only to the people who shared the love. A place where photos and stories could live safely — not for the world, b[...]
+            <p>We started V I key® from a deeply personal place — after losing someone who meant the world to us. We searched for a way to keep their memory alive that felt dignified, private,[...]
+            <p>We wanted something different. A quiet, beautiful space that belonged only to the people who shared the love. A place where photos and stories could live safely — not for the wor[...]
             <p style="font-style: italic;">That longing became V I key®. Born from loss, built with love, and offered to anyone who needs a gentle way to hold on.</p>
         </section>
 
         <section>
             <h2>What We Do</h2>
             <p>We create private memorial pages that open through a simple link or NFC tag. Each page is secure, personal, and yours for as long as you want it.</p>
-            <p>You can choose to protect your page with a password. Only the people you share the link and password with — family, friends, or loved ones — will be able to view the tribute. This e[...]
+            <p>You can choose to protect your page with a password. Only the people you share the link and password with — family, friends, or loved ones — will be able to view the tribute. T[...]
             <p>Your memorial page can be shared with anyone you choose. A link and a password are all they need to access the tribute, no matter where they are.</p>
         </section>
 
         <section>
             <h2>NFC Memory Tags</h2>
-            <p>NFC Memory Tags are real, lasting keepsakes — not just a QR code printed on paper or a screenshot that can be copied or lost. Each NFC tag is a physical item you can hold, place, or c[...]
+            <p>NFC Memory Tags are real, lasting keepsakes — not just a QR code printed on paper or a screenshot that can be copied or lost. Each NFC tag is a physical item you can hold, place,[...]
             <p>Your memorial link can be placed on:<br>
                 <strong>• NFC fobs</strong><br>
                 <strong>• Small NFC plaques</strong><br>
                 <strong>• Home items or keepsakes</strong>
             </p>
-            <p style="font-style: italic;">A simple tap with any phone opens the private memorial page instantly — a modern, heartfelt way to keep memories close and share them with the people who m[...]
+            <p style="font-style: italic;">A simple tap with any phone opens the private memorial page instantly — a modern, heartfelt way to keep memories close and share them with the people [...]
         </section>
 
         <div class="contact">
