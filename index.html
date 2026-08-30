@@ -1,318 +1,231 @@
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>V I key® About Us</title>
+    <title>About Us | V I Key®</title>
     <style>
+        :root {
+            --bg-color: #121212;
+            --card-bg: #1a1a1a;
+            --gold: #d4af37;
+            --gold-hover: #f3e5ab;
+            --text-color: #e0e0e0;
+            --text-muted: #aaaaaa;
+        }
+
         * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
         }
 
         body {
-            font-family: 'Georgia', 'Times New Roman', serif;
-            /* updated background: subtle radial gradient for a softer, warm feel */
-            background: radial-gradient(ellipse at top left, #0f1213 0%, #0a0a0a 45%, #030303 100%);
-            background-attachment: fixed;
-            color: #d4d4d4;
-            line-height: 1.8;
-            min-height: 100vh;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            padding-bottom: 100px; /* Space for fixed footer */
+        }
+
+        /* Top Dead Center (TDC) Logo Styles */
+        .logo-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px 20px 20px 20px;
+        }
+
+        .logo-circle {
+            width: 140px;
+            height: 140px;
+            border: 4px double var(--gold);
+            border-radius: 50%;
             display: flex;
             flex-direction: column;
+            justify-content: center;
             align-items: center;
+            background-color: #000000;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
         }
 
-        main {
-            max-width: 720px;
-            /* reduced top padding (removed candle/banner) */
-            padding: 60px 30px 60px;
-            width: 100%;
-            position: relative;
-            z-index: 1;
+        .logo-key {
+            font-size: 2.2rem;
+            color: var(--gold);
+            transform: rotate(-45deg);
+            margin-bottom: -5px;
         }
 
-        .hero {
+        .logo-text {
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: var(--gold);
+            letter-spacing: 0.5px;
+        }
+
+        /* Navigation between the two pages */
+        .page-nav {
             text-align: center;
-            margin-bottom: 45px;
-            animation: fadeIn 1s ease-out;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
+            margin-bottom: 30px;
         }
 
-        .hero .key-icon-top {
-            font-size: 4rem;
-            color: #c9a96e;
-            margin: 20px 0;
-            opacity: 0.95;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        .nav-link {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 5px 10px;
+            transition: color 0.3s;
         }
 
-        .hero .divider {
-            width: 50px;
-            height: 1px;
-            background: #c9a96e;
-            margin: 0 auto 20px;
-            opacity: 0.6;
+        .nav-link.active, .nav-link:hover {
+            color: var(--gold);
+            border-bottom: 1px solid var(--gold);
         }
 
-        .hero p {
-            font-size: 1.1rem;
-            color: #a0a0a0;
-            font-style: italic;
-            max-width: 560px;
+        /* Main Content Packaging */
+        .content-container {
+            max-width: 700px;
             margin: 0 auto;
-            line-height: 1.7;
+            padding: 0 20px;
         }
 
-        .meaning {
+        h1, h2, h3 {
+            color: var(--gold);
             text-align: center;
-            margin-bottom: 50px;
-            animation: fadeIn 1.3s ease-out;
+            margin-bottom: 20px;
+            font-weight: 500;
+            letter-spacing: 0.5px;
         }
 
-        .meaning-box {
-            display: inline-block;
-            border: 1px solid #2a2a2a;
-            background: #111;
-            padding: 35px 40px;
-            border-radius: 6px;
-            position: relative;
-            overflow: hidden;
-            max-width: 100%;
-        }
-
-        .meaning-box .bg-key {
-            position: absolute;
-            top: -20px;
-            right: -20px;
-            font-size: 6rem;
-            opacity: 0.03;
-            color: #c9a96e;
-            pointer-events: none;
-        }
-
-        .meaning-box .key-icon {
-            font-size: 3rem;
-            margin-bottom: 15px;
-        }
-
-        .meaning-box h2 {
-            font-size: 1.3rem;
-            font-weight: 400;
-            color: #f0f0f0;
-            margin-bottom: 12px;
+        h1 {
+            font-size: 2rem;
+            text-transform: uppercase;
             letter-spacing: 2px;
-            text-transform: none;
-            border: none;
-            padding: 0;
-        }
-
-        .meaning-box p {
-            font-size: 1.05rem;
-            color: #b0b0b0;
-            margin-bottom: 18px;
-            line-height: 1.7;
-        }
-
-        .meaning-box .meaning-text {
-            font-size: 1rem;
-            color: #888;
-            margin: 0;
-            line-height: 1.7;
-            font-style: italic;
-        }
-
-        .meaning-box .meaning-divider {
-            width: 40px;
-            height: 1px;
-            background: #c9a96e;
-            margin: 22px auto 0;
-            opacity: 0.5;
+            margin-bottom: 30px;
         }
 
         section {
-            margin-bottom: 45px;
-            animation: fadeIn 1.5s ease-out;
-        }
-
-        section:nth-of-type(2) { animation-delay: 0.2s; }
-        section:nth-of-type(3) { animation-delay: 0.3s; }
-        section:nth-of-type(4) { animation-delay: 0.4s; }
-
-        h2 {
-            font-size: 1.15rem;
-            font-weight: 400;
-            color: #c9a96e;
-            margin-bottom: 18px;
-            letter-spacing: 3px;
-            text-transform: uppercase;
-            border-bottom: 1px solid #2a2a2a;
-            padding-bottom: 10px;
+            background-color: var(--card-bg);
+            padding: 30px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            border: 1px solid #2a2a2a;
         }
 
         p {
+            margin-bottom: 15px;
+            color: var(--text-color);
             font-size: 1.05rem;
-            color: #b8b8b8;
-            margin-bottom: 18px;
         }
 
-        p:last-child {
-            margin-bottom: 0;
-        }
-
-        strong {
-            color: #e0e0e0;
-            display: inline-block;
-            margin-top: 6px;
-        }
-
-        .contact {
+        .divider-icon {
             text-align: center;
-            margin-bottom: 50px;
-            animation: fadeIn 1.9s ease-out;
+            font-size: 1.8rem;
+            color: var(--gold);
+            margin: 30px 0;
         }
 
-        .contact-box {
-            display: inline-block;
-            border: 1px solid #3a3a3a;
-            padding: 22px 40px;
-            border-radius: 4px;
-            background: #141414;
-        }
-
-        .contact-label {
-            font-size: 0.8rem;
-            color: #777;
-            text-transform: uppercase;
-            letter-spacing: 3px;
-            margin-bottom: 12px;
-        }
-
-        .contact-links {
+        /* Persistent Footer */
+        footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: #0a0a0a;
+            border-top: 1px solid #222222;
+            padding: 15px 20px;
             display: flex;
-            gap: 24px;
             justify-content: center;
-            flex-wrap: wrap;
+            gap: 30px;
+            z-index: 1000;
         }
 
-        .contact-links a {
-            color: #e0e0e0;
-            text-decoration: none;
-            font-size: 1.1rem;
-            font-weight: 300;
-            transition: color 0.2s;
-            display: flex;
+        .footer-btn {
+            display: inline-flex;
             align-items: center;
-            gap: 6px;
+            color: var(--text-color);
+            text-decoration: none;
+            font-size: 0.95rem;
+            transition: color 0.3s;
         }
 
-        .contact-links a:hover {
-            color: #c9a96e;
-        }
-
-        .contact-links a .icon {
+        .footer-btn span {
+            margin-right: 8px;
             font-size: 1.2rem;
         }
 
-        footer {
-            margin-top: auto;
-            padding: 25px;
-            text-align: center;
-            color: #555;
-            font-size: 0.85rem;
-            letter-spacing: 1px;
-            border-top: 1px solid #1a1a1a;
-            width: 100%;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(15px); }
-            to { opacity: 1; transform: translateY(0); }
+        .footer-btn:hover {
+            color: var(--gold);
         }
 
         @media (max-width: 480px) {
-            main { padding: 40px 20px 40px; }
-            .hero .key-icon-top { font-size: 3rem; }
-            h2 { font-size: 1rem; letter-spacing: 2px; }
-            p { font-size: 1rem; }
-            .meaning-box { padding: 25px 20px; }
-            .contact-box { padding: 18px 28px; }
-            .contact-links { gap: 16px; }
+            section {
+                padding: 20px;
+            }
+            footer {
+                gap: 15px;
+                flex-direction: column;
+                align-items: center;
+                padding: 10px;
+            }
+            body {
+                padding-bottom: 120px;
+            }
         }
     </style>
 </head>
 <body>
 
-    <main>
-        <div class="hero">
-            <div class="key-icon-top">🗝️</div>
-            <div class="divider"></div>
-            <p>A gentle place to remember those we have lost — family, friends, and cherished animals who touched our lives in ways words can barely express. Forever in our hearts.</p>
+    <!-- TDC Logo Section -->
+    <div class="logo-container">
+        <div class="logo-circle">
+            <div class="logo-key">🔑</div>
+            <div class="logo-text">VI Key®</div>
         </div>
+    </div>
 
-        <div class="meaning">
-            <div class="meaning-box">
-                <div class="bg-key">🗝️</div>
-                <div class="key-icon">🗝️</div>
-                <h2>The Key to What Matters Most</h2>
-                <p><strong style="color: #c9a96e; font-weight: 400;">V I Key</strong> stands for <strong style="color: #e0e0e0; font-weight: 400;">Very Important Key</strong>.</p>
-                <div class="meaning-divider"></div>
-            </div>
-        </div>
+    <!-- Navigation -->
+    <div class="page-nav">
+        <a href="about.html" class="nav-link active">Our Story</a>
+        <span style="color:#444">|</span>
+        <a href="services.html" class="nav-link">What We Offer</a>
+    </div>
+
+    <!-- Main Content -->
+    <div class="content-container">
+        <h1>About Us</h1>
 
         <section>
-            <h2>About Us</h2>
-            <p>V I key® was created to offer a private, personal space where memories can be kept close. Every tribute page is crafted with care, allowing you to honour someone special in a way [...]
-            <p>Whether it's for a loved one, a close friend, or a beloved pet, your memorial page becomes a place to hold photos, audio, stories, and moments that deserve to be remembered.</p>
+            <h2>Our Purpose</h2>
+            <p><strong>V I Key®</strong> was created to bring physical items and digital spaces together in a meaningful way. We believe that technology should be simple, helpful, and serve a real human purpose—whether that is making everyday tasks easier or holding onto the memories that matter most.</p>
+            <p>By using simple tap-and-go <strong>NFC technology</strong>, we create physical keys that open digital pages instantly. Every piece we make is crafted with care, respect, and a commitment to privacy, giving you a smooth and secure way to share information.</p>
+        </section>
+
+        <div class="divider-icon">🗝️</div>
+
+        <section>
+            <h2>The Key to What Matters Most</h2>
+            <p>The connections we make in business, life, and family are the most important parts of our world. <strong>V I Key®</strong> serves as a physical bridge to those connections. It is a real item you can hold in your hand—a key that unlocks a digital space, preserves important stories, and opens the door to moments you want to keep close.</p>
         </section>
 
         <section>
             <h2>Why We Started</h2>
-            <p>We started V I key® from a deeply personal place — after losing someone who meant the world to us. We searched for a way to keep their memory alive that felt dignified, private,[...]
-            <p>We wanted something different. A quiet, beautiful space that belonged only to the people who shared the love. A place where photos and stories could live safely — not for the wor[...]
-            <p style="font-style: italic;">That longing became V I key®. Born from loss, built with love, and offered to anyone who needs a gentle way to hold on.</p>
+            <p>We started <strong>V I Key®</strong> from a deeply personal place after losing someone who meant everything to us. We searched for a dignified, private way to keep their memory alive. What we found were public social media pages, impersonal websites, or fleeting posts that quickly got lost in the online noise.</p>
+            <p>We wanted something different. A quiet, beautiful space that belonged only to the people who shared the love.</p>
+            <p>As we built this private space, we realized that this simple, beautiful way of connecting physical objects to digital links could help people in other areas of life too. It could replace paper business cards that get thrown away, or messy barcodes that ruin the look of a product. Born from loss, built with love, and expanded to help with everyday life, <strong>V I Key®</strong> is a gentle, modern way to stay connected.</p>
         </section>
+    </div>
 
-        <section>
-            <h2>What We Do</h2>
-            <p>We create private memorial pages that open through a simple link or NFC tag. Each page is secure, personal, and yours for as long as you want it.</p>
-            <p>You can choose to protect your page with a password. Only the people you share the link and password with — family, friends, or loved ones — will be able to view the tribute. T[...]
-            <p>Your memorial page can be shared with anyone you choose. A link and a password are all they need to access the tribute, no matter where they are.</p>
-        </section>
-
-        <section>
-            <h2>NFC Memory Tags</h2>
-            <p>NFC Memory Tags are real, lasting keepsakes — not just a QR code printed on paper or a screenshot that can be copied or lost. Each NFC tag is a physical item you can hold, place,[...]
-            <p>Your memorial link can be placed on:<br>
-                <strong>• NFC fobs</strong><br>
-                <strong>• Small NFC plaques</strong><br>
-                <strong>• Home items or keepsakes</strong>
-            </p>
-            <p style="font-style: italic;">A simple tap with any phone opens the private memorial page instantly — a modern, heartfelt way to keep memories close and share them with the people [...]
-        </section>
-
-        <div class="contact">
-            <div class="contact-box">
-                <div class="contact-label">Get in Touch</div>
-                <div class="contact-links">
-                    <a href="https://wa.me/447526345287" target="_blank" rel="noopener">
-                        <span class="icon">💬</span> WhatsApp
-                    </a>
-                    <a href="mailto:vikeyshop@outlook.com">
-                        <span class="icon">✉️</span> Email
-                    </a>
-                </div>
-            </div>
-        </div>
-    </main>
-
+    <!-- Persistent Action Footer -->
     <footer>
-        V I key® 2026
+        <a href="https://wa.me" class="footer-btn" target="_blank">
+            <span>💬</span> Contact Me on WhatsApp
+        </a>
+        <a href="mailto:vikeyshop@outlook.com" class="footer-btn">
+            <span>✉</span> Email Us Directly
+        </a>
     </footer>
 
 </body>
