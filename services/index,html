@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>What We Offer | V I Key®</title>
+    <title>What We Offer</title>
     <style>
         :root {
             --bg-color: #121212;
@@ -237,9 +237,9 @@
 
     <!-- Navigation -->
     <div class="page-nav">
-        <a href="https://page.dev" class="nav-link">Our Story</a>
+        <a href="https://myvikey.pages.dev" class="nav-link">Our Story</a>
         <span style="color:#444">|</span>
-        <a href="https://pages.dev" class="nav-link active">What We Offer</a>
+        <a href="https://myvikey.pages.dev/services" class="nav-link active">What We Offer</a>
     </div>
 
     <!-- Main Content Container -->
