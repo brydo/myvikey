@@ -293,7 +293,7 @@
         </section>
     </div>
 
-   <!DOCTYPE html>
+  <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -301,16 +301,31 @@
     <title>Document</title>
 
     <style>
-        /* Base icon styling: set specific width and vertical alignment */
-        .footer-btn svg {
-            width: 20px;
-            height: 20px;
+        /* Base styling to standardize both footer buttons */
+        .footer-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;                  /* Consistent gap between icon and text */
+            font-size: 16px;           /* Uniform text size for both buttons */
+            line-height: 1;
+            text-decoration: none;
+            color: inherit;            /* Uses default link/text color */
+        }
+
+        /* Match the WhatsApp SVG icon to standard emoji text size */
+        .footer-btn .whatsapp-icon {
+            width: 1em;                /* Scales perfectly with font-size */
+            height: 1em;
+            fill: #25D366;             /* Official WhatsApp green */
+            display: inline-block;
             vertical-align: middle;
         }
 
-        /* Makes ONLY the WhatsApp icon green */
-        .footer-btn .whatsapp-icon {
-            fill: #25D366;
+        /* Match the Email icon wrapper size */
+        .footer-btn .email-icon {
+            font-size: 1em;            /* Scales identically to the SVG */
+            display: inline-block;
+            line-height: 1;
         }
     </style>
 </head>
@@ -325,7 +340,8 @@
             <span>WhatsApp Us</span>
         </a>
         <a href="mailto:vikeyshop@outlook.com" class="footer-btn">
-            <span>✉</span> Email Us
+            <span class="email-icon">✉</span>
+            <span>Email Us</span>
         </a>
     </footer>
 
