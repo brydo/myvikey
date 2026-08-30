@@ -237,7 +237,7 @@
 
     <!-- Navigation -->
     <div class="page-nav">
-        <a href="https://pages.dev" class="nav-link">Our Story</a>
+        <a href="https://page.dev" class="nav-link">Our Story</a>
         <span style="color:#444">|</span>
         <a href="https://pages.dev" class="nav-link active">What We Offer</a>
     </div>
@@ -293,4 +293,4 @@
     </div>
 
     <!-- Persistent Action Footer -->
-
+    <footer>
