@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>What We Offer</title>
+    <title>What We Offer - VI Key®</title>
     <style>
         :root {
             --bg-color: #121212;
@@ -100,6 +100,66 @@
             margin: 30px 0;
         }
 
+        /* Service Cards */
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin: 25px 0;
+        }
+
+        .service-card {
+            background-color: var(--card-bg);
+            border: 1px solid #2a2a2a;
+            border-radius: 8px;
+            padding: 20px 16px;
+            text-align: center;
+            transition: border-color 0.3s, transform 0.3s;
+        }
+
+        .service-card:hover {
+            border-color: var(--gold);
+            transform: translateY(-4px);
+        }
+
+        .service-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .service-card h3 {
+            color: var(--gold);
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .service-card p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+            margin-bottom: 0;
+        }
+
+        .cta-link {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 14px 32px;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--gold);
+            background-color: rgba(212, 175, 55, 0.1);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            border-radius: 8px;
+            text-decoration: none;
+            transition: background-color 0.3s, box-shadow 0.3s;
+        }
+
+        .cta-link:hover {
+            background-color: rgba(212, 175, 55, 0.2);
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.15);
+        }
+
         /* Persistent Footer */
         footer {
             position: fixed;
@@ -148,6 +208,9 @@
             section {
                 padding: 20px;
             }
+            .services-grid {
+                grid-template-columns: 1fr;
+            }
             footer {
                 gap: 15px;
                 flex-direction: column;
@@ -176,26 +239,73 @@
 
     <!-- Main Content -->
     <div class="content-container">
-        <h1>About Us</h1>
+        <h1>What We Offer</h1>
 
         <section>
-            <h2>Our Purpose</h2>
-            <p><strong>V I Key®</strong> was created to bring physical items and digital spaces together in a meaningful way. We believe that technology should be simple, helpful, and serve a real human purpose—whether that is making everyday tasks easier or holding onto the memories that matter most.</p>
-            <p>By using simple tap-and-go <strong>NFC technology</strong>, we create physical keys that open digital pages instantly. Every piece we make is crafted with care, respect, and a commitment to privacy, giving you a smooth and secure way to share information.</p>
+            <h2>Customized NFC Tags</h2>
+            <p>We offer custom-programmed NFC tags tailored to your needs. Simply tap the tag with any smartphone and it opens instantly — no apps, no hassle. Whether you are a business looking to connect with customers or an individual wanting to share something meaningful, we have a solution for you.</p>
+        </section>
+
+        <div class="divider-icon">✨</div>
+
+        <section>
+            <h2>Our Services</h2>
+            <p style="text-align:center; margin-bottom:20px;">Here are just some of the ways we can programme your V I Key®:</p>
+            <div class="services-grid">
+                <div class="service-card">
+                    <div class="service-icon">🔗</div>
+                    <h3>Website Links</h3>
+                    <p>Direct visitors straight to your homepage, landing page, or any URL.</p>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">📋</div>
+                    <h3>Menu Links</h3>
+                    <p>Restaurant menus, service lists, or product catalogues — one tap and they're reading.</p>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">📱</div>
+                    <h3>WhatsApp Links</h3>
+                    <p>Open a pre-filled WhatsApp chat with your number and a custom message, ready to send.</p>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">✉️</div>
+                    <h3>Contact Us Links</h3>
+                    <p>Phone, email, or full contact card — everything a customer needs to reach you.</p>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">📍</div>
+                    <h3>Location Links</h3>
+                    <p>Open Google Maps directions to your business or event instantly.</p>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">📷</div>
+                    <h3>Social Media</h3>
+                    <p>Instagram, Facebook, TikTok, LinkedIn — send followers straight to your profile.</p>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">📶</div>
+                    <h3>Wi-Fi Sharing</h3>
+                    <p>Guests tap to connect to your Wi-Fi network automatically — no password typing.</p>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">✨</div>
+                    <h3>…and much more</h3>
+                    <p>Payment links, vCards, calendar events, reviews, video links — the list is endless.</p>
+                </div>
+            </div>
         </section>
 
         <div class="divider-icon">🗝️</div>
 
         <section>
-            <h2>The Key to What Matters Most</h2>
-            <p>The connections we make in business, life, and family are the most important parts of our world. <strong>V I Key®</strong> serves as a physical bridge to those connections. It is a real item you can hold in your hand—a key that unlocks a digital space, preserves important stories, and opens the door to moments you want to keep close.</p>
+            <h2>Memorial Pages</h2>
+            <p>We also create beautiful, private digital memorial pages for loved ones. A physical V I Key® that opens a quiet, personal space — preserving memories, stories, and photos for the people who shared the love. No public feeds, no noise — just a dignified tribute that lasts.</p>
         </section>
 
-        <section>
-            <h2>Why We Started</h2>
-            <p>We started <strong>V I Key®</strong> from a deeply personal place after losing someone who meant everything to us. We searched for a dignified, private way to keep their memory alive. What we found were public social media pages, impersonal websites, or fleeting posts that quickly got lost in the online noise.</p>
-            <p>We wanted something different. A quiet, beautiful space that belonged only to the people who shared the love.</p>
-            <p>As we built this private space, we realized that this simple, beautiful way of connecting physical objects to digital links could help people in other areas of life too. It could replace paper business cards that get thrown away, or messy barcodes that ruin the look of a product. Born from loss, built with love, and expanded to help with everyday life, <strong>V I Key®</strong> is a gentle, modern way to stay connected.</p>
+        <section style="text-align:center;">
+            <h2>Ready to Create Yours?</h2>
+            <p>Get in touch and we will help you bring your idea to life.</p>
+            <a href="https://wa.me/447526345287?text=Hi%2C%20I'd%20like%20to%20know%20more%20about%20your%20custom%20NFC%20tags" class="cta-link" target="_blank" rel="noopener noreferrer">Enquire on WhatsApp →</a>
         </section>
     </div>
 
