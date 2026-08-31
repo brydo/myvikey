@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -37,31 +36,13 @@
             padding: 40px 20px 20px 20px;
         }
 
-        .logo-circle {
+        .logo-img {
             width: 140px;
             height: 140px;
-            border: 4px double var(--gold);
             border-radius: 50%;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            background-color: #000000;
+            border: 4px double var(--gold);
             box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-        }
-
-        .logo-key {
-            font-size: 2.2rem;
-            color: var(--gold);
-            transform: rotate(-45deg);
-            margin-bottom: -5px;
-        }
-
-        .logo-text {
-            font-size: 1.25rem;
-            font-weight: bold;
-            color: var(--gold);
-            letter-spacing: 0.5px;
+            object-fit: cover;
         }
 
         /* Navigation */
@@ -85,7 +66,7 @@
             border-bottom: 1px solid var(--gold);
         }
 
-        /* Content Structure */
+        /* Main Content Packaging */
         .content-container {
             max-width: 700px;
             margin: 0 auto;
@@ -95,8 +76,9 @@
         h1, h2, h3 {
             color: var(--gold);
             text-align: center;
-            margin-bottom: 25px;
+            margin-bottom: 20px;
             font-weight: 500;
+            letter-spacing: 0.5px;
         }
 
         h1 {
@@ -116,65 +98,18 @@
 
         p {
             margin-bottom: 15px;
+            color: var(--text-color);
             font-size: 1.05rem;
         }
 
-        /* How It Works Diagram Replacement */
-        .step-container {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
+        .divider-icon {
             text-align: center;
-            margin: 20px 0;
-        }
-
-        .step-box {
-            background-color: #111;
-            border: 1px dashed var(--gold);
-            padding: 15px 10px;
-            border-radius: 6px;
-        }
-
-        .step-num {
-            color: var(--gold);
-            font-size: 0.85rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 5px;
-            display: block;
-        }
-
-        .step-title {
-            font-weight: bold;
-            font-size: 1rem;
-        }
-
-        /* Offerings List UI */
-        .use-cases-list {
-            list-style: none;
-        }
-
-        .use-cases-list li {
-            position: relative;
-            padding-left: 30px;
-            margin-bottom: 20px;
-            font-size: 1.05rem;
-        }
-
-        .use-cases-list li::before {
-            content: "•";
-            color: var(--gold);
             font-size: 1.8rem;
-            position: absolute;
-            left: 5px;
-            top: -4px;
+            color: var(--gold);
+            margin: 30px 0;
         }
 
-        .use-cases-list strong {
-            color: #ffffff;
-        }
-
-        /* Footer Element */
+        /* Persistent Footer */
         footer {
             position: fixed;
             bottom: 0;
@@ -192,25 +127,33 @@
         .footer-btn {
             display: inline-flex;
             align-items: center;
-            color: var(--text-color);
+            gap: 6px;
+            font-size: 16px;
+            line-height: 1;
             text-decoration: none;
-            font-size: 0.95rem;
+            color: var(--text-color);
             transition: color 0.3s;
         }
 
-        .footer-btn span {
-            margin-right: 8px;
-            font-size: 1.2rem;
+        .footer-btn .whatsapp-icon {
+            width: 1em;
+            height: 1em;
+            fill: #25D366;
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        .footer-btn .email-icon {
+            font-size: 1em;
+            display: inline-block;
+            line-height: 1;
         }
 
         .footer-btn:hover {
             color: var(--gold);
         }
 
-        @media (max-width: 580px) {
-            .step-container {
-                grid-template-columns: 1fr;
-            }
+        @media (max-width: 480px) {
             section {
                 padding: 20px;
             }
@@ -230,106 +173,40 @@
 
     <!-- TDC Logo Section -->
     <div class="logo-container">
-        <div class="logo-circle">
-            <div class="logo-key">🔑</div>
-            <div class="logo-text">VI Key®</div>
-        </div>
+        <img src="https://pub-07ed0b0955a4401f9956c3ca7a33c40e.r2.dev/3dlogosmall.png" alt="VI Key Logo" class="logo-img">
     </div>
 
     <!-- Navigation -->
     <div class="page-nav">
-        <a href="https://myvikey.pages.dev" class="nav-link">Our Story</a>
+        <a href="https://myvikey.pages.dev" class="nav-link active">Our Story</a>
         <span style="color:#444">|</span>
-        <a href="https://myvikey.pages.dev/services" class="nav-link active">What We Offer</a>
+        <a href="https://myvikey.pages.dev/services/" class="nav-link">What We Offer</a>
     </div>
 
-    <!-- Main Content Container -->
+    <!-- Main Content -->
     <div class="content-container">
-        <h1>What We Offer</h1>
+        <h1>About Us</h1>
 
         <section>
-            <h2>How It Works</h2>
-            <p style="text-align: center;">We design clean, private web pages that open instantly with a <strong>V I Key® tag</strong>. There are no apps to download and no complicated steps.</p>
-            
-            <div class="step-container">
-                <div class="step-box">
-                    <span class="step-num">Step 1</span>
-                    <div class="step-title">The Touch</div>
-                    <p style="font-size:0.85rem; color:var(--text-muted); margin-top:5px; margin-bottom:0;">Place phone against the tag.</p>
-                </div>
-                <div class="step-box">
-                    <span class="step-num">Step 2</span>
-                    <div class="step-title">The Signal</div>
-                    <p style="font-size:0.85rem; color:var(--text-muted); margin-top:5px; margin-bottom:0;">A gentle, wireless touch.</p>
-                </div>
-                <div class="step-box">
-                    <span class="step-num">Step 3</span>
-                    <div class="step-title">The Link</div>
-                    <p style="font-size:0.85rem; color:var(--text-muted); margin-top:5px; margin-bottom:0;">Your private page opens.</p>
-                </div>
-            </div>
-        </section>
-      
-        <section>
-            <h2>Everyday Uses & Solutions</h2>
-            <ul class="use-cases-list">
-                <li><strong>Digital Business Cards:</strong> Share your contact details, phone number, and email instantly. People can save your info straight to their phone contacts with a single tap.</li>
-                <li><strong>All-in-One Social Links:</strong> Bring all your social media platforms—like Instagram, LinkedIn, Facebook, or YouTube—together onto one tidy, unified page.</li>
-                <li><strong>Direct Website Routing:</strong> Send people straight to your company website, online store, or portfolio without them having to type a long web address.</li>
-                <li><strong>Easy Feedback & Reviews:</strong> Place a tag on a counter or product so customers can tap to leave a Google or Trustpilot review instantly.</li>
-                <li><strong>Instant Wi-Fi Access:</strong> Let guests connect to your home or office Wi-Fi automatically, without having to type out long, confusing passwords.</li>
-                <li><strong>Digital Menus & Price Lists:</strong> Great for small businesses and cafes. Update your menu or prices online anytime without needing to print new paper copies.</li>
-            </ul>
+            <h2>Our Purpose</h2>
+            <p><strong>V I Key®</strong> was created to bring physical items and digital spaces together in a meaningful way. We believe that technology should be simple, helpful, and serve a real human purpose—whether that is making everyday tasks easier or holding onto the memories that matter most.</p>
+            <p>By using simple tap-and-go <strong>NFC technology</strong>, we create physical keys that open digital pages instantly. Every piece we make is crafted with care, respect, and a commitment to privacy, giving you a smooth and secure way to share information.</p>
         </section>
 
-        <section style="border: 1px dashed var(--gold);">
-            <h2>Memory & Legacy Tags</h2>
-            <p>Alongside our everyday business uses, we remain deeply dedicated to our original mission: offering a private space to honour <strong>lost loved ones, close friends, and cherished pets</strong>.</p>
-            <ul class="use-cases-list">
-                <li><strong>Private Tribute Spaces:</strong> A quiet, respectful page to hold photos, voice notes, stories, and moments that deserve to be remembered, away from public comments and noise.</li>
-                <li><strong>Complete Privacy Control:</strong> You can password-protect your memory page. Only the family and friends you share the password with will ever be able to see it.</li>
-                <li><strong>Physical Keepsakes:</strong> Our memory tags are lasting, tangible items like key fobs, small plaques, or home keepsakes. A simple tap with a phone brings their memory right to your screen—a heartfelt way to keep stories alive across generations.</li>
-            </ul>
+        <div class="divider-icon">🗝️</div>
+
+        <section>
+            <h2>The Key to What Matters Most</h2>
+            <p>The connections we make in business, life, and family are the most important parts of our world. <strong>V I Key®</strong> serves as a physical bridge to those connections. It is a real item you can hold in your hand—a key that unlocks a digital space, preserves important stories, and opens the door to moments you want to keep close.</p>
+        </section>
+
+        <section>
+            <h2>Why We Started</h2>
+            <p>We started <strong>V I Key®</strong> from a deeply personal place after losing someone who meant everything to us. We searched for a dignified, private way to keep their memory alive. What we found were public social media pages, impersonal websites, or fleeting posts that quickly got lost in the online noise.</p>
+            <p>We wanted something different. A quiet, beautiful space that belonged only to the people who shared the love.</p>
+            <p>As we built this private space, we realized that this simple, beautiful way of connecting physical objects to digital links could help people in other areas of life too. It could replace paper business cards that get thrown away, or messy barcodes that ruin the look of a product. Born from loss, built with love, and expanded to help with everyday life, <strong>V I Key®</strong> is a gentle, modern way to stay connected.</p>
         </section>
     </div>
-
-  <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-
-    <style>
-        /* Base styling to standardize both footer buttons */
-        .footer-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;                  /* Consistent gap between icon and text */
-            font-size: 16px;           /* Uniform text size for both buttons */
-            line-height: 1;
-            text-decoration: none;
-            color: inherit;            /* Uses default link/text color */
-        }
-
-        /* Match the WhatsApp SVG icon to standard emoji text size */
-        .footer-btn .whatsapp-icon {
-            width: 1em;                /* Scales perfectly with font-size */
-            height: 1em;
-            fill: #25D366;             /* Official WhatsApp green */
-            display: inline-block;
-            vertical-align: middle;
-        }
-
-        /* Match the Email icon wrapper size */
-        .footer-btn .email-icon {
-            font-size: 1em;            /* Scales identically to the SVG */
-            display: inline-block;
-            line-height: 1;
-        }
-    </style>
-</head>
-<body>
 
     <!-- Persistent Action Footer -->
     <footer>
