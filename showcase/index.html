@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>What We Offer - VI Key®</title>
+    <title>Showcase - VI Key®</title>
     <style>
         :root {
             --bg-color: #121212;
@@ -100,64 +100,51 @@
             margin: 30px 0;
         }
 
-        /* Service Cards */
-        .services-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 16px;
-            margin: 25px 0;
+        /* Sample Cards */
+        .samples-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 25px;
+            justify-content: center;
+            margin-top: 20px;
         }
 
-        .service-card {
+        .sample-card {
             background-color: var(--card-bg);
             border: 1px solid #2a2a2a;
             border-radius: 8px;
-            padding: 20px 16px;
+            padding: 30px;
             text-align: center;
+            flex: 1 1 280px;
+            max-width: 320px;
             transition: border-color 0.3s, transform 0.3s;
+            text-decoration: none;
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
         }
 
-        .service-card:hover {
+        .sample-card:hover {
             border-color: var(--gold);
             transform: translateY(-4px);
         }
 
-        .service-icon {
-            font-size: 2rem;
+        .sample-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+
+        .sample-card h3 {
+            color: var(--gold);
             margin-bottom: 10px;
         }
 
-        .service-card h3 {
-            color: var(--gold);
-            font-size: 1rem;
-            font-weight: 600;
-            margin-bottom: 8px;
-        }
-
-        .service-card p {
-            font-size: 0.85rem;
+        .sample-card p {
+            font-size: 0.95rem;
             color: var(--text-muted);
-            line-height: 1.5;
             margin-bottom: 0;
-        }
-
-        .cta-link {
-            display: inline-block;
-            margin-top: 20px;
-            padding: 14px 32px;
-            font-size: 1rem;
-            font-weight: 600;
-            color: var(--gold);
-            background-color: rgba(212, 175, 55, 0.1);
-            border: 1px solid rgba(212, 175, 55, 0.3);
-            border-radius: 8px;
-            text-decoration: none;
-            transition: background-color 0.3s, box-shadow 0.3s;
-        }
-
-        .cta-link:hover {
-            background-color: rgba(212, 175, 55, 0.2);
-            box-shadow: 0 0 20px rgba(212, 175, 55, 0.15);
         }
 
         /* Persistent Footer */
@@ -208,8 +195,12 @@
             section {
                 padding: 20px;
             }
-            .services-grid {
-                grid-template-columns: 1fr;
+            .samples-grid {
+                flex-direction: column;
+                align-items: center;
+            }
+            .sample-card {
+                max-width: 100%;
             }
             footer {
                 gap: 15px;
@@ -232,80 +223,43 @@
     <div class="page-nav">
         <a href="https://myvikey.pages.dev" class="nav-link">Our Story</a>
         <span style="color:#444">|</span>
-        <a href="https://myvikey.pages.dev/services/" class="nav-link active">What We Offer</a>
+        <a href="https://myvikey.pages.dev/services/" class="nav-link">What We Offer</a>
         <span style="color:#444">|</span>
-        <a href="https://myvikey.pages.dev/showcase/" class="nav-link">Showcase</a>
+        <a href="https://myvikey.pages.dev/showcase/" class="nav-link active">Showcase</a>
     </div>
 
     <!-- Main Content -->
     <div class="content-container">
-        <h1>What We Offer</h1>
+        <h1>Our Work</h1>
 
         <section>
-            <h2>Customized NFC Tags</h2>
-            <p>We offer custom-programmed NFC tags tailored to your needs. Simply tap the tag with any smartphone and it opens instantly — no apps, no hassle. Whether you are a business looking[...]</p>
+            <h2>A Glimpse Into What We Create</h2>
+            <p>Every <strong>V I Key®</strong> we make tells a story. Whether it is a tribute to a loved one, a smart business card, or a personal keepsake, each piece is crafted with the same c[...]</p>
+            <p>Tap on any sample to view the full page as it would appear when someone taps the physical key.</p>
         </section>
 
         <div class="divider-icon">✨</div>
 
-        <section>
-            <h2>Our Services</h2>
-            <p style="text-align:center; margin-bottom:20px;">Here are just some of the ways we can programme your V I Key®:</p>
-            <div class="services-grid">
-                <div class="service-card">
-                    <div class="service-icon">🔗</div>
-                    <h3>Website Links</h3>
-                    <p>Direct visitors straight to your homepage, landing page, or any URL.</p>
-                </div>
-                <div class="service-card">
-                    <div class="service-icon">📋</div>
-                    <h3>Menu Links</h3>
-                    <p>Restaurant menus, service lists, or product catalogues — one tap and they're reading.</p>
-                </div>
-                <div class="service-card">
-                    <div class="service-icon">📱</div>
-                    <h3>WhatsApp Links</h3>
-                    <p>Open a pre-filled WhatsApp chat with your number and a custom message, ready to send.</p>
-                </div>
-                <div class="service-card">
-                    <div class="service-icon">✉️</div>
-                    <h3>Contact Us Links</h3>
-                    <p>Phone, email, or full contact card — everything a customer needs to reach you.</p>
-                </div>
-                <div class="service-card">
-                    <div class="service-icon">📍</div>
-                    <h3>Location Links</h3>
-                    <p>Open Google Maps directions to your business or event instantly.</p>
-                </div>
-                <div class="service-card">
-                    <div class="service-icon">📷</div>
-                    <h3>Social Media</h3>
-                    <p>Instagram, Facebook, TikTok, LinkedIn — send followers straight to your profile.</p>
-                </div>
-                <div class="service-card">
-                    <div class="service-icon">📶</div>
-                    <h3>Wi-Fi Sharing</h3>
-                    <p>Guests tap to connect to your Wi-Fi network automatically — no password typing.</p>
-                </div>
-                <div class="service-card">
-                    <div class="service-icon">✨</div>
-                    <h3>…and much more</h3>
-                    <p>Payment links, vCards, calendar events, reviews, video links — the list is endless.</p>
-                </div>
-            </div>
-        </section>
+        <!-- Sample Cards -->
+        <div class="samples-grid">
+            <a href="https://myvikey.pages.dev/charlie/" class="sample-card">
+                <div class="sample-icon">🐕</div>
+                <h3>Charlie</h3>
+                <p>A beloved companion remembered with love. A memorial page celebrating a life well lived.</p>
+            </a>
+            <a href="https://myvikey.pages.dev/robbie/" class="sample-card">
+                <div class="sample-icon">🌟</div>
+                <h3>Robbie</h3>
+                <p>A beautiful tribute page showcasing how a V I Key® keeps memories alive forever.</p>
+            </a>
+        </div>
 
         <div class="divider-icon">🗝️</div>
 
         <section>
-            <h2>Memorial Pages</h2>
-            <p>We also create beautiful, private digital memorial pages for loved ones. A physical V I Key® that opens a quiet, personal space — preserving memories, stories, and photos for th[...]</p>
-        </section>
-
-        <section style="text-align:center;">
-            <h2>Ready to Create Yours?</h2>
-            <p>Get in touch and we will help you bring your idea to life.</p>
-            <a href="https://wa.me/447526345287?text=Hi%2C%20I'd%20like%20to%20know%20more%20about%20your%20custom%20NFC%20tags" class="cta-link" target="_blank" rel="noopener noreferrer">Enquire[...]</a>
+            <h2>Your Story, Beautifully Told</h2>
+            <p>These are just a few examples of what is possible with <strong>V I Key®</strong>. Every page we create is unique, personal, and designed to reflect the individual it represents. W[...]</p>
+            <p style="text-align:center; margin-top:20px;"><a href="https://wa.me/447526345287" style="color: var(--gold); text-decoration: none; border-bottom: 1px solid var(--gold); padding-bot[...]</a></p>
         </section>
     </div>
 
