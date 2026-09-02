@@ -47,7 +47,16 @@
             position:fixed; bottom:0; left:0; width:100%; background:#0a0a0a; border-top:1px solid #222;
             padding:15px 20px; display:flex; justify-content:center; gap:30px; z-index:1000;
         }
-        .footer-btn { display:inline-flex; align-items:center; gap:6px; font-size:16px; color:var(--text-color); text-decoration:none; }
+        .footer-btn { 
+            display:inline-flex; align-items:center; gap:6px; font-size:16px; 
+            line-height:1; text-decoration:none; color:var(--text-color); transition:color .3s;
+        }
+        .footer-btn .whatsapp-icon {
+            width:1em; height:1em; fill:#25D366; display:inline-block; vertical-align:middle;
+        }
+        .footer-btn .email-icon {
+            font-size:1em; display:inline-block; line-height:1;
+        }
         .footer-btn:hover { color:var(--gold); }
         @media (max-width:480px) {
             section { padding:20px; }
@@ -75,8 +84,8 @@
 
         <section>
             <h2>A Glimpse Into What We Create</h2>
-            <p>Every <strong>V I Key®</strong> we make tells a story. Whether it is a tribute to a loved one, a smart business card, or a personal keepsake, each piece is crafted with the same care and attention to detail. We build pages that are private, lightweight, and designed to be beautiful on any device.</p>
-            <p>Tap on any sample to view the full page as it would appear when someone taps the physical key — the sample pages shown here are real examples of finished memorial and profile pages we have created.</p>
+            <p>Every <strong>V I Key®</strong> we make tells a story. Whether it is a tribute to a loved one, a smart business card, or a personal keepsake, each piece is crafted with the same ca[...]
+            <p>Tap on any sample to view the full page as it would appear when someone taps the physical key — the sample pages shown here are real examples of finished memorial and profile page[...]
         </section>
 
         <div class="divider-icon">✨</div>
@@ -98,7 +107,7 @@
 
         <section>
             <h2>Your Story, Beautifully Told</h2>
-            <p>These are just a few examples of what is possible with <strong>V I Key®</strong>. Every page we create is unique, personal, and designed to reflect the individual it represents. We work with you to choose images, text, and layouts that feel right — whether the page is a private memorial for family or a public profile for a small business.</p>
+            <p>These are just a few examples of what is possible with <strong>V I Key®</strong>. Every page we create is unique, personal, and designed to reflect the individual it represents. W[...]
         </section>
     </div>
 
@@ -106,7 +115,7 @@
     <footer>
         <a href="https://wa.me/447526345287" class="footer-btn" target="_blank" rel="noopener noreferrer">
             <svg class="whatsapp-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.339 11.892-11.895 11.892-.318 0-.63-.016-.938-.047L.057 24z"/>
+                <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.891-1.63-.001-3.21-.389-4.657-1.111l-5.116 1.687z"/>
             </svg>
             <span>WhatsApp Us</span>
         </a>
