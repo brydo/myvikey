@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Our Story - V I Key®</title>
+    <title>Our Story V I Key®</title>
     <style>
         :root {
             --bg-color: #121212;
@@ -25,7 +25,6 @@
             background-color: var(--bg-color);
             color: var(--text-color);
             line-height: 1.6;
-            padding-bottom: 100px;
         }
 
         /* Top Dead Centre Logo */
@@ -100,62 +99,28 @@
             margin: 30px 0;
         }
 
-        /* Persistent Footer */
-        footer {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            background-color: #0a0a0a;
-            border-top: 1px solid #222222;
-            padding: 15px 20px;
-            display: flex;
-            justify-content: center;
-            gap: 30px;
-            z-index: 1000;
-        }
-
-        .footer-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 16px;
-            line-height: 1;
-            text-decoration: none;
-            color: var(--text-color);
-            transition: color 0.3s;
-        }
-
-        .footer-btn .whatsapp-icon {
-            width: 1em;
-            height: 1em;
-            fill: #25D366;
+        .cta-link {
             display: inline-block;
-            vertical-align: middle;
-        }
-
-        .footer-btn .email-icon {
-            font-size: 1em;
-            display: inline-block;
-            line-height: 1;
-        }
-
-        .footer-btn:hover {
+            margin-top: 20px;
+            padding: 14px 32px;
+            font-size: 1rem;
+            font-weight: 600;
             color: var(--gold);
+            background-color: rgba(212, 175, 55, 0.1);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            border-radius: 8px;
+            text-decoration: none;
+            transition: background-color 0.3s, box-shadow 0.3s;
+        }
+
+        .cta-link:hover {
+            background-color: rgba(212, 175, 55, 0.2);
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.15);
         }
 
         @media (max-width: 480px) {
             section {
                 padding: 20px;
-            }
-            footer {
-                gap: 15px;
-                flex-direction: column;
-                align-items: center;
-                padding: 10px;
-            }
-            body {
-                padding-bottom: 120px;
             }
         }
     </style>
@@ -169,7 +134,7 @@
     <div class="page-nav">
         <a href="https://myvikey.pages.dev" class="nav-link active">Our Story</a>
         <span style="color:#444">|</span>
-        <a href="https://myvikey.pages.dev/our-services/" class="nav-link">Our Services</a>
+        <a href="https://myvikey.pages.dev/our-services/" class="nav-link">What We Offer</a>
         <span style="color:#444">|</span>
         <a href="https://myvikey.pages.dev/showcase/" class="nav-link">Our Showcase</a>
     </div>
@@ -180,42 +145,32 @@
 
         <section>
             <h2>Our Purpose</h2>
-            <p><strong>V I Key®</strong> was created to bring physical items and digital spaces together in a meaningful way. We believe that technology should be simple, helpful, and serve a re[...]
-            <p>By using simple tap-and-go <strong>NFC technology</strong>, we create physical keys that open digital pages instantly. Every piece we make is crafted with care, respect, and a comm[...]
+            <p><strong>V I Key®</strong> was created to bring physical items and digital spaces together in a meaningful way. We believe that technology should be simple, helpful, and serve a real human purpose—whether that is making everyday tasks easier or holding onto the memories that matter most.</p>
+            <p>By using simple tap-and-go <strong>NFC technology</strong>, we create physical keys that open digital pages instantly. Every piece we make is crafted with care, respect, and a commitment to privacy, giving you a smooth and secure way to share information.</p>
         </section>
 
         <div class="divider-icon">🗝️</div>
 
         <section>
             <h2>The Key to What Matters Most</h2>
-            <p>The connections we make in business, life, and family are the most important parts of our world. <strong>V I Key®</strong> serves as a physical bridge to those connections. It is [...]
+            <p>The connections we make in business, life, and family are the most important parts of our world. <strong>V I Key®</strong> serves as a physical bridge to those connections. It is a real item you can hold in your hand—a key that unlocks a digital space, preserves important stories, and opens the door to moments you want to keep close.</p>
         </section>
 
         <section>
             <h2>Why We Started</h2>
-            <p>We started <strong>V I Key®</strong> from a deeply personal place after losing someone who meant everything to us. We searched for a dignified, private way to keep their memory al[...]
-            <p>We wanted something different — something that felt personal, private, and beautiful. As we developed this, we realised the same idea could help businesses and families in many o[...]
+            <p>We started <strong>V I Key®</strong> from a deeply personal place after losing someone who meant everything to us. We searched for a dignified, private way to keep their memory alive. What we found were public social media pages, impersonal websites, or fleeting posts that quickly got lost in the online noise.</p>
+            <p>We wanted something different. A quiet, beautiful space that belonged only to the people who shared the love.</p>
+            <p>As we built this private space, we realized that this simple, beautiful way of connecting physical objects to digital links could help people in other areas of life too. It could replace paper business cards that get thrown away, or messy barcodes that ruin the look of a product. Born from loss, built with love, and expanded to help with everyday life, <strong>V I Key®</strong> is a gentle, modern way to stay connected.</p>
         </section>
+
+        <div class="divider-icon">✨</div>
 
         <section style="text-align:center;">
-            <h2>Ready to get started?</h2>
-            <p style="max-width:650px; margin:0.5rem auto 0; color:var(--text-muted);">Tap "WhatsApp Us" or "Email Us" below to get started today.</p>
+            <h2>Ready to Get Started?</h2>
+            <p>Whether you want to preserve a memory, share your business details, or create something entirely new, we would love to help you bring it to life.</p>
+            <a href="https://wa.me/447526345287?text=Hi%2C%20I'd%20like%20to%20know%20more%20about%20V%20I%20Key" class="cta-link" target="_blank" rel="noopener noreferrer">Get in touch on WhatsApp →</a>
         </section>
     </div>
-
-    <!-- Persistent Action Footer -->
-    <footer>
-        <a href="https://wa.me/447526345287" class="footer-btn" target="_blank" rel="noopener noreferrer">
-            <svg class="whatsapp-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.[...]
-            </svg>
-            <span>WhatsApp Us</span>
-        </a>
-        <a href="mailto:vikeyshop@outlook.com" class="footer-btn">
-            <span class="email-icon">✉</span>
-            <span>Email Us</span>
-        </a>
-    </footer>
 
 </body>
 </html>
