@@ -6,19 +6,19 @@
   <title>Order Your Magic Santa Tag</title>
 
   <style>
-    /* Full-screen blurred Santa workshop background */
+    /* Full-screen Santa workshop background (your image) */
     body {
-      background: url('https://pub-07ed0b0955a4401f9956c3ca7a33c40e.r2.dev/santaweb.jpg') no-repeat center center fixed;
+      background: url('BACKGROUND-IMAGE.jpg') no-repeat center center fixed;
       background-size: cover;
       font-family: 'Inter', Arial, sans-serif;
       color: #334155;
       padding: 32px;
       display: flex;
-      justify-content: center;
+      justify-content: flex-start; /* shift content left */
       position: relative;
     }
 
-    /* Dark overlay for readability */
+    /* Your blur kept at 1px */
     body::before {
       content: "";
       position: fixed;
@@ -27,12 +27,13 @@
       width: 100%;
       height: 100%;
       background: rgba(0,0,0,0.45);
-      backdrop-filter: blur(1px);
+      backdrop-filter: blur(1px); /* unchanged */
       z-index: 1;
     }
 
+    /* Form moved further left + more transparent */
     .form-container {
-      background: rgba(255,255,255,0.92);
+      background: rgba(255,255,255,0.65); /* more transparent */
       padding: 36px;
       border-radius: 16px;
       max-width: 480px;
@@ -42,6 +43,7 @@
       animation: fadeIn 0.4s ease;
       position: relative;
       z-index: 2;
+      margin-left: 1%; /* moved further left */
     }
 
     @keyframes fadeIn {
@@ -243,71 +245,3 @@
 
       <div class="form-group">
         <label for="delivery_address">Delivery Address (Street):</label>
-        <input type="text" id="delivery_address" name="delivery_address" placeholder="e.g. 22 Oakwood Crescent" required>
-      </div>
-
-      <div class="form-group">
-        <label for="delivery_town">Delivery Town / City:</label>
-        <input type="text" id="delivery_town" name="delivery_town" placeholder="e.g. Motherwell" required>
-      </div>
-
-      <div class="form-group">
-        <label for="delivery_postcode">Delivery Postcode:</label>
-        <input type="text" id="delivery_postcode" name="delivery_postcode" placeholder="e.g. ML1 4AA" required>
-      </div>
-
-      <div class="form-group">
-        <label for="child_name">Child's First Name:</label>
-        <input type="text" id="child_name" name="child_name" placeholder="e.g. Simon" required>
-      </div>
-
-      <div class="form-group">
-        <label for="child_town">Child's Town / City:</label>
-        <input type="text" id="child_town" name="child_town" placeholder="e.g. Motherwell" required>
-      </div>
-
-      <div class="consent-box">
-        <label>
-          <input type="checkbox" name="gdpr_consent" required>
-          I consent to providing my child's first name and town, and my own delivery details, solely to create and post their Santa Tag.
-        </label>
-        <p class="privacy-note">
-          All personalised details are permanently deleted by January 31st.  
-          Read our full <a href="https://myvikey.pages.dev/privacy" target="_blank">Privacy Policy</a>.
-        </p>
-      </div>
-
-      <button type="submit">Complete Order</button>
-    </form>
-
-    <div class="form-success" id="successMessage">
-      ✅ Order submitted! Santa is on his way! 🎅
-    </div>
-
-    <div class="payment-section">
-      <h3>💰 Payment by Bank Transfer</h3>
-      <div class="bank-details">
-        <p><span class="label">Account Name:</span> <span class="value">[YOUR FULL NAME]</span></p>
-        <p><span class="label">Sort Code:</span> <span class="value">[00-00-00]</span></p>
-        <p><span class="label">Account Number:</span> <span class="value">[00000000]</span></p>
-        <p><span class="label">Reference:</span> <span class="value">SANTA + Your Name</span></p>
-      </div>
-      <p class="payment-note">
-        Total: **£10 + £1.50 postage = £11.50 per tag**  
-        Please use the reference so we can match your payment to your order.
-      </p>
-    </div>
-
-  </div>
-
-  <script>
-    const form = document.getElementById('santaForm');
-    const successMsg = document.getElementById('successMessage');
-
-    form.addEventListener('submit', function(e) {
-      e.preventDefault();
-
-      fetch(form.action, {
-        method: 'POST',
-        body: new FormData(form),
-        headers: { 'Accept': 'application
