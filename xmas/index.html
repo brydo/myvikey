@@ -236,12 +236,49 @@
       <p class="festive-subtitle">A personalised Christmas surprise</p>
     </div>
 
-    <form id="santaForm" action="https://formspree.io/f/mvkoqwyr" method="POST">
+   <form id="santaForm" action="https://formspree.io/f/mvkoqwyr" method="POST">
 
-      <div class="form-group">
-        <label for="parent_name">Parent / Guardian Full Name:</label>
-        <input type="text" id="parent_name" name="parent_name" placeholder="e.g. Sarah McDonald" required>
-      </div>
+  <div class="form-group">
+    <label for="parent_name">Parent / Guardian Full Name:</label>
+    <input type="text" id="parent_name" name="parent_name" placeholder="e.g. Sarah McDonald" required>
+  </div>
 
-      <div class="form-group">
-        <label for="delivery_address">Delivery Address (Street):</label>
+  <div class="form-group">
+    <label for="delivery_address">Delivery Address (Street):</label>
+    <input type="text" id="delivery_address" name="delivery_address" placeholder="e.g. 22 Oakwood Crescent" required>
+  </div>
+
+  <div class="form-group">
+    <label for="delivery_town">Delivery Town / City:</label>
+    <input type="text" id="delivery_town" name="delivery_town" placeholder="e.g. Motherwell" required>
+  </div>
+
+  <div class="form-group">
+    <label for="delivery_postcode">Delivery Postcode:</label>
+    <input type="text" id="delivery_postcode" name="delivery_postcode" placeholder="e.g. ML1 4AA" required>
+  </div>
+
+  <div class="form-group">
+    <label for="child_name">Child's First Name:</label>
+    <input type="text" id="child_name" name="child_name" placeholder="e.g. Simon" required>
+  </div>
+
+  <div class="form-group">
+    <label for="child_town">Child's Town / City:</label>
+    <input type="text" id="child_town" name="child_town" placeholder="e.g. Motherwell" required>
+  </div>
+
+  <div class="consent-box">
+    <label>
+      <input type="checkbox" name="gdpr_consent" required>
+      I consent to providing my child's first name and town, and my own delivery details,
+      solely to create and post their Santa Tag.
+    </label>
+    <p class="privacy-note">
+      All personalised details are permanently deleted by January 31st.
+      Read our full <a href="https://myvikey.pages.dev/privacy" target="_blank">Privacy Policy</a>.
+    </p>
+  </div>
+
+  <button type="submit">Complete Order</button>
+</form>
