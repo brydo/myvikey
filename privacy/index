@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Privacy Policy | Magic Santa Tags</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+      background: #f8fafc;
+      color: #334155;
+      padding: 40px 20px;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+    h1 { color: #0f172a; border-bottom: 2px solid #cbd5e1; padding-bottom: 8px; }
+    h2 { color: #1e293b; margin-top: 24px; }
+    p { margin-bottom: 12px; }
+  </style>
+</head>
+<body>
+
+  <h1>Privacy & Data Policy</h1>
+  <p><strong>Effective Date:</strong> September 2026</p>
+
+  <h2>1. Overview</h2>
+  <p>This privacy notice explains how we collect and manage personal information provided for our personalized Santa NFC Tag service.</p>
+
+  <h2>2. What Information We Collect</h2>
+  <p>We collect only minimal personal data provided voluntarily by parents or legal guardians during checkout:</p>
+  <ul>
+    <li>Child's First Name</li>
+    <li>Town or City Name</li>
+  </ul>
+
+  <h2>3. How We Use This Data</h2>
+  <p>This data is used strictly to encode the physical NFC tag and render the personalized web page message for the recipient child. We do not use this information for marketing or advertising purposes.</p>
+
+  <h2>4. Data Minimization & Security</h2>
+  <p>All data parameters rendered via our web links are processed locally inside the user's browser memory. We do not store children's details in a permanent online database.</p>
+
+  <h2>5. Storage Limitation & Data Deletion</h2>
+  <p>In accordance with data retention regulations, all temporary web pages, encoded links, and order records associated with children's personal details are permanently deleted and purged from our systems no later than <strong>January 31st</strong> following the holiday season.</p>
+
+  <h2>6. Parental Rights</h2>
+  <p>Parents and legal guardians reserve the right to request the immediate erasure of their child's personalized web page at any time prior to the January 31st automated deletion date by contacting our support team.</p>
+
+</body>
+</html>
