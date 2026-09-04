@@ -3,113 +3,339 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>A Letter From Santa 🎅</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Mountains+of+Christmas:wght@700&family=Nunito:wght@400;600;800&display=swap" rel="stylesheet">
+  <title>Order Your Magic Santa Tag</title>
+
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    /* Festive Background */
     body {
-      font-family: 'Nunito', sans-serif;
-      background: #0f172a;
-      color: #f8fafc;
-      min-height: 100vh;
+      background: linear-gradient(to bottom, #fef2f2, #fee2e2, #fecaca);
+      font-family: 'Inter', Arial, sans-serif;
+      color: #334155;
+      padding: 32px;
       display: flex;
-      flex-direction: column;
       justify-content: center;
-      align-items: center;
-      padding: 20px;
+      position: relative;
     }
-    .card {
-      background: rgba(30, 41, 59, 0.9);
-      border: 2px solid #dc2626;
-      border-radius: 24px;
-      padding: 32px 24px;
+
+    /* Snowfall Layer */
+    .snowfall {
+      pointer-events: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      z-index: 999;
+    }
+
+    .snowfall::before,
+    .snowfall::after {
+      content: "";
+      position: absolute;
+      top: -10%;
+      width: 200%;
+      height: 200%;
+      background-image: radial-gradient(white 2px, transparent 3px),
+                        radial-gradient(white 2px, transparent 3px),
+                        radial-gradient(white 2px, transparent 3px);
+      background-size: 12px 12px, 18px 18px, 24px 24px;
+      background-position: 0 0, 50px 50px, 100px 100px;
+      animation: snowfall 12s linear infinite;
+      opacity: 0.7;
+    }
+
+    .snowfall::after {
+      animation-duration: 18s;
+      opacity: 0.45;
+    }
+
+    @keyframes snowfall {
+      from { transform: translateY(-10%) translateX(0); }
+      to { transform: translateY(100%) translateX(40px); }
+    }
+
+    /* Main Container */
+    .form-container {
+      background: #ffffff;
+      padding: 36px;
+      border-radius: 16px;
       max-width: 480px;
       width: 100%;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+      border: 1px solid #f1f5f9;
+      animation: fadeIn 0.4s ease;
+      position: relative;
+      z-index: 10;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Festive Header */
+    .festive-header {
+      background: linear-gradient(135deg, #dc2626, #b91c1c);
+      padding: 24px;
+      border-radius: 14px;
       text-align: center;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+      color: #fff;
+      margin-bottom: 28px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+      position: relative;
+      overflow: hidden;
     }
-    .santa-avatar { font-size: 4rem; margin-bottom: 8px; }
-    h1 {
-      font-family: 'Mountains of Christmas', cursive;
-      font-size: 2.5rem;
-      color: #f8fafc;
+
+    .festive-header::before,
+    .festive-header::after {
+      content: "";
+      position: absolute;
+      width: 140%;
+      height: 140%;
+      top: -20%;
+      left: -20%;
+      background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 60%);
+      animation: festiveGlow 6s infinite linear;
     }
-    .message-box {
-      background: #1e293b;
-      border: 1px dashed #f59e0b;
-      border-radius: 16px;
-      padding: 20px;
-      margin: 20px 0;
-      text-align: left;
-      line-height: 1.6;
+
+    .festive-header::after {
+      animation-duration: 9s;
+      opacity: 0.5;
     }
-    .highlight { color: #f59e0b; font-weight: 800; }
-    .seal {
-      margin-top: 16px;
-      text-align: right;
-      font-family: 'Mountains of Christmas', cursive;
-      font-size: 1.5rem;
-      color: #dc2626;
+
+    @keyframes festiveGlow {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
     }
-    footer {
-      margin-top: 20px;
+
+    .festive-icon {
+      font-size: 2.6rem;
+      margin-bottom: 6px;
+    }
+
+    .festive-title {
+      font-size: 1.9rem;
+      font-weight: 800;
+      margin: 0;
+      letter-spacing: 1px;
+    }
+
+    .festive-subtitle {
+      font-size: 1rem;
+      margin-top: 6px;
+      opacity: 0.9;
+    }
+
+    /* Form Fields */
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: #1e293b;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: border-color 0.2s ease;
+    }
+
+    input[type="text"]:focus {
+      border-color: #dc2626;
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(220,38,38,0.15);
+    }
+
+    /* Consent Box */
+    .consent-box {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      padding: 16px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      font-size: 0.9rem;
+    }
+
+    .privacy-note {
       font-size: 0.8rem;
-      color: #94a3b8;
+      color: #64748b;
+      margin-top: 10px;
     }
-    footer a { color: #f59e0b; text-decoration: underline; }
+
+    .privacy-note a {
+      color: #dc2626;
+      font-weight: 600;
+    }
+
+    /* Button */
+    button {
+      width: 100%;
+      background: #dc2626;
+      color: white;
+      padding: 14px;
+      border: none;
+      border-radius: 8px;
+      font-size: 1.05rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.2s ease, transform 0.1s ease;
+    }
+
+    button:hover {
+      background: #b91c1c;
+      transform: translateY(-1px);
+    }
+
+    /* Success Message */
+    .form-success {
+      display: none;
+      background: #dcfce7;
+      color: #166534;
+      padding: 18px;
+      border-radius: 8px;
+      text-align: center;
+      font-weight: 700;
+      margin-top: 20px;
+      border: 1px solid #bbf7d0;
+    }
+
+    /* Payment Section */
+    .payment-section {
+      margin-top: 32px;
+      padding-top: 24px;
+      border-top: 2px solid #e2e8f0;
+    }
+
+    .payment-section h3 {
+      color: #0f172a;
+      margin-bottom: 16px;
+      text-align: center;
+      font-size: 1.3rem;
+      font-weight: 700;
+    }
+
+    .bank-details {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 18px;
+      font-size: 0.95rem;
+    }
+
+    .bank-details p {
+      margin: 8px 0;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .bank-details .label {
+      font-weight: 600;
+      color: #475569;
+    }
+
+    .bank-details .value {
+      color: #0f172a;
+      font-weight: 700;
+    }
+
+    .payment-note {
+      font-size: 0.85rem;
+      color: #64748b;
+      text-align: center;
+      margin-top: 14px;
+    }
   </style>
 </head>
+
 <body>
 
-  <div class="card">
-    <div class="santa-avatar">🎅</div>
-    <h1>Ho Ho Ho!</h1>
+  <!-- Snowfall -->
+  <div class="snowfall"></div>
 
-    <div class="message-box">
-      <p>Hello <span class="highlight" id="child-name">Little One</span>,</p>
-      <br>
-      <p>The elves and I have been checking our lists at the North Pole! Rudolph reminded me that we need to fly all the way to <span class="highlight" id="child-town">your town</span> this year.</p>
-      <br>
-      <p>I heard that you have been super good and helpful. We are currently getting the sleigh packed with toys just for you!</p>
-      <br>
-      <p>Keep being kind, go to sleep early on Christmas Eve, and leave out a carrot for the reindeer!</p>
-      <div class="seal">— Love, Santa Claus 🎄</div>
+  <div class="form-container">
+
+    <!-- Festive Header -->
+    <div class="festive-header">
+      <div class="festive-icon">🎅</div>
+      <h1 class="festive-title">Magic Santa Tag</h1>
+      <p class="festive-subtitle">A personalised Christmas surprise</p>
     </div>
 
-    <footer>
-      <p>Magic Tag Service | <a href="/myvikey.pages.dev/privacy" target="_blank">Privacy & Data Policy</a></p>
-    </footer>
+    <!-- Form -->
+    <form id="santaForm" action="https://formspree.io/f/mvkoqwyr" method="POST">
+
+      <div class="form-group">
+        <label for="child_name">Child's First Name:</label>
+        <input type="text" id="child_name" name="child_name" placeholder="e.g. Simon" required>
+      </div>
+
+      <div class="form-group">
+        <label for="child_town">Town / City Name:</label>
+        <input type="text" id="child_town" name="child_town" placeholder="e.g. Motherwell" required>
+      </div>
+
+      <div class="consent-box">
+        <label>
+          <input type="checkbox" name="gdpr_consent" required>
+          I am the parent/guardian and consent to providing my child's first name and town solely to program their Santa tag.
+        </label>
+        <p class="privacy-note">
+          We do not retain children's records in a permanent database. All personalised web links and order details are permanently deleted by January 31st. Read our full <a href="https://myvikey.pages.dev/privacy" target="_blank">Privacy Policy</a>.
+        </p>
+      </div>
+
+      <button type="submit">Complete Order</button>
+    </form>
+
+    <div class="form-success" id="successMessage">
+      ✅ Order submitted! Santa is on his way! 🎅
+    </div>
+
+    <!-- Payment Section -->
+    <div class="payment-section">
+      <h3>💰 Payment by Bank Transfer</h3>
+      <div class="bank-details">
+        <p><span class="label">Account Name:</span> <span class="value">[YOUR FULL NAME]</span></p>
+        <p><span class="label">Sort Code:</span> <span class="value">[00-00-00]</span></p>
+        <p><span class="label">Account Number:</span> <span class="value">[00000000]</span></p>
+        <p><span class="label">Reference:</span> <span class="value">SANTA + Your Name</span></p>
+      </div>
+      <p class="payment-note">Please use the reference so we can match your payment to your order. Total: £10 per tag</p>
+    </div>
+
   </div>
 
   <script>
-    function loadDetails() {
-      const params = new URLSearchParams(window.location.search);
-      const encodedData = params.get('d');
+    const form = document.getElementById('santaForm');
+    const successMsg = document.getElementById('successMessage');
 
-      if (encodedData) {
-        try {
-          // Decodes Base64 parameters: e.g. ?d=aW5mbz1TaW1vbixNb3RoZXJ3ZWxs
-          const decoded = atob(encodedData);
-          const parts = decoded.split(',');
-          if (parts[0]) document.getElementById('child-name').textContent = parts[0];
-          if (parts[1]) document.getElementById('child-town').textContent = parts[1];
-          return;
-        } catch (e) {
-          console.error("Invalid base64 payload");
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      fetch(form.action, {
+        method: 'POST',
+        body: new FormData(form),
+        headers: { 'Accept': 'application/json' }
+      }).then(response => {
+        if (response.ok) {
+          form.style.display = 'none';
+          successMsg.style.display = 'block';
+        } else {
+          alert('Something went wrong. Please try again.');
         }
-      }
-
-      // Direct parameters fallback
-      const name = params.get('name');
-      const town = params.get('town');
-
-      if (name) document.getElementById('child-name').textContent = name;
-      if (town) document.getElementById('child-town').textContent = town;
-    }
-
-    window.onload = loadDetails;
+      }).catch(() => {
+        alert('Something went wrong. Please try again.');
+      });
+    });
   </script>
+
 </body>
 </html>
