@@ -1,1 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Xmas Letters</title>
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        padding: 30px;
+        background: #f5f5f5;
+    }
+
+    .container {
+        max-width: 600px;
+        margin: auto;
+        background: white;
+        padding: 25px;
+        border-radius: 12px;
+        box-shadow: 0 0 12px rgba(0,0,0,0.1);
+    }
+
+    h1 {
+        margin-top: 0;
+        font-size: 28px;
+    }
+
+    p {
+        font-size: 18px;
+        line-height: 1.5;
+    }
+</style>
+</head>
+
+<body>
+<div class="container">
+    <h1 id="title"></h1>
+    <p id="content"></p>
+</div>
+
+<script>
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get("id");
+
+    if (!id) {
+        document.getElementById("title").innerText = "Xmas Letters Home";
+        document.getElementById("content").innerText = "Try ?id=paulml1 or any name.";
+    } else {
+        document.getElementById("title").innerText = "Letter for: " + id;
+        document.getElementById("content").innerText = "This is the Xmas letter page for " + id;
+    }
+</script>
+
+</body>
+</html>
 
