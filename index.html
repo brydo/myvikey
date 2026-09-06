@@ -132,6 +132,14 @@
             box-shadow: 0 0 20px rgba(212, 175, 55, 0.15);
         }
 
+        .cta-row {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
         /* Tablet */
         @media (max-width: 768px) {
             .tdc-logo {
@@ -199,6 +207,11 @@
                 margin: 20px 0;
             }
 
+            .cta-row {
+                flex-direction: column;
+                gap: 12px;
+            }
+
             .cta-link {
                 padding: 12px 24px;
                 font-size: 0.95rem;
@@ -251,7 +264,10 @@
         <section style="text-align:center;">
             <h2>Ready to Get Started?</h2>
             <p>Whether you want to preserve a memory, share your business details, or create something entirely new, we would love to help you bring it to life.</p>
-            <a href="https://wa.me/447526345287?text=Hi%2C%20I'd%20like%20to%20know%20more%20about%20V%20I%20Key" class="cta-link" target="_blank" rel="noopener noreferrer">Get in touch on WhatsApp →</a>
+            <div class="cta-row">
+                <a href="https://wa.me/447526345287?text=Hi%2C%20I'd%20like%20to%20know%20more%20about%20V%20I%20Key" class="cta-link" target="_blank" rel="noopener noreferrer">Get in touch on WhatsApp →</a>
+                <a href="mailto:vikeyshop@outlook.com" class="cta-link">Email Us →</a>
+            </div>
         </section>
     </div>
 
