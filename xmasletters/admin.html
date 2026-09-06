@@ -1,57 +1,88 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Admin · Xmas Letters · V I Key®</title>
-<style>
-:root{--bg-color:#121212;--card-bg:#1a1a1a;--gold:#d4af37;--text-color:#e0e0e0;--text-muted:#aaaaaa}
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background-color:var(--bg-color);color:var(--text-color);line-height:1.6;padding:20px}
-.container{max-width:600px;margin:0 auto}
-h1{color:var(--gold);text-align:center;margin:30px 0 10px;font-size:1.5rem;letter-spacing:1px}
-p.sub{text-align:center;color:var(--text-muted);margin-bottom:30px;font-size:0.9rem}
-section{background-color:var(--card-bg);border:1px solid #2a2a2a;border-radius:8px;padding:24px;margin-bottom:20px}
-h2{color:var(--gold);font-size:1.1rem;margin-bottom:16px;font-weight:500}
-label{display:block;color:var(--text-muted);font-size:0.85rem;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px}
-input{width:100%;padding:12px 14px;font-size:1rem;background-color:#121212;color:var(--text-color);border:1px solid #333;border-radius:8px;margin-bottom:14px;outline:none;transition:border-color 0.3s}
-input:focus{border-color:var(--gold)}
-button{padding:12px 24px;font-size:0.95rem;font-weight:600;color:var(--gold);background-color:rgba(212,175,55,0.1);border:1px solid rgba(212,175,55,0.3);border-radius:8px;cursor:pointer;transition:background-color 0.3s}
-button:hover{background-color:rgba(212,175,55,0.2)}
-.msg{font-size:0.9rem;margin-top:12px;min-height:1.2em}
-.msg.ok{color:#4caf50}.msg.err{color:#ff6b6b}
-.status{font-size:0.85rem;color:var(--text-muted);text-align:center;margin-top:20px}
-.status a{color:var(--gold);text-decoration:none}
-@media(max-width:480px){.row{flex-direction:column;gap:0}}
-</style>
-</head>
-<body>
-<div class="container">
-<h1>🔐 Xmas Letters Admin</h1>
-<p class="sub">Set or remove passwords for individual letter pages</p>
-<section><h2>Set or Update Password</h2>
-<label for="setId">Page ID (e.g. paulml1)</label>
-<input type="text" id="setId" placeholder="paulml1">
-<label for="setPass">Password</label>
-<input type="text" id="setPass" placeholder="s3cret">
-<button onclick="setPassword()">Save Password</button>
-<div class="msg" id="setMsg"></div></section>
-<section><h2>Remove Password</h2>
-<label for="delId">Page ID</label>
-<input type="text" id="delId" placeholder="paulml1">
-<button onclick="deletePassword()">Remove Password</button>
-<div class="msg" id="delMsg"></div></section>
-<section><h2>Check Status</h2>
-<label for="checkId">Page ID</label>
-<input type="text" id="checkId" placeholder="paulml1">
-<button onclick="checkPassword()">Check</button>
-<div class="msg" id="checkMsg"></div></section>
-<p class="status">Admin: <a href="/xmasletters/admin">/xmasletters/admin</a> · Test: <a href="/xmasletters/?id=paulml1">/xmasletters/?id=paulml1</a></p>
-</div>
-<script>
-async function setPassword(){const id=document.getElementById('setId').value.trim();const pass=document.getElementById('setPass').value.trim();const msg=document.getElementById('setMsg');if(!id||!pass){msg.textContent='Please enter both ID and password.';msg.className='msg err';return}try{const resp=await fetch('/xmasletters/api/password',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'set',id,password:pass})});const data=await resp.json();if(data.success){msg.textContent=`✓ Password set for "${id}".`;msg.className='msg ok'}else{msg.textContent='✗ '+(data.error||'Failed');msg.className='msg err'}}catch(e){msg.textContent='✗ Error: '+e.message;msg.className='msg err'}}
-async function deletePassword(){const id=document.getElementById('delId').value.trim();const msg=document.getElementById('delMsg');if(!id){msg.textContent='Please enter a page ID.';msg.className='msg err';return}try{const resp=await fetch('/xmasletters/api/password',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'delete',id})});const data=await resp.json();if(data.success){msg.textContent=`✓ Password removed for "${id}".`;msg.className='msg ok'}else{msg.textContent='✗ '+(data.error||'Failed');msg.className='msg err'}}catch(e){msg.textContent='✗ Error: '+e.message;msg.className='msg err'}}
-async function checkPassword(){const id=document.getElementById('checkId').value.trim();const msg=document.getElementById('checkMsg');if(!id){msg.textContent='Please enter a page ID.';msg.className='msg err';return}try{const resp=await fetch('/xmasletters/api/password',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'check',id})});const data=await resp.json();if(data.success){msg.textContent=data.hasPassword?`✓ "${id}" is password-protected.`:`✓ "${id}" has no password (public).`;msg.className='msg ok'}else{msg.textContent='✗ '+(data.error||'Failed');msg.className='msg err'}}catch(e){msg.textContent='✗ Error: '+e.message;msg.className='msg err'}}
-</script>
-</body>
-</html>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin · Xmas Letters · V I Key®</title>
+    <style>
+        :root {
+            --bg-color: #121212;
+            --card-bg: #1a1a1a;
+            --gold: #d4af37;
+            --text-color: #e0e0e0;
+            --text-muted: #aaaaaa;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            padding: 20px;
+        }
+        .container { max-width: 600px; margin: 0 auto; }
+        h1 { color: var(--gold); text-align: center; margin: 30px 0 10px; font-size: 1.5rem; letter-spacing: 1px; }
+        p.sub { text-align: center; color: var(--text-muted); margin-bottom: 30px; font-size: 0.9rem; }
+        section {
+            background-color: var(--card-bg);
+            border: 1px solid #2a2a2a;
+            border-radius: 8px;
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+        h2 { color: var(--gold); font-size: 1.1rem; margin-bottom: 16px; font-weight: 500; }
+        label { display: block; color: var(--text-muted); font-size: 0.85rem; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+        input[type="text"], input[type="password"], textarea {
+            width: 100%;
+            padding: 12px 14px;
+            font-size: 1rem;
+            background-color: #121212;
+            color: var(--text-color);
+            border: 1px solid #333;
+            border-radius: 8px;
+            margin-bottom: 14px;
+            outline: none;
+            transition: border-color 0.3s;
+            font-family: inherit;
+        }
+        input:focus, textarea:focus { border-color: var(--gold); }
+        textarea { min-height: 120px; resize: vertical; }
+        button {
+            padding: 12px 24px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--gold);
+            background-color: rgba(212, 175, 55, 0.1);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover { background-color: rgba(212, 175, 55, 0.2); }
+        button.secondary {
+            color: var(--text-muted);
+            background-color: transparent;
+            border-color: #333;
+            margin-left: 8px;
+        }
+        button.secondary:hover { background-color: rgba(255,255,255,0.05); }
+        .msg { font-size: 0.9rem; margin-top: 12px; min-height: 1.2em; }
+        .msg.ok { color: #4caf50; }
+        .msg.err { color: #ff6b6b; }
+        .btn-row { display: flex; align-items: center; }
+        .status { font-size: 0.85rem; color: var(--text-muted); text-align: center; margin-top: 20px; }
+        .status a { color: var(--gold); text-decoration: none; }
+        .page-list { margin-top: 12px; }
+        .page-list-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            border: 1px solid #2a2a2a;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+        .page-list-item .id { color: var(--gold); font-weight: 600; }
+        .page-list-item .badges { font-size: 0.8rem; color: var(--text-muted); }
+        .page-list-item
