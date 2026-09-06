@@ -25,6 +25,7 @@
             background-color: var(--bg-color);
             color: var(--text-color);
             line-height: 1.6;
+            overflow-x: hidden;
         }
 
         /* Top Dead Centre Logo */
@@ -32,6 +33,7 @@
             display: block;
             margin: 40px auto 20px auto;
             max-width: 140px;
+            width: 30%;
             height: auto;
         }
 
@@ -39,6 +41,12 @@
         .page-nav {
             text-align: center;
             margin-bottom: 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 4px 8px;
+            padding: 0 10px;
         }
 
         .nav-link {
@@ -49,11 +57,17 @@
             letter-spacing: 1px;
             padding: 5px 10px;
             transition: color 0.3s;
+            white-space: nowrap;
         }
 
         .nav-link.active, .nav-link:hover {
             color: var(--gold);
             border-bottom: 1px solid var(--gold);
+        }
+
+        .nav-divider {
+            color: #444;
+            font-size: 0.9rem;
         }
 
         /* Main Content Packaging */
@@ -118,9 +132,78 @@
             box-shadow: 0 0 20px rgba(212, 175, 55, 0.15);
         }
 
-        @media (max-width: 480px) {
+        /* Tablet */
+        @media (max-width: 768px) {
+            .tdc-logo {
+                max-width: 120px;
+            }
+
+            h1 {
+                font-size: 1.7rem;
+                letter-spacing: 1.5px;
+            }
+
             section {
-                padding: 20px;
+                padding: 25px 20px;
+            }
+
+            p {
+                font-size: 1rem;
+            }
+        }
+
+        /* Phone */
+        @media (max-width: 480px) {
+            .tdc-logo {
+                margin: 25px auto 15px auto;
+                max-width: 100px;
+            }
+
+            .page-nav {
+                gap: 2px 6px;
+                margin-bottom: 25px;
+            }
+
+            .nav-link {
+                font-size: 0.8rem;
+                padding: 5px 8px;
+                letter-spacing: 0.5px;
+            }
+
+            .content-container {
+                padding: 0 12px;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+                letter-spacing: 1px;
+                margin-bottom: 25px;
+            }
+
+            h2 {
+                font-size: 1.2rem;
+            }
+
+            section {
+                padding: 20px 16px;
+                margin-bottom: 20px;
+            }
+
+            p {
+                font-size: 0.95rem;
+                margin-bottom: 12px;
+            }
+
+            .divider-icon {
+                font-size: 1.5rem;
+                margin: 20px 0;
+            }
+
+            .cta-link {
+                padding: 12px 24px;
+                font-size: 0.95rem;
+                width: 100%;
+                text-align: center;
             }
         }
     </style>
@@ -133,9 +216,9 @@
     <!-- Navigation -->
     <div class="page-nav">
         <a href="https://myvikey.pages.dev" class="nav-link active">Our Story</a>
-        <span style="color:#444">|</span>
+        <span class="nav-divider">|</span>
         <a href="https://myvikey.pages.dev/our-services/" class="nav-link">Our Services</a>
-        <span style="color:#444">|</span>
+        <span class="nav-divider">|</span>
         <a href="https://myvikey.pages.dev/showcase/" class="nav-link">Our Showcase</a>
     </div>
 
