@@ -7,15 +7,16 @@ export async function onRequest(context){
   try{
     const url=new URL(request.url);
     
+    // ── Skip API requests entirely ──
+    if(url.pathname.startsWith('/xmasletters/api/'))return next();
+    
     // ── Protect the admin page ──
     if(url.pathname==='/xmasletters/admin'||url.pathname==='/xmasletters/admin.html'){
       const adminPassword=await env.PAGE_PASSWORDS.get('__admin__');
       if(!adminPassword)return next();
-      
       const expectedAdminHash=await hash('__admin__:'+adminPassword);
       const cookies=request.headers.get('Cookie')||'';
       const adminCookieMatch=cookies.split(';').some(c=>c.trim()===`auth___admin__=${expectedAdminHash}`);
-      
       if(request.method==='POST'){
         const formData=await request.formData();
         const submittedPassword=formData.get('password');
@@ -25,7 +26,6 @@ export async function onRequest(context){
           return new Response(gateHTML('Admin Access',true),{status:401,headers:{'Content-Type':'text/html; charset=utf-8'}});
         }
       }
-      
       if(adminCookieMatch)return next();
       return new Response(gateHTML('Admin Access',false),{status:200,headers:{'Content-Type':'text/html; charset=utf-8'}});
     }
