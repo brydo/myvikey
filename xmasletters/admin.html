@@ -85,4 +85,171 @@
         }
         .page-list-item .id { color: var(--gold); font-weight: 600; }
         .page-list-item .badges { font-size: 0.8rem; color: var(--text-muted); }
-        .page-list-item
+        .page-list-item .badge { margin-left: 6px; }
+        @media (max-width: 480px) {
+            .btn-row { flex-direction: column; gap: 8px; }
+            .btn-row button.secondary { margin-left: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔐 Xmas Letters Admin</h1>
+        <p class="sub">Manage passwords and content for individual letter pages</p>
+
+        <section>
+            <h2>🔑 Set or Update Password</h2>
+            <label for="setId">Page ID (e.g. paulml1)</label>
+            <input type="text" id="setId" placeholder="paulml1">
+            <label for="setPass">Password</label>
+            <input type="text" id="setPass" placeholder="s3cret">
+            <div class="btn-row">
+                <button onclick="setPassword()">Save Password</button>
+                <button class="secondary" onclick="loadContentForPassword()">Load Content for this ID</button>
+            </div>
+            <div class="msg" id="setMsg"></div>
+        </section>
+
+        <section>
+            <h2>🔓 Remove Password</h2>
+            <label for="delId">Page ID</label>
+            <input type="text" id="delId" placeholder="paulml1">
+            <button onclick="deletePassword()">Remove Password</button>
+            <div class="msg" id="delMsg"></div>
+        </section>
+
+        <section>
+            <h2>📝 Page Content (Text + Audio)</h2>
+            <label for="contentId">Page ID</label>
+            <input type="text" id="contentId" placeholder="paulml1">
+            <label for="contentText">Letter Text</label>
+            <textarea id="contentText" placeholder="Dear Paul, Merry Christmas! Love, Sarah"></textarea>
+            <label for="contentAudio">MP3 URL (direct link to audio file)</label>
+            <input type="text" id="contentAudio" placeholder="https://example.com/audio/paulml1.mp3">
+            <div class="btn-row">
+                <button onclick="setContent()">Save Content</button>
+                <button class="secondary" onclick="getContent()">Load Content</button>
+            </div>
+            <div class="msg" id="contentMsg"></div>
+        </section>
+
+        <section>
+            <h2>📋 All Pages with Content</h2>
+            <button onclick="listContent()">Refresh List</button>
+            <div class="page-list" id="pageList"></div>
+            <div class="msg" id="listMsg"></div>
+        </section>
+
+        <p class="status">Admin: <a href="/xmasletters/admin">/xmasletters/admin</a> · Test: <a href="/xmasletters/?id=paulml1">/xmasletters/?id=paulml1</a></p>
+    </div>
+
+    <script>
+        async function setPassword() {
+            const id = document.getElementById('setId').value.trim();
+            const pass = document.getElementById('setPass').value.trim();
+            const msg = document.getElementById('setMsg');
+            if (!id || !pass) { msg.textContent = 'Please enter both ID and password.'; msg.className = 'msg err'; return; }
+            try {
+                const resp = await fetch('/xmasletters/api/password', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'set', id, password: pass })
+                });
+                const data = await resp.json();
+                if (data.success) { msg.textContent = `✓ Password set for "${id}".`; msg.className = 'msg ok'; }
+                else { msg.textContent = '✗ ' + (data.error || 'Failed'); msg.className = 'msg err'; }
+            } catch (e) { msg.textContent = '✗ Error: ' + e.message; msg.className = 'msg err'; }
+        }
+
+        async function deletePassword() {
+            const id = document.getElementById('delId').value.trim();
+            const msg = document.getElementById('delMsg');
+            if (!id) { msg.textContent = 'Please enter a page ID.'; msg.className = 'msg err'; return; }
+            try {
+                const resp = await fetch('/xmasletters/api/password', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'delete', id })
+                });
+                const data = await resp.json();
+                if (data.success) { msg.textContent = `✓ Password removed for "${id}".`; msg.className = 'msg ok'; }
+                else { msg.textContent = '✗ ' + (data.error || 'Failed'); msg.className = 'msg err'; }
+            } catch (e) { msg.textContent = '✗ Error: ' + e.message; msg.className = 'msg err'; }
+        }
+
+        function loadContentForPassword() {
+            const id = document.getElementById('setId').value.trim();
+            if (id) {
+                document.getElementById('contentId').value = id;
+                getContent();
+            }
+        }
+
+        async function setContent() {
+            const id = document.getElementById('contentId').value.trim();
+            const text = document.getElementById('contentText').value;
+            const audioUrl = document.getElementById('contentAudio').value.trim();
+            const msg = document.getElementById('contentMsg');
+            if (!id) { msg.textContent = 'Please enter a page ID.'; msg.className = 'msg err'; return; }
+            try {
+                const resp = await fetch('/xmasletters/api/content', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'set-content', id, text, audioUrl })
+                });
+                const data = await resp.json();
+                if (data.success) { msg.textContent = `✓ Content saved for "${id}".`; msg.className = 'msg ok'; }
+                else { msg.textContent = '✗ ' + (data.error || 'Failed'); msg.className = 'msg err'; }
+            } catch (e) { msg.textContent = '✗ Error: ' + e.message; msg.className = 'msg err'; }
+        }
+
+        async function getContent() {
+            const id = document.getElementById('contentId').value.trim();
+            const msg = document.getElementById('contentMsg');
+            if (!id) { msg.textContent = 'Please enter a page ID.'; msg.className = 'msg err'; return; }
+            try {
+                const resp = await fetch('/xmasletters/api/content', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'get-content', id })
+                });
+                const data = await resp.json();
+                if (data.success) {
+                    if (data.content) {
+                        document.getElementById('contentText').value = data.content.text || '';
+                        document.getElementById('contentAudio').value = data.content.audioUrl || '';
+                        msg.textContent = `✓ Loaded content for "${id}".`; msg.className = 'msg ok';
+                    } else {
+                        msg.textContent = `No content set for "${id}" yet.`; msg.className = 'msg err';
+                    }
+                } else { msg.textContent = '✗ ' + (data.error || 'Failed'); msg.className = 'msg err'; }
+            } catch (e) { msg.textContent = '✗ Error: ' + e.message; msg.className = 'msg err'; }
+        }
+
+        async function listContent() {
+            const listEl = document.getElementById('pageList');
+            const msg = document.getElementById('listMsg');
+            listEl.innerHTML = '<div style="color:#aaa;font-size:0.9rem;">Loading...</div>';
+            try {
+                const resp = await fetch('/xmasletters/api/content', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'list-content' })
+                });
+                const data = await resp.json();
+                if (data.success) {
+                    if (data.pages.length === 0) {
+                        listEl.innerHTML = '<div style="color:#aaa;font-size:0.9rem;">No pages with content yet.</div>';
+                    } else {
+                        listEl.innerHTML = data.pages.map(p => `
+                            <div class="page-list-item">
+                                <span class="id">${p.id}</span>
+                                <span class="badges">
+                                    ${p.hasText ? '<span class="badge">📝</span>' : ''}
+                                    ${p.hasAudio ? '<span class="badge">🎵</span>' : ''}
+                                </span>
+                            </div>
+                        `).join('');
+                    }
+                    msg.textContent = `${data.count} page(s) with content.`; msg.className = 'msg ok';
+                } else { msg.textContent = '✗ ' + (data.error || 'Failed'); msg.className = 'msg err'; }
+            } catch (e) { msg.textContent = '✗ Error: ' + e.message; msg.className = 'msg err'; }
+        }
+    </script>
+</body>
+</html>
