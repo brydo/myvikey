@@ -26,13 +26,16 @@
 
     .images {
       display: flex;
+      flex-wrap: wrap;
       gap: 2rem;
       justify-content: center;
       margin-top: 15mm;
+      padding: 0 1rem;
     }
 
     .images img {
       width: 525px;
+      max-width: 100%;
       height: auto;
       border-radius: 8px;
       box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
@@ -44,10 +47,12 @@
       align-items: center;
       gap: 2rem;
       margin-top: 2rem;
+      padding: 0 1rem;
     }
 
     .image-bottom img {
       width: 1082px;
+      max-width: 100%;
       height: auto;
       border-radius: 8px;
       box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
@@ -87,6 +92,33 @@
 
     .footer-links a:hover {
       background-color: rgba(255, 255, 255, 0.15);
+    }
+
+    @media (max-width: 600px) {
+      .images {
+        gap: 1rem;
+        margin-top: 1.5rem;
+      }
+
+      .image-bottom {
+        gap: 1rem;
+        margin-top: 1rem;
+      }
+
+      .footer-brand {
+        font-size: 1.2rem;
+      }
+
+      .footer-links {
+        flex-direction: column;
+        gap: 0.75rem;
+        width: 80%;
+        max-width: 300px;
+      }
+
+      .footer-links a {
+        text-align: center;
+      }
     }
   </style>
 </head>

@@ -37,7 +37,12 @@
 
         /* Navigation */
         .page-nav {
-            text-align: center;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            gap: 4px 6px;
+            padding: 0 10px;
             margin-bottom: 30px;
         }
 
@@ -160,11 +165,31 @@
         }
 
         @media (max-width: 480px) {
+            h1 {
+                font-size: 1.6rem;
+            }
+
             section {
                 padding: 20px;
             }
+
             .services-grid {
                 grid-template-columns: 1fr;
+            }
+
+            .cta-link {
+                display: block;
+                text-align: center;
+                padding: 14px 16px;
+            }
+
+            .tdc-logo {
+                margin: 25px auto 15px auto;
+                max-width: 110px;
+            }
+
+            .content-container {
+                padding: 0 12px;
             }
         }
     </style>
