@@ -1,2 +1,59 @@
-background-image: url'https://pub-07ed0b0955a4401f9956c3ca7a33c40e.r2.dev/chinahouse/BG.jpg";
-   
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>China House</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      height: 100%;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background-image: url("https://pub-07ed0b0955a4401f9956c3ca7a33c40e.r2.dev/chinahouse/BG.jpg");
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      text-align: center;
+    }
+
+    .overlay {
+      background-color: rgba(0, 0, 0, 0.45);
+      padding: 2rem 3rem;
+      border-radius: 12px;
+      backdrop-filter: blur(2px);
+    }
+
+    h1 {
+      font-size: 3rem;
+      margin-bottom: 0.5rem;
+      text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.7);
+    }
+
+    p {
+      font-size: 1.2rem;
+      opacity: 0.9;
+      text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.7);
+    }
+  </style>
+</head>
+<body>
+  <div class="overlay">
+    <h1>China House</h1>
+    <p>Welcome</p>
+  </div>
+</body>
+</html>
