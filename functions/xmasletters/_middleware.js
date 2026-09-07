@@ -17,7 +17,7 @@ function escapeHtml(str) {
 function letterHTML(id, content) {
   var body = '';
   if (content && content.text) {
-    body += '<h1>A Special Christmas Message For You</h1><div class="letter-text">' + escapeHtml(content.text) + '</div>';
+    body += '<h1>A Special Christmas Message Just For You</h1><div class="letter-text">' + escapeHtml(content.text) + '</div>';
   }
   if (content && content.audioUrl) {
     body += '<div class="audio-section"><div class="audio-label">&#127925; Listen to your letter</div><audio controls preload="metadata"><source src="' + escapeHtml(content.audioUrl) + '" type="audio/mpeg"></audio></div>';
