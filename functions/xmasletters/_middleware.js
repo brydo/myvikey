@@ -26,84 +26,8 @@ function letterHTML(id, content) {
     body = '<div class="empty">This letter is not ready yet. Please check back soon.</div>';
   }
   var bgImage = 'https://pub-07ed0b0955a4401f9956c3ca7a33c40e.r2.dev/scroll.png';
-  return '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Christmas Letter - ' + escapeHtml(id) + ' - V I Key</title><link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Caveat:wght@400;600&display=swap" rel="stylesheet"><style>:root{--gold:#d4af37;--text-color:#3b2f1e;--text-muted:#6b5a3e}*{box-sizing:border-box;margin:0;padding:0}body{font-family:Georgia,"Times New Roman",serif;background-image:url(' + bgImage + ');background-size:cover;background-position:center;background-repeat:no-repeat;background-attachment:fixed;color:var(--text-color);line-height:1.8;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}.letter-card{background:transparent;border:none;border-radius:0;padding:60px 50px;max-width:520px;width:100%;margin-left:520px;margin-top:-150px;text-align:center;text-shadow:0 1px 2px rgba(255,255,255,0.5)}.letter-icon{font-size:3rem;margin-bottom:20px}.letter-card h1{font-family:"Great Vibes",cursive;color:#5c3a1e;font-size:2.2rem;font-weight:400;margin-bottom:24px;letter-spacing:1px}.letter-text{font-family:"Caveat",cursive;color:var(--text-color);font-size:1.4rem;margin-bottom:30px;white-space:pre-wrap;text-align:left}.audio-section{margin-top:24px;padding-top:24px;border-top:1px solid rgba(107,90,62,0.3)}.audio-label{color:#5c3a1e;font-size:0.9rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px}audio{width:100%;margin-top:8px}.footer{margin-top:30px;color:var(--text-muted);font-size:0.8rem}.footer a{color:#5c3a1e;text-decoration:none}.empty{color:var(--text-muted);font-size:1rem;padding:40px 0}.empty-icon{font-size:3rem;margin-bottom:16px}@media(max-width:768px){.letter-card{margin-left:200px;margin-top:-80px;max-width:400px;padding:40px 30px}.letter-card h1{font-size:1.8rem}.letter-text{font-size:1.2rem}}@media(max-width:480px){body{background-size:contain;background-position:top center;background-attachment:scroll}.letter-card{margin-left:60px;margin-top:10px;max-width:200px;padding:15px 10px}.letter-card h1{font-size:1rem}.letter-text{font-size:0.8rem}}</style></head><body><div class="letter-card">' + body + '</div></body></html>';
+  return '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Christmas Letter - ' + escapeHtml(id) + ' - V I Key</title><link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Caveat:wght@400;600&display=swap" rel="stylesheet"><style>:root{--gold:#d4af37;--text-color:#3b2f1e;--text-muted:#6b5a3e}*{box-sizing:border-box;margin:0;padding:0}body{font-family:Georgia,"Times New Roman",serif;background-image:url(' + bgImage + ');background-size:cover;background-position:center;background-repeat:no-repeat;background-attachment:fixed;color:var(--text-color);line-height:1.8;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}.letter-card{background:transparent;border:none;border-radius:0;padding:60px 50px;max-width:520px;width:100%;margin-left:520px;margin-top:-150px;text-align:center;text-shadow:0 1px 2px rgba(255,255,255,0.5)}.letter-icon{font-size:3rem;margin-bottom:20px}.letter-card h1{font-family:"Great Vibes",cursive;color:#5c3a1e;font-size:2.2rem;font-weight:400;margin-bottom:24px;letter-spacing:1px}.letter-text{font-family:"Caveat",cursive;color:var(--text-color);font-size:1.4rem;margin-bottom:30px;white-space:pre-wrap;text-align:left}.audio-section{margin-top:24px;padding-top:24px;border-top:1px solid rgba(107,90,62,0.3)}.audio-label{color:#5c3a1e;font-size:0.9rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px}audio{width:100%;margin-top:8px}.footer{margin-top:30px;color:var(--text-muted);font-size:0.8rem}.footer a{color:#5c3a1e;text-decoration:none}.empty{color:var(--text-muted);font-size:1rem;padding:40px 0}.empty-icon{font-size:3rem;margin-bottom:16px}@media(max-width:768px){.letter-card{margin-left:200px;margin-top:-80px;max-width:400px;padding:40px 30px}.letter-card h1{font-size:1.8rem}.letter-text{font-size:1.2rem}}@media(max-width:480px) and (orientation:portrait){body{background-size:contain;background-position:center center;background-attachment:scroll;padding:10px;min-height:100vh}.letter-card{margin-left:0;margin-top:0;max-width:80%;padding:20px 15px}.letter-card h1{font-size:1.2rem;margin-bottom:16px}.letter-text{font-size:1rem}.letter-icon{font-size:2rem;margin-bottom:12px}.audio-section{margin-top:16px;padding-top:16px}}@media(max-width:900px) and (orientation:landscape){body{background-size:contain;background-position:center center;background-attachment:scroll;padding:10px 20px;min-height:100vh}.letter-card{margin-left:0;margin-top:0;max-width:55%;padding:15px 25px}.letter-card h1{font-size:1.3rem;margin-bottom:14px}.letter-text{font-size:1rem}.letter-icon{font-size:2rem;margin-bottom:10px}.audio-section{margin-top:14px;padding-top:14px}audio{margin-top:6px}}</style></head><body><div class="letter-card">' + body + '</div></body></html>';
 }
 
 function gateHTML(title, error) {
-  return '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Enter Password - V I Key</title><style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background-color:#121212;color:#e0e0e0;display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px;line-height:1.6}.gate-card{background-color:#1a1a1a;border:1px solid #2a2a2a;border-radius:12px;padding:40px 32px;max-width:380px;width:100%;text-align:center}.gate-icon{font-size:2.5rem;margin-bottom:16px}.gate-card h1{color:#d4af37;font-size:1.3rem;font-weight:500;margin-bottom:8px;letter-spacing:1px}.gate-card p{color:#aaa;font-size:0.95rem;margin-bottom:24px}.gate-card input{width:100%;padding:14px 16px;font-size:1rem;background-color:#121212;color:#e0e0e0;border:1px solid #333;border-radius:8px;margin-bottom:16px;outline:none;transition:border-color 0.3s}.gate-card input:focus{border-color:#d4af37}.gate-card button{width:100%;padding:14px;font-size:1rem;font-weight:600;color:#d4af37;background-color:rgba(212,175,55,0.1);border:1px solid rgba(212,175,55,0.3);border-radius:8px;cursor:pointer;transition:background-color 0.3s,box-shadow 0.3s}.gate-card button:hover{background-color:rgba(212,175,55,0.2);box-shadow:0 0 20px rgba(212,175,55,0.15)}.gate-error{color:#ff6b6b;font-size:0.9rem;margin-bottom:16px}</style></head><body><div class="gate-card"><div class="gate-icon">&#128274;</div><h1>' + escapeHtml(title) + '</h1><p>Please enter the password to continue.</p>' + (error ? '<div class="gate-error">Incorrect password. Please try again.</div>' : '') + '<form method="POST" action=""><input type="password" name="password" placeholder="Password" autofocus required><button type="submit">Unlock Page</button></form></div></body></html>';
-}
-
-export async function onRequest(context) {
-  var request = context.request;
-  var env = context.env;
-  var next = context.next;
-  try {
-    var url = new URL(request.url);
-
-    // Skip API requests
-    if (url.pathname.startsWith('/xmasletters/api/')) return next();
-
-    // Protect admin page
-    if (url.pathname === '/xmasletters/admin' || url.pathname === '/xmasletters/admin.html') {
-      var adminPassword = await env.PAGE_PASSWORDS.get('__admin__');
-      if (!adminPassword) return next();
-      var expectedAdminHash = await hash('__admin__:' + adminPassword);
-      var cookies = request.headers.get('Cookie') || '';
-      var adminCookieMatch = cookies.split(';').some(function(c) { return c.trim() === 'auth___admin__=' + expectedAdminHash; });
-      if (request.method === 'POST') {
-        var formData = await request.formData();
-        var submittedPassword = formData.get('password');
-        if (submittedPassword === adminPassword) {
-          return new Response(null, { status: 302, headers: { 'Location': url.pathname, 'Set-Cookie': 'auth___admin__=' + expectedAdminHash + '; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=86400' } });
-        } else {
-          return new Response(gateHTML('Admin Access', true), { status: 401, headers: { 'Content-Type': 'text/html; charset=utf-8' } });
-        }
-      }
-      if (adminCookieMatch) return next();
-      return new Response(gateHTML('Admin Access', false), { status: 200, headers: { 'Content-Type': 'text/html; charset=utf-8' } });
-    }
-
-    // Handle letter pages with ?id=
-    var pageId = url.searchParams.get('id');
-    if (!pageId) return next();
-
-    // Read content from KV
-    var content = null;
-    var rawContent = await env.XMAS_CONTENT.get(pageId);
-    if (rawContent) {
-      try { content = JSON.parse(rawContent); } catch (e) { content = null; }
-    }
-
-    // Check if password protected
-    var storedPassword = await env.PAGE_PASSWORDS.get(pageId);
-
-    if (!storedPassword) {
-      return new Response(letterHTML(pageId, content), { status: 200, headers: { 'Content-Type': 'text/html; charset=utf-8' } });
-    }
-
-    var expectedCookieValue = await hash(pageId + ':' + storedPassword);
-    var cookieName = 'auth_' + pageId;
-
-    if (request.method === 'POST') {
-      var formData = await request.formData();
-      var submittedPassword = formData.get('password');
-      if (submittedPassword === storedPassword) {
-        var redirectUrl = url.pathname + url.search;
-        return new Response(null, { status: 302, headers: { 'Location': redirectUrl, 'Set-Cookie': cookieName + '=' + expectedCookieValue + '; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=86400' } });
-      } else {
-        return new Response(gateHTML('This Page is Protected', true), { status: 401, headers: { 'Content-Type': 'text/html; charset=utf-8' } });
-      }
-    }
-
-    var cookies = request.headers.get('Cookie') || '';
-    var cookieMatch = cookies.split(';').some(function(c) { return c.trim() === cookieName + '=' + expectedCookieValue; });
-
-    if (cookieMatch) {
-      return new Response(letterHTML(pageId, content), { status: 200, headers: { 'Content-Type': 'text/html; charset=utf-8' } });
-    }
-
-    return new Response(gateHTML('This Page is Protected', false), { status: 200, headers: { 'Content-Type': 'text/html; charset=utf-8' } });
-  } catch (e) {
-    return next();
-  }
-}
+  return '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Enter Password - V I Key</title><style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background-col
