@@ -254,13 +254,12 @@
       }
 
       input[type="checkbox"]::before {
-        content: "";
-        width: 0.55rem;
-        height: 0.55rem;
+        content: "✓";
+        font-size: 0.78rem;
+        line-height: 1;
+        color: #166534;
         transform: scale(0);
         transition: transform 0.12s ease-in-out;
-        box-shadow: inset 1em 1em #166534;
-        clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0, 43% 62%);
       }
 
       input[type="checkbox"]:checked::before {
@@ -289,7 +288,7 @@
       }
 
       input[type="checkbox"]:disabled::before {
-        box-shadow: inset 1em 1em #94a3b8;
+        color: #94a3b8;
       }
     }
 
