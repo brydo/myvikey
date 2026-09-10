@@ -258,6 +258,16 @@
         outline: 2px solid #dc2626;
         outline-offset: 2px;
       }
+
+      input[type="checkbox"]:disabled {
+        border-color: #94a3b8;
+        background: #e2e8f0;
+        cursor: not-allowed;
+      }
+
+      input[type="checkbox"]:disabled::before {
+        box-shadow: inset 1em 1em #94a3b8;
+      }
     }
 
     @media (forced-colors: active) {
