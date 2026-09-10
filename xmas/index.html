@@ -227,6 +227,35 @@
     }
 
     @media (forced-colors: active) {
+      .form-container,
+      .festive-header,
+      .consent-box,
+      .bank-details,
+      input[type="text"],
+      textarea,
+      button,
+      #payLink {
+        background: Canvas !important;
+        color: CanvasText !important;
+        border: 1px solid ButtonText !important;
+        box-shadow: none !important;
+      }
+
+      .form-container::before,
+      .form-container::after,
+      .consent-box::before {
+        content: none;
+      }
+
+      input[type="text"]:focus,
+      textarea:focus,
+      button:focus,
+      #payLink:focus,
+      input[type="checkbox"]:focus {
+        outline: 2px solid Highlight !important;
+        outline-offset: 2px;
+      }
+
       input[type="checkbox"] {
         accent-color: auto;
         forced-color-adjust: auto;
