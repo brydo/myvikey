@@ -231,7 +231,7 @@
       .festive-header,
       .consent-box,
       .bank-details,
-      input[type="text"],
+      input,
       textarea,
       select,
       button,
@@ -360,6 +360,15 @@
     #payLink:focus-visible {
       background: linear-gradient(180deg, #b91c1c, #991b1b) !important;
       outline: 2px solid #fef08a;
+      outline-offset: 2px;
+    }
+
+    .form-container input:focus-visible,
+    .form-container textarea:focus-visible,
+    .form-container select:focus-visible,
+    .form-container button:focus-visible,
+    .form-container a:focus-visible {
+      outline: 2px solid rgba(220,38,38,0.7);
       outline-offset: 2px;
     }
 
