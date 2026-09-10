@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Santas Letter V I Key®</title>
+  <title>Order Your Santa V I Key® Tag</title>
 
   <style>
     /* Full-screen Santa workshop background (your image) */
@@ -52,7 +52,9 @@
     }
 
     .festive-header {
-      background: linear-gradient(135deg, #dc2626, #b91c1c);
+      background:
+        linear-gradient(135deg, rgba(220,38,38,0.96), rgba(185,28,28,0.96)),
+        repeating-linear-gradient(45deg, rgba(255,255,255,0.16) 0 10px, rgba(255,255,255,0.02) 10px 20px);
       padding: 24px;
       border-radius: 14px;
       text-align: center;
@@ -61,6 +63,7 @@
       box-shadow: 0 6px 18px rgba(0,0,0,0.15);
       position: relative;
       overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.22);
     }
 
     .festive-header::before,
@@ -73,6 +76,7 @@
       left: -20%;
       background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 60%);
       animation: festiveGlow 6s infinite linear;
+      pointer-events: none;
     }
 
     .festive-header::after {
@@ -88,6 +92,7 @@
     .festive-icon {
       font-size: 2.6rem;
       margin-bottom: 6px;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
     }
 
     .festive-title {
@@ -95,6 +100,7 @@
       font-weight: 800;
       margin: 0;
       letter-spacing: 1px;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.18);
     }
 
     .festive-subtitle {
@@ -132,15 +138,20 @@
       border-radius: 8px;
       font-size: 1rem;
       font-family: 'Inter', Arial, sans-serif;
-      transition: border-color 0.2s ease;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
       box-sizing: border-box;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.95), rgba(255,255,255,0.9)),
+        repeating-linear-gradient(90deg, rgba(220,38,38,0.045) 0 12px, rgba(22,163,74,0.045) 12px 24px);
+      box-shadow: inset 0 1px 2px rgba(15,23,42,0.05);
     }
 
     input[type="text"]:focus,
     textarea:focus {
       border-color: #dc2626;
       outline: none;
-      box-shadow: 0 0 0 3px rgba(220,38,38,0.15);
+      box-shadow: 0 0 0 3px rgba(220,38,38,0.15), 0 0 0 6px rgba(34,197,94,0.08);
+      transform: translateY(-1px);
     }
 
     textarea {
@@ -149,12 +160,23 @@
     }
 
     .consent-box {
-      background: #f8fafc;
+      background: linear-gradient(180deg, rgba(248,250,252,0.96), rgba(255,255,255,0.94));
       border: 1px solid #e2e8f0;
       padding: 16px;
       border-radius: 8px;
       margin-bottom: 20px;
       font-size: 0.9rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .consent-box::before {
+      content: "❄";
+      position: absolute;
+      right: 12px;
+      top: 10px;
+      opacity: 0.16;
+      font-size: 2rem;
     }
 
     .privacy-note {
@@ -170,7 +192,7 @@
 
     button {
       width: 100%;
-      background: #dc2626;
+      background: linear-gradient(180deg, #dc2626, #b91c1c);
       color: white;
       padding: 14px;
       border: none;
@@ -178,11 +200,12 @@
       font-size: 1.05rem;
       font-weight: 700;
       cursor: pointer;
-      transition: background 0.2s ease, transform 0.1s ease;
+      transition: background 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
+      box-shadow: 0 8px 16px rgba(185,28,28,0.2);
     }
 
     button:hover {
-      background: #b91c1c;
+      background: linear-gradient(180deg, #b91c1c, #991b1b);
       transform: translateY(-1px);
     }
 
@@ -213,7 +236,9 @@
     }
 
     .bank-details {
-      background: #f8fafc;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.92), rgba(248,250,252,0.92)),
+        repeating-linear-gradient(135deg, rgba(220,38,38,0.04) 0 14px, rgba(22,163,74,0.04) 14px 28px);
       border: 1px solid #e2e8f0;
       border-radius: 8px;
       padding: 18px;
@@ -251,7 +276,7 @@
 
     <div class="festive-header">
       <div class="festive-icon"></div>
-      <h1 class="festive-title">Personalised Letter From Santa</h1>
+      <h1 class="festive-title">Letter From Santa</h1>
       <p class="festive-subtitle">A Personalised Christmas Letter
       In A V I Key®</p>
     </div>
@@ -291,15 +316,15 @@
   <div class="section-title">Keywords</div>
 
   <div class="form-group">
-    <label for="keywords">Keywords to be included in Santas Letter:</label>
-    <textarea id="keywords" name="keywords" placeholder="e.g., best friend,pet, gift, talent. school buddies etc etc ..." required></textarea>
+    <label for="keywords">Special Interests & Keywords:</label>
+    <textarea id="keywords" name="keywords" placeholder="e.g., football, dinosaurs, art, reading, music..." required></textarea>
   </div>
 
   <div class="consent-box">
     <label>
       <input type="checkbox" name="gdpr_consent" required>
       I consent to providing my child's first name and town, and my own delivery details,
-      solely to create and post their Santa V I Key® Tag.
+      solely to create and post their Santa Tag.
     </label>
     <p class="privacy-note">
       All personalised details are permanently deleted by January 31st.
@@ -312,13 +337,13 @@
 
        <div class="bank-details" style="text-align:center;">
          <p style="margin:10px 0;">
-           <a id="payLink" href="https://paymentrequest.natwestpayit.com/reusable-links/63e0aa5c-adef-4914-9f44-a5c147a1ced6" target="_blank" rel="noopener" style="display:inline-block; padding:12px 24px; background:#dc2626; color:white; text-decoration:none; border-radius:8px; font-weight:600; transition:background 0.2s ease;" onmouseover="this.style.background='#b91c1c'" onmouseout="this.style.background='#dc2626'">
-           Pay Now with PayIT →
+           <a id="payLink" href="https://paymentrequest.natwestpayit.com/reusable-links/63e0aa5c-adef-4914-9f44-a5c147a1ced6" target="_blank" rel="noopener" style="display:inline-block; padding:16px 22px; background:#dc2626; color:#fff; border-radius:10px; text-decoration:none; font-weight:700; box-shadow:0 8px 16px rgba(185,28,28,0.18);">
+           Pay Now with NatWest PayIT →
            It's safe, quick and easy!</a>
          </p>
-
-      </div>
-   </div>
-
-</body>
-</html>
+ 
+       </div>
+    </div>
+ 
+ </body>
+ </html>
