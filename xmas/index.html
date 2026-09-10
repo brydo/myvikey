@@ -210,6 +210,17 @@
       font-size: 2rem;
     }
 
+    .consent-box label {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      line-height: 1.4;
+    }
+
+    .consent-box label input[type="checkbox"] {
+      margin-top: 2px;
+    }
+
     .privacy-note {
       font-size: 0.8rem;
       color: #64748b;
@@ -233,6 +244,7 @@
         vertical-align: middle;
         display: inline-grid;
         place-content: center;
+        flex-shrink: 0;
         width: 1rem;
         height: 1rem;
         border: 2px solid #166534;
@@ -364,6 +376,12 @@
 
     #payLink:hover {
       background: linear-gradient(180deg, #b91c1c, #991b1b) !important;
+    }
+
+    #payLink:focus-visible {
+      background: linear-gradient(180deg, #b91c1c, #991b1b) !important;
+      outline: 2px solid #fef08a;
+      outline-offset: 2px;
     }
 
     @media (max-width: 640px) {
