@@ -13,6 +13,7 @@
       font-family: 'Inter', Arial, sans-serif;
       color: #334155;
       padding: 32px;
+      box-sizing: border-box;
       display: flex;
       justify-content: flex-start; /* shift content left */
       position: relative;
@@ -33,17 +34,47 @@
 
     /* Form moved further left + more transparent */
     .form-container {
-      background: rgba(255,255,255,0.65); /* more transparent */
+      background:
+        linear-gradient(160deg, rgba(255,255,255,0.82), rgba(255,251,235,0.76)),
+        repeating-linear-gradient(45deg, rgba(220,38,38,0.06) 0 12px, rgba(22,163,74,0.06) 12px 24px);
       padding: 36px;
       border-radius: 16px;
       max-width: 480px;
       width: 100%;
       box-shadow: 0 8px 24px rgba(0,0,0,0.25);
-      border: 1px solid #f1f5f9;
+      border: 1px solid rgba(255,255,255,0.65);
       animation: fadeIn 0.4s ease;
       position: relative;
       z-index: 2;
       margin-left: 1%; /* moved further left */
+      overflow: hidden;
+    }
+
+    .form-container::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 15% 20%, rgba(255,255,255,0.55) 0 6px, transparent 7px),
+        radial-gradient(circle at 80% 15%, rgba(255,255,255,0.45) 0 5px, transparent 6px),
+        radial-gradient(circle at 70% 70%, rgba(255,255,255,0.4) 0 4px, transparent 5px);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .form-container::after {
+      content: "";
+      position: absolute;
+      inset: 6px;
+      border-radius: 12px;
+      border: 1px dashed rgba(220,38,38,0.4);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .form-container > * {
+      position: relative;
+      z-index: 1;
     }
 
     @keyframes fadeIn {
@@ -160,14 +191,15 @@
     }
 
     .consent-box {
-      background: linear-gradient(180deg, rgba(248,250,252,0.96), rgba(255,255,255,0.94));
-      border: 1px solid #e2e8f0;
+      background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(254,252,232,0.92));
+      border: 1px solid rgba(220,38,38,0.2);
       padding: 16px;
       border-radius: 8px;
       margin-bottom: 20px;
       font-size: 0.9rem;
       position: relative;
       overflow: hidden;
+      box-shadow: inset 0 0 0 1px rgba(34,197,94,0.12);
     }
 
     .consent-box::before {
@@ -188,6 +220,60 @@
     .privacy-note a {
       color: #dc2626;
       font-weight: 600;
+    }
+
+    input[type="checkbox"] {
+      accent-color: #15803d;
+    }
+
+    @media (forced-colors: active) {
+      .form-container,
+      .festive-header,
+      .consent-box,
+      .bank-details,
+      input,
+      textarea,
+      select,
+      button {
+        background: Canvas !important;
+        color: CanvasText !important;
+        border: 1px solid ButtonText !important;
+        box-shadow: none !important;
+      }
+
+      button,
+      #payLink {
+        background: ButtonFace !important;
+        color: ButtonText !important;
+        border: 1px solid ButtonText !important;
+      }
+
+      .form-container::before,
+      .form-container::after,
+      .consent-box::before {
+        content: none;
+      }
+
+      .form-container input:focus,
+      .form-container input:focus-visible,
+      .form-container textarea:focus,
+      .form-container textarea:focus-visible,
+      .form-container select:focus,
+      .form-container select:focus-visible,
+      .form-container button:focus,
+      .form-container button:focus-visible,
+      .form-container input[type="checkbox"]:focus,
+      .form-container input[type="checkbox"]:focus-visible,
+      .form-container a:focus,
+      .form-container a:focus-visible {
+        outline: 2px solid Highlight !important;
+        outline-offset: 2px;
+      }
+
+      input[type="checkbox"] {
+        accent-color: auto;
+        forced-color-adjust: auto;
+      }
     }
 
     button {
@@ -237,12 +323,13 @@
 
     .bank-details {
       background:
-        linear-gradient(180deg, rgba(255,255,255,0.92), rgba(248,250,252,0.92)),
+        linear-gradient(180deg, rgba(255,255,255,0.94), rgba(254,252,232,0.9)),
         repeating-linear-gradient(135deg, rgba(220,38,38,0.04) 0 14px, rgba(22,163,74,0.04) 14px 28px);
-      border: 1px solid #e2e8f0;
+      border: 1px solid rgba(220,38,38,0.2);
       border-radius: 8px;
       padding: 18px;
       font-size: 0.95rem;
+      box-shadow: 0 8px 18px rgba(15,23,42,0.08);
     }
 
     .bank-details p {
@@ -266,6 +353,51 @@
       color: #64748b;
       text-align: center;
       margin-top: 14px;
+    }
+
+    #payLink {
+      background: linear-gradient(180deg, #dc2626, #b91c1c) !important;
+      border: 1px solid rgba(255,255,255,0.35);
+      box-shadow: 0 10px 20px rgba(127,29,29,0.3) !important;
+    }
+
+    #payLink:hover {
+      background: linear-gradient(180deg, #b91c1c, #991b1b) !important;
+    }
+
+    #payLink:focus-visible {
+      background: linear-gradient(180deg, #b91c1c, #991b1b) !important;
+      outline: 2px solid rgba(220,38,38,0.7);
+      outline-offset: 2px;
+    }
+
+    .form-container input:focus,
+    .form-container input:focus-visible,
+    .form-container textarea:focus,
+    .form-container textarea:focus-visible,
+    .form-container select:focus,
+    .form-container select:focus-visible,
+    .form-container button:focus,
+    .form-container button:focus-visible,
+    .form-container a:focus,
+    .form-container a:focus-visible {
+      outline: 2px solid rgba(220,38,38,0.7);
+      outline-offset: 2px;
+    }
+
+    @media (max-width: 640px) {
+      body {
+        padding: 16px;
+      }
+
+      .form-container {
+        padding: 24px;
+        margin-left: 0;
+      }
+
+      .festive-title {
+        font-size: 1.6rem;
+      }
     }
   </style>
 </head>
