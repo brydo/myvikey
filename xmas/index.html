@@ -236,69 +236,10 @@
       accent-color: #15803d;
     }
 
-    @supports not (accent-color: #15803d) {
+    @media (forced-colors: active) {
       input[type="checkbox"] {
-        appearance: none;
-        -webkit-appearance: none;
-        margin-right: 8px;
-        vertical-align: middle;
-        display: inline-grid;
-        place-content: center;
-        flex-shrink: 0;
-        width: 1rem;
-        height: 1rem;
-        border: 2px solid #166534;
-        border-radius: 3px;
-        background: #fff;
-        cursor: pointer;
-      }
-
-      input[type="checkbox"]::before {
-        content: "✓";
-        font-size: 0.78rem;
-        line-height: 1;
-        color: #166534;
-        transform: scale(0);
-        transition: transform 0.12s ease-in-out;
-      }
-
-      input[type="checkbox"]:checked::before {
-        transform: scale(1);
-      }
-
-      input[type="checkbox"]:checked {
-        background: #dcfce7;
-        border-color: #166534;
-      }
-
-      input[type="checkbox"]:focus-visible {
-        outline: 2px solid #dc2626;
-        outline-offset: 2px;
-      }
-
-      input[type="checkbox"]:focus {
-        outline: 2px solid #dc2626;
-        outline-offset: 2px;
-      }
-
-      input[type="checkbox"]:disabled {
-        border-color: #94a3b8;
-        background: #e2e8f0;
-        cursor: not-allowed;
-      }
-
-      input[type="checkbox"]:disabled::before {
-        color: #94a3b8;
-      }
-
-      @media (forced-colors: active) {
-        input[type="checkbox"] {
-          appearance: auto;
-          -webkit-appearance: checkbox;
-          background: Canvas;
-          border: 1px solid ButtonText;
-          forced-color-adjust: auto;
-        }
+        accent-color: auto;
+        forced-color-adjust: auto;
       }
     }
 
