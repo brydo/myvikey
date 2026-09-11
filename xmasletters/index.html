@@ -87,7 +87,7 @@
             const letterElement = document.getElementById('letterContainer');
 
             if (!userId) {
-                letterElement.textContent = "No letter ID provided.";
+                letterElement.textContent = "No letter Written Yet;
                 return;
             }
 
@@ -97,7 +97,7 @@
                 
                 if (response.ok) {
                     const letterText = await response.text();
-                    letterElement.textContent = letterText || "No letter found for this scroll.";
+                    letterElement.textContent = letterText || "NOT YET";
                 } else {
                     letterElement.textContent = "Letter not found.";
                 }
