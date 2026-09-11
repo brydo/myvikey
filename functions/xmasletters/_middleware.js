@@ -34,7 +34,7 @@ function letterHTML(id, content) {
   }
 
   if (content && content.audioUrl) {
-    body += '<div class="audio-section"><div class="audio-label">&#127925; Listen to your letter</div><audio controls preload="metadata"><source src="' + escapeHtml(content.audioUrl) + '" type="audio/mpeg"></audio></div>';
+    body += '<div class="audio-section"><div class="audio-label">&#127925; Listen to your letter</div><audio controls preload="metadata"><source src="' + escapeHtml(content.audioUrl) + '" type="audio/mpeg">Your browser does not support the audio element.</audio></div>';
   }
 
   if (!content || (!content.text && !content.audioUrl)) {
@@ -43,29 +43,25 @@ function letterHTML(id, content) {
 
   var bgImage = 'https://pub-07ed0b0955a4401f9956c3ca7a33c40e.r2.dev/santa%20scroll%202.jpg';
 
-  return '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Christmas Letter - ' + escapeHtml(id) + ' - V I Key</title>' +
-    '<link rel="preconnect" href="https://fonts.googleapis.com">' +
-    '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>' +
-    '<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Mountains+of+Christmas:wght@700&family=Caveat:wght@600&display=swap" rel="stylesheet">' +
-    '<style>' +
-    ':root{--gold:#c79a2b;--text-color:#4a3422;--text-muted:#7a6142;--title-red:#9f1d1d;--title-green:#2f6a34}' +
+  return '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Christmas Letter - ' + escapeHtml(id) + ' - V I Key</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Mountains+of+Christmas:wght@700&family=Caveat:wght@400;600&display=swap" rel="stylesheet"><style>' +
+    ':root{--gold:#d4af37;--text-color:#3b2f1e;--text-muted:#6b5a3e;--title-red:#b22222;--title-green:#1f6b2a}' +
     '*{box-sizing:border-box;margin:0;padding:0}' +
     'body{font-family:Georgia,"Times New Roman",serif;background-color:#2a1a0e;color:var(--text-color);line-height:1.8;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}' +
     '.scroll-wrapper{position:relative;max-width:1000px;width:100%;margin:0 auto}' +
     '.scroll-bg{display:block;width:100%;height:auto;border-radius:8px}' +
-    '.letter-card{position:absolute;top:50%;left:50%;transform:translate(-50%,-46%);width:min(42%,420px);padding:0 16px;text-align:center;text-shadow:0 1px 1px rgba(255,248,220,0.55);background:rgba(255,248,230,0.20);border-radius:10px;backdrop-filter:blur(0.5px)}' +
-    '.letter-title{font-family:"Mountains of Christmas","Great Vibes",cursive;font-size:clamp(1.6rem,4.2vw,3rem);line-height:1.1;margin:0 0 14px;letter-spacing:1px;text-transform:uppercase;color:var(--title-red);background:linear-gradient(180deg,var(--title-red),var(--title-green));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 1px 0 rgba(255,255,255,.45))}' +
+    '.letter-card{position:absolute;top:50%;left:50%;transform:translate(-50%,-46%);width:min(42%,420px);padding:0 16px;text-align:center;text-shadow:0 1px 2px rgba(255,255,255,0.5)}' +
+    '.letter-title{font-family:"Mountains of Christmas","Great Vibes",cursive;font-size:clamp(1.6rem,4.2vw,3rem);line-height:1.1;margin:0 0 14px;letter-spacing:1px;text-transform:uppercase;color:var(--title-red)}' +
     '.letter-text{font-family:"Caveat",cursive;color:var(--text-color);font-size:clamp(1rem,2.2vw,1.5rem);margin-bottom:30px;white-space:pre-wrap;text-align:left;line-height:1.5}' +
     '.audio-section{margin-top:24px;padding-top:24px;border-top:1px solid rgba(107,90,62,0.3)}' +
-    '.audio-label{color:#6b4320;font-size:0.9rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px}' +
+    '.audio-label{color:#5c3a1e;font-size:0.9rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px}' +
     'audio{width:100%;margin-top:8px}' +
     '.footer{margin-top:30px;color:var(--text-muted);font-size:0.8rem}' +
-    '.footer a{color:#6b4320;text-decoration:none}' +
+    '.footer a{color:#5c3a1e;text-decoration:none}' +
     '.empty{color:var(--text-muted);font-size:1rem;padding:40px 0}' +
     '.empty-icon{font-size:3rem;margin-bottom:16px}' +
     '@media(max-width:768px){.letter-card{top:36%;left:46%;width:min(46%,380px)}.letter-title{font-size:clamp(1.3rem,5.8vw,2.2rem)}}' +
-    '@media(max-width:480px){.letter-card{width:min(52%,320px);padding:0 8px;transform:translate(-50%,-7%)}.letter-card h1{font-size:1.2rem;margin-bottom:16px}.letter-icon{font-size:2rem;margin-bottom:14px}.letter-card p{font-size:.9rem;line-height:1.4;margin-bottom:14px}.audio-section{margin-top:14px;padding-top:12px}.audio-label{font-size:.72rem;letter-spacing:.2px;margin-bottom:5px}audio{margin-top:4px}.footer{margin-top:14px;font-size:.65rem}}' +
-    '.landscape-note{display:none;position:fixed;inset:0;z-index:9999;background:#2a1a0e;color:#f5e6c8;text-align:center;padding:24px;font-family:Georgia,"Times New Roman",serif;overflow:hidden;flex-direction:column;align-items:center;justify-content:center}' +
+    '@media(max-width:480px){.letter-card{width:min(52%,320px);padding:0 8px;transform:translate(-50%,-7%)}.letter-card h1{font-size:1.2rem;margin-bottom:16px}.letter-icon{font-size:2rem;margin-bottom:12px}.audio-label{font-size:0.75rem}.letter-text{font-size:0.78rem;line-height:1.18}}' +
+    '.landscape-note{display:none;position:fixed;inset:0;z-index:9999;background:#2a1a0e;color:#f5e6c8;text-align:center;padding:24px;font-family:Georgia,"Times New Roman",serif;overflow:hidden;flex-direction:column;align-items:center;justify-content:center;gap:16px}' +
     '.landscape-text{position:relative;z-index:2;font-size:1.2rem;max-width:90vw;line-height:1.4}' +
     '.elves{position:absolute;inset:0;z-index:1;pointer-events:none;overflow:hidden}' +
     '.elf{position:absolute;font-size:1.8rem;opacity:.9}' +
@@ -78,12 +74,12 @@ function letterHTML(id, content) {
         '<div class="elves" id="elves"></div>' +
       '</div>' +
       '<div class="scroll-wrapper"><img class="scroll-bg" src="' + bgImage + '" alt="Christmas scroll"><div class="letter-card">' + body + '</div></div>' +
-      '<script>(function(){const mq=window.matchMedia("(max-width: 900px) and (orientation: landscape)");const elvesWrap=document.getElementById("elves");let built=false;function buildStaticElves(){if(built||!elvesWrap)return;built=true;const cols=6,rows=4;for(let y=0;y<rows;y++){for(let x=0;x<cols;x++){const e=document.createElement("div");e.className="elf";e.textContent=["🧝","🎄","❄️","⭐"][Math.floor(Math.random()*4)];e.style.left=(6 + x*(88/(cols-1)) + (Math.random()*3-1.5))+"%";e.style.top=(10 + y*(75/(rows-1)) + (Math.random()*4-2))+"%";e.style.transform="rotate("+(Math.random()*16-8)+"deg)";e.style.opacity=(0.65 + Math.random()*0.25).toFixed(2);elvesWrap.appendChild(e)}}}function apply(){const on=mq.matches;document.body.classList.toggle("mobile-landscape",on);if(on)buildStaticElves()}if(mq.addEventListener)mq.addEventListener("change",apply);else if(mq.addListener)mq.addListener(apply);apply();})();</script>' +
+      '<script>(function(){const mq=window.matchMedia("(max-width: 900px) and (orientation: landscape)");const elvesWrap=document.getElementById("elves");let built=false;function buildStaticElves(){if(!elvesWrap||built)return;built=true;const icons=["🧝","🧝‍♀️","🎄","🎁","✨"];const spots=[[8,12],[22,28],[38,10],[56,24],[74,14],[88,30],[14,52],[30,46],[48,58],[66,50],[84,62],[10,80],[26,74],[44,86],[62,78],[80,88]];for(let i=0;i<spots.length;i++){const e=document.createElement("span");e.className="elf";e.textContent=icons[i%icons.length];e.style.left=spots[i][0]+"%";e.style.top=spots[i][1]+"%";elvesWrap.appendChild(e)}}function apply(){document.body.classList.toggle("mobile-landscape",mq.matches);if(mq.matches)buildStaticElves()}buildStaticElves();apply();if(mq.addEventListener)mq.addEventListener("change",apply);else mq.addListener(apply)})();</script>' +
     '</body></html>';
 }
 
 function gateHTML(title, error) {
-  return '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Enter Password - V I Key</title><style>*{box-sizing:border-box}body{font-family:Arial,sans-serif;background:#f5f5f5;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;padding:20px}.card{background:#fff;border:1px solid #ddd;border-radius:8px;max-width:420px;width:100%;padding:24px;box-shadow:0 4px 10px rgba(0,0,0,.08)}h1{font-size:1.25rem;margin:0 0 8px}p{color:#555;margin:0 0 16px}input{width:100%;padding:12px;border:1px solid #ccc;border-radius:6px;font-size:1rem}button{margin-top:12px;width:100%;padding:12px;border:0;border-radius:6px;background:#111;color:#fff;font-size:1rem;cursor:pointer}button:hover{background:#222}.error{margin-top:10px;color:#b00020;font-size:.95rem}</style></head><body><div class="card"><h1>' + escapeHtml(title || 'Protected Page') + '</h1><p>Please enter the password to continue.</p><form method="post"><input type="password" name="password" autocomplete="current-password" placeholder="Password" required><button type="submit">Continue</button></form>' + (error ? '<div class="error">Incorrect password. Please try again.</div>' : '') + '</div></body></html>';
+  return '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Enter Password - V I Key</title><style>*{box-sizing:border-box}body{font-family:Arial,sans-serif;background:#2a1a0e;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;padding:20px}.card{background:#f3e6cf;padding:30px;border-radius:8px;box-shadow:0 2px 10px rgba(0,0,0,.1);max-width:400px;width:100%}h2{margin-top:0;color:#333}input[type=password]{width:100%;padding:12px;border:1px solid #ddd;border-radius:4px;font-size:16px;margin:10px 0}button{background:#007bff;color:#fff;border:none;padding:12px 24px;border-radius:4px;font-size:16px;cursor:pointer;width:100%}button:hover{background:#0056b3}.error{color:#d32f2f;background:#ffebee;padding:10px;border-radius:4px;margin-bottom:15px}</style></head><body><div class="card"><h2>' + escapeHtml(title) + '</h2>' + (error ? '<div class="error">Incorrect password. Please try again.</div>' : '') + '<form method="POST"><input type="password" name="password" placeholder="Enter password" required autofocus><button type="submit">Access Page</button></form></div></body></html>';
 }
 
 export async function onRequest(context) {
