@@ -62,7 +62,7 @@ function letterHTML(id, content) {
     '.empty{color:var(--text-muted);font-size:1rem;padding:40px 0}' +
     '.empty-icon{font-size:3rem;margin-bottom:16px}' +
     '@media(max-width:768px){.letter-card{top:36%;left:46%;width:min(46%,380px)}.letter-title{font-size:clamp(1.3rem,5.8vw,2.2rem)}}' +
-   '@media(max-width:480px){.letter-card{width:min(52%,320px);padding:0 8px;transform:translate(-50%,-7%)}.letter-card h1{font-size:1.2rem;margin-bottom:16px}.letter-icon{font-size:2rem;margin-bottom:12px}.audio-label{font-size:0.75rem}.letter-text{font-size:0.78rem;line-height:1.18}}' +
+    '@media (max-width:900px) and (orientation:landscape){.scroll-wrapper{display:none!important}body::before{content:"Please rotate your phone to portrait.";display:block;color:#f5e6c8;text-align:center;font-family:Georgia,"Times New Roman",serif;padding:24px;max-width:90vw}}' +
     '</style></head>' +
     '<body><div class="scroll-wrapper"><img class="scroll-bg" src="' + bgImage + '" alt="Christmas scroll"><div class="letter-card">' + body + '</div></div></body></html>';
 }
