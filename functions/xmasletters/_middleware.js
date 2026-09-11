@@ -15,28 +15,46 @@ function escapeHtml(str) {
 }
 
 function letterHTML(id, content) {
-  var body = '';
-  if (content && content.text) {
-    body += '<h1></h1><div class="letter-text">' + escapeHtml(content.text) + '</div>';
+  var raw = (content && content.text) ? String(content.text) : '';
+  var lines = raw.split(/\r?\n/);
+  var heading = '';
+  var rest = '';
+
+  if (lines.length > 0 && lines[0].trim()) {
+    heading = lines[0].trim();
+    rest = lines.slice(1).join('\n').trim();
+  } else {
+    rest = raw;
   }
+
+  var body = '';
+  if (raw) {
+    body += '<h1 class="letter-title">' + escapeHtml(heading || 'Christmas Wish Message') + '</h1>';
+    body += '<div class="letter-text">' + escapeHtml(rest) + '</div>';
+  }
+
   if (content && content.audioUrl) {
     body += '<div class="audio-section"><div class="audio-label">&#127925; Listen to your letter</div><audio controls preload="metadata"><source src="' + escapeHtml(content.audioUrl) + '" type="audio/mpeg">Your browser does not support the audio element.</audio></div>';
   }
+
   if (!content || (!content.text && !content.audioUrl)) {
     body = '<div class="empty">This letter is not ready yet. Please check back soon.</div>';
   }
 
   var bgImage = 'https://pub-07ed0b0955a4401f9956c3ca7a33c40e.r2.dev/santa%20scroll%202.jpg';
 
-  return '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Christmas Letter - ' + escapeHtml(id) + ' - V I Key</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&family=Great+Vibes&display=swap" rel="stylesheet"><style>' +
-    ':root{--gold:#d4af37;--text-color:#3b2f1e;--text-muted:#6b5a3e}' +
+  return '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Christmas Letter - ' + escapeHtml(id) + ' - V I Key</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&family=Great+Vibes&family=Mountains+of+Christmas:wght@700&display=swap" rel="stylesheet"><style>' +
+    ':root{--gold:#d4af37;--text-color:#3b2f1e;--text-muted:#6b5a3e;--title-red:#b22222;--title-green:#1f6b2a}' +
     '*{box-sizing:border-box;margin:0;padding:0}' +
     'body{font-family:Georgia,"Times New Roman",serif;background-color:#2a1a0e;color:var(--text-color);line-height:1.8;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}' +
     '.scroll-wrapper{position:relative;max-width:1000px;width:100%;margin:0 auto}' +
     '.scroll-bg{display:block;width:100%;height:auto;border-radius:8px}' +
     '.letter-card{position:absolute;top:34%;left:46%;transform:translate(-50%,-50%);width:min(42%,420px);padding:0 16px;text-align:center;text-shadow:0 1px 2px rgba(255,255,255,0.5)}' +
-    '.letter-icon{font-size:3rem;margin-bottom:20px}' +
-    '.letter-card h1{font-family:"Great Vibes",cursive;color:#5c3a1e;font-size:2.2rem;font-weight:400;margin-bottom:24px;letter-spacing:1px}' +
+
+    /* BIG MERRY TOP LINE */
+    '.letter-title{font-family:"Mountains of Christmas","Great Vibes",cursive;font-size:clamp(1.6rem,4.2vw,3rem);line-height:1.1;margin:0 0 14px;letter-spacing:1px;text-transform:uppercase;color:var(--title-red);text-shadow:0 2px 0 #fff,0 0 10px rgba(212,175,55,.45)}' +
+    '.letter-title .green{color:var(--title-green)}' +
+
     '.letter-text{font-family:"Caveat",cursive;color:var(--text-color);font-size:clamp(1rem,2.2vw,1.5rem);margin-bottom:30px;white-space:pre-wrap;text-align:left;line-height:1.5}' +
     '.audio-section{margin-top:24px;padding-top:24px;border-top:1px solid rgba(107,90,62,0.3)}' +
     '.audio-label{color:#5c3a1e;font-size:0.9rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px}' +
@@ -45,8 +63,8 @@ function letterHTML(id, content) {
     '.footer a{color:#5c3a1e;text-decoration:none}' +
     '.empty{color:var(--text-muted);font-size:1rem;padding:40px 0}' +
     '.empty-icon{font-size:3rem;margin-bottom:16px}' +
-    '@media(max-width:768px){.letter-card{top:36%;left:46%;width:min(46%,380px)}.letter-card h1{font-size:1.8rem}}' +
-    '@media(max-width:480px){.letter-card{top:38%;left:46%;width:min(52%,320px);padding:0 8px}.letter-card h1{font-size:1.2rem;margin-bottom:16px}.letter-icon{font-size:2rem;margin-bottom:12px}.audio-label{font-size:0.75rem}}' +
+    '@media(max-width:768px){.letter-card{top:36%;left:46%;width:min(46%,380px)}.letter-title{font-size:clamp(1.3rem,5.8vw,2.2rem)}}' +
+    '@media(max-width:480px){.letter-card{top:38%;left:46%;width:min(52%,320px);padding:0 8px}.letter-title{font-size:clamp(1.1rem,7vw,1.8rem);margin-bottom:10px}.audio-label{font-size:0.75rem}}' +
     '</style></head>' +
     '<body><div class="scroll-wrapper"><img class="scroll-bg" src="' + bgImage + '" alt="Christmas scroll"><div class="letter-card">' + body + '</div></div></body></html>';
 }
