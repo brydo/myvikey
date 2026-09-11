@@ -59,16 +59,13 @@ function letterHTML(id, content) {
     '.footer a{color:#5c3a1e;text-decoration:none}' +
     '.empty{color:var(--text-muted);font-size:1rem;padding:40px 0}' +
     '.empty-icon{font-size:3rem;margin-bottom:16px}' +
-
     '@media(max-width:768px){.letter-card{top:36%;left:46%;width:min(46%,380px)}.letter-title{font-size:clamp(1.3rem,5.8vw,2.2rem)}}' +
     '@media(max-width:480px){.letter-card{width:min(52%,320px);padding:0 8px;transform:translate(-50%,-7%)}.letter-card h1{font-size:1.2rem;margin-bottom:16px}.letter-icon{font-size:2rem;margin-bottom:12px}.audio-label{font-size:0.75rem}.letter-text{font-size:0.78rem;line-height:1.18}}' +
 
     '.landscape-note{display:none;position:fixed;inset:0;z-index:9999;background:#2a1a0e;color:#f5e6c8;text-align:center;padding:24px;font-family:Georgia,"Times New Roman",serif;overflow:hidden;flex-direction:column;align-items:center;justify-content:center;gap:16px}' +
     '.landscape-text{position:relative;z-index:2;font-size:1.2rem;max-width:90vw;line-height:1.4}' +
     '.elves{position:absolute;inset:0;z-index:1;pointer-events:none;overflow:hidden}' +
-    '.elf{position:absolute;font-size:1.8rem;will-change:transform;animation:bounceElf linear infinite}' +
-    '@keyframes bounceElf{0%{transform:translate(0,0)}25%{transform:translate(var(--x1),var(--y1))}50%{transform:translate(var(--x2),var(--y2))}75%{transform:translate(var(--x3),var(--y3))}100%{transform:translate(0,0)}}' +
-
+    '.elf{position:absolute;font-size:1.8rem;opacity:.9}' +
     'body.mobile-landscape .scroll-wrapper{display:none!important}' +
     'body.mobile-landscape .landscape-note{display:flex!important}' +
     '</style></head>' +
@@ -78,7 +75,7 @@ function letterHTML(id, content) {
         '<div class="elves" id="elves"></div>' +
       '</div>' +
       '<div class="scroll-wrapper"><img class="scroll-bg" src="' + bgImage + '" alt="Christmas scroll"><div class="letter-card">' + body + '</div></div>' +
-      '<script>(function(){const mq=window.matchMedia("(max-width: 900px) and (orientation: landscape)");const elvesWrap=document.getElementById("elves");let spawned=false;function spawnElves(){if(!elvesWrap||spawned)return;spawned=true;const icons=["🧝","🎄","✨","🎁"];const count=18;for(let i=0;i<count;i++){const e=document.createElement("span");e.className="elf";e.textContent=icons[Math.floor(Math.random()*icons.length)];e.style.left=(Math.random()*100)+"%";e.style.top=(Math.random()*100)+"%";e.style.animationDuration=(4+Math.random()*6)+"s";e.style.animationDelay=(-Math.random()*6)+"s";e.style.setProperty("--x1",(Math.random()*140-70)+"px");e.style.setProperty("--y1",(Math.random()*140-70)+"px");e.style.setProperty("--x2",(Math.random()*180-90)+"px");e.style.setProperty("--y2",(Math.random()*180-90)+"px");e.style.setProperty("--x3",(Math.random()*140-70)+"px");e.style.setProperty("--y3",(Math.random()*140-70)+"px");elvesWrap.appendChild(e)}}function clearElves(){if(!elvesWrap)return;elvesWrap.innerHTML="";spawned=false}function apply(){document.body.classList.toggle("mobile-landscape",mq.matches);if(mq.matches)spawnElves();else clearElves()}apply();if(mq.addEventListener)mq.addEventListener("change",apply);else mq.addListener(apply)})();</script>' +
+      '<script>(function(){const mq=window.matchMedia("(max-width: 900px) and (orientation: landscape)");const elvesWrap=document.getElementById("elves");let built=false;function buildStaticElves(){if(!elvesWrap||built)return;built=true;const icons=["🧝","🧝‍♀️","🎄","🎁","✨"];const spots=[[8,12],[22,28],[38,10],[56,24],[74,14],[88,30],[14,52],[30,46],[48,58],[66,50],[84,62],[10,80],[26,74],[44,86],[62,78],[80,88]];for(let i=0;i<spots.length;i++){const e=document.createElement("span");e.className="elf";e.textContent=icons[i%icons.length];e.style.left=spots[i][0]+"%";e.style.top=spots[i][1]+"%";elvesWrap.appendChild(e)}}function apply(){document.body.classList.toggle("mobile-landscape",mq.matches);if(mq.matches)buildStaticElves()}buildStaticElves();apply();if(mq.addEventListener)mq.addEventListener("change",apply);else mq.addListener(apply)})();</script>' +
     '</body></html>';
 }
 
