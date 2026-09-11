@@ -10,7 +10,7 @@ function escapeHtml(str) {
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
+    .replace(/\"/g, '&quot;')
     .replace(/'/g, '&#039;');
 }
 
@@ -35,8 +35,8 @@ function letterHTML(id, content) {
     '.scroll-wrapper{position:relative;max-width:1000px;width:100%;margin:0 auto}' +
     '.scroll-bg{display:block;width:100%;height:auto;border-radius:8px}' +
 
-    /* POSITIONING: moved LOWER so it clears Santa's face */
-    '.letter-card{position:absolute;top:58%;left:50%;transform:translate(-50%,-50%);width:min(42%,420px);padding:0 16px;text-align:center;text-shadow:0 1px 2px rgba(255,255,255,0.5)}' +
+    /* moved UP 10% */
+    '.letter-card{position:absolute;top:48%;left:50%;transform:translate(-50%,-50%);width:min(42%,420px);padding:0 16px;text-align:center;text-shadow:0 1px 2px rgba(255,255,255,0.5)}' +
 
     '.letter-icon{font-size:3rem;margin-bottom:20px}' +
     '.letter-card h1{font-family:"Great Vibes",cursive;color:#5c3a1e;font-size:2.2rem;font-weight:400;margin-bottom:24px;letter-spacing:1px}' +
@@ -48,8 +48,8 @@ function letterHTML(id, content) {
     '.footer a{color:#5c3a1e;text-decoration:none}' +
     '.empty{color:var(--text-muted);font-size:1rem;padding:40px 0}' +
     '.empty-icon{font-size:3rem;margin-bottom:16px}' +
-    '@media(max-width:768px){.letter-card{top:60%;width:min(46%,380px)}.letter-card h1{font-size:1.8rem}}' +
-    '@media(max-width:480px){.letter-card{top:62%;width:min(52%,320px);padding:0 8px}.letter-card h1{font-size:1.2rem;margin-bottom:16px}.letter-icon{font-size:2rem;margin-bottom:12px}.audio-label{font-size:0.75rem}}' +
+    '@media(max-width:768px){.letter-card{top:50%;width:min(46%,380px)}.letter-card h1{font-size:1.8rem}}' +
+    '@media(max-width:480px){.letter-card{top:52%;width:min(52%,320px);padding:0 8px}.letter-card h1{font-size:1.2rem;margin-bottom:16px}.letter-icon{font-size:2rem;margin-bottom:12px}.audio-label{font-size:0.75rem}}' +
     '</style></head>' +
     '<body><div class="scroll-wrapper"><img class="scroll-bg" src="' + bgImage + '" alt="Christmas scroll"><div class="letter-card">' + body + '</div></div></body></html>';
 }
@@ -75,17 +75,31 @@ export async function onRequest(context) {
       var expectedAdminHash = await hash('__admin__:' + adminPassword);
       var cookies = request.headers.get('Cookie') || '';
       var adminCookieMatch = cookies.split(';').some(function(c) { return c.trim() === 'auth___admin__=' + expectedAdminHash; });
+
       if (request.method === 'POST') {
         var formData = await request.formData();
         var submittedPassword = formData.get('password');
         if (submittedPassword === adminPassword) {
-          return new Response(null, { status: 302, headers: { 'Location': url.pathname, 'Set-Cookie': 'auth___admin__=' + expectedAdminHash + '; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=86400' } });
+          return new Response(null, {
+            status: 302,
+            headers: {
+              'Location': url.pathname,
+              'Set-Cookie': 'auth___admin__=' + expectedAdminHash + '; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=86400'
+            }
+          });
         } else {
-          return new Response(gateHTML('Admin Access', true), { status: 401, headers: { 'Content-Type': 'text/html; charset=utf-8' } });
+          return new Response(gateHTML('Admin Access', true), {
+            status: 401,
+            headers: { 'Content-Type': 'text/html; charset=utf-8' }
+          });
         }
       }
+
       if (adminCookieMatch) return next();
-      return new Response(gateHTML('Admin Access', false), { status: 200, headers: { 'Content-Type': 'text/html; charset=utf-8' } });
+      return new Response(gateHTML('Admin Access', false), {
+        status: 200,
+        headers: { 'Content-Type': 'text/html; charset=utf-8' }
+      });
     }
 
     // Handle letter pages with ?id=
@@ -103,7 +117,10 @@ export async function onRequest(context) {
     var storedPassword = await env.PAGE_PASSWORDS.get(pageId);
 
     if (!storedPassword) {
-      return new Response(letterHTML(pageId, content), { status: 200, headers: { 'Content-Type': 'text/html; charset=utf-8' } });
+      return new Response(letterHTML(pageId, content), {
+        status: 200,
+        headers: { 'Content-Type': 'text/html; charset=utf-8' }
+      });
     }
 
     var expectedCookieValue = await hash(pageId + ':' + storedPassword);
@@ -114,20 +131,37 @@ export async function onRequest(context) {
       var submittedPassword = formData.get('password');
       if (submittedPassword === storedPassword) {
         var redirectUrl = url.pathname + url.search;
-        return new Response(null, { status: 302, headers: { 'Location': redirectUrl, 'Set-Cookie': cookieName + '=' + expectedCookieValue + '; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=86400' } });
+        return new Response(null, {
+          status: 302,
+          headers: {
+            'Location': redirectUrl,
+            'Set-Cookie': cookieName + '=' + expectedCookieValue + '; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=86400'
+          }
+        });
       } else {
-        return new Response(gateHTML('This Page is Protected', true), { status: 401, headers: { 'Content-Type': 'text/html; charset=utf-8' } });
+        return new Response(gateHTML('This Page is Protected', true), {
+          status: 401,
+          headers: { 'Content-Type': 'text/html; charset=utf-8' }
+        });
       }
     }
 
     var cookies = request.headers.get('Cookie') || '';
-    var cookieMatch = cookies.split(';').some(function(c) { return c.trim() === cookieName + '=' + expectedCookieValue; });
+    var cookieMatch = cookies.split(';').some(function(c) {
+      return c.trim() === cookieName + '=' + expectedCookieValue;
+    });
 
     if (cookieMatch) {
-      return new Response(letterHTML(pageId, content), { status: 200, headers: { 'Content-Type': 'text/html; charset=utf-8' } });
+      return new Response(letterHTML(pageId, content), {
+        status: 200,
+        headers: { 'Content-Type': 'text/html; charset=utf-8' }
+      });
     }
 
-    return new Response(gateHTML('This Page is Protected', false), { status: 200, headers: { 'Content-Type': 'text/html; charset=utf-8' } });
+    return new Response(gateHTML('This Page is Protected', false), {
+      status: 200,
+      headers: { 'Content-Type': 'text/html; charset=utf-8' }
+    });
   } catch (e) {
     return next();
   }
