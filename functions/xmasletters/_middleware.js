@@ -62,7 +62,7 @@ function letterHTML(id, content) {
     '.empty{color:var(--text-muted);font-size:1rem;padding:40px 0}' +
     '.empty-icon{font-size:3rem;margin-bottom:16px}' +
     '@media(max-width:768px){.letter-card{top:36%;left:46%;width:min(46%,380px)}.letter-title{font-size:clamp(1.3rem,5.8vw,2.2rem)}}' +
-    '@media (max-width:900px) and (orientation:landscape){.scroll-wrapper{display:none!important}.landscape-note{display:block!important}}@media (orientation:portrait), (min-width:901px){.scroll-wrapper{display:block!important}.landscape-note{display:none!important}}' +
+   '@media (max-width:900px) and (orientation:landscape){.scroll-wrapper{display:none!important}.landscape-note{display:block!important;position:fixed;inset:0;z-index:9999;background:#2a1a0e;color:#f5e6c8;text-align:center;padding:24px;font-family:Georgia,"Times New Roman",serif}}@media (max-width:900px) and (orientation:portrait), (min-width:901px){.scroll-wrapper{display:block!important}.landscape-note{display:none!important}}' + 
     '</style></head>' +
     '<body><div class="scroll-wrapper"><img class="scroll-bg" src="' + bgImage + '" alt="Christmas scroll"><div class="letter-card">' + body + '</div></div></body></html>';
 }
