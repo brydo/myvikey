@@ -64,7 +64,7 @@ function letterHTML(id, content) {
     '.landscape-note{display:none;position:fixed;inset:0;z-index:9999;background:#2a1a0e;color:#f5e6c8;text-align:center;padding:24px;font-family:Georgia,"Times New Roman",serif}' +
     'body.mobile-landscape .scroll-wrapper{display:none!important}body.mobile-landscape .landscape-note{display:flex!important;align-items:center;justify-content:center}' +
     '</style></head>' +
-    '<body><div class="landscape-note">PLEASE DONT PUT SANTA ON HIS SIDE .</div><div class="scroll-wrapper"><img class="scroll-bg" src="' + bgImage + '" alt="Christmas scroll"><div class="letter-card">' + body + '</div></div><script>(function(){const mq=window.matchMedia("(max-width: 900px) and (orientation: landscape)");function apply(){document.body.classList.toggle("mobile-landscape",mq.matches)}apply();if(mq.addEventListener)mq.addEventListener("change",apply);else mq.addListener(apply)})();</script></body></html>';
+    '<body><div class="landscape-note">You Naughty Elf, turn me back round now  .</div><div class="scroll-wrapper"><img class="scroll-bg" src="' + bgImage + '" alt="Christmas scroll"><div class="letter-card">' + body + '</div></div><script>(function(){const mq=window.matchMedia("(max-width: 900px) and (orientation: landscape)");function apply(){document.body.classList.toggle("mobile-landscape",mq.matches)}apply();if(mq.addEventListener)mq.addEventListener("change",apply);else mq.addListener(apply)})();</script></body></html>';
 }
 
 function gateHTML(title, error) {
