@@ -52,8 +52,7 @@ function letterHTML(id, content) {
     '.letter-card{position:absolute;top:34%;left:46%;transform:translate(-50%,-50%);width:min(42%,420px);padding:0 16px;text-align:center;text-shadow:0 1px 2px rgba(255,255,255,0.5)}' +
 
     /* BIG MERRY TOP LINE */
-    '.letter-title{font-family:"Mountains of Christmas","Great Vibes",cursive;font-size:clamp(1.6rem,4.2vw,3rem);line-height:1.1;margin:0 0 14px;letter-spacing:1px;text-transform:uppercase;color:var(--title-red);text-shadow:0 2px 0 #fff,0 0 10px rgba(212,175,55,.45)}' +
-    '.letter-title .green{color:var(--title-green)}' +
+   '.letter-title{font-family:"Mountains of Christmas","Great Vibes",cursive;font-size:clamp(1.6rem,4.2vw,3rem);line-height:1.1;margin:0 0 14px;letter-spacing:1px;text-transform:uppercase;color:var(--title-red);text-shadow:0 2px 0 #fff,0 0 10px rgba(212,175,55,.45)}' +
 
     '.letter-text{font-family:"Caveat",cursive;color:var(--text-color);font-size:clamp(1rem,2.2vw,1.5rem);margin-bottom:30px;white-space:pre-wrap;text-align:left;line-height:1.5}' +
     '.audio-section{margin-top:24px;padding-top:24px;border-top:1px solid rgba(107,90,62,0.3)}' +
