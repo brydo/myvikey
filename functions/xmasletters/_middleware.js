@@ -23,7 +23,7 @@ function letterHTML(id, content) {
     body += '<div class="audio-section"><div class="audio-label">&#127925; Listen to your letter</div><audio controls preload="metadata"><source src="' + escapeHtml(content.audioUrl) + '" type="audio/mpeg"></audio></div>';
   }
   if (!content || (!content.text && !content.audioUrl)) {
-    body = '<div class="empty">This letter is not ready yet. Please check back soon.</div>';
+    body = '<div class="empty">Santa is chasing the elves roght now, come back soon .</div>';
   }
   var bgImage = 'https://pub-07ed0b0955a4401f9956c3ca7a33c40e.r2.dev/santa%20scroll%202.jpg';
   return '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Christmas Letter - ' + escapeHtml(id) + ' - V I Key</title><link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Caveat:wght@400;600&display=swap" rel="stylesheet"><style>' +
