@@ -49,8 +49,7 @@ function letterHTML(id, content) {
     'body{font-family:Georgia,"Times New Roman",serif;background-color:#2a1a0e;color:var(--text-color);line-height:1.8;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}' +
     '.scroll-wrapper{position:relative;max-width:1000px;width:100%;margin:0 auto}' +
     '.scroll-bg{display:block;width:100%;height:auto;border-radius:8px}' +
-    '.letter-card{position:absolute;top:34%;left:46%;transform:translate(-50%,-50%);width:min(42%,420px);padding:0 16px;text-align:center;text-shadow:0 1px 2px rgba(255,255,255,0.5)}' +
-
+    '.letter-card{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:min(42%,420px);padding:0 16px;text-align:center;text-shadow:0 1px 2px rgba(255,255,255,0.5)}' +
     /* BIG MERRY TOP LINE */
    '.letter-title{font-family:"Mountains of Christmas","Great Vibes",cursive;font-size:clamp(1.6rem,4.2vw,3rem);line-height:1.1;margin:0 0 14px;letter-spacing:1px;text-transform:uppercase;color:var(--title-red);text-shadow:0 2px 0 #fff,0 0 10px rgba(212,175,55,.45)}' +
 
