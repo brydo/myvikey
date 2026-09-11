@@ -25,14 +25,19 @@ function letterHTML(id, content) {
   if (!content || (!content.text && !content.audioUrl)) {
     body = '<div class="empty">This letter is not ready yet. Please check back soon.</div>';
   }
+
   var bgImage = 'https://pub-07ed0b0955a4401f9956c3ca7a33c40e.r2.dev/santa%20scroll%202.jpg';
+
   return '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Christmas Letter - ' + escapeHtml(id) + ' - V I Key</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&family=Great+Vibes&display=swap" rel="stylesheet"><style>' +
     ':root{--gold:#d4af37;--text-color:#3b2f1e;--text-muted:#6b5a3e}' +
     '*{box-sizing:border-box;margin:0;padding:0}' +
     'body{font-family:Georgia,"Times New Roman",serif;background-color:#2a1a0e;color:var(--text-color);line-height:1.8;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}' +
     '.scroll-wrapper{position:relative;max-width:1000px;width:100%;margin:0 auto}' +
     '.scroll-bg{display:block;width:100%;height:auto;border-radius:8px}' +
-    '.letter-card{position:absolute;top:50%;left:50%;transform:translate(-50%,-38%);width:min(42%,420px);padding:0 16px;text-align:center;text-shadow:0 1px 2px rgba(255,255,255,0.5)}' +
+
+    /* POSITIONING: moved LOWER so it clears Santa's face */
+    '.letter-card{position:absolute;top:58%;left:50%;transform:translate(-50%,-50%);width:min(42%,420px);padding:0 16px;text-align:center;text-shadow:0 1px 2px rgba(255,255,255,0.5)}' +
+
     '.letter-icon{font-size:3rem;margin-bottom:20px}' +
     '.letter-card h1{font-family:"Great Vibes",cursive;color:#5c3a1e;font-size:2.2rem;font-weight:400;margin-bottom:24px;letter-spacing:1px}' +
     '.letter-text{font-family:"Caveat",cursive;color:var(--text-color);font-size:clamp(1rem,2.2vw,1.5rem);margin-bottom:30px;white-space:pre-wrap;text-align:left;line-height:1.5}' +
@@ -43,8 +48,8 @@ function letterHTML(id, content) {
     '.footer a{color:#5c3a1e;text-decoration:none}' +
     '.empty{color:var(--text-muted);font-size:1rem;padding:40px 0}' +
     '.empty-icon{font-size:3rem;margin-bottom:16px}' +
-    '@media(max-width:768px){.letter-card{width:min(46%,380px)}.letter-card h1{font-size:1.8rem}}' +
-    '@media(max-width:480px){.letter-card{width:min(52%,320px);padding:0 8px}.letter-card h1{font-size:1.2rem;margin-bottom:16px}.letter-icon{font-size:2rem;margin-bottom:12px}.audio-label{font-size:0.75rem}}' +
+    '@media(max-width:768px){.letter-card{top:60%;width:min(46%,380px)}.letter-card h1{font-size:1.8rem}}' +
+    '@media(max-width:480px){.letter-card{top:62%;width:min(52%,320px);padding:0 8px}.letter-card h1{font-size:1.2rem;margin-bottom:16px}.letter-icon{font-size:2rem;margin-bottom:12px}.audio-label{font-size:0.75rem}}' +
     '</style></head>' +
     '<body><div class="scroll-wrapper"><img class="scroll-bg" src="' + bgImage + '" alt="Christmas scroll"><div class="letter-card">' + body + '</div></div></body></html>';
 }
