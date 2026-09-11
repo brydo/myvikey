@@ -144,6 +144,16 @@
     </div>
 
     <script>
+        async function safeJson(resp) {
+            const text = await resp.text();
+            if (!text) return {};
+            try {
+                return JSON.parse(text);
+            } catch {
+                return { error: `Invalid JSON response (status ${resp.status})` };
+            }
+        }
+
         async function setPassword() {
             const id = document.getElementById('setId').value.trim();
             const pass = document.getElementById('setPass').value.trim();
@@ -154,8 +164,8 @@
                     method: 'POST', headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ action: 'set', id, password: pass })
                 });
-                const data = await resp.json();
-                if (data.success) { msg.textContent = `✓ Password set for "${id}".`; msg.className = 'msg ok'; }
+                const data = await safeJson(resp);
+                if (resp.ok && data.success) { msg.textContent = `✓ Password set for "${id}".`; msg.className = 'msg ok'; }
                 else { msg.textContent = '✗ ' + (data.error || 'Failed'); msg.className = 'msg err'; }
             } catch (e) { msg.textContent = '✗ Error: ' + e.message; msg.className = 'msg err'; }
         }
@@ -169,8 +179,8 @@
                     method: 'POST', headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ action: 'delete', id })
                 });
-                const data = await resp.json();
-                if (data.success) { msg.textContent = `✓ Password removed for "${id}".`; msg.className = 'msg ok'; }
+                const data = await safeJson(resp);
+                if (resp.ok && data.success) { msg.textContent = `✓ Password removed for "${id}".`; msg.className = 'msg ok'; }
                 else { msg.textContent = '✗ ' + (data.error || 'Failed'); msg.className = 'msg err'; }
             } catch (e) { msg.textContent = '✗ Error: ' + e.message; msg.className = 'msg err'; }
         }
@@ -194,8 +204,8 @@
                     method: 'POST', headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ action: 'set-content', id, text, audioUrl })
                 });
-                const data = await resp.json();
-                if (data.success) { msg.textContent = `✓ Content saved for "${id}".`; msg.className = 'msg ok'; }
+                const data = await safeJson(resp);
+                if (resp.ok && data.success) { msg.textContent = `✓ Content saved for "${id}".`; msg.className = 'msg ok'; }
                 else { msg.textContent = '✗ ' + (data.error || 'Failed'); msg.className = 'msg err'; }
             } catch (e) { msg.textContent = '✗ Error: ' + e.message; msg.className = 'msg err'; }
         }
@@ -209,8 +219,8 @@
                     method: 'POST', headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ action: 'get-content', id })
                 });
-                const data = await resp.json();
-                if (data.success) {
+                const data = await safeJson(resp);
+                if (resp.ok && data.success) {
                     if (data.content) {
                         document.getElementById('contentText').value = data.content.text || '';
                         document.getElementById('contentAudio').value = data.content.audioUrl || '';
@@ -231,8 +241,8 @@
                     method: 'POST', headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ action: 'list-content' })
                 });
-                const data = await resp.json();
-                if (data.success) {
+                const data = await safeJson(resp);
+                if (resp.ok && data.success) {
                     if (data.pages.length === 0) {
                         listEl.innerHTML = '<div style="color:#aaa;font-size:0.9rem;">No pages with content yet.</div>';
                     } else {
