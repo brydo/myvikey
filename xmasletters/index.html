@@ -90,7 +90,7 @@
     </style>
 </head>
 <body>
-    <div id="landscapeNote" class="landscape-note" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="landscapeNoteText">
+    <div id="landscapeNote" class="landscape-note" role="status" aria-live="polite" aria-atomic="true" aria-hidden="true" aria-labelledby="landscapeNoteText">
         <span id="landscapeNoteText">Please rotate your phone to portrait.</span>
     </div>
 
@@ -135,6 +135,9 @@
         loadLetter();
 
         (function () {
+            if (window.__xmasLandscapeOverlayInit) return;
+            window.__xmasLandscapeOverlayInit = true;
+
             const mq = window.matchMedia("(max-width: 900px) and (orientation: landscape)");
             const landscapeNote = document.getElementById("landscapeNote");
             const applyOrientationClass = () => {
@@ -151,6 +154,15 @@
             } else {
                 mq.addListener(applyOrientationClass);
             }
+
+            window.addEventListener("pagehide", function cleanupLandscapeOverlay() {
+                if (mq.removeEventListener) {
+                    mq.removeEventListener("change", applyOrientationClass);
+                } else if (mq.removeListener) {
+                    mq.removeListener(applyOrientationClass);
+                }
+                window.__xmasLandscapeOverlayInit = false;
+            }, { once: true });
         })();
 
     </script>
