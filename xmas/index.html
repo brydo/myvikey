@@ -49,6 +49,15 @@
       max-width: 600px;
     }
 
+    .banner-image {
+      display: block;
+      width: 100%;
+      max-width: 300px;
+      height: auto;
+      margin: 0 auto 12px;
+      border-radius: 8px;
+    }
+
     .warning-banner::before {
       content: "⚠️ ";
       margin-right: 8px;
@@ -330,7 +339,10 @@
 
 <body>
 
-  <div class="warning-banner">Under construction - Call back soon!!</div>
+  <div class="warning-banner">
+    <img src="https://pub-07ed0b0955a4401f9956c3ca7a33c40e.r2.dev/ne.jpg" alt="Coming Soon" class="banner-image">
+    Under construction - Call back soon!!
+  </div>
 
   <div class="form-container">
     <div class="festive-header">
