@@ -221,6 +221,31 @@
 
     .bank-link:hover { background: #fff1f2; }
 
+    .pay-confirm-box {
+      margin: 18px 0 22px;
+      padding: 16px;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      background: rgba(255,255,255,0.9);
+    }
+
+    .pay-confirm-box label {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      margin-bottom: 0;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #0f172a;
+      line-height: 1.5;
+    }
+
+    .pay-confirm-box input[type="checkbox"] {
+      margin-top: 4px;
+      transform: scale(1.1);
+      accent-color: #dc2626;
+    }
+
     button {
       width: 100%;
       background: linear-gradient(180deg, #dc2626, #b91c1c);
@@ -245,18 +270,6 @@
       cursor: not-allowed;
       transform: none;
       box-shadow: none;
-    }
-
-    .form-success {
-      display: none;
-      background: #dcfce7;
-      color: #166534;
-      padding: 18px;
-      border-radius: 8px;
-      text-align: center;
-      font-weight: 700;
-      margin-top: 20px;
-      border: 1px solid #bbf7d0;
     }
   </style>
 </head>
@@ -324,22 +337,37 @@
 
       <div class="payment-box">
         <h3>Payment Reminder</h3>
-        <p>Please make sure your payment has been completed before submitting your order.</p>
-        <a class="bank-link" href="https://paymentrequest.natwestpayit.com/reusable-links/63e0aa5c-adef-4914-9f44-a5c147a1ced6" target="_blank" rel="noopener noreferrer">Tap here to pay by bank transfer →</a>
+        <p>Please complete your payment before submitting your order.</p>
+        <a class="bank-link" href="https://paymentrequest.natwestpayit.com/reusable-links/63e0aa5c-adef-4914-9f44-a5c147a1ced6" target="_blank" rel="noopener noreferrer">Tap here to pay by bank transfer → It’s safe, quick and easy!</a>
       </div>
 
-      <button type="submit">Complete Order</button>
+      <div class="pay-confirm-box">
+        <label for="paid_confirm">
+          <input type="checkbox" id="paid_confirm" name="paid_confirm" required>
+          I confirm I have paid and I’m ready to submit my order.
+        </label>
+      </div>
+
+      <button id="submitBtn" type="submit" disabled>Complete Order</button>
     </form>
 
   </div>
 
   <script>
     const form = document.getElementById('santaForm');
-    const submitBtn = form.querySelector('button[type="submit"]');
+    const submitBtn = document.getElementById('submitBtn');
+    const paidConfirm = document.getElementById('paid_confirm');
+
+    function updateSubmitState() {
+      submitBtn.disabled = !paidConfirm.checked;
+    }
+
+    paidConfirm.addEventListener('change', updateSubmitState);
+    updateSubmitState();
 
     form.addEventListener('submit', function (e) {
-      const paid = confirm('Please confirm you have paid before completing your order. Tap OK to continue or Cancel to go back and pay now.');
-      if (!paid) {
+      const ok = confirm('Important: please make sure payment has been completed before continuing. Tap OK only if payment is done.');
+      if (!ok) {
         e.preventDefault();
         return;
       }
