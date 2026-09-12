@@ -80,19 +80,17 @@
             justify-content: center;
         }
 
-        @media (max-width: 900px) and (orientation: landscape) and (hover: none) and (pointer: coarse) {
-            .scroll-container {
-                display: none !important;
-            }
+        body.mobile-landscape .scroll-container {
+            display: none !important;
+        }
 
-            .landscape-note {
-                display: flex !important;
-            }
+        body.mobile-landscape .landscape-note {
+            display: flex !important;
         }
     </style>
 </head>
 <body>
-    <div class="landscape-note" role="alert" aria-live="assertive">
+    <div id="landscapeNote" class="landscape-note" aria-hidden="true">
         Please rotate your phone to portrait.
     </div>
 
@@ -114,7 +112,7 @@
             const letterElement = document.getElementById('letterContainer');
 
             if (!userId) {
-                letterElement.textContent = "No letter Written Yet;
+                letterElement.textContent = "No letter Written Yet.";
                 return;
             }
 
@@ -135,6 +133,32 @@
 
         // Trigger the fetch when the page loads
         loadLetter();
+
+        (function () {
+            const mq = window.matchMedia("(max-width: 900px) and (orientation: landscape) and (hover: none) and (pointer: coarse)");
+            const landscapeNote = document.getElementById("landscapeNote");
+            const applyOrientationClass = () => {
+                const isMobileLandscape = mq.matches;
+                document.body.classList.toggle("mobile-landscape", isMobileLandscape);
+
+                if (!landscapeNote) return;
+                landscapeNote.setAttribute("aria-hidden", isMobileLandscape ? "false" : "true");
+                if (isMobileLandscape) {
+                    landscapeNote.setAttribute("role", "alert");
+                    landscapeNote.setAttribute("aria-live", "assertive");
+                } else {
+                    landscapeNote.removeAttribute("role");
+                    landscapeNote.removeAttribute("aria-live");
+                }
+            };
+
+            applyOrientationClass();
+            if (mq.addEventListener) {
+                mq.addEventListener("change", applyOrientationClass);
+            } else {
+                mq.addListener(applyOrientationClass);
+            }
+        })();
 
     </script>
 
