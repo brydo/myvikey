@@ -90,7 +90,7 @@
     </style>
 </head>
 <body>
-    <div id="landscapeNote" class="landscape-note" aria-hidden="true" aria-labelledby="landscapeNoteText">
+    <div id="landscapeNote" class="landscape-note" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="landscapeNoteText">
         <span id="landscapeNoteText">Please rotate your phone to portrait.</span>
     </div>
 
@@ -143,13 +143,6 @@
 
                 if (!landscapeNote) return;
                 landscapeNote.setAttribute("aria-hidden", isMobileLandscape ? "false" : "true");
-                if (isMobileLandscape) {
-                    landscapeNote.setAttribute("role", "alert");
-                    landscapeNote.setAttribute("aria-live", "assertive");
-                } else {
-                    landscapeNote.removeAttribute("role");
-                    landscapeNote.removeAttribute("aria-live");
-                }
             };
 
             applyOrientationClass();
