@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Petri's Menu</title>
+  <style>
+    :root {
+      --bg-dark: #121212;
+      --card-bg: #1e1e1e;
+      --border-color: #333333;
+      --text-main: #ffffff;
+      --text-sub: #b3b3b3;
+      --accent-color: #e50914; /* Petri's brand accent red/orange */
+      --price-color: #ffb703;
+    }
+
+    body {
+      font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      max-width: 700px;
+      margin: 30px auto;
+      padding: 0 15px;
+    }
+
+    .menu-header {
+      text-align: center;
+      margin-bottom: 25px;
+    }
+
+    .menu-header h1 {
+      font-size: 28px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 5px;
+    }
+
+    .menu-header p {
+      color: var(--text-sub);
+      font-size: 14px;
+    }
+
+    /* Accordion Button Styling */
+    .accordion {
+      background-color: var(--card-bg);
+      color: var(--text-main);
+      cursor: pointer;
+      padding: 16px 20px;
+      width: 100%;
+      border: 1px solid var(--border-color);
+      text-align: left;
+      font-size: 16px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      transition: all 0.2s ease-in-out;
+      margin-top: 10px;
+      border-radius: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .accordion:hover, .accordion.active {
+      background-color: #2a2a2a;
+      border-color: var(--accent-color);
+    }
+
+    .accordion-icon {
+      font-size: 18px;
+      color: var(--accent-color);
+      transition: transform 0.3s ease;
+    }
+
+    .accordion.active .accordion-icon {
+      transform: rotate(45deg);
+    }
+
+    /* Collapsible Content Area */
+    .panel {
+      padding: 0 20px;
+      background-color: #181818;
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease-out;
+      border: 1px solid var(--border-color);
+      border-top: none;
+      border-bottom-left-radius: 8px;
+      border-bottom-right-radius: 8px;
+    }
+
+    /* Menu Item Layout */
+    .menu-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      padding: 14px 0;
+      border-bottom: 1px solid #282828;
+    }
+
+    .menu-item:last-child {
+      border-bottom: none;
+    }
+
+    .item-details {
+      padding-right: 15px;
+    }
+
+    .item-name {
+      font-size: 15px;
+      font-weight: 600;
+      display: block;
+      color: #fff;
+    }
+
+    .item-desc {
+      font-size: 12px;
+      color: var(--text-sub);
+      margin-top: 3px;
+      line-height: 1.4;
+    }
+
+    .item-price {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--price-color);
+      white-space: nowrap;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="menu-header">
+    <h1>Petri's Menu</h1>
+    <p>Fresh & High-Quality Street Food</p>
+  </div>
+
+  <button class="accordion">
+    Starters & Sides
+    <span class="accordion-icon">&#10010;</span>
+  </button>
+  <div class="panel">
+    <div class="menu-item"><div class="item-details"><span class="item-name">Mozzarella Sticks</span></div><span class="item-price">£4.95</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Mac & Cheese Bites</span></div><span class="item-price">£5.50</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Jalapeno Bites</span></div><span class="item-price">£5.50</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Haggis Bon Bons</span></div><span class="item-price">£5.95</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Halloumi Fries</span></div><span class="item-price">£5.50</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Garlic / Rosemary Focaccia</span></div><span class="item-price">£4.95</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Chips</span></div><span class="item-price">£3.50</span></div>
+  </div>
+
+  <button class="accordion">
+    Neapolitan Pizza
+    <span class="accordion-icon">&#10010;</span>
+  </button>
+  <div class="panel">
+    <div class="menu-item">
+      <div class="item-details">
+        <span class="item-name">Margherita</span>
+        <div class="item-desc">San Marzano tomato sauce, fior di latte, parmigiano reggiano, basil, EVO</div>
+      </div>
+      <span class="item-price">£9.95</span>
+    </div>
+    <div class="menu-item">
+      <div class="item-details">
+        <span class="item-name">Quattro Formaggi</span>
+        <div class="item-desc">Fior di latte, parmigiano, provolone and provolone picante</div>
+      </div>
+      <span class="item-price">£12.95</span>
+    </div>
+    <div class="menu-item">
+      <div class="item-details">
+        <span class="item-name">Pepperoni</span>
+        <div class="item-desc">San Marzano tomato sauce, fior di latte and pepperoni</div>
+      </div>
+      <span class="item-price">£11.50</span>
+    </div>
+    <div class="menu-item">
+      <div class="item-details">
+        <span class="item-name">Pollo e BBQ</span>
+        <div class="item-desc">San Marzano tomato, fior di latte, chicken, sweetcorn, BBQ sauce, crispy onion</div>
+      </div>
+      <span class="item-price">£11.95</span>
+    </div>
+  </div>
+
+  <button class="accordion">
+    Burgers, Sandwiches & Wraps
+    <span class="accordion-icon">&#10010;</span>
+  </button>
+  <div class="panel">
+    <div class="menu-item"><div class="item-details"><span class="item-name">Single Smash Burger</span></div><span class="item-price">£7.95</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Double Smash Burger</span></div><span class="item-price">£9.95</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">American Smash</span></div><span class="item-price">£10.95</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Southern Fried Chicken Burger</span></div><span class="item-price">£8.95</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Salt & Chilli Chicken Wrap</span></div><span class="item-price">£7.95</span></div>
+  </div>
+
+  <button class="accordion">
+    Mains & Grill
+    <span class="accordion-icon">&#10010;</span>
+  </button>
+  <div class="panel">
+    <div class="menu-item"><div class="item-details"><span class="item-name">Grilled Tenders</span></div><span class="item-price">£6.95</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Half / Whole Chicken</span></div><span class="item-price">£9.50 / £14.95</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Pollo e Funghi</span></div><span class="item-price">£12.95</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Mixgrill Special</span></div><span class="item-price">£49.95</span></div>
+  </div>
+
+  <button class="accordion">
+    Desserts & Drinks
+    <span class="accordion-icon">&#10010;</span>
+  </button>
+  <div class="panel">
+    <div class="menu-item"><div class="item-details"><span class="item-name">Savarina / Millefoglie</span></div><span class="item-price">£5.25</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Belgian Waffles</span></div><span class="item-price">£4.00 - £5.25</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Fresh Milkshakes</span></div><span class="item-price">£4.75 - £5.95</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Soft Drinks (Cans)</span></div><span class="item-price">£1.50</span></div>
+  </div>
+
+  <script>
+    const accordions = document.querySelectorAll(".accordion");
+
+    accordions.forEach(acc => {
+      acc.addEventListener("click", function() {
+        this.classList.toggle("active");
+        const panel = this.nextElementSibling;
+        
+        if (panel.style.maxHeight) {
+          panel.style.maxHeight = null;
+        } else {
+          panel.style.maxHeight = panel.scrollHeight + "px";
+        }
+      });
+    });
+  </script>
+
+</body>
+</html>
