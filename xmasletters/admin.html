@@ -66,6 +66,12 @@
             margin-left: 8px;
         }
         button.secondary:hover { background-color: rgba(255,255,255,0.05); }
+        button.danger {
+            color: #ff6b6b;
+            background-color: rgba(255, 107, 107, 0.1);
+            border-color: rgba(255, 107, 107, 0.3);
+        }
+        button.danger:hover { background-color: rgba(255, 107, 107, 0.2); }
         .msg { font-size: 0.9rem; margin-top: 12px; min-height: 1.2em; }
         .msg.ok { color: #4caf50; }
         .msg.err { color: #ff6b6b; }
@@ -131,6 +137,15 @@
                 <button class="secondary" onclick="getContent()">Load Content</button>
             </div>
             <div class="msg" id="contentMsg"></div>
+        </section>
+
+        <section>
+            <h2>🗑️ Delete User</h2>
+            <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 16px;">Permanently delete all data for a user (content, password, and audio). This action cannot be undone.</p>
+            <label for="deleteUserId">Page ID</label>
+            <input type="text" id="deleteUserId" placeholder="paulml1">
+            <button class="danger" onclick="deleteUser()">Delete User</button>
+            <div class="msg" id="deleteMsg"></div>
         </section>
 
         <section>
@@ -229,6 +244,30 @@
                         msg.textContent = `No content set for "${id}" yet.`; msg.className = 'msg err';
                     }
                 } else { msg.textContent = '✗ ' + (data.error || 'Failed'); msg.className = 'msg err'; }
+            } catch (e) { msg.textContent = '✗ Error: ' + e.message; msg.className = 'msg err'; }
+        }
+
+        async function deleteUser() {
+            const id = document.getElementById('deleteUserId').value.trim();
+            const msg = document.getElementById('deleteMsg');
+            if (!id) { msg.textContent = 'Please enter a page ID.'; msg.className = 'msg err'; return; }
+            
+            if (!confirm(`⚠️ Are you sure you want to permanently delete all data for "${id}"? This cannot be undone.`)) {
+                return;
+            }
+
+            try {
+                const resp = await fetch('/xmasletters/api/content', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'delete-user', id })
+                });
+                const data = await safeJson(resp);
+                if (resp.ok && data.success) { 
+                    msg.textContent = `✓ User "${id}" has been permanently deleted.`; 
+                    msg.className = 'msg ok'; 
+                    document.getElementById('deleteUserId').value = '';
+                }
+                else { msg.textContent = '✗ ' + (data.error || 'Failed'); msg.className = 'msg err'; }
             } catch (e) { msg.textContent = '✗ Error: ' + e.message; msg.className = 'msg err'; }
         }
 
