@@ -50,7 +50,10 @@ export async function onRequest(context) {
               hasText = !!raw.trim();
             }
           }
-          pages.push({ id: key.name, hasText, hasAudio });
+          // Only include pages that have actual content (text or audio)
+          if (hasText || hasAudio) {
+            pages.push({ id: key.name, hasText, hasAudio });
+          }
         }
         cursor = result.list_complete ? undefined : result.cursor;
       } while (cursor);
