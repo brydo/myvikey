@@ -90,7 +90,7 @@
     </style>
 </head>
 <body>
-    <div id="landscapeNote" class="landscape-note" role="status" aria-live="polite" aria-atomic="true" aria-hidden="true" aria-labelledby="landscapeNoteText">
+    <div id="landscapeNote" class="landscape-note" role="status" aria-live="polite" aria-atomic="true" aria-hidden="true" aria-labelledby="landscapeNoteText" tabindex="-1">
         <span id="landscapeNoteText">Please rotate your phone to portrait.</span>
     </div>
 
@@ -140,12 +140,17 @@
 
             const mq = window.matchMedia("(max-width: 900px) and (orientation: landscape)");
             const landscapeNote = document.getElementById("landscapeNote");
+            let wasMobileLandscape = false;
             const applyOrientationClass = () => {
                 const isMobileLandscape = mq.matches;
                 document.body.classList.toggle("mobile-landscape", isMobileLandscape);
 
                 if (!landscapeNote) return;
                 landscapeNote.setAttribute("aria-hidden", isMobileLandscape ? "false" : "true");
+                if (isMobileLandscape && !wasMobileLandscape) {
+                    landscapeNote.focus({ preventScroll: true });
+                }
+                wasMobileLandscape = isMobileLandscape;
             };
 
             applyOrientationClass();
