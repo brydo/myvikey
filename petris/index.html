@@ -29,12 +29,16 @@
       margin-bottom: 25px;
     }
 
-    .menu-logo {
-      display: block;
-      margin: 0 auto;
-      max-width: 220px;
-      width: 100%;
-      height: auto;
+    .menu-header h1 {
+      font-size: 28px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 5px;
+    }
+
+    .menu-header p {
+      color: var(--text-sub);
+      font-size: 14px;
     }
 
     .accordion {
@@ -125,185 +129,612 @@
 <body>
 
   <div class="menu-header">
-    <img class="menu-logo" src="https://pub-07ed0b0955a4401f9956c3ca7a33c40e.r2.dev/ShopLogo.png" alt="Petri's Menu Logo">
+    <h1>Petri's Menu</h1>
+    <p>Fresh & High-Quality Street Food</p>
   </div>
 
-  <!-- STARTERS & SIDES -->
-  <button class="accordion">Starters & Sides <span class="accordion-icon">&#10010;</span></button>
+  <!-- PETRI'S BOXES -->
+  <button class="accordion">Petri's Boxes <span class="accordion-icon">&#10010;</span></button>
   <div class="panel">
-    <div class="menu-item"><div class="item-details"><span class="item-name">Mozzarella Sticks</span></div><span class="item-price">£4.95</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Mac & Cheese Bites</span></div><span class="item-price">£5.50</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Jalapeno Bites</span></div><span class="item-price">£5.50</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Haggis Bon Bons</span></div><span class="item-price">£5.95</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Halloumi Fries</span></div><span class="item-price">£5.50</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Focaccia Rosemary</span></div><span class="item-price">£4.95</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Focaccia Garlic</span></div><span class="item-price">£4.95</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Focaccia Mozzarella</span></div><span class="item-price">£6.75</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Focaccia Pomodoro</span></div><span class="item-price">£6.50</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Chips</span></div><span class="item-price">£3.50</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Cajun Chips</span></div><span class="item-price">£3.95</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Peri Chips</span></div><span class="item-price">£3.95</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Chilli Oil & Parmesan Chips</span></div><span class="item-price">£4.75</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Garlic & Parmesan Chips</span></div><span class="item-price">£4.75</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Truffle Oil & Parmesan Chips</span></div><span class="item-price">£4.95</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Chips, Cheese & Curry</span></div><span class="item-price">£4.95</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Onion Rings</span></div><span class="item-price">£3.95</span></div>
+    <div class="menu-item">
+      <div class="item-details">
+        <span class="item-name">Banging Box</span>
+        <div class="item-desc">Stir Fry Donner With Peppers, Onions & Our Secret Sauce, Smash Burger Or Chicken Burger, Chips, Fried Chicken & Dip</div>
+      </div>
+      <span class="item-price">£16.95</span>
+    </div>
+    <div class="menu-item">
+      <div class="item-details">
+        <span class="item-name">Sexy Box</span>
+        <div class="item-desc">Stir Fry Donner With Peppers, Onions, Our Secret Sauce, Fried Chicken Loaded Fries, Smash Or Chicken Burger & A Dip</div>
+      </div>
+      <span class="item-price">£17.95</span>
+    </div>
+    <div class="menu-item">
+      <div class="item-details">
+        <span class="item-name">Loaded Box</span>
+        <div class="item-desc">Loaded Stir Fry Donner With Garlic Mayo, Fresh Chilli & Spring Onions, Cajun Chicken Macaroni Loaded Fries & Special Sauce, Burger Of Your Choice (Beef Smash Or Fried Chicken) & A Dip</div>
+      </div>
+      <span class="item-price">£18.95</span>
+    </div>
   </div>
 
-  <!-- NEAPOLITAN PIZZA -->
-  <button class="accordion">Neapolitan Pizza <span class="accordion-icon">&#10010;</span></button>
+  <!-- DEALS -->
+  <button class="accordion">Deals <span class="accordion-icon">&#10010;</span></button>
   <div class="panel">
-    <div class="menu-item"><div class="item-details"><span class="item-name">Margherita</span><div class="item-desc">San Marzano tomato sauce, fior di latte, parmigiano reggiano, basil and EVO</div></div><span class="item-price">£8.50</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Quattro Formaggi</span><div class="item-desc">Fior di latte, parmigiano, provolone and provolone picante</div></div><span class="item-price">£10.95</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Pepperoni</span><div class="item-desc">San Marzano tomato sauce, fior di latte and pepperoni</div></div><span class="item-price">£11.50</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Pollo e BBQ</span><div class="item-desc">San Marzano tomato, fior di latte, chicken, sweetcorn finished with BBQ sauce & crispy onions</div></div><span class="item-price">£11.95</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Cotto e Funghi</span><div class="item-desc">San Marzano tomato sauce, fior di latte, mushrooms and cooked Italian ham</div></div><span class="item-price">£11.95</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Pizza Hawaii</span><div class="item-desc">San Marzano tomato sauce, fior di latte, ham and pineapple</div></div><span class="item-price">£11.50</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Salsicia</span><div class="item-desc">San Marzano tomato sauce, fior di latte, Tuscan sausage, spicy salami, black pepper and rocket</div></div><span class="item-price">£12.25</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Chicken and Chorizo</span><div class="item-desc">San Marzano tomato, fior di latte, chicken, chorizo, fresh chillies and red onions</div></div><span class="item-price">£12.25</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Pizza Picante</span><div class="item-desc">San Marzano sauce, fior di latte, Cajun chicken, nduja sausage, jalapenos, pepperoni and chilli flakes</div></div><span class="item-price">£12.95</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Meat Feast</span><div class="item-desc">San Marzano tomato, fior di latte, chicken, pepperoni, spicy salami and Italian sausage</div></div><span class="item-price">£12.95</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Mario's Pizza</span><div class="item-desc">San Marzano sauce, fior di latte, pepperoni, salami, mozzarella di bufala and hot honey</div></div><span class="item-price">£13.25</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Parma</span><div class="item-desc">San Marzano sauce, fior di latte, prosciutto crudo, rocket, parmigiano reggiano & balsamic glaze</div></div><span class="item-price">£12.95</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Vegetariana</span><div class="item-desc">San Marzano sauce, fior di latte, grilled peppers, onions, sweetcorn, mushrooms, olives and rocket</div></div><span class="item-price">£11.50</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Diavola</span><div class="item-desc">San Marzano tomato sauce, fior di latte, pepperoni, salami, jalapenos and black pepper</div></div><span class="item-price">£12.50</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">BBQ Pizza</span><div class="item-desc">BBQ Base, fior di latte, pulled pork, pepperoni, chips and crispy onions</div></div><span class="item-price">£12.95</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Add BBQ or Spicy Base</span></div><span class="item-price">+£1.50</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Extra Vegetarian Toppings</span><div class="item-desc">Peppers, olives, mushrooms, onion, sweetcorn, pineapple, cherry tomatoes, jalapeno</div></div><span class="item-price">+£1.00</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Extra Meat Toppings</span><div class="item-desc">Pepperoni, salami, ham, chicken, spicy chicken, sausage, nduja, pulled pork</div></div><span class="item-price">+£1.50</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Add Cheese / Premium Extras</span><div class="item-desc">Mozzarella (£1.75), Goat's Cheese (£2), Mozzarella di Bufala (£2)</div></div><span class="item-price">+£1.75</span></div>
+    <div class="menu-item">
+      <div class="item-details">
+        <span class="item-name">2x Pizza Deal</span>
+        <div class="item-desc">2x Pizzas, 1x Side, 2x Cans (Mario’s & Parma Pizza £1.50 Extra)</div>
+      </div>
+      <span class="item-price">£24.95</span>
+    </div>
   </div>
 
-  <!-- SMASH & CHICKEN BURGERS -->
+  <!-- SHAWARMAS & WRAPS -->
+  <button class="accordion">Shawarmas & Wraps <span class="accordion-icon">&#10010;</span></button>
+  <div class="panel">
+    <div class="menu-item">
+      <div class="item-details">
+        <span class="item-name">Turkish Shawarma</span>
+        <div class="item-desc">Chicken, Gherkins, Chips, Garlic & Spicy Sauce In A Crispy Wrap (authentic Turkish Style)</div>
+      </div>
+      <span class="item-price">£6.50</span>
+    </div>
+    <div class="menu-item">
+      <div class="item-details">
+        <span class="item-name">Petri's Shawarma</span>
+        <div class="item-desc">Chicken, Lettuce, Cabbage, Onions, Gherkins, Tomato, Chips & Your Choice Of Sauce</div>
+      </div>
+      <span class="item-price">£7.95</span>
+    </div>
+    <div class="menu-item">
+      <div class="item-details">
+        <span class="item-name">Donner Wrap</span>
+        <div class="item-desc">Chips, Lettuce, Gherkins, Cabbage, Red Onion, Tomato & Your Choice Of Sauce</div>
+      </div>
+      <span class="item-price">£7.50</span>
+    </div>
+    <div class="menu-item">
+      <div class="item-details">
+        <span class="item-name">Shawarma & Donner</span>
+        <div class="item-desc">Chicken, Donner, Chips, Lettuce, White Cabbage, Red Onion, Tomato & Your Choice Of Sauce</div>
+      </div>
+      <span class="item-price">£7.95</span>
+    </div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Cajun Chicken Macaroni Wrap</span></div><span class="item-price">£7.50</span></div>
+    <div class="menu-item">
+      <div class="item-details">
+        <span class="item-name">Crispy Chicken Wrap</span>
+        <div class="item-desc">Lettuce, Tomato, Cheese & Special Sauce</div>
+      </div>
+      <span class="item-price">£7.50</span>
+    </div>
+    <div class="menu-item">
+      <div class="item-details">
+        <span class="item-name">Cajun Chicken Wrap</span>
+        <div class="item-desc">Lettuce, Peppers, Onions, Spicy Sauce & Cheese</div>
+      </div>
+      <span class="item-price">£7.95</span>
+    </div>
+    <div class="menu-item">
+      <div class="item-details">
+        <span class="item-name">Salt & Chilli Chicken Wrap</span>
+        <div class="item-desc">Lettuce, Peppers, Onions, Cheese & Chipotle Sauce</div>
+      </div>
+      <span class="item-price">£7.95</span>
+    </div>
+    <div class="menu-item">
+      <div class="item-details">
+        <span class="item-name">Sweet Chilli Chicken Wrap</span>
+        <div class="item-desc">Lettuce, Peppers, Onions & Cheese</div>
+      </div>
+      <span class="item-price">£7.95</span>
+    </div>
+  </div>
+
+  <!-- SPECIALS -->
+  <button class="accordion">Specials <span class="accordion-icon">&#10010;</span></button>
+  <div class="panel">
+    <div class="menu-item">
+      <div class="item-details">
+        <span class="item-name">Sexy Smashed Burger</span>
+        <div class="item-desc">2 Smashed Patties, 2 Crispy Bacon, 2 Hash Browns, 3 Cheddar Slices, Crispy Salad, Caramelised Onion, Special Sauce & Chilli Jam</div>
+      </div>
+      <span class="item-price">£12.50</span>
+    </div>
+    <div class="menu-item">
+      <div class="item-details">
+        <span class="item-name">Hot Chick Pizza</span>
+        <div class="item-desc">Tomato Base, Fior Di Latte, Crispy Chicken, Red Onions Finished With Sriracha Mayo</div>
+      </div>
+      <span class="item-price">£11.95</span>
+    </div>
+    <div class="menu-item">
+      <div class="item-details">
+        <span class="item-name">Tikka Loaded Fries</span>
+        <div class="item-desc">Crispy Fries, Mozzarella, Chicken Tikka, Peppers, Onions, Garlic & Spicy Sauce</div>
+      </div>
+      <span class="item-price">S: £5.95 / L: £8.95</span>
+    </div>
+    <div class="menu-item">
+      <div class="item-details">
+        <span class="item-name">Hot & Sexy Pizza</span>
+        <div class="item-desc">Korean Base, Crispy Fried Chicken, Fresh Chilli, Fresh Spring Onions & Sesame Seeds</div>
+      </div>
+      <span class="item-price">£12.95</span>
+    </div>
+  </div>
+
+  <!-- PETRI'S SPECIAL KEBABS -->
+  <button class="accordion">Petri's Special Kebabs <span class="accordion-icon">&#10010;</span></button>
+  <div class="panel">
+    <div class="menu-item">
+      <div class="item-details">
+        <span class="item-name">Turkish Style Kebab</span>
+        <div class="item-desc">Turkish Style Kebab In A Homemade Fluffy Bread Served With Salad, White Cabbage, Red Onion, Tomato & Your Choice Of Sauce</div>
+      </div>
+      <span class="item-price">£7.95</span>
+    </div>
+    <div class="menu-item">
+      <div class="item-details">
+        <span class="item-name">Hoagie Wrap</span>
+        <div class="item-desc">Lettuce, White Cabbage, Red Onion, Tomato & Your Choice Of Sauce</div>
+      </div>
+      <span class="item-price">£7.95</span>
+    </div>
+    <div class="menu-item">
+      <div class="item-details">
+        <span class="item-name">Petri's Stir Fried Donner Kebab</span>
+        <div class="item-desc">Served In Homemade Fluffy Bread With Peppers, Onions, White Cabbage, Salad, Chips & Petri's Sauce</div>
+      </div>
+      <span class="item-price">£8.95</span>
+    </div>
+    <div class="menu-item">
+      <div class="item-details">
+        <span class="item-name">Chicken Tikka Kebab</span>
+        <div class="item-desc">Homemade Bread, Chicken Tikka, Lettuce, White Cabbage, Red Onions, Tomato & Your Choice Of Sauce</div>
+      </div>
+      <span class="item-price">£7.95</span>
+    </div>
+    <div class="menu-item">
+      <div class="item-details">
+        <span class="item-name">Cheesy Tikka Kebab</span>
+        <div class="item-desc">Homemade Bread, Lettuce, White Cabbage, Red Onion, Tomato, Chicken Tikka, Chips, Cheese & Your Choice Of Sauce</div>
+      </div>
+      <span class="item-price">£8.55</span>
+    </div>
+    <div class="menu-item">
+      <div class="item-details">
+        <span class="item-name">Turkish Chicken Kebab</span>
+        <div class="item-desc">Homemade Bread With Chicken Shawarma Meat, Gherkins, Lettuce, White Cabbage, Red Onions, Tomato & Your Choice Of Sauce</div>
+      </div>
+      <span class="item-price">£8.95</span>
+    </div>
+  </div>
+
+  <!-- WOOD-FIRED PIZZAS -->
+  <button class="accordion">Wood-Fired Pizzas <span class="accordion-icon">&#10010;</span></button>
+  <div class="panel">
+    <div class="menu-item">
+      <div class="item-details">
+        <span class="item-name">Margherita Pizza</span>
+        <div class="item-desc">San Marzano Tomato Sauce, Fior Di Latte, Parmigiano Reggiano, Basil & Evo</div>
+      </div>
+      <span class="item-price">£9.95</span>
+    </div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Create Your Own Pizza</span></div><span class="item-price">£9.95</span></div>
+    <div class="menu-item">
+      <div class="item-details">
+        <span class="item-name">Pepperoni Pizza</span>
+        <div class="item-desc">San Marzano Tomato Sauce, Fior Di Latte & Pepperoni</div>
+      </div>
+      <span class="item-price">£11.50</span>
+    </div>
+    <div class="menu-item">
+      <div class="item-details">
+        <span class="item-name">Pollo E Bbq Pizza</span>
+        <div class="item-desc">San Marzano Tomato, Fior Di Latte, Chicken, Sweetcorn Finished With A Drizzle Of Bbq Sauce & Crispy Onion</div>
+      </div>
+      <span class="item-price">£11.95</span>
+    </div>
+    <div class="menu-item">
+      <div class="item-details">
+        <span class="item-name">Cotto E Funghi Pizza</span>
+        <div class="item-desc">San Marzano Tomato Sauce, Fior Di Latte, Mushrooms & Cooked Italian Ham</div>
+      </div>
+      <span class="item-price">£11.95</span>
+    </div>
+    <div class="menu-item">
+      <div class="item-details">
+        <span class="item-name">Hawaii Pizza</span>
+        <div class="item-desc">San Marzano Tomato Sauce, Fior Di Latte, Ham & Pineapple</div>
+      </div>
+      <span class="item-price">£11.95</span>
+    </div>
+    <div class="menu-item">
+      <div class="item-details">
+        <span class="item-name">Salsicia Pizza</span>
+        <div class="item-desc">San Marzano Tomato Sauce, Fior Di Latte, Tuscan Sausage, Spicy Salami, Black Pepper & Evo</div>
+      </div>
+      <span class="item-price">£11.95</span>
+    </div>
+    <div class="menu-item">
+      <div class="item-details">
+        <span class="item-name">Chicken & Chorizo Pizza</span>
+        <div class="item-desc">San Marzano Tomato, Fior Di Latte, Chicken, Chorizo, Fresh Chillies & Red Onions</div>
+      </div>
+      <span class="item-price">£12.50</span>
+    </div>
+    <div class="menu-item">
+      <div class="item-details">
+        <span class="item-name">Picante Pizza</span>
+        <div class="item-desc">San Marzano Tomato Sauce, Fior Di Latte, Our Marinated Cajun Chicken, Italian Nduja Sausage, Jalapenos And Grilled Peppers, Finished With Sour Cream Drizzle</div>
+      </div>
+      <span class="item-price">£12.95</span>
+    </div>
+    <div class="menu-item">
+      <div class="item-details">
+        <span class="item-name">Meat Feast Pizza</span>
+        <div class="item-desc">San Marzano Tomato, Fior Di Latte, Chicken, Pepperoni, Spicy Salami & Italian Sausage</div>
+      </div>
+      <span class="item-price">£12.95</span>
+    </div>
+    <div class="menu-item">
+      <div class="item-details">
+        <span class="item-name">Mario’s Pizza</span>
+        <div class="item-desc">San Marzano Tomato Sauce, Fiori Di Latte, Pepperoni, Salami, Mozzarella Di Bufala & Hot Honey</div>
+      </div>
+      <span class="item-price">£13.50</span>
+    </div>
+    <div class="menu-item">
+      <div class="item-details">
+        <span class="item-name">Parma Pizza</span>
+        <div class="item-desc">San Marzano Tomato Sauce, Fior Di Latte, Prosciutto Crudo, Finished With Rocket Leaves, Parmigiano Reggiano & Balsamic Reduction</div>
+      </div>
+      <span class="item-price">£13.95</span>
+    </div>
+    <div class="menu-item">
+      <div class="item-details">
+        <span class="item-name">Vegetariana Pizza</span>
+        <div class="item-desc">San Marzano Tomato Sauce, Fior Di Latte, Grilled Peppers, Onions, Sweetcorn, Mushrooms, Olives & Basil</div>
+      </div>
+      <span class="item-price">£12.50</span>
+    </div>
+    <div class="menu-item">
+      <div class="item-details">
+        <span class="item-name">Diavola Pizza</span>
+        <div class="item-desc">San Marzano Tomato Sauce, Fior Di Latte, Pepperoni, Salami, Jalapenos & Black Pepper</div>
+      </div>
+      <span class="item-price">£11.95</span>
+    </div>
+    <div class="menu-item">
+      <div class="item-details">
+        <span class="item-name">Petri's Pizza</span>
+        <div class="item-desc">San Marzano Tomato, Fior Di Latte, Crispy Chicken, Red Onions, Finished With Sriracha Mayo</div>
+      </div>
+      <span class="item-price">£11.95</span>
+    </div>
+  </div>
+
+  <!-- LOADED FRIES -->
+  <button class="accordion">Loaded Fries <span class="accordion-icon">&#10010;</span></button>
+  <div class="panel">
+    <div class="menu-item">
+      <div class="item-details">
+        <span class="item-name">Cheesy Loaded Fries</span>
+        <div class="item-desc">Fries With Our Homemade Cheddar Sauce</div>
+      </div>
+      <span class="item-price">S: £4.50 / R: £6.50</span>
+    </div>
+    <div class="menu-item">
+      <div class="item-details">
+        <span class="item-name">Southern Fried Loaded Fries</span>
+        <div class="item-desc">Fries With Cheese, Crispy Fried Chicken, Garlic Mayo, Cheddar Sauce & Special Sauce</div>
+      </div>
+      <span class="item-price">S: £5.95 / R: £8.95</span>
+    </div>
+    <div class="menu-item">
+      <div class="item-details">
+        <span class="item-name">Korean Style Loaded Fries</span>
+        <div class="item-desc">Fries With Cheese, Korean Style Chicken, Fresh Chillies, Spring Onion, Special Sauce & Sesame Seeds</div>
+      </div>
+      <span class="item-price">S: £5.95 / R: £8.95</span>
+    </div>
+    <div class="menu-item">
+      <div class="item-details">
+        <span class="item-name">Salt & Chilli Chicken Loaded Fries</span>
+        <div class="item-desc">Fries With Crispy Shredded Chicken, Fried Onions, Peppers, Chilli, Seasoned With Our Chinese Spices, Finished With Chipotle Sauce</div>
+      </div>
+      <span class="item-price">S: £5.95 / R: £8.95</span>
+    </div>
+    <div class="menu-item">
+      <div class="item-details">
+        <span class="item-name">Spicy Southern Fried Loaded Fries</span>
+        <div class="item-desc">Fries With Cheese, Cajun Chicken, Fried Peppers, Jalapeno, Finished With Cheddar Sauce & Sriracha</div>
+      </div>
+      <span class="item-price">S: £5.95 / R: £8.95</span>
+    </div>
+    <div class="menu-item">
+      <div class="item-details">
+        <span class="item-name">Burger Loaded Fries</span>
+        <div class="item-desc">Fries With Cheese, Smashed Beef Patties, Crispy Bacon, Special Sauce & Garlic Mayo, Finished With Crispy Onion</div>
+      </div>
+      <span class="item-price">S: £5.95 / R: £8.95</span>
+    </div>
+    <div class="menu-item">
+      <div class="item-details">
+        <span class="item-name">Mac Cheese 'n' Chicken Loaded Fries</span>
+        <div class="item-desc">Fries Loaded With Mac & Cheese Finished With Our Crispy Fried Chicken & Special Sauce</div>
+      </div>
+      <span class="item-price">S: £5.95 / R: £9.25</span>
+    </div>
+    <div class="menu-item">
+      <div class="item-details">
+        <span class="item-name">Mac & Cheese Loaded Fries</span>
+        <div class="item-desc">Fries Loaded With Mac & Cheese Finished With Parmesan</div>
+      </div>
+      <span class="item-price">S: £4.95 / R: £7.95</span>
+    </div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Chips Cheese And Donner</span></div><span class="item-price">S: £4.95 / R: £6.95</span></div>
+    <div class="menu-item">
+      <div class="item-details">
+        <span class="item-name">Stir Fry Donner Loaded Fries</span>
+        <div class="item-desc">Fries With Cheese, Fried Peppers & Onions In Petri's Sauce</div>
+      </div>
+      <span class="item-price">S: £5.95 / R: £7.95</span>
+    </div>
+    <div class="menu-item">
+      <div class="item-details">
+        <span class="item-name">Tikka Loaded Fries</span>
+        <div class="item-desc">Crispy Fries, Mozzarella, Chicken Tikka, Peppers, Onions, Garlic & Spicy Sauce</div>
+      </div>
+      <span class="item-price">S: £5.95 / R: £8.95</span>
+    </div>
+  </div>
+
+  <!-- BURGERS -->
   <button class="accordion">Burgers <span class="accordion-icon">&#10010;</span></button>
   <div class="panel">
-    <div class="menu-item"><div class="item-details"><span class="item-name">Single Smash</span><div class="item-desc">Smashed beef patty, cheese, crispy lettuce and special sauce</div></div><span class="item-price">£8.95</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Classic Smash</span><div class="item-desc">Smashed patty, cheese, fried onions, crispy lettuce and tomato</div></div><span class="item-price">£9.50</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Double Smash</span><div class="item-desc">2x smashed beef patties, cheese, crispy lettuce and special sauce</div></div><span class="item-price">£10.95</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">American Smash</span><div class="item-desc">Smashed patty, BBQ pulled pork, crispy lettuce, special sauce, cheddar sauce, crispy onion</div></div><span class="item-price">£11.95</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Super Smash</span><div class="item-desc">Smashed patty, fried egg, double bacon, cheddar, lettuce, gherkins, caramelised onions and special sauce</div></div><span class="item-price">£11.95</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Deluxe</span><div class="item-desc">Smashed patty, southern fried fillets, double cheese, double bacon, lettuce and special sauce</div></div><span class="item-price">£12.95</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Meat Temptation</span><div class="item-desc">Smashed patty, double bacon, double pulled pork, double cheese, lettuce, gherkins and special sauce</div></div><span class="item-price">£12.95</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Scottish Smash</span><div class="item-desc">Smashed patty, haggis, cheese, lettuce, fried onion & mushrooms topped with peppercorn sauce</div></div><span class="item-price">£11.95</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Petri's Burger</span><div class="item-desc">2x smashed patties, double bacon, cheese, onion rings, pulled pork, fries, lettuce, tomato, and special sauce</div></div><span class="item-price">£13.95</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Southern Fried Chicken Burger</span><div class="item-desc">Fried chicken, cheese, lettuce, tomato and onion finished with special sauce</div></div><span class="item-price">£8.95</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Spicy Southern Burger</span><div class="item-desc">Spicy chicken, cheese, crispy lettuce, tomato and sriracha</div></div><span class="item-price">£9.25</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Southern Sensation Burger</span><div class="item-desc">Chicken, cheese, lettuce, hot honey, ranch, crispy onion and sesame seeds</div></div><span class="item-price">£9.95</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Peri Burger</span><div class="item-desc">Grilled peri fillets, cheese, lettuce, tomato, onion and ranch (Choose Peri flavor)</div></div><span class="item-price">£8.95</span></div>
+    <div class="menu-item">
+      <div class="item-details">
+        <span class="item-name">Sexy Smashed Burger</span>
+        <div class="item-desc">2 Smashed Patties, 2 Crispy Bacon, 2 Hash Browns, 3 Cheddar Slices, Crispy Salad, Caramelised Onion, Special Sauce & Chilli Jam</div>
+      </div>
+      <span class="item-price">£12.50</span>
+    </div>
+    <div class="menu-item">
+      <div class="item-details">
+        <span class="item-name">Single Smash Burger</span>
+        <div class="item-desc">Smashed Beef Patty, Cheese, Crispy Lettuce & Special Sauce</div>
+      </div>
+      <span class="item-price">£7.95</span>
+    </div>
+    <div class="menu-item">
+      <div class="item-details">
+        <span class="item-name">Classic Smash Burger</span>
+        <div class="item-desc">Smashed Patty, Cheese, Fried Onions, Crispy Lettuce & Tomato</div>
+      </div>
+      <span class="item-price">£7.95</span>
+    </div>
+    <div class="menu-item">
+      <div class="item-details">
+        <span class="item-name">Double Smash Burger</span>
+        <div class="item-desc">2x Smashed Beef Patty, Cheese, Crispy Lettuce & Special Sauce</div>
+      </div>
+      <span class="item-price">£9.95</span>
+    </div>
+    <div class="menu-item">
+      <div class="item-details">
+        <span class="item-name">Super Smash Burger</span>
+        <div class="item-desc">Smashed Patty, Fried Egg, Double Bacon, Cheddar, Crispy Lettuce, Gherkins, Caramelised Onion & Chipotle Sauce</div>
+      </div>
+      <span class="item-price">£10.95</span>
+    </div>
+    <div class="menu-item">
+      <div class="item-details">
+        <span class="item-name">Scottish Burger</span>
+        <div class="item-desc">Smashed Patty, Haggis, Cheese, Lettuce, Fried White Onion & Mushrooms Topped With Peppercorn Sauce</div>
+      </div>
+      <span class="item-price">£9.50</span>
+    </div>
+    <div class="menu-item">
+      <div class="item-details">
+        <span class="item-name">Petri's Burger</span>
+        <div class="item-desc">2x Smashed Patty, Double Bacon, Cheese, Onion Rings, Lettuce, Gherkins & Tomato Finished With Special Sauce</div>
+      </div>
+      <span class="item-price">£12.50</span>
+    </div>
+    <div class="menu-item">
+      <div class="item-details">
+        <span class="item-name">Southern Fried Chicken Burger</span>
+        <div class="item-desc">Fried Chicken, Cheese, Lettuce, Tomato & Onion Finished With Special Sauce</div>
+      </div>
+      <span class="item-price">£8.95</span>
+    </div>
+    <div class="menu-item">
+      <div class="item-details">
+        <span class="item-name">Spicy Southern Chicken Burger</span>
+        <div class="item-desc">Spicy Chicken, Cheese, Crispy Lettuce, Tomato & Sriracha Sauce</div>
+      </div>
+      <span class="item-price">£8.95</span>
+    </div>
+    <div class="menu-item">
+      <div class="item-details">
+        <span class="item-name">Southern Sensation Chicken Burger</span>
+        <div class="item-desc">Chicken, Cheese, Crispy Lettuce, Hot Honey, Ranch, Crispy Onion & Sesame Seeds</div>
+      </div>
+      <span class="item-price">£9.95</span>
+    </div>
+    <div class="menu-item">
+      <div class="item-details">
+        <span class="item-name">Triple Smash Burger</span>
+        <div class="item-desc">3 Smashed Patty, Cheese, Crispy Lettuce & Special Sauce</div>
+      </div>
+      <span class="item-price">£11.95</span>
+    </div>
   </div>
 
-  <!-- WRAPS, HOT DOGS & FOCACCIA SANDWICHES -->
-  <button class="accordion">Wraps, Hot Dogs & Sandwiches <span class="accordion-icon">&#10010;</span></button>
+  <!-- CHICKEN BOXES -->
+  <button class="accordion">Chicken Boxes <span class="accordion-icon">&#10010;</span></button>
   <div class="panel">
-    <div class="menu-item"><div class="item-details"><span class="item-name">Cajun Chicken Mac Cheese Wrap</span></div><span class="item-price">£7.50</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Salt & Chilli Chicken Wrap</span><div class="item-desc">Crispy chicken, peppers, onions, salt & chilli seasoning, cheese and sauce</div></div><span class="item-price">£7.50</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Sweet Chilli Chicken Wrap</span><div class="item-desc">Crispy chicken, peppers, onions, lettuce and cheese</div></div><span class="item-price">£7.50</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Cajun Chicken Wrap</span><div class="item-desc">Cajun chicken, peppers, red onion, cheese and spicy sauce</div></div><span class="item-price">£7.50</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Crispy Chicken Wrap</span><div class="item-desc">Crispy chicken, lettuce, tomato, special sauce and cheese</div></div><span class="item-price">£7.50</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Loaded Wrap</span><div class="item-desc">Crispy chicken, BBQ pulled pork, spicy cheese, crispy onion and special sauce</div></div><span class="item-price">£8.50</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Chilli Beef Wrap</span><div class="item-desc">Chilli beef, diced onions, fresh tomatoes and cheese</div></div><span class="item-price">£7.50</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Hot Dog</span><div class="item-desc">Mustard, cheddar sauce, jalapeno and crispy onion</div></div><span class="item-price">£4.95</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Loaded Hot Dog</span><div class="item-desc">Chilli beef, fresh chilli and spring onions</div></div><span class="item-price">£5.95</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Focaccia Sandwich: Parma</span><div class="item-desc">Pesto, rocket, mozzarella di bufala, Parma ham</div></div><span class="item-price">£7.50</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Focaccia Sandwich: Caprese</span><div class="item-desc">Mozzarella di bufala, sliced tomato, basil, olive oil and balsamic glaze</div></div><span class="item-price">£7.50</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Focaccia Sandwich: Picante</span><div class="item-desc">Cream cheese, rocket, spicy salami, provolone picante</div></div><span class="item-price">£7.50</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Focaccia Sandwich: Veggie</span><div class="item-desc">Mixed vegetable, cheese</div></div><span class="item-price">£7.50</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Focaccia Sandwich: Crispy Chicken</span><div class="item-desc">Chicken, cheese, grilled peppers, onion and special sauce</div></div><span class="item-price">£7.95</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Focaccia Sandwich: BBQ Pulled Pork</span><div class="item-desc">BBQ pulled pork, provolone, chilli jam and crispy onion</div></div><span class="item-price">£7.95</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Focaccia Sandwich: Salsicia Picante</span><div class="item-desc">Italian sausage, chilli jam, mozzarella, chips and sriracha</div></div><span class="item-price">£7.95</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Focaccia Sandwich: Pollo Milano</span><div class="item-desc">Lettuce, crispy fried chicken, salami milano, mozzarella and special sauce</div></div><span class="item-price">£7.95</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Focaccia Sandwich: Create Your Own</span><div class="item-desc">Any 2 toppings included</div></div><span class="item-price">£7.50</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Crispy Fried Chicken Box</span><div class="item-desc">Served With Salad & Rice Or Chips</div></div><span class="item-price">£8.95</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Crispy Chicken Wings Box</span><div class="item-desc">Served With Salad & Rice Or Chips</div></div><span class="item-price">£8.50</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Combo Wings & Southern Fried Fillets Chicken Box</span><div class="item-desc">Served With Salad & Rice Or Chips</div></div><span class="item-price">£9.25</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Combo Wings & Grilled Peri Fillets Chicken Box</span><div class="item-desc">Served With Salad & Rice Or Chips</div></div><span class="item-price">£9.25</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Peri Peri Fillets Chicken Box</span><div class="item-desc">Served With Salad & Rice Or Chips</div></div><span class="item-price">£8.95</span></div>
   </div>
 
-  <!-- LOADED FRIES, WINGS & DIPS -->
-  <button class="accordion">Loaded Fries & Dips <span class="accordion-icon">&#10010;</span></button>
+  <!-- CHICKEN WINGS & TENDERS -->
+  <button class="accordion">Chicken Wings & Tenders <span class="accordion-icon">&#10010;</span></button>
   <div class="panel">
-    <div class="menu-item"><div class="item-details"><span class="item-name">Cheesy Fries</span></div><span class="item-price">S: £4.50 / R: £6.50</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Southern Fried Loaded Fries</span></div><span class="item-price">S: £5.95 / R: £8.95</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Korean Style Loaded Fries</span></div><span class="item-price">S: £5.95 / R: £8.95</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Salt & Chilli Chicken Loaded Fries</span></div><span class="item-price">S: £5.95 / R: £8.95</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Spicy Southern Fried Loaded Fries</span></div><span class="item-price">S: £5.95 / R: £8.95</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Burger Loaded Fries</span></div><span class="item-price">S: £5.95 / R: £8.95</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Pulled Pork Loaded Fries</span></div><span class="item-price">S: £5.95 / R: £8.35</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Mac Cheese 'n' Chicken Loaded Fries</span></div><span class="item-price">S: £5.95 / R: £9.25</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Mac & Cheese Loaded Fries</span></div><span class="item-price">S: £4.95 / R: £7.95</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Bolognese Loaded Fries</span></div><span class="item-price">S: £4.50 / R: £7.95</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">BBQ Chicken Wings</span><div class="item-desc">Choice of flavor & dip included</div></div><span class="item-price">£7.50</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Crispy Fried Tenders</span><div class="item-desc">Choice of flavor & dip included</div></div><span class="item-price">£6.95</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Standard Dips</span><div class="item-desc">Special Sauce, Garlic Mayo, Ranch, Sweet Chilli, Ketchup, Chipotle, Spicy Sauce</div></div><span class="item-price">£1.25</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Premium Dips</span><div class="item-desc">Hot Honey, Blue Cheese, Cheddar Sauce</div></div><span class="item-price">£1.85</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Sauces</span><div class="item-desc">Curry Sauce, Peppercorn Sauce</div></div><span class="item-price">£3.00</span></div>
-  </div>
-
-  <!-- MAINS, GRILL & SALADS -->
-  <button class="accordion">Mains, Grill & Salads <span class="accordion-icon">&#10010;</span></button>
-  <div class="panel">
-    <div class="menu-item"><div class="item-details"><span class="item-name">Grilled Tenders</span></div><span class="item-price">£6.95</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Grilled Wings</span></div><span class="item-price">£6.95</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Half Chicken</span></div><span class="item-price">£9.50</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Whole Chicken</span></div><span class="item-price">£14.95</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Pork Belly</span><div class="item-desc">Grilled pork belly served with chips</div></div><span class="item-price">£8.95</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Pork Shoulder</span><div class="item-desc">Marinated pork shoulder served with chips</div></div><span class="item-price">£8.95</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Pastrama</span><div class="item-desc">Boneless lamb steaks served with chips, cabbage and dill salad</div></div><span class="item-price">£11.95</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Mixgrill Special</span><div class="item-desc">Special lamb, BBQ ribs, 1/4 chicken, tenders, pork shoulder, pork belly, wings and chips</div></div><span class="item-price">£18.95</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Mici Kebab Meal</span><div class="item-desc">3 mici kebabs served with chips, bread and sweet mustard</div></div><span class="item-price">£9.95</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Pollo e Funghi</span><div class="item-desc">Chicken fillets in creamy mushroom sauce with chips or rice</div></div><span class="item-price">£8.95</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Petri's Special Lamb</span><div class="item-desc">Boneless lamb steaks with chips, cabbage and dill salad</div></div><span class="item-price">£11.95</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Pollo e Pepe</span><div class="item-desc">Grilled chicken fillets in peppercorn sauce with chips or rice</div></div><span class="item-price">£8.95</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Petri's Chicken Stew</span><div class="item-desc">Chicken fillets, peppers, onions, olives, chillies with chips or rice</div></div><span class="item-price">£8.95</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Lasagna</span></div><span class="item-price">£9.50</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">BBQ Pork Ribs</span></div><span class="item-price">Half: £9.95 / Full: £15.50</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Plain Pork Ribs</span></div><span class="item-price">Half: £8.95 / Full: £14.50</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Crispy Fried Chicken Box</span></div><span class="item-price">£8.95</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Crispy Wings Box</span></div><span class="item-price">£8.50</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Combo Wings & Southern Fried Fillets Box</span></div><span class="item-price">£9.25</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Combo Wings & Grilled Peri Fillets Box</span></div><span class="item-price">£9.25</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Peri Peri Fillets Box</span></div><span class="item-price">£8.95</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Greek Salad</span></div><span class="item-price">£7.95</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Goat's Cheese Salad</span></div><span class="item-price">£8.95</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Caprese Salad</span></div><span class="item-price">£6.95</span></div>
-  </div>
-
-  <!-- DESSERTS & DRINKS -->
-  <button class="accordion">Desserts & Drinks <span class="accordion-icon">&#10010;</span></button>
-  <div class="panel">
-    <div class="menu-item"><div class="item-details"><span class="item-name">Savarina</span><div class="item-desc">Sweet brioche filled with whipped cream & choice of sauce</div></div><span class="item-price">£4.50</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Millefoglie</span><div class="item-desc">Puff pastry layers filled with custard cream</div></div><span class="item-price">£4.50</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Aragostine</span><div class="item-desc">Lobster tail pastry filled with chocolate hazelnut</div></div><span class="item-price">£3.95</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Chocolate Croissant</span></div><span class="item-price">£3.50 / £3.95</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Lemon Cocoa Leaf</span></div><span class="item-price">£2.00</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Belgian Waffle: Pistachio & Chocolate</span></div><span class="item-price">£5.25</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Belgian Waffle: Ferrero Rocher</span></div><span class="item-price">£4.95</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Belgian Waffle: Kinder / KitKat / Biscoff / Oreo / Nutella</span></div><span class="item-price">£4.50</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Belgian Waffle: Toffee</span></div><span class="item-price">£4.00</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Sticky Toffee Pudding</span></div><span class="item-price">£4.50</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Chocolate Pudding</span></div><span class="item-price">£4.50</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Sicilian Cannoli</span></div><span class="item-price">£1.20</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Italian Bomboloni</span></div><span class="item-price">£5.95</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Milkshakes (Pistachio & Choc / Ferrero)</span></div><span class="item-price">£5.95</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Milkshakes (Kinder, KitKat, Oreo, Biscoff)</span></div><span class="item-price">£5.25</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Milkshakes (Toffee, Fudge, Choc, Vanilla, Strawberry)</span></div><span class="item-price">£4.75</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Frappuccino</span></div><span class="item-price">£6.00</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Soft Drink Cans</span></div><span class="item-price">£1.50</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">San Pellegrino</span></div><span class="item-price">£2.00</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Red Bull</span></div><span class="item-price">£2.60</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Still / Sparkling Water</span></div><span class="item-price">£1.25</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Fruit Shoot</span></div><span class="item-price">£1.00</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Coffee (Espresso)</span></div><span class="item-price">£1.95</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Coffee (Double Espresso)</span></div><span class="item-price">£2.00</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Coffee (Black Coffee)</span></div><span class="item-price">£2.25</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Coffee (Flat White / Cappuccino / Latte / Hot Choc / Mocha)</span></div><span class="item-price">£2.50</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Selection of Hot Teas</span></div><span class="item-price">£1.65</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Chicken Wings</span><div class="item-desc">Choose One Flavour & A Dip</div></div><span class="item-price">£7.50</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Crispy Fried Tenders</span><div class="item-desc">Pick 1 Flavour & 1 Dip</div></div><span class="item-price">£6.95</span></div>
   </div>
 
   <!-- KIDS MEALS -->
   <button class="accordion">Kids Meals <span class="accordion-icon">&#10010;</span></button>
   <div class="panel">
-    <div class="menu-item"><div class="item-details"><span class="item-name">Kids Pizza (2 Toppings)</span><div class="item-desc">Includes Fruit Shoot</div></div><span class="item-price">£6.95</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Chicken Dippers & Chips</span><div class="item-desc">Includes Fruit Shoot</div></div><span class="item-price">£5.95</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Kids Pizza</span><div class="item-desc">With Any 2 Toppings (Includes Fruit Shoot)</div></div><span class="item-price">£6.95</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Kids Chicken Dippers & Chips</span><div class="item-desc">Includes Fruit Shoot</div></div><span class="item-price">£5.95</span></div>
     <div class="menu-item"><div class="item-details"><span class="item-name">Cheeseburger & Chips</span><div class="item-desc">Includes Fruit Shoot</div></div><span class="item-price">£5.95</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Chicken Dippers Burger & Chips</span><div class="item-desc">Includes Fruit Shoot</div></div><span class="item-price">£5.95</span></div>
-    <div class="menu-item"><div class="item-details"><span class="item-name">Mac & Cheese</span><div class="item-desc">Includes Fruit Shoot</div></div><span class="item-price">£4.95</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Kids Chicken Dippers Burger & Chips</span><div class="item-desc">Includes Fruit Shoot</div></div><span class="item-price">£5.95</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Kids Mac & Cheese</span><div class="item-desc">Includes Fruit Shoot</div></div><span class="item-price">£4.95</span></div>
+  </div>
+
+  <!-- STARTERS & SIDES -->
+  <button class="accordion">Starters & Sides <span class="accordion-icon">&#10010;</span></button>
+  <div class="panel">
+    <div class="menu-item"><div class="item-details"><span class="item-name">Chips</span></div><span class="item-price">£3.50</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Peri Chips</span></div><span class="item-price">£3.95</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Cajun Chips</span></div><span class="item-price">£3.95</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Mozzarella Sticks</span></div><span class="item-price">£4.95</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Mac & Cheese Bites</span></div><span class="item-price">£5.50</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Jalapeno Bites</span></div><span class="item-price">£5.50</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Haggis Bon Bons</span></div><span class="item-price">£5.95</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Chilli Oil & Parmesan</span></div><span class="item-price">£4.75</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Foccacia Rosemary</span></div><span class="item-price">£4.95</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Focaccia Garlic</span></div><span class="item-price">£4.95</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Focaccia Mozzarella</span></div><span class="item-price">£6.75</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Focaccia Pomodoro</span></div><span class="item-price">£6.50</span></div>
+    <div class="menu-item">
+      <div class="item-details">
+        <span class="item-name">Caprese</span>
+        <div class="item-desc">Mozzarella Di Bufalo, Cherry Tomatoes, Basil, Pesto & Olive Oil</div>
+      </div>
+      <span class="item-price">£6.95</span>
+    </div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Onion Rings</span></div><span class="item-price">£3.95</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Truffle Oil & Parmesan</span></div><span class="item-price">£4.95</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Garlic & Parmesan Chips</span></div><span class="item-price">£4.75</span></div>
+  </div>
+
+  <!-- DIPS -->
+  <button class="accordion">Dips <span class="accordion-icon">&#10010;</span></button>
+  <div class="panel">
+    <div class="menu-item"><div class="item-details"><span class="item-name">Special Sauce</span></div><span class="item-price">£1.35</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Garlic Mayo</span></div><span class="item-price">£1.35</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Ranch Sauce</span></div><span class="item-price">£1.35</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Sweet Chilli</span></div><span class="item-price">£1.35</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Ketchup</span></div><span class="item-price">£1.35</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Chipotle Sauce</span></div><span class="item-price">£1.35</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Spicy Sauce</span></div><span class="item-price">£1.35</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Hot Honey Sauce</span></div><span class="item-price">£1.85</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Cheddar Sauce</span></div><span class="item-price">£1.85</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Peppercorn Sauce</span></div><span class="item-price">£3.00</span></div>
+  </div>
+
+  <!-- DESSERTS & DIET FROM TOMORROW -->
+  <button class="accordion">Desserts & Treats <span class="accordion-icon">&#10010;</span></button>
+  <div class="panel">
+    <div class="menu-item"><div class="item-details"><span class="item-name">Pistachio & Chocolate Waffle</span><div class="item-desc">1 Belgian Waffle With Pistachio Crumbs, Pistachio Sauce & Chocolate Sauce</div></div><span class="item-price">£5.25</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Ferrero Rocher Waffle</span><div class="item-desc">1 Belgian Waffle With Pistachio Crumbs, Pistachio Sauce & Chocolate Sauce</div></div><span class="item-price">£5.25</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Kinder Bueno Waffle</span><div class="item-desc">1 Belgian Waffle With Kinder Crumbs & Kinder Sauce</div></div><span class="item-price">£4.95</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Kitkat Waffle</span><div class="item-desc">1 Belgian Waffle With Kitkat Crumbs & Chocolate Sauce</div></div><span class="item-price">£4.50</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Biscoff Waffle</span><div class="item-desc">1 Belgian Waffle With Biscoff Crumbs & Biscoff Sauce</div></div><span class="item-price">£4.50</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Oreo Waffle</span><div class="item-desc">1 Belgian Waffle With Oreo Crumbs & Chocolate Sauce</div></div><span class="item-price">£4.50</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Nutella Waffle</span><div class="item-desc">1 Belgian Waffle With Nutella & Chocolate Drops</div></div><span class="item-price">£4.50</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Toffee Waffle</span><div class="item-desc">1 Belgian Waffle With Toffee Sauce</div></div><span class="item-price">£4.50</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Strawberry Waffle</span><div class="item-desc">1 Belgian Waffle With Strawberry Sauce</div></div><span class="item-price">£4.50</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Sticky Toffee Pudding</span></div><span class="item-price">£4.50</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Chocolate Cake</span></div><span class="item-price">£4.50</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Sicilian Cannoli</span></div><span class="item-price">£2.00</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Italian Bomboloni</span><div class="item-desc">Deep Fried Italian Doughnuts, Dusted In Our Cinnamon Sugar Served With Chocolate & Toffee Sauce</div></div><span class="item-price">£5.95</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Savarina Pastry</span><div class="item-desc">Sweet Brioche Filled With Smooth Whipped Cream (Pick Your Sauce)</div></div><span class="item-price">£5.25</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Millefoglie Pastry</span><div class="item-desc">Puff Pastry Layers Filled With Custard Cream</div></div><span class="item-price">£5.25</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Aragostine Pastry</span><div class="item-desc">Lobster Tail Pastry Filled With Chocolate Hazelnut</div></div><span class="item-price">£3.25</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Croissant Chocolate Pastry</span></div><span class="item-price">£3.50</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Pistachio Pastry</span></div><span class="item-price">£3.95</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Lemon & Cacao Loaf</span></div><span class="item-price">£2.00</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Nutella Muffin</span></div><span class="item-price">£2.50</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Empire Biscuit</span></div><span class="item-price">£2.50</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Ny Biscoff Roll</span></div><span class="item-price">£3.50</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Caramel Apple Pie</span></div><span class="item-price">£3.50</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Biscoff Tiramisu</span></div><span class="item-price">£4.50</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Coffee Tiramisu</span></div><span class="item-price">£3.95</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Chocolate Brownie</span></div><span class="item-price">£3.95</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Kinder Bueno Cheesecake</span></div><span class="item-price">£3.95</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Biscoff Cheesecake</span></div><span class="item-price">£3.95</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Kinder Bueno Tiramisu</span></div><span class="item-price">£4.95</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Pistachio Tiramisu</span></div><span class="item-price">£4.50</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Giant Cannoli</span></div><span class="item-price">£4.95</span></div>
+  </div>
+
+  <!-- MILKSHAKES & FRAPPUCCINOS -->
+  <button class="accordion">Milkshakes & Frappuccinos <span class="accordion-icon">&#10010;</span></button>
+  <div class="panel">
+    <div class="menu-item"><div class="item-details"><span class="item-name">Pistachio & Chocolate Milkshake</span></div><span class="item-price">£5.95</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Ferrero Rocher Milkshake</span></div><span class="item-price">£5.95</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Kinder Bueno Milkshake</span></div><span class="item-price">£5.25</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Kitkat Milkshake</span></div><span class="item-price">£5.25</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Oreo Milkshake</span></div><span class="item-price">£5.25</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Biscoff Milkshake</span></div><span class="item-price">£5.25</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Toffee Fudge Milkshake</span></div><span class="item-price">£4.75</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Chocolate Milkshake</span></div><span class="item-price">£4.75</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Vanilla Milkshake</span></div><span class="item-price">£4.75</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Strawberry Milkshake</span></div><span class="item-price">£4.75</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Vanilla Frappuccino</span></div><span class="item-price">£6.00</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Hazelnut Frappuccino</span></div><span class="item-price">£6.00</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Cinnamon Frappuccino</span></div><span class="item-price">£6.00</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Caramel Frappuccino</span></div><span class="item-price">£6.00</span></div>
+  </div>
+
+  <!-- HOT DRINKS -->
+  <button class="accordion">Hot Drinks <span class="accordion-icon">&#10010;</span></button>
+  <div class="panel">
+    <div class="menu-item"><div class="item-details"><span class="item-name">Espresso</span></div><span class="item-price">£2.50</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Double Espresso</span></div><span class="item-price">£2.70</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Black Coffee</span></div><span class="item-price">£2.95</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Flat White</span></div><span class="item-price">£2.95</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Cappuccino</span></div><span class="item-price">£2.95</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Latte</span></div><span class="item-price">£2.95</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Hot Chocolate</span></div><span class="item-price">£2.95</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Mocha</span></div><span class="item-price">£2.95</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Breakfast Tea</span></div><span class="item-price">£2.50</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Earl Grey Tea</span></div><span class="item-price">£2.50</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Peppermint Tea</span></div><span class="item-price">£2.50</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Chamomile Tea</span></div><span class="item-price">£2.50</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Green Tea</span></div><span class="item-price">£2.50</span></div>
+  </div>
+
+  <!-- DRINKS -->
+  <button class="accordion">Drinks <span class="accordion-icon">&#10010;</span></button>
+  <div class="panel">
+    <div class="menu-item"><div class="item-details"><span class="item-name">Coke (Can)</span></div><span class="item-price">£1.50</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Coke Zero (Can)</span></div><span class="item-price">£1.50</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Diet Coke (Can)</span></div><span class="item-price">£1.50</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Irn Bru (Can)</span></div><span class="item-price">£1.50</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Diet Irn Bru (Can)</span></div><span class="item-price">£1.50</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Fanta (Can)</span></div><span class="item-price">£1.50</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Sprite (Can)</span></div><span class="item-price">£1.50</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Pepsi (Can)</span></div><span class="item-price">£1.50</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Apple Tango (Can)</span></div><span class="item-price">£1.50</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Sanpelegrino Aranciata</span></div><span class="item-price">£2.00</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Limonata</span></div><span class="item-price">£2.00</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Red Bull</span></div><span class="item-price">£2.60</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Still Water</span></div><span class="item-price">£1.25</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Sparkling Water</span></div><span class="item-price">£1.25</span></div>
+    <div class="menu-item"><div class="item-details"><span class="item-name">Fruit Shoot</span></div><span class="item-price">£1.00</span></div>
   </div>
 
   <script>
