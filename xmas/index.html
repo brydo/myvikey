@@ -334,6 +334,56 @@
       transform: none;
       box-shadow: none;
     }
+
+    /* Disclaimer Section */
+    .disclaimer-section {
+      background: linear-gradient(180deg, rgba(241,245,249,0.98), rgba(248,250,252,0.98));
+      border: 1px solid #cbd5e1;
+      padding: 20px;
+      border-radius: 10px;
+      margin-top: 20px;
+      font-size: 0.85rem;
+      color: #475569;
+      line-height: 1.6;
+    }
+
+    .disclaimer-section h4 {
+      color: #0f172a;
+      font-size: 0.95rem;
+      font-weight: 700;
+      margin: 0 0 10px 0;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .disclaimer-section h4::before {
+      content: "ℹ️";
+    }
+
+    .disclaimer-box {
+      margin-top: 12px;
+      padding: 12px;
+      background: rgba(255,255,255,0.8);
+      border-left: 3px solid #0ea5e9;
+      border-radius: 6px;
+    }
+
+    .disclaimer-box strong {
+      color: #0f172a;
+      display: block;
+      margin-bottom: 6px;
+      font-size: 0.9rem;
+    }
+
+    .disclaimer-box p {
+      margin: 0;
+      font-size: 0.85rem;
+    }
+
+    .disclaimer-box:last-child {
+      margin-top: 10px;
+    }
   </style>
 </head>
 
@@ -412,7 +462,7 @@
         <h3>Payment Reminder</h3>
         <p>Please complete your payment before submitting your order.</p>
         <div class="payment-ref"><strong>Payment reference:</strong> please use your child's first name and postcode so we can match your payment to your order.</div>
-        <a class="bank-link" href="https://paymentrequest.natwestpayit.com/reusable-links/63e0aa5c-adef-4914-9f44-a5c147a1ced6" target="_blank" rel="noopener noreferrer">Tap here to pay by bank transfer</a>
+        <a class="bank-link" href="https://paymentrequest.natwestpayit.com/reusable-links/63e0aa5c-adef-4914-9f44-a5c147a1ced6" target="_blank" rel="noopener noreferrer">Tap here to pay by bank t[...]
         <div class="security-note">It's safe, easy and secure</div>
       </div>
 
@@ -424,6 +474,21 @@
       </div>
 
       <button id="submitBtn" type="submit" disabled>Complete Order</button>
+
+      <div class="disclaimer-section">
+        <h4>Important Notices</h4>
+        
+        <div class="disclaimer-box">
+          <strong>Service & Delivery Terms</strong>
+          <p>Tags are sent via post. Orders must be placed and paid by December 18th to ensure delivery before Christmas Day. We cannot guarantee delivery dates for orders placed after this deadline.</p>
+        </div>
+
+        <div class="disclaimer-box">
+          <strong>Technical Disclaimer & Mobile Viewing Notice</strong>
+          <p>The Santa's Very Important Key digital experience is designed exclusively for mobile devices. For the intended display and functionality, please open or scan this link using a smartphone. Viewing this link on a laptop, desktop, or tablet may result in formatting errors or missing features.</p>
+        </div>
+      </div>
+
     </form>
 
   </div>
