@@ -14,11 +14,10 @@
       color: #334155;
       padding: 32px;
       display: flex;
-      justify-content: flex-start; /* shift content left */
+      justify-content: flex-start;
       position: relative;
     }
 
-    /* Your blur kept at 0.5px */
     body::before {
       content: "";
       position: fixed;
@@ -27,13 +26,12 @@
       width: 100%;
       height: 100%;
       background: rgba(0,0,0,0.45);
-      backdrop-filter: blur(1px); /* unchanged */
+      backdrop-filter: blur(1px);
       z-index: 1;
     }
 
-    /* Form moved further left + more transparent */
     .form-container {
-      background: rgba(255,255,255,0.65); /* more transparent */
+      background: rgba(255,255,255,0.65);
       padding: 36px;
       border-radius: 16px;
       max-width: 480px;
@@ -43,7 +41,7 @@
       animation: fadeIn 0.4s ease;
       position: relative;
       z-index: 2;
-      margin-left: 1%; /* moved further left */
+      margin-left: 1%;
     }
 
     @keyframes fadeIn {
@@ -109,9 +107,7 @@
       opacity: 0.9;
     }
 
-    .form-group {
-      margin-bottom: 20px;
-    }
+    .form-group { margin-bottom: 20px; }
 
     .section-title {
       font-size: 1.1rem;
@@ -185,10 +181,45 @@
       margin-top: 10px;
     }
 
-    .privacy-note a {
+    .privacy-note a,
+    .bank-link {
       color: #dc2626;
-      font-weight: 600;
+      font-weight: 700;
     }
+
+    .payment-box {
+      margin: 18px 0 22px;
+      padding: 18px;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.96), rgba(248,250,252,0.96));
+      box-shadow: 0 2px 10px rgba(15,23,42,0.05);
+    }
+
+    .payment-box h3 {
+      margin: 0 0 8px;
+      font-size: 1.05rem;
+      color: #0f172a;
+    }
+
+    .payment-box p {
+      margin: 0 0 10px;
+      font-size: 0.95rem;
+      color: #334155;
+      line-height: 1.5;
+    }
+
+    .bank-link {
+      display: inline-block;
+      margin-top: 4px;
+      text-decoration: none;
+      background: #fff;
+      border: 1px solid #fca5a5;
+      padding: 12px 14px;
+      border-radius: 8px;
+    }
+
+    .bank-link:hover { background: #fff1f2; }
 
     button {
       width: 100%;
@@ -209,6 +240,13 @@
       transform: translateY(-1px);
     }
 
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
     .form-success {
       display: none;
       background: #dcfce7;
@@ -220,131 +258,94 @@
       margin-top: 20px;
       border: 1px solid #bbf7d0;
     }
-
-    .payment-section {
-      margin-top: 32px;
-      padding-top: 24px;
-      border-top: 2px solid #e2e8f0;
-    }
-
-    .payment-section h3 {
-      color: #0f172a;
-      margin-bottom: 16px;
-      text-align: center;
-      font-size: 1.3rem;
-      font-weight: 700;
-    }
-
-    .bank-details {
-      background:
-        linear-gradient(180deg, rgba(255,255,255,0.92), rgba(248,250,252,0.92)),
-        repeating-linear-gradient(135deg, rgba(220,38,38,0.04) 0 14px, rgba(22,163,74,0.04) 14px 28px);
-      border: 1px solid #e2e8f0;
-      border-radius: 8px;
-      padding: 18px;
-      font-size: 0.95rem;
-    }
-
-    .bank-details p {
-      margin: 8px 0;
-      display: flex;
-      justify-content: space-between;
-    }
-
-    .bank-details .label {
-      font-weight: 600;
-      color: #475569;
-    }
-
-    .bank-details .value {
-      color: #0f172a;
-      font-weight: 700;
-    }
-
-    .payment-note {
-      font-size: 0.85rem;
-      color: #64748b;
-      text-align: center;
-      margin-top: 14px;
-    }
   </style>
 </head>
 
 <body>
 
   <div class="form-container">
-
     <div class="festive-header">
       <div class="festive-icon"></div>
       <h1 class="festive-title">Letter From Santa</h1>
-      <p class="festive-subtitle">A Personalised Christmas Letter
-      In A V I Key®</p>
+      <p class="festive-subtitle">A Personalised Christmas Letter<br>In A V I Key®</p>
     </div>
 
-   <form id="santaForm" action="https://formspree.io/f/mvkoqwyr" method="POST">
-    <input type="hidden" name="_redirect" value="https://myvikey.pages.dev/xmas/thanks.html">
+    <form id="santaForm" action="https://formspree.io/f/mvkoqwyr" method="POST">
+      <input type="hidden" name="_redirect" value="https://myvikey.pages.dev/xmas/thanks.html">
 
-  <div class="form-group">
-    <label for="parent_name">Parent / Guardian Full Name:</label>
-    <input type="text" id="parent_name" name="parent_name" placeholder="" required>
+      <div class="form-group">
+        <label for="parent_name">Parent / Guardian Full Name:</label>
+        <input type="text" id="parent_name" name="parent_name" required>
+      </div>
+
+      <div class="form-group">
+        <label for="delivery_address">Delivery Address (Street):</label>
+        <input type="text" id="delivery_address" name="delivery_address" required>
+      </div>
+
+      <div class="form-group">
+        <label for="delivery_town">Delivery Town / City:</label>
+        <input type="text" id="delivery_town" name="delivery_town" required>
+      </div>
+
+      <div class="form-group">
+        <label for="delivery_postcode">Delivery Postcode:</label>
+        <input type="text" id="delivery_postcode" name="delivery_postcode" required>
+      </div>
+
+      <div class="form-group">
+        <label for="child_name">Child's First Name:</label>
+        <input type="text" id="child_name" name="child_name" required>
+      </div>
+
+      <div class="form-group">
+        <label for="child_town">Child's Town / City:</label>
+        <input type="text" id="child_town" name="child_town" required>
+      </div>
+
+      <div class="section-title">Keywords</div>
+
+      <div class="form-group">
+        <label for="keywords">Special Interests & Keywords:</label>
+        <textarea id="keywords" name="keywords" placeholder="e.g., best friend, pet, gift, family" required></textarea>
+      </div>
+
+      <div class="consent-box">
+        <label>
+          <input type="checkbox" name="gdpr_consent" required>
+          I consent to providing my child's first name and town, and my own delivery details,
+          solely to create and post their Santa Tag.
+        </label>
+        <p class="privacy-note">
+          All personalised details are permanently deleted by January 31st.
+          Read our full <a href="https://myvikey.pages.dev/privacy" target="_blank" rel="noopener noreferrer">Privacy Policy</a>.
+        </p>
+      </div>
+
+      <div class="payment-box">
+        <h3>Payment Reminder</h3>
+        <p>Please make sure your payment has been completed before submitting your order.</p>
+        <a class="bank-link" href="https://paymentrequest.natwestpayit.com/reusable-links/63e0aa5c-adef-4914-9f44-a5c147a1ced6" target="_blank" rel="noopener noreferrer">Tap here to pay by bank transfer →</a>
+      </div>
+
+      <button type="submit">Complete Order</button>
+    </form>
+
   </div>
 
-  <div class="form-group">
-    <label for="delivery_address">Delivery Address (Street):</label>
-    <input type="text" id="delivery_address" name="delivery_address" placeholder="" required>
-  </div>
+  <script>
+    const form = document.getElementById('santaForm');
+    const submitBtn = form.querySelector('button[type="submit"]');
 
-  <div class="form-group">
-    <label for="delivery_town">Delivery Town / City:</label>
-    <input type="text" id="delivery_town" name="delivery_town" placeholder="" required>
-  </div>
-
-  <div class="form-group">
-    <label for="delivery_postcode">Delivery Postcode:</label>
-    <input type="text" id="delivery_postcode" name="delivery_postcode" placeholder="" required>
-  </div>
-
-  <div class="form-group">
-    <label for="child_name">Child's First Name:</label>
-    <input type="text" id="child_name" name="child_name" placeholder="" required>
-  </div>
-
-  <div class="form-group">
-    <label for="child_town">Child's Town / City:</label>
-    <input type="text" id="child_town" name="child_town" placeholder="" required>
-  </div>
-
-  <div class="section-title">Keywords</div>
-
-  <div class="form-group">
-    <label for="keywords">Special Interests & Keywords:</label>
-    <textarea id="keywords" name="keywords" placeholder="e.g.,best friend. pet. gift , family...." required></textarea>
-  </div>
-
-  <div class="consent-box">
-    <label>
-      <input type="checkbox" name="gdpr_consent" required>
-      I consent to providing my child's first name and town, and my own delivery details,
-      solely to create and post their Santa Tag.
-    </label>
-    <p class="privacy-note">
-      All personalised details are permanently deleted by January 31st.
-      Read our full <a href="https://myvikey.pages.dev/privacy" target="_blank">Privacy Policy</a>.
-    </p>
-  </div>
-
-  <button type="submit">Complete Order</button>
-</form>
-
-       <div class="bank-details" style="text-align:center;">
-         <p style="margin:10px 0;">
-           <a id="payLink" href="https://paymentrequest.natwestpayit.com/reusable-links/63e0aa5c-adef-4914-9f44-a5c147a1ced6" target="_blank" rel="noopener" style="display:inline-block; padding:1[...]
-           Pay Now with PayIT →
-           It's safe, quick and easy!</a>
-         </p>
-
-       </div>
-    </div>
-
- </body>
- </html>
+    form.addEventListener('submit', function (e) {
+      const paid = confirm('Please confirm you have paid before completing your order. Tap OK to continue or Cancel to go back and pay now.');
+      if (!paid) {
+        e.preventDefault();
+        return;
+      }
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Submitting...';
+    });
+  </script>
+</body>
+</html>
