@@ -57,6 +57,19 @@ export async function onRequest(context) {
       return json({ success: true, pages, count: pages.length });
     }
 
+    // ── DELETE USER ──
+    if (action === 'delete-user') {
+      if (!id) return json({ success: false, error: 'Missing id' }, 400);
+      
+      // Delete content from XMAS_CONTENT
+      await env.XMAS_CONTENT.delete(id);
+      
+      // Delete password from PAGE_PASSWORDS
+      await env.PAGE_PASSWORDS.delete(id);
+      
+      return json({ success: true });
+    }
+
     return json({ success: false, error: 'Unknown action: ' + action }, 400);
   } catch (e) {
     return json({ success: false, error: e.message }, 500);
