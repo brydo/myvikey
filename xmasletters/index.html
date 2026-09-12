@@ -176,14 +176,6 @@
             } else {
                 mq.addListener(applyOrientationClass);
             }
-
-            window.addEventListener("pagehide", function cleanupLandscapeOverlay() {
-                if (mq.removeEventListener) {
-                    mq.removeEventListener("change", applyOrientationClass);
-                } else if (mq.removeListener) {
-                    mq.removeListener(applyOrientationClass);
-                }
-            }, { once: true });
         })();
 
     </script>
