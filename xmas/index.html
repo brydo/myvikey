@@ -222,6 +222,22 @@
       line-height: 1.5;
     }
 
+    .security-note {
+      margin-top: 10px;
+      padding: 10px 12px;
+      background: #f0fdf4;
+      border: 1px solid #dcfce7;
+      border-radius: 6px;
+      color: #166534;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    .security-note::before {
+      content: "🔒 ";
+      margin-right: 4px;
+    }
+
     .bank-link {
       display: inline-block;
       margin-top: 4px;
@@ -230,6 +246,8 @@
       border: 1px solid #fca5a5;
       padding: 12px 14px;
       border-radius: 8px;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
     }
 
     .bank-link:hover { background: #fff1f2; }
@@ -357,7 +375,8 @@
         <h3>Payment Reminder</h3>
         <p>Please complete your payment before submitting your order.</p>
         <div class="payment-ref"><strong>Payment reference:</strong> please use your child's first name and postcode so we can match your payment to your order.</div>
-        <a class="bank-link" href="https://paymentrequest.natwestpayit.com/reusable-links/63e0aa5c-adef-4914-9f44-a5c147a1ced6" target="_blank" rel="noopener noreferrer">Tap here to pay by bank t[...]
+        <a class="bank-link" href="https://paymentrequest.natwestpayit.com/reusable-links/63e0aa5c-adef-4914-9f44-a5c147a1ced6" target="_blank" rel="noopener noreferrer">Tap here to pay by bank transfer</a>
+        <div class="security-note">It's safe, easy and secure</div>
       </div>
 
       <div class="pay-confirm-box">
