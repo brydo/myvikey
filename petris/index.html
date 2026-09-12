@@ -34,12 +34,13 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      margin-bottom: 15px;
+      margin-bottom: 10px;
     }
 
     .brand-logo-svg {
-      width: 80px;
-      height: 80px;
+      width: 220px;
+      height: auto;
+      max-width: 100%;
     }
 
     .menu-header h1 {
@@ -204,10 +205,40 @@
   <div class="menu-header">
     <!-- TOP DEAD CENTRE SVG LOGO -->
     <div class="brand-logo-container">
-      <svg class="brand-logo-svg" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="50" cy="50" r="46" stroke="#e50914" stroke-width="4" fill="#1e1e1e"/>
-        <path d="M30 70 L30 30 L52 30 C62 30 62 48 52 48 L30 48" stroke="#ffb703" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
-        <circle cx="68" cy="65" r="4" fill="#e50914"/>
+      <svg class="brand-logo-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 320">
+        <defs>
+          <style>
+            .brand-white { fill: #ffffff; }
+            .font-script { font-family: 'Brush Script MT', 'Pacifico', 'Caveat', cursive, sans-serif; font-weight: bold; }
+            .font-sub { font-family: 'Arial Black', 'Impact', sans-serif; font-weight: 900; letter-spacing: 7px; }
+          </style>
+        </defs>
+
+        <g transform="translate(300, 150)" text-anchor="middle">
+          <!-- Brick Oven Arch Top Accent -->
+          <g class="brand-white" transform="translate(0, -95)">
+            <!-- Keystone (Center) -->
+            <path d="M -18 -45 L 18 -45 L 14 -22 L -14 -22 Z" />
+            
+            <!-- Inner Left Bricks -->
+            <path d="M -23 -43 L -42 -37 L -34 -17 L -18 -21 Z" />
+            <path d="M -47 -34 L -62 -23 L -49 -6 L -37 -15 Z" />
+            <path d="M -66 -18 L -75 -2 L -58 10 L -52 -4 Z" />
+            <path d="M -77 4 L -80 22 L -61 26 L -60 9 Z" />
+
+            <!-- Inner Right Bricks -->
+            <path d="M 23 -43 L 42 -37 L 34 -17 L 18 -21 Z" />
+            <path d="M 47 -34 L 62 -23 L 49 -6 L 37 -15 Z" />
+            <path d="M 66 -18 L 75 -2 L 58 10 L 52 -4 Z" />
+            <path d="M 77 4 L 80 22 L 61 26 L 60 9 Z" />
+          </g>
+
+          <!-- Main Script Logo: Petri's -->
+          <text class="brand-white font-script" x="0" y="45" font-size="125" letter-spacing="-2">Petri's</text>
+
+          <!-- Subtitle: PIZZERIA X STREETFOOD -->
+          <text class="brand-white font-sub" x="4" y="88" font-size="15">PIZZERIA  X  STREETFOOD</text>
+        </g>
       </svg>
     </div>
 
@@ -865,4 +896,3 @@
 
 </body>
 </html>
-
