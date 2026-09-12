@@ -1,55 +1,114 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>MyViKey Letter</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Santa's Scroll Letter</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
-  <!-- Handwritten font -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap" rel="stylesheet" />
+        body {
+            background-color: #E40A2D;
+            font-family: 'Cinzel', serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
 
-  <style>
-    /* Page base */
-    body {
-      margin: 0;
-      padding: 0;
-      background: #f7f3ea;
-      color: #000000;
-      font-family: Arial, sans-serif;
-    }
+        /* Container keeping aspect ratio matched to the Santa scroll image */
+        .scroll-container {
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+            aspect-ratio: 2 / 3;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9);
+        }
 
-    /* Your existing overlay container */
-    .text-overlay {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      padding: 24px;
-      box-sizing: border-box;
-    }
+        .scroll-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
 
-    /* Letter content with handwritten style */
-    #letterContainer.letter-content {
-      font-family: 'Patrick Hand', cursive;
-      font-size: clamp(1.2rem, 2.5vw, 1.8rem);
-      line-height: 1.7;
-      letter-spacing: 0.3px;
-      color: #2f2a24;
-      max-width: 760px;
-      width: 100%;
-      background: rgba(255, 255, 255, 0.65);
-      border-radius: 12px;
-      padding: 20px 24px;
-      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
-      backdrop-filter: blur(1px);
-    }
-  </style>
+        /* Overlay box locked strictly to the inner parchment area */
+        .text-overlay {
+            position: absolute;
+            top: 29.5%;
+            left: 17.5%;
+            width: 57.5%;
+            height: 52%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            overflow: hidden;
+        }
+
+        /* Text styling designed to look like parchment ink */
+        .letter-content {
+            font-family: 'Cinzel', serif;
+            font-size: 1.05rem;
+            line-height: 1.45;
+            color: #E40A2D; /* Dark vintage ink color */
+            white-space: pre-wrap; /* Preserves line breaks saved in KV */
+            word-wrap: break-word;
+            width: 100%;
+            max-height: 100%;
+        }
+    </style>
 </head>
 <body>
-  <div class="text-overlay">
-    <div id="letterContainer" class="letter-content">Loading your letter come back soon ...</div>
-  </div>
+
+    <div class="scroll-container">
+        <!-- REPLACE WITH YOUR ACTUAL IMAGE PATH OR STORAGE URL -->
+        <img src="https://pub-07ed0b0955a4401f9956c3ca7a33c40e.r2.dev/santa%20scroll%202.jpg" alt="Santa Scroll" class="scroll-image">
+        
+        <div class="text-overlay">
+            <div id="letterContainer" class="letter-content">Loading your letter...</div>
+        </div>
+    </div>
+
+    <script>
+        async function loadLetter() {
+            // Extracts the 'id' parameter from URL (e.g., xmasletters/?id=user1)
+            const urlParams = new URLSearchParams(window.location.search);
+            const userId = urlParams.get('id');
+
+            const letterElement = document.getElementById('letterContainer');
+
+            if (!userId) {
+                letterElement.textContent = "No letter Written Yet;
+                return;
+            }
+
+            try {
+                // REPLACE WITH YOUR CLOUDFLARE KV WORKER/API ENDPOINT
+                const response = await fetch(`/api/get-letter?id=${encodeURIComponent(userId)}`);
+                
+                if (response.ok) {
+                    const letterText = await response.text();
+                    letterElement.textContent = letterText || "NOT YET";
+                } else {
+                    letterElement.textContent = "Letter not found.";
+                }
+            } catch (error) {
+                letterElement.textContent = "Error loading letter.";
+            }
+        }
+
+        // Trigger the fetch when the page loads
+        loadLetter();
+    </script>
+
 </body>
 </html>
