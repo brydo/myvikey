@@ -167,6 +167,7 @@
             const scrollContainer = document.getElementById("scrollContainer");
             let wasMobileLandscape = false;
             let previousFocusedElement = null;
+            let announcementTimeoutId = null;
             const applyOrientationClass = () => {
                 const isMobileLandscape = mq.matches;
                 document.body.classList.toggle("mobile-landscape", isMobileLandscape);
@@ -191,10 +192,15 @@
                     previousFocusedElement = null;
                 }
                 if (landscapeAnnouncement) {
+                    if (announcementTimeoutId !== null) {
+                        clearTimeout(announcementTimeoutId);
+                        announcementTimeoutId = null;
+                    }
                     if (isMobileLandscape && !wasMobileLandscape) {
                         landscapeAnnouncement.textContent = "";
-                        setTimeout(() => {
+                        announcementTimeoutId = setTimeout(() => {
                             landscapeAnnouncement.textContent = "Please rotate your phone to portrait.";
+                            announcementTimeoutId = null;
                         }, 0);
                     } else if (!isMobileLandscape && wasMobileLandscape) {
                         landscapeAnnouncement.textContent = "";
