@@ -74,7 +74,7 @@
         <img src="https://pub-07ed0b0955a4401f9956c3ca7a33c40e.r2.dev/santa%20scroll%202.jpg" alt="Santa Scroll" class="scroll-image">
         
         <div class="text-overlay">
-            <div id="letterContainer" class="letter-content">Loading your letter... come back soon</div>
+            <div id="letterContainer" class="letter-content">Dear friend, Santa is preparing your special message 🎄</div>
         </div>
     </div>
 
@@ -87,7 +87,7 @@
             const letterElement = document.getElementById('letterContainer');
 
             if (!userId) {
-                letterElement.textContent = "No letter Written Yet;
+                letterElement.textContent = "Dear friend, Santa is preparing your special message 🎄";
                 return;
             }
 
@@ -97,12 +97,12 @@
                 
                 if (response.ok) {
                     const letterText = await response.text();
-                    letterElement.textContent = letterText || "NOT YET";
+                letterElement.textContent = letterText || "Dear friend, Santa is preparing your special message 🎄";
                 } else {
-                    letterElement.textContent = "Letter not found.";
+                 letterElement.textContent = "Dear friend, Santa is preparing your special message 🎄";
                 }
             } catch (error) {
-                letterElement.textContent = "Error loading letter.";
+               letterElement.textContent = "Dear friend, Santa is preparing your special message 🎄";
             }
         }
 
