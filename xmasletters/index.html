@@ -135,7 +135,7 @@
         loadLetter();
 
         (function () {
-            const mq = window.matchMedia("(max-width: 900px) and (orientation: landscape) and (hover: none) and (pointer: coarse)");
+            const mq = window.matchMedia("(max-width: 900px) and (orientation: landscape)");
             const landscapeNote = document.getElementById("landscapeNote");
             const applyOrientationClass = () => {
                 const isMobileLandscape = mq.matches;
