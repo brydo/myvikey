@@ -215,6 +215,19 @@
             } else {
                 mq.addListener(applyOrientationClass);
             }
+
+            window.addEventListener("beforeunload", function cleanupLandscapeOverlay() {
+                if (announcementTimeoutId !== null) {
+                    clearTimeout(announcementTimeoutId);
+                    announcementTimeoutId = null;
+                }
+                if (mq.removeEventListener) {
+                    mq.removeEventListener("change", applyOrientationClass);
+                } else if (mq.removeListener) {
+                    mq.removeListener(applyOrientationClass);
+                }
+                window.__xmasLandscapeOverlayInit = false;
+            }, { once: true });
         })();
 
     </script>
