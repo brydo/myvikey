@@ -141,6 +141,7 @@
             const mq = window.matchMedia("(max-width: 900px) and (orientation: landscape)");
             const landscapeNote = document.getElementById("landscapeNote");
             let wasMobileLandscape = false;
+            let previousFocusedElement = null;
             const applyOrientationClass = () => {
                 const isMobileLandscape = mq.matches;
                 document.body.classList.toggle("mobile-landscape", isMobileLandscape);
@@ -148,7 +149,13 @@
                 if (!landscapeNote) return;
                 landscapeNote.setAttribute("aria-hidden", isMobileLandscape ? "false" : "true");
                 if (isMobileLandscape && !wasMobileLandscape) {
+                    previousFocusedElement = document.activeElement instanceof HTMLElement ? document.activeElement : null;
                     landscapeNote.focus({ preventScroll: true });
+                } else if (!isMobileLandscape && wasMobileLandscape) {
+                    if (previousFocusedElement && previousFocusedElement.isConnected) {
+                        previousFocusedElement.focus({ preventScroll: true });
+                    }
+                    previousFocusedElement = null;
                 }
                 wasMobileLandscape = isMobileLandscape;
             };
