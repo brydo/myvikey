@@ -80,6 +80,15 @@
             justify-content: center;
         }
 
+        .landscape-note h2 {
+            margin: 0 0 12px;
+            font-size: 1.3rem;
+        }
+
+        .landscape-note p {
+            margin: 0;
+        }
+
         body.mobile-landscape .scroll-container {
             display: none !important;
         }
@@ -90,8 +99,9 @@
     </style>
 </head>
 <body>
-    <div id="landscapeNote" class="landscape-note" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="landscapeNoteText" tabindex="-1">
-        <span id="landscapeNoteText">Please rotate your phone to portrait.</span>
+    <div id="landscapeNote" class="landscape-note" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="landscapeNoteTitle" aria-describedby="landscapeNoteText" tabindex="-1">
+        <h2 id="landscapeNoteTitle">Orientation Notice</h2>
+        <p id="landscapeNoteText">Please rotate your phone to portrait.</p>
     </div>
 
     <div class="scroll-container">
@@ -173,7 +183,6 @@
                 } else if (mq.removeListener) {
                     mq.removeListener(applyOrientationClass);
                 }
-                window.__xmasLandscapeOverlayInit = false;
             }, { once: true });
         })();
 
