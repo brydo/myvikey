@@ -111,7 +111,7 @@
     </style>
 </head>
 <body>
-    <div id="landscapeNote" class="landscape-note" aria-hidden="true" aria-labelledby="landscapeNoteTitle" aria-describedby="landscapeNoteText">
+    <div id="landscapeNote" class="landscape-note" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="landscapeNoteTitle" aria-describedby="landscapeNoteText" tabindex="-1">
         <h2 id="landscapeNoteTitle">Orientation Notice</h2>
         <p id="landscapeNoteText">Please rotate your phone to portrait.</p>
     </div>
@@ -165,12 +165,22 @@
             const landscapeNote = document.getElementById("landscapeNote");
             const landscapeAnnouncement = document.getElementById("landscapeAnnouncement");
             let wasMobileLandscape = false;
+            let previousFocusedElement = null;
             const applyOrientationClass = () => {
                 const isMobileLandscape = mq.matches;
                 document.body.classList.toggle("mobile-landscape", isMobileLandscape);
 
                 if (!landscapeNote) return;
                 landscapeNote.setAttribute("aria-hidden", isMobileLandscape ? "false" : "true");
+                if (isMobileLandscape && !wasMobileLandscape) {
+                    previousFocusedElement = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+                    landscapeNote.focus({ preventScroll: true });
+                } else if (!isMobileLandscape && wasMobileLandscape) {
+                    if (previousFocusedElement && previousFocusedElement.isConnected) {
+                        previousFocusedElement.focus({ preventScroll: true });
+                    }
+                    previousFocusedElement = null;
+                }
                 if (landscapeAnnouncement) {
                     if (isMobileLandscape && !wasMobileLandscape) {
                         landscapeAnnouncement.textContent = "Please rotate your phone to portrait.";
