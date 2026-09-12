@@ -30,6 +30,35 @@
       z-index: 1;
     }
 
+    .warning-banner {
+      background: linear-gradient(135deg, #f59e0b, #f97316);
+      color: #fff;
+      padding: 16px 24px;
+      border-radius: 12px;
+      margin-bottom: 24px;
+      text-align: center;
+      font-weight: 600;
+      font-size: 1.05rem;
+      box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      position: relative;
+      z-index: 2;
+      max-width: 480px;
+      width: 100%;
+      margin-left: 1%;
+      animation: pulse 2s infinite;
+    }
+
+    .warning-banner::before {
+      content: "⚠️ ";
+      margin-right: 8px;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.02); }
+    }
+
     .form-container {
       background: rgba(255,255,255,0.65);
       padding: 36px;
@@ -306,6 +335,8 @@
 </head>
 
 <body>
+
+  <div class="warning-banner">Under construction - Call back soon!!</div>
 
   <div class="form-container">
     <div class="festive-header">
