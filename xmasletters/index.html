@@ -117,7 +117,7 @@
     </div>
     <span id="landscapeAnnouncement" class="sr-only" role="alert" aria-atomic="true"></span>
 
-    <div class="scroll-container">
+    <div id="scrollContainer" class="scroll-container">
         <!-- REPLACE WITH YOUR ACTUAL IMAGE PATH OR STORAGE URL -->
         <img src="https://pub-07ed0b0955a4401f9956c3ca7a33c40e.r2.dev/santa%20scroll%202.jpg" alt="Santa Scroll" class="scroll-image">
         
@@ -164,6 +164,7 @@
             const mq = window.matchMedia("(max-width: 900px) and (orientation: landscape)");
             const landscapeNote = document.getElementById("landscapeNote");
             const landscapeAnnouncement = document.getElementById("landscapeAnnouncement");
+            const scrollContainer = document.getElementById("scrollContainer");
             let wasMobileLandscape = false;
             let previousFocusedElement = null;
             const applyOrientationClass = () => {
@@ -172,6 +173,14 @@
 
                 if (!landscapeNote) return;
                 landscapeNote.setAttribute("aria-hidden", isMobileLandscape ? "false" : "true");
+                if (scrollContainer) {
+                    scrollContainer.setAttribute("aria-hidden", isMobileLandscape ? "true" : "false");
+                    if (isMobileLandscape) {
+                        scrollContainer.setAttribute("inert", "");
+                    } else {
+                        scrollContainer.removeAttribute("inert");
+                    }
+                }
                 if (isMobileLandscape && !wasMobileLandscape) {
                     previousFocusedElement = document.activeElement instanceof HTMLElement ? document.activeElement : null;
                     landscapeNote.focus({ preventScroll: true });
@@ -183,7 +192,10 @@
                 }
                 if (landscapeAnnouncement) {
                     if (isMobileLandscape && !wasMobileLandscape) {
-                        landscapeAnnouncement.textContent = "Please rotate your phone to portrait.";
+                        landscapeAnnouncement.textContent = "";
+                        setTimeout(() => {
+                            landscapeAnnouncement.textContent = "Please rotate your phone to portrait.";
+                        }, 0);
                     } else if (!isMobileLandscape && wasMobileLandscape) {
                         landscapeAnnouncement.textContent = "";
                     }
