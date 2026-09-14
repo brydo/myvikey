@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Santa's Scroll Letter</title>
-   <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600&display=swap" rel="stylesheet">
     <style>
         * {
             box-sizing: border-box;
@@ -20,9 +20,9 @@
             align-items: center;
             min-height: 100vh;
             padding: 20px;
+            flex-direction: column;
         }
 
-        /* Container keeping aspect ratio matched to the Santa scroll image */
         .scroll-container {
             position: relative;
             width: 100%;
@@ -40,7 +40,6 @@
             display: block;
         }
 
-        /* Overlay box locked strictly to the inner parchment area */
         .text-overlay {
             position: absolute;
             top: 29.5%;
@@ -54,33 +53,44 @@
             overflow: hidden;
         }
 
-        /* Text styling designed to look like parchment ink */
         .letter-content {
             font-family: 'Pacifico', cursive;
             font-size: 1.05rem;
             line-height: 1.45;
-            color: #2f2a26; /* Dark vintage ink color */
-            white-space: pre-wrap; /* Preserves line breaks saved in KV */
+            color: #2f2a26;
+            white-space: pre-wrap;
             word-wrap: break-word;
             width: 100%;
             max-height: 100%;
+        }
+
+        audio {
+            margin-top: 25px;
+            width: 100%;
+            max-width: 500px;
         }
     </style>
 </head>
 <body>
 
     <div class="scroll-container">
-        <!-- REPLACE WITH YOUR ACTUAL IMAGE PATH OR STORAGE URL -->
         <img src="https://pub-07ed0b0955a4401f9956c3ca7a33c40e.r2.dev/santa%20scroll%202.jpg" alt="Santa Scroll" class="scroll-image">
         
         <div class="text-overlay">
-            <div id="letterContainer" class="letter-content">Dear friend, Santa is preparing your special message 🎄</div>
+            <div id="letterContainer" class="letter-content">
+                Dear friend, Santa is preparing your special message 🎄
+            </div>
         </div>
     </div>
 
+    <!-- Personalised MP3 Player -->
+    <audio id="santaAudio" controls>
+        <source id="audioSource" src="" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+
     <script>
         async function loadLetter() {
-            // Extracts the 'id' parameter from URL (e.g., xmasletters/?id=user1)
             const urlParams = new URLSearchParams(window.location.search);
             const userId = urlParams.get('id');
 
@@ -92,22 +102,46 @@
             }
 
             try {
-                // REPLACE WITH YOUR CLOUDFLARE KV WORKER/API ENDPOINT
                 const response = await fetch(`/api/get-letter?id=${encodeURIComponent(userId)}`);
                 
                 if (response.ok) {
                     const letterText = await response.text();
-                letterElement.textContent = letterText || "Dear friend, Santa is preparing your special message 🎄";
+                    letterElement.textContent = letterText || "Dear friend, Santa is preparing your special message 🎄";
                 } else {
-                 letterElement.textContent = "Dear friend, Santa is preparing your special message 🎄";
+                    letterElement.textContent = "Dear friend, Santa is preparing your special message 🎄";
                 }
             } catch (error) {
-               letterElement.textContent = "Dear friend, Santa is preparing your special message 🎄";
+                letterElement.textContent = "Dear friend, Santa is preparing your special message 🎄";
             }
         }
 
-        // Trigger the fetch when the page loads
+        async function loadAudio() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const userId = urlParams.get('id');
+
+            if (!userId) return;
+
+            const audioElement = document.getElementById('santaAudio');
+            const audioSource = document.getElementById('audioSource');
+
+            const mp3Path = `/xmasletters/assets/${userId}.mp3`;
+
+            try {
+                const response = await fetch(mp3Path);
+
+                if (response.ok) {
+                    audioSource.src = mp3Path;
+                    audioElement.load();
+                } else {
+                    console.warn("No personalised MP3 found for:", userId);
+                }
+            } catch (err) {
+                console.warn("Error loading MP3:", err);
+            }
+        }
+
         loadLetter();
+        loadAudio();
     </script>
 
 </body>
