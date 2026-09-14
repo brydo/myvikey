@@ -1,1 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Santa's Scroll Letter</title>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: #E40A2D;
+            font-family: 'Cinzel', serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            flex-direction: column;
+        }
+
+        .scroll-container {
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+            aspect-ratio: 2 / 3;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9);
+        }
+
+        .scroll-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .text-overlay {
+            position: absolute;
+            top: 29.5%;
+            left: 17.5%;
+            width: 57.5%;
+            height: 52%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            overflow: hidden;
+        }
+
+        .letter-content {
+            font-family: 'Pacifico', cursive;
+            font-size: 1.05rem;
+            line-height: 1.45;
+            color: #2f2a26;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            width: 100%;
+            max-height: 100%;
+        }
+
+        /* FOOTER AUDIO PLAYER */
+        footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 10px 0;
+            text-align: center;
+            box-shadow: 0 -3px 8px rgba(0,0,0,0.2);
+        }
+
+        #santaAudio {
+            width: 240px; /* smaller player */
+            height: 32px;
+        }
+
+        /* REMOVE DOWNLOAD BUTTON */
+        audio::-webkit-media-controls-download-button {
+            display: none;
+        }
+        audio::-webkit-media-controls-enclosure {
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="scroll-container">
+        <img src="https://pub-07ed0b0955a4401f9956c3ca7a33c40e.r2.dev/santa%20scroll%202.jpg" alt="Santa Scroll" class="scroll-image">
+        
+        <div class="text-overlay">
+            <div id="letterContainer" class="letter-content">
+                Dear friend, Santa is preparing your special message 🎄
+            </div>
+        </div>
+    </div>
+
+    <!-- CLEAN FOOTER AUDIO PLAYER (ONLY ONE) -->
+    <footer>
+        <audio id="santaAudio" controls>
+            <source id="audioSource" src="" type="audio/mpeg">
+            Your browser does not support the audio element.
+        </audio>
+    </footer>
+
+    <script>
+        async function loadLetter() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const userId = urlParams.get('id');
+
+            const letterElement = document.getElementById('letterContainer');
+
+            if (!userId) {
+                letterElement.textContent = "Dear friend, Santa is preparing your special message 🎄";
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/get-letter?id=${encodeURIComponent(userId)}`);
+                
+                if (response.ok) {
+                    const letterText = await response.text();
+                    letterElement.textContent = letterText || "Dear friend, Santa is preparing your special message 🎄";
+                } else {
+                    letterElement.textContent = "Dear friend, Santa is preparing your special message 🎄";
+                }
+            } catch (error) {
+                letterElement.textContent = "Dear friend, Santa is preparing your special message 🎄";
+            }
+        }
+
+        async function loadAudio() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const userId = urlParams.get('id');
+
+            if (!userId) return;
+
+            const audioElement = document.getElementById('santaAudio');
+            const audioSource = document.getElementById('audioSource');
+
+            const mp3Path = `/xmasletters/assets/${userId}.mp3`;
+
+            try {
+                const response = await fetch(mp3Path);
+
+                if (response.ok) {
+                    audioSource.src = mp3Path;
+                    audioElement.load();
+                } else {
+                    console.warn("No personalised MP3 found for:", userId);
+                }
+            } catch (err) {
+                console.warn("Error loading MP3:", err);
+            }
+        }
+
+        loadLetter();
+        loadAudio();
+    </script>
+
+</body>
+</html>
 
