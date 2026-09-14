@@ -64,10 +64,29 @@
             max-height: 100%;
         }
 
-        audio {
-            margin-top: 25px;
+        /* FOOTER AUDIO PLAYER */
+        footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
             width: 100%;
-            max-width: 500px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 10px 0;
+            text-align: center;
+            box-shadow: 0 -3px 8px rgba(0,0,0,0.2);
+        }
+
+        #santaAudio {
+            width: 240px;
+            height: 32px;
+        }
+
+        /* REMOVE DOWNLOAD BUTTON */
+        audio::-webkit-media-controls-download-button {
+            display: none;
+        }
+        audio::-webkit-media-controls-enclosure {
+            overflow: hidden;
         }
     </style>
 </head>
@@ -83,11 +102,13 @@
         </div>
     </div>
 
-    <!-- Personalised MP3 Player -->
-    <audio id="santaAudio" controls>
-        <source id="audioSource" src="" type="audio/mpeg">
-        Your browser does not support the audio element.
-    </audio>
+    <!-- FOOTER AUDIO PLAYER -->
+    <footer>
+        <audio id="santaAudio" controls>
+            <source id="audioSource" src="" type="audio/mpeg">
+            Your browser does not support the audio element.
+        </audio>
+    </footer>
 
     <script>
         async function loadLetter() {
