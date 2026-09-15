@@ -19,10 +19,7 @@ function letterHTML(id, content, footerAudioUrl) {
   if (content && content.text) {
     body += '<div class="letter-text">' + escapeHtml(content.text) + '</div>';
   }
-  if (content && content.audioUrl) {
-    body += '<div class="audio-section"><div class="audio-label">&#127925; Listen to your letter</div><audio controls preload="metadata"><source src="' + escapeHtml(content.audioUrl) + '" type="audio/mpeg"></audio></div>';
-  }
-  if (!content || (!content.text && !content.audioUrl)) {
+  if (!content || !content.text) {
     body = '<div class="empty">This letter is not ready yet. Please check back soon.</div>';
   }
 
@@ -43,8 +40,6 @@ function letterHTML(id, content, footerAudioUrl) {
     '.letter-icon{font-size:3rem;margin-bottom:20px}' +
     '.letter-card h1{font-family:"Great Vibes",cursive;color:#5c3a1e;font-size:2.2rem;font-weight:400;margin-bottom:24px;letter-spacing:1px}' +
     '.letter-text{font-family:"Caveat",cursive;color:var(--text-color);font-size:1.4rem;margin-bottom:30px;white-space:pre-wrap;text-align:left}' +
-    '.audio-section{margin-top:24px;padding-top:24px;border-top:1px solid rgba(107,90,62,0.3)}' +
-    '.audio-label{color:#5c3a1e;font-size:0.9rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px}' +
     'audio{width:100%;margin-top:8px}' +
     '.footer{margin-top:30px;color:var(--text-muted);font-size:0.8rem}' +
     '.footer a{color:#5c3a1e;text-decoration:none}' +
@@ -54,7 +49,7 @@ function letterHTML(id, content, footerAudioUrl) {
     '.audio-footer .audio-footer-label{color:#d4af37;font-size:0.85rem;white-space:nowrap}' +
     '.audio-footer audio{height:30px;max-width:380px;flex:1}' +
     '@media(max-width:768px){.letter-card{top:14%;left:50%;transform:translateX(-50%);width:44%}.letter-card h1{font-size:1.8rem}.letter-text{font-size:1.2rem}}' +
-    '@media(max-width:480px){.letter-card{top:12%;left:50%;transform:translateX(-50%);width:48%;padding:0 8px}.letter-card h1{font-size:1.2rem;margin-bottom:16px}.letter-text{font-size:1rem}.letter-icon{font-size:2rem;margin-bottom:12px}.audio-section{margin-top:16px;padding-top:16px}.audio-footer{padding:5px 8px}.audio-footer .audio-footer-label{font-size:0.7rem}.audio-footer audio{height:26px;max-width:100%}}' +
+    '@media(max-width:480px){.letter-card{top:12%;left:50%;transform:translateX(-50%);width:48%;padding:0 8px}.letter-card h1{font-size:1.2rem;margin-bottom:16px}.letter-text{font-size:1rem}.letter-icon{font-size:2rem;margin-bottom:12px}.audio-footer{padding:5px 8px}.audio-footer .audio-footer-label{font-size:0.7rem}.audio-footer audio{height:26px;max-width:100%}}' +
     '</style></head>' +
     '<body' + (footerAudioUrl ? ' class="has-audio-footer"' : '') + '><div class="scroll-wrapper"><img class="scroll-bg" src="' + bgImage + '" alt="Christmas scroll"><div class="letter-card">' + body + '</div></div>' + footerAudio + '</body></html>';
 }
