@@ -25,7 +25,7 @@ function letterHTML(id, content, footerAudioUrl) {
 
   var footerAudio = '';
   if (footerAudioUrl) {
-    footerAudio = '<div class="audio-footer"><span class="audio-footer-label">&#127925;</span><audio controls preload="metadata"><source src="' + escapeHtml(footerAudioUrl) + '" type="audio/mpeg"></audio></div>';
+    footerAudio = '<div class="audio-footer"><span class="audio-footer-label">&#127925;</span><audio controls controlslist="nodownload" preload="metadata"><source src="' + escapeHtml(footerAudioUrl) + '" type="audio/mpeg"></audio></div>';
   }
 
   var bgImage = 'https://pub-07ed0b0955a4401f9956c3ca7a33c40e.r2.dev/santa%20scroll%202.jpg';
