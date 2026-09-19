@@ -64,7 +64,9 @@ function letterHTML(id, content, footerAudioUrl) {
       '</div>' +
       '<div class="scroll-wrapper"><img class="scroll-bg" src="' + bgImage + '" alt="Christmas scroll"><div class="letter-card">' + body + '</div></div>' +
       '<script>(function(){var mq=window.matchMedia("(max-width: 900px) and (orientation: landscape)");var elvesWrap=document.getElementById("elves");var built=false;function buildStaticElves(){if(!elvesWrap||built)return;built=true;var icons=["🧝","🧝‍♀️","🎄","🎁","✨"];var spots=[[8,12],[22,28],[38,10],[56,24],[74,14],[88,30],[14,52],[30,46],[48,58],[66,50],[84,62],[10,80],[26,74],[44,86],[62,78],[80,88]];for(var i=0;i<spots.length;i++){var e=document.createElement("span");e.className="elf";e.textContent=icons[i%icons.length];e.style.left=spots[i][0]+"%";e.style.top=spots[i][1]+"%";elvesWrap.appendChild(e)}}function apply(){document.body.classList.toggle("mobile-landscape",mq.matches);if(mq.matches)buildStaticElves()}buildStaticElves();apply();if(mq.addEventListener)mq.addEventListener("change",apply);else mq.addListener(apply)})();</script>' +
+      '<script>(function(){var card=document.querySelector(".letter-card");var wrapper=document.querySelector(".scroll-wrapper");if(!card||!wrapper)return;var bg=wrapper.querySelector(".scroll-bg");if(!bg)return;function fit(){var maxH=bg.offsetHeight*0.35;var fs=parseFloat(getComputedStyle(card).fontSize);var steps=0;while(card.offsetHeight>maxH&&fs>0.5&&steps<50){fs-=0.5;card.style.fontSize=fs+"px";steps++}}if(bg.complete)fit();else bg.onload=fit;window.addEventListener("resize",fit)})();</script>' +
       footerAudio +
+        
     '</body></html>';
 }
 
