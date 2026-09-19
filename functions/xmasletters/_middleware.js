@@ -36,7 +36,7 @@ function letterHTML(id, content, footerAudioUrl) {
     'body.has-audio-footer{padding-bottom:56px}' +
     '.scroll-wrapper{position:relative;max-width:1000px;width:100%;margin:0 auto}' +
     '.scroll-bg{display:block;width:100%;height:auto;border-radius:8px}' +
-    '.letter-card{position:absolute;top:40%;left:52%;width:40%;padding:0 16px;text-align:center;text-shadow:0 1px 2px rgba(255,255,255,0.5)}' +
+    ''.letter-card{position:absolute;top:40%;left:50%;transform:translateX(-50%);width:40%;padding:0 16px;text-align:center;text-shadow:0 1px 2px rgba(255,255,255,0.5)}' +
     '.letter-icon{font-size:3rem;margin-bottom:20px}' +
     '.letter-card h1{font-family:"Great Vibes",cursive;color:#5c3a1e;font-size:2.2rem;font-weight:400;margin-bottom:24px;letter-spacing:1px}' +
     '.letter-text{font-family:"Caveat",cursive;color:var(--text-color);font-size:1.1rem;margin-bottom:30px;white-space:pre-wrap;text-align:left}' +
