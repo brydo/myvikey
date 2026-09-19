@@ -15,6 +15,11 @@ function escapeHtml(str) {
 }
 
 function letterHTML(id, content, footerAudioUrl) {
+  var greeting = '';
+  if (content && content.greeting) {
+    greeting = '<div class="letter-greeting">' + escapeHtml(content.greeting) + '</div>';
+  }
+
   var body = '';
   if (content && content.text) {
     body += '<div class="letter-text">' + escapeHtml(content.text) + '</div>';
@@ -36,7 +41,8 @@ function letterHTML(id, content, footerAudioUrl) {
     'body.has-audio-footer{padding-bottom:56px}' +
     '.scroll-wrapper{position:relative;max-width:1000px;width:100%;margin:0 auto}' +
     '.scroll-bg{display:block;width:100%;height:auto;border-radius:8px}' +
-    '.letter-card{position:absolute;top:40%;left:50%;transform:translate(-50%,-50%);width:40%;padding:0 16px;text-align:center;text-shadow:0 1px 2px rgba(255,255,255,0.5)}' +
+    '.letter-greeting{position:absolute;top:25%;left:50%;transform:translateX(-50%);width:auto;max-width:40%;text-align:center;font-family:"Great Vibes",cursive;color:#5c3a1e;font-size:2rem;text-shadow:0 1px 2px rgba(255,255,255,0.5);z-index:2}' +
+    '.letter-card{position:absolute;top:40%;left:50%;transform:translate(-50%,-50%);width:fit-content;max-width:40%;padding:0 16px;text-align:center;text-shadow:0 1px 2px rgba(255,255,255,0.5)}' +
     '.letter-icon{font-size:3rem;margin-bottom:20px}' +
     '.letter-card h1{font-family:"Great Vibes",cursive;color:#5c3a1e;font-size:2.2rem;font-weight:400;margin-bottom:24px;letter-spacing:1px}' +
     '.letter-text{font-family:"Caveat",cursive;color:var(--text-color);font-size:1.1rem;margin-bottom:30px;white-space:pre-wrap;text-align:center}' +
@@ -48,8 +54,8 @@ function letterHTML(id, content, footerAudioUrl) {
     '.audio-footer{position:fixed;bottom:0;left:0;width:100%;display:flex;align-items:center;justify-content:center;gap:8px;padding:8px 12px;background-color:rgba(26,26,26,0.92);z-index:9998}' +
     '.audio-footer .audio-footer-label{font-size:0.9rem;flex-shrink:0}' +
     '.audio-footer audio{height:30px;max-width:380px;flex:1}' +
-    '@media(max-width:480px){.letter-card{top:25%;left:50%;transform:translateX(-50%);width:48%;padding:0 8px}.letter-card h1{font-size:1rem;margin-bottom:16px}.letter-text{font-size:0.8rem;line-height:1.35}.letter-icon{font-size:2rem;margin-bottom:12px}.audio-section{margin-top:16px;padding-top:16px}.audio-footer{padding:5px 8px}.audio-footer .audio-footer-label{font-size:0.7rem}.audio-footer audio{height:26px;max-width:100%}}' +
-    '@media(max-width:768px){.letter-card{top:46%;left:50%;transform:translate(-50%,-50%);width:fit-content;max-width:44%}.letter-card h1{font-size:1.8rem}.letter-text{font-size:1.2rem}}' +
+    '@media(max-width:480px){.letter-greeting{top:28%;font-size:1.2rem}.letter-card{top:43%;left:50%;transform:translate(-50%,-50%);width:fit-content;max-width:48%;padding:0 8px}.letter-card h1{font-size:1rem;margin-bottom:16px}.letter-text{font-size:0.8rem;line-height:1.35}.letter-icon{font-size:2rem;margin-bottom:12px}.audio-section{margin-top:16px;padding-top:16px}.audio-footer{padding:5px 8px}.audio-footer .audio-footer-label{font-size:0.7rem}.audio-footer audio{height:26px;max-width:100%}}' +
+    '@media(max-width:768px){.letter-greeting{top:30%;font-size:1.6rem}.letter-card{top:46%;left:50%;transform:translate(-50%,-50%);width:fit-content;max-width:44%}.letter-card h1{font-size:1.8rem}.letter-text{font-size:1.2rem}}' +
     '.landscape-note{display:none;position:fixed;inset:0;z-index:9999;background:#E40A2D;color:#f5e6c8;text-align:center;padding:24px;font-family:Georgia,"Times New Roman",serif;overflow:hidden;flex-direction:column;align-items:center;justify-content:center;gap:16px}' +
     '.landscape-text{position:relative;z-index:2;font-size:1.2rem;max-width:90vw;line-height:1.4}' +
     '.elves{position:absolute;inset:0;z-index:1;pointer-events:none;overflow:hidden}' +
@@ -62,10 +68,10 @@ function letterHTML(id, content, footerAudioUrl) {
         '<div class="landscape-text">Please rotate your phone to portrait.</div>' +
         '<div class="elves" id="elves"></div>' +
       '</div>' +
-      '<div class="scroll-wrapper"><img class="scroll-bg" src="' + bgImage + '" alt="Christmas scroll"><div class="letter-card">' + body + '</div></div>' +
+      '<div class="scroll-wrapper"><img class="scroll-bg" src="' + bgImage + '" alt="Christmas scroll">' + greeting + '<div class="letter-card">' + body + '</div></div>' +
       '<script>(function(){var mq=window.matchMedia("(max-width: 900px) and (orientation: landscape)");var elvesWrap=document.getElementById("elves");var built=false;function buildStaticElves(){if(!elvesWrap||built)return;built=true;var icons=["🧝","🧝‍♀️","🎄","🎁","✨"];var spots=[[8,12],[22,28],[38,10],[56,24],[74,14],[88,30],[14,52],[30,46],[48,58],[66,50],[84,62],[10,80],[26,74],[44,86],[62,78],[80,88]];for(var i=0;i<spots.length;i++){var e=document.createElement("span");e.className="elf";e.textContent=icons[i%icons.length];e.style.left=spots[i][0]+"%";e.style.top=spots[i][1]+"%";elvesWrap.appendChild(e)}}function apply(){document.body.classList.toggle("mobile-landscape",mq.matches);if(mq.matches)buildStaticElves()}buildStaticElves();apply();if(mq.addEventListener)mq.addEventListener("change",apply);else mq.addListener(apply)})();</script>' +
       '<script>(function(){var card=document.querySelector(".letter-card");var wrapper=document.querySelector(".scroll-wrapper");if(!card||!wrapper)return;var bg=wrapper.querySelector(".scroll-bg");if(!bg)return;var textEl=card.querySelector(".letter-text")||card.querySelector(".empty")||card;function fit(){if(!bg.offsetHeight)return;var maxH=bg.offsetHeight*0.4;textEl.style.fontSize="";var fs=parseFloat(getComputedStyle(textEl).fontSize);var steps=0;while(card.offsetHeight>maxH&&fs>0.5&&steps<80){fs-=0.5;textEl.style.fontSize=fs+"px";steps++}}function tryFit(){fit();setTimeout(fit,200);setTimeout(fit,500);setTimeout(fit,1000)}if(bg.complete)tryFit();else{bg.onload=tryFit;setTimeout(tryFit,500)}window.addEventListener("resize",fit)})();</script>' +
-  
+      footerAudio +
     '</body></html>';
 }
 
