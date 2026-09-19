@@ -45,7 +45,7 @@ function letterHTML(id, content, footerAudioUrl) {
     '.footer a{color:#5c3a1e;text-decoration:none}' +
     '.empty{color:var(--text-muted);font-size:1rem;padding:40px 0}' +
     '.empty-icon{font-size:3rem;margin-bottom:16px}' +
-    '.audio-footer{position:fixed;bottom:0;left:0;width:100%;display:flex;align-items:center;justify-content:center;gap:8px;padding:8px 12px;background-color:rgba(26,26,26,0.92);z-index:9998} +
+    '.audio-footer{position:fixed;bottom:0;left:0;width:100%;display:flex;align-items:center;justify-content:center;gap:8px;padding:8px 12px;background-color:rgba(26,26,26,0.92);z-index:9998}' +
     '.audio-footer .audio-footer-label{font-size:0.9rem;flex-shrink:0}' +
     '.audio-footer audio{height:30px;max-width:380px;flex:1}' +
     '@media(max-width:480px){.letter-card{top:12%;left:50%;transform:translateX(-50%);width:48%;padding:0 8px}.letter-card h1{font-size:1rem;margin-bottom:16px}.letter-text{font-size:0.8rem;line-height:1.35}.letter-icon{font-size:2rem;margin-bottom:12px}.audio-section{margin-top:16px;padding-top:16px}.audio-footer{padding:5px 8px}.audio-footer .audio-footer-label{font-size:0.7rem}.audio-footer audio{height:26px;max-width:100%}}' +
