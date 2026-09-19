@@ -125,9 +125,11 @@
         </section>
 
         <section>
-            <h2>📝 Page Content (Text + Audio)</h2>
+            <h2>📝 Page Content (Greeting + Text + Audio)</h2>
             <label for="contentId">Page ID</label>
             <input type="text" id="contentId" placeholder="paulml1">
+            <label for="contentGreeting">Greeting (e.g. Dear Colin,)</label>
+            <input type="text" id="contentGreeting" placeholder="Dear Colin,">
             <label for="contentText">Letter Text</label>
             <textarea id="contentText" placeholder="Dear Paul, Merry Christmas! Love, Sarah"></textarea>
             <label for="contentAudio">MP3 URL (direct link to audio file)</label>
@@ -210,6 +212,7 @@
 
         async function setContent() {
             const id = document.getElementById('contentId').value.trim();
+            const greeting = document.getElementById('contentGreeting').value;
             const text = document.getElementById('contentText').value;
             const audioUrl = document.getElementById('contentAudio').value.trim();
             const msg = document.getElementById('contentMsg');
@@ -217,7 +220,7 @@
             try {
                 const resp = await fetch('/xmasletters/api/content', {
                     method: 'POST', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ action: 'set-content', id, text, audioUrl })
+                    body: JSON.stringify({ action: 'set-content', id, greeting, text, audioUrl })
                 });
                 const data = await safeJson(resp);
                 if (resp.ok && data.success) { msg.textContent = `✓ Content saved for "${id}".`; msg.className = 'msg ok'; }
@@ -237,6 +240,7 @@
                 const data = await safeJson(resp);
                 if (resp.ok && data.success) {
                     if (data.content) {
+                        document.getElementById('contentGreeting').value = data.content.greeting || '';
                         document.getElementById('contentText').value = data.content.text || '';
                         document.getElementById('contentAudio').value = data.content.audioUrl || '';
                         msg.textContent = `✓ Loaded content for "${id}".`; msg.className = 'msg ok';
