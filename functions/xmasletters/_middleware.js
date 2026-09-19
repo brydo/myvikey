@@ -43,7 +43,7 @@ function letterHTML(id, content, footerAudioUrl) {
     'audio{width:100%;margin-top:8px}' +
     '.footer{margin-top:30px;color:var(--text-muted);font-size:0.8rem}' +
     '.footer a{color:#5c3a1e;text-decoration:none}' +
-    '.empty{color:var(--text-muted);font-size:1rem;padding:40px 0}' +
+    '.empty{color:var(--text-muted);font-size:1rem;padding:40px 0;text-align:center}' +
     '.empty-icon{font-size:3rem;margin-bottom:16px}' +
     '.audio-footer{position:fixed;bottom:0;left:0;width:100%;display:flex;align-items:center;justify-content:center;gap:8px;padding:8px 12px;background-color:rgba(26,26,26,0.92);z-index:9998}' +
     '.audio-footer .audio-footer-label{font-size:0.9rem;flex-shrink:0}' +
