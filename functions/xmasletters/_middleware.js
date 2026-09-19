@@ -39,7 +39,7 @@ function letterHTML(id, content, footerAudioUrl) {
     ''.letter-card{position:absolute;top:40%;left:50%;transform:translateX(-50%);width:40%;padding:0 16px;text-align:center;text-shadow:0 1px 2px rgba(255,255,255,0.5)}' +
     '.letter-icon{font-size:3rem;margin-bottom:20px}' +
     '.letter-card h1{font-family:"Great Vibes",cursive;color:#5c3a1e;font-size:2.2rem;font-weight:400;margin-bottom:24px;letter-spacing:1px}' +
-    '.letter-text{font-family:"Caveat",cursive;color:var(--text-color);font-size:1.1rem;margin-bottom:30px;white-space:pre-wrap;text-align:left}' +
+    '.letter-text{font-family:"Caveat",cursive;color:var(--text-color);font-size:1.1rem;margin-bottom:30px;white-space:pre-wrap;text-align:center}' +
     'audio{width:100%;margin-top:8px}' +
     '.footer{margin-top:30px;color:var(--text-muted);font-size:0.8rem}' +
     '.footer a{color:#5c3a1e;text-decoration:none}' +
