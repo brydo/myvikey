@@ -28,6 +28,10 @@ function letterHTML(id, content, footerAudioUrl) {
 
   if (!content || !content.text) {
 
+  if (!content || !content.text) {
+    body = '<div class="empty">This letter is not ready yet. Please check back soon.</div>';
+  }
+
   var footerAudio = '';
   if (footerAudioUrl) {
     footerAudio = '<div class="audio-footer"><span class="audio-footer-label">&#127925;</span><audio controls controlslist="nodownload" preload="metadata"><source src="' + escapeHtml(footerAudioUrl) + '" type="audio/mpeg"></audio></div>';
