@@ -140,7 +140,7 @@ export async function onRequest(context) {
     var safePageId = pageId.trim().replace(/[^a-zA-Z0-9_-]/g, '');
     if (safePageId) {
       try {
-        var audioCheckUrl = url.origin + '/assets/' + safePageId + '.mp3';
+        var audioCheckUrl = 'https://audio.vi-key.uk/' + safePageId + '.mp3';
         var audioCheckResp = await fetch(audioCheckUrl, { method: 'HEAD' });
         if (audioCheckResp.ok) {
           var audioContentType = (audioCheckResp.headers.get('content-type') || '').toLowerCase();
