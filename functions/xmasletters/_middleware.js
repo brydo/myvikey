@@ -15,16 +15,29 @@ function escapeHtml(str) {
 }
 
 function letterHTML(id, content, footerAudioUrl) {
-  var greeting = '';
-  if (content && content.greeting) {
-    greeting = '<div class="letter-greeting">' + escapeHtml(content.greeting) + '</div>';
+  var raw = (content && content.text) ? String(content.text) : '';
+  var lines = raw.split(/\r?\n/);
+  var heading = '';
+  var rest = '';
+
+  if (lines.length > 0 && lines[0].trim()) {
+    heading = lines[0].trim();
+    rest = lines.slice(1).join('\n').trim();
+  } else {
+    rest = raw;
   }
 
   var body = '';
-  if (content && content.text) {
-    body += '<div class="letter-text">' + escapeHtml(content.text) + '</div>';
+  if (raw) {
+    body += '<h1 class="letter-title">' + escapeHtml(heading || 'Christmas Wish Message') + '</h1>';
+    body += '<div class="letter-text">' + escapeHtml(rest) + '</div>';
   }
-  if (!content || !content.text) {
+
+  if (content && content.audioUrl) {
+    body += '<div class="audio-section"><div class="audio-label">&#127925; Listen to your letter</div><audio controls controlslist="nodownload" preload="metadata"><source src="' + escapeHtml(content.audioUrl) + '" type="audio/mpeg">Your browser does not support the audio element.</audio></div>';
+  }
+
+  if (!content || (!content.text && !content.audioUrl)) {
     body = '<div class="empty">This letter is not ready yet. Please check back soon.</div>';
   }
 
@@ -34,28 +47,29 @@ function letterHTML(id, content, footerAudioUrl) {
   }
 
   var bgImage = 'https://pub-07ed0b0955a4401f9956c3ca7a33c40e.r2.dev/santa%20scroll%202.jpg';
-  return '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Christmas Letter - ' + escapeHtml(id) + ' - V I Key</title><link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Caveat:wght@400;600&display=swap" rel="stylesheet"><style>' +
-    ':root{--gold:#d4af37;--text-color:#3b2f1e;--text-muted:#6b5a3e}' +
+
+  return '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Christmas Letter - ' + escapeHtml(id) + ' - V I Key</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Mountains+of+Christmas:wght@700&family=Caveat:wght@400;600&display=swap" rel="stylesheet"><style>' +
+    ':root{--gold:#d4af37;--text-color:#3b2f1e;--text-muted:#6b5a3e;--title-red:#b22222;--title-green:#1f6b2a}' +
     '*{box-sizing:border-box;margin:0;padding:0}' +
     'body{font-family:Georgia,"Times New Roman",serif;background-color:#E40A2D;color:var(--text-color);line-height:1.8;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}' +
     'body.has-audio-footer{padding-bottom:56px}' +
     '.scroll-wrapper{position:relative;max-width:1000px;width:100%;margin:0 auto}' +
     '.scroll-bg{display:block;width:100%;height:auto;border-radius:8px}' +
-    '.letter-greeting{position:absolute;top:25%;left:50%;transform:translateX(-50%);width:auto;max-width:40%;text-align:center;font-family:"Great Vibes",cursive;color:#5c3a1e;font-size:2rem;text-shadow:0 1px 2px rgba(255,255,255,0.5);z-index:2}' +
-    '.letter-card{position:absolute;top:40%;left:50%;transform:translate(-50%,-50%);width:fit-content;max-width:40%;padding:0 16px;text-align:center;text-shadow:0 1px 2px rgba(255,255,255,0.5)}' +
-    '.letter-icon{font-size:3rem;margin-bottom:20px}' +
-    '.letter-card h1{font-family:"Great Vibes",cursive;color:#5c3a1e;font-size:2.2rem;font-weight:400;margin-bottom:24px;letter-spacing:1px}' +
-    '.letter-text{font-family:"Caveat",cursive;color:var(--text-color);font-size:1.1rem;margin-bottom:30px;white-space:pre-wrap;text-align:center}' +
-    'audio{width:100%;margin-top:8px}' +
+    '.letter-card{position:absolute;top:50%;left:50%;transform:translate(-50%,-46%);width:min(42%,420px);padding:0 16px;text-align:center;text-shadow:0 1px 2px rgba(255,255,255,0.5)}' +
+    '.letter-title{font-family:"Mountains of Christmas","Great Vibes",cursive;font-size:clamp(1.6rem,4.2vw,3rem);line-height:1.1;margin:0 0 14px;letter-spacing:1px;text-transform:uppercase;color:var(--title-red)}' +
+    '.letter-text{font-family:"Caveat",cursive;color:var(--text-color);font-size:clamp(1rem,2.2vw,1.5rem);margin-bottom:30px;white-space:pre-wrap;text-align:left;line-height:1.5}' +
+    '.audio-section{margin-top:24px;padding-top:24px;border-top:1px solid rgba(107,90,62,0.3)}' +
+    '.audio-label{color:#5c3a1e;font-size:0.9rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px}' +
+    'audio{width:100%;margin-top:8px}audio::-internal-media-controls-download-button{display:none}audio::-webkit-media-controls-enclosure{overflow:hidden}audio::-webkit-media-controls-panel{width:calc(100% + 30px)}' +
     '.footer{margin-top:30px;color:var(--text-muted);font-size:0.8rem}' +
     '.footer a{color:#5c3a1e;text-decoration:none}' +
-    '.empty{color:var(--text-muted);font-size:1rem;padding:40px 0;text-align:center}' +
+    '.empty{color:var(--text-muted);font-size:1rem;padding:40px 0}' +
     '.empty-icon{font-size:3rem;margin-bottom:16px}' +
-    '.audio-footer{position:fixed;bottom:0;left:0;width:100%;display:flex;align-items:center;justify-content:center;gap:8px;padding:8px 12px;background-color:rgba(26,26,26,0.92);z-index:9998}' +
-    '.audio-footer .audio-footer-label{font-size:0.9rem;flex-shrink:0}' +
+    '.audio-footer{position:fixed;bottom:0;left:0;right:0;background:rgba(20,20,20,0.93);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-top:1px solid rgba(212,175,55,0.35);padding:7px 14px;z-index:1000;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 -2px 12px rgba(0,0,0,0.3)}' +
+    '.audio-footer .audio-footer-label{color:#d4af37;font-size:0.85rem;white-space:nowrap}' +
     '.audio-footer audio{height:30px;max-width:380px;flex:1}' +
-    '@media(max-width:480px){.letter-greeting{top:28%;font-size:1.2rem}.letter-card{top:43%;left:50%;transform:translate(-50%,-50%);width:fit-content;max-width:48%;padding:0 8px}.letter-card h1{font-size:1rem;margin-bottom:16px}.letter-text{font-size:0.8rem;line-height:1.35}.letter-icon{font-size:2rem;margin-bottom:12px}.audio-section{margin-top:16px;padding-top:16px}.audio-footer{padding:5px 8px}.audio-footer .audio-footer-label{font-size:0.7rem}.audio-footer audio{height:26px;max-width:100%}}' +
-    '@media(max-width:768px){.letter-greeting{top:30%;font-size:1.6rem}.letter-card{top:46%;left:50%;transform:translate(-50%,-50%);width:fit-content;max-width:44%}.letter-card h1{font-size:1.8rem}.letter-text{font-size:1.2rem}}' +
+    '@media(max-width:768px){.letter-card{top:36%;left:46%;width:min(46%,380px)}.letter-title{font-size:clamp(1.3rem,5.8vw,2.2rem)}}' +
+    '@media(max-width:480px){.letter-card{width:min(52%,320px);padding:0 8px;top:38%;transform:translate(-50%,0)}.letter-card h1{font-size:1.2rem;margin-bottom:16px}.letter-icon{font-size:2rem;margin-bottom:12px}.audio-label{font-size:0.75rem}.letter-text{font-size:0.78rem;line-height:1.18;max-height:42vh;overflow-y:auto}.audio-footer{padding:5px 8px}.audio-footer .audio-footer-label{font-size:0.7rem}.audio-footer audio{height:26px;max-width:100%}}' +
     '.landscape-note{display:none;position:fixed;inset:0;z-index:9999;background:#E40A2D;color:#f5e6c8;text-align:center;padding:24px;font-family:Georgia,"Times New Roman",serif;overflow:hidden;flex-direction:column;align-items:center;justify-content:center;gap:16px}' +
     '.landscape-text{position:relative;z-index:2;font-size:1.2rem;max-width:90vw;line-height:1.4}' +
     '.elves{position:absolute;inset:0;z-index:1;pointer-events:none;overflow:hidden}' +
@@ -68,15 +82,14 @@ function letterHTML(id, content, footerAudioUrl) {
         '<div class="landscape-text">Please rotate your phone to portrait.</div>' +
         '<div class="elves" id="elves"></div>' +
       '</div>' +
-      '<div class="scroll-wrapper"><img class="scroll-bg" src="' + bgImage + '" alt="Christmas scroll">' + greeting + '<div class="letter-card">' + body + '</div></div>' +
-      '<script>(function(){var mq=window.matchMedia("(max-width: 900px) and (orientation: landscape)");var elvesWrap=document.getElementById("elves");var built=false;function buildStaticElves(){if(!elvesWrap||built)return;built=true;var icons=["🧝","🧝‍♀️","🎄","🎁","✨"];var spots=[[8,12],[22,28],[38,10],[56,24],[74,14],[88,30],[14,52],[30,46],[48,58],[66,50],[84,62],[10,80],[26,74],[44,86],[62,78],[80,88]];for(var i=0;i<spots.length;i++){var e=document.createElement("span");e.className="elf";e.textContent=icons[i%icons.length];e.style.left=spots[i][0]+"%";e.style.top=spots[i][1]+"%";elvesWrap.appendChild(e)}}function apply(){document.body.classList.toggle("mobile-landscape",mq.matches);if(mq.matches)buildStaticElves()}buildStaticElves();apply();if(mq.addEventListener)mq.addEventListener("change",apply);else mq.addListener(apply)})();</script>' +
-      '<script>(function(){var card=document.querySelector(".letter-card");var wrapper=document.querySelector(".scroll-wrapper");if(!card||!wrapper)return;var bg=wrapper.querySelector(".scroll-bg");if(!bg)return;var textEl=card.querySelector(".letter-text")||card.querySelector(".empty")||card;function fit(){if(!bg.offsetHeight)return;var maxH=bg.offsetHeight*0.4;textEl.style.fontSize="";var fs=parseFloat(getComputedStyle(textEl).fontSize);var steps=0;while(card.offsetHeight>maxH&&fs>0.5&&steps<80){fs-=0.5;textEl.style.fontSize=fs+"px";steps++}}function tryFit(){fit();setTimeout(fit,200);setTimeout(fit,500);setTimeout(fit,1000)}if(bg.complete)tryFit();else{bg.onload=tryFit;setTimeout(tryFit,500)}window.addEventListener("resize",fit)})();</script>' +
+      '<div class="scroll-wrapper"><img class="scroll-bg" src="' + bgImage + '" alt="Christmas scroll"><div class="letter-card">' + body + '</div></div>' +
+      '<script>(function(){const mq=window.matchMedia("(max-width: 900px) and (orientation: landscape)");const elvesWrap=document.getElementById("elves");let built=false;function buildStaticElves(){if(!elvesWrap||built)return;built=true;const icons=["🧝","🧝‍♀️","🎄","🎁","✨"];const spots=[[8,12],[22,28],[38,10],[56,24],[74,14],[88,30],[14,52],[30,46],[48,58],[66,50],[84,62],[10,80],[26,74],[44,86],[62,78],[80,88]];for(let i=0;i<spots.length;i++){const e=document.createElement("span");e.className="elf";e.textContent=icons[i%icons.length];e.style.left=spots[i][0]+"%";e.style.top=spots[i][1]+"%";elvesWrap.appendChild(e)}}function apply(){document.body.classList.toggle("mobile-landscape",mq.matches);if(mq.matches)buildStaticElves()}buildStaticElves();apply();if(mq.addEventListener)mq.addEventListener("change",apply);else mq.addListener(apply)})();</script>' +
       footerAudio +
     '</body></html>';
 }
 
 function gateHTML(title, error) {
-  return '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Enter Password - V I Key</title><style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background-color:#E40A2D;color:#e0e0e0;display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px;line-height:1.6}.gate-card{background-color:#1a1a1a;border:1px solid #2a2a2a;border-radius:12px;padding:40px 32px;max-width:380px;width:100%;text-align:center}.gate-icon{font-size:2.5rem;margin-bottom:16px}.gate-card h1{color:#d4af37;font-size:1.3rem;font-weight:500;margin-bottom:8px;letter-spacing:1px}.gate-card p{color:#aaa;font-size:0.95rem;margin-bottom:24px}.gate-card input{width:100%;padding:14px 16px;font-size:1rem;background-color:#121212;color:#e0e0e0;border:1px solid #333;border-radius:8px;margin-bottom:16px;outline:none;transition:border-color 0.3s}.gate-card input:focus{border-color:#d4af37}.gate-card button{width:100%;padding:14px;font-size:1rem;font-weight:600;color:#d4af37;background-color:rgba(212,175,55,0.1);border:1px solid rgba(212,175,55,0.3);border-radius:8px;cursor:pointer;transition:background-color 0.3s,box-shadow 0.3s}.gate-card button:hover{background-color:rgba(212,175,55,0.2);box-shadow:0 0 20px rgba(212,175,55,0.15)}.gate-error{color:#ff6b6b;font-size:0.9rem;margin-bottom:16px}</style></head><body><div class="gate-card"><div class="gate-icon">&#128274;</div><h1>' + escapeHtml(title) + '</h1><p>Please enter the password to continue.</p>' + (error ? '<div class="gate-error">Incorrect password. Please try again.</div>' : '') + '<form method="POST" action=""><input type="password" name="password" placeholder="Password" autofocus required><button type="submit">Unlock Page</button></form></div></body></html>';
+  return '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Enter Password - V I Key</title><style>*{box-sizing:border-box}body{font-family:Arial,sans-serif;background:#E40A2D;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;padding:20px}.card{background:#f3e6cf;padding:30px;border-radius:8px;box-shadow:0 2px 10px rgba(0,0,0,.1);max-width:400px;width:100%}h2{margin-top:0;color:#333}input[type=password]{width:100%;padding:12px;border:1px solid #ddd;border-radius:4px;font-size:16px;margin:10px 0}button{background:#007bff;color:#fff;border:none;padding:12px 24px;border-radius:4px;font-size:16px;cursor:pointer;width:100%}button:hover{background:#0056b3}.error{color:#d32f2f;background:#ffebee;padding:10px;border-radius:4px;margin-bottom:15px}</style></head><body><div class="card"><h2>' + escapeHtml(title) + '</h2>' + (error ? '<div class="error">Incorrect password. Please try again.</div>' : '') + '<form method="POST"><input type="password" name="password" placeholder="Enter password" required autofocus><button type="submit">Access Page</button></form></div></body></html>';
 }
 
 export async function onRequest(context) {
@@ -96,17 +109,31 @@ export async function onRequest(context) {
       var expectedAdminHash = await hash('__admin__:' + adminPassword);
       var cookies = request.headers.get('Cookie') || '';
       var adminCookieMatch = cookies.split(';').some(function(c) { return c.trim() === 'auth___admin__=' + expectedAdminHash; });
+
       if (request.method === 'POST') {
         var formData = await request.formData();
         var submittedPassword = formData.get('password');
         if (submittedPassword === adminPassword) {
-          return new Response(null, { status: 302, headers: { 'Location': url.pathname, 'Set-Cookie': 'auth___admin__=' + expectedAdminHash + '; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=86400' } });
+          return new Response(null, {
+            status: 302,
+            headers: {
+              'Location': url.pathname,
+              'Set-Cookie': 'auth___admin__=' + expectedAdminHash + '; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=86400'
+            }
+          });
         } else {
-          return new Response(gateHTML('Admin Access', true), { status: 401, headers: { 'Content-Type': 'text/html; charset=utf-8' } });
+          return new Response(gateHTML('Admin Access', true), {
+            status: 401,
+            headers: { 'Content-Type': 'text/html; charset=utf-8' }
+          });
         }
       }
+
       if (adminCookieMatch) return next();
-      return new Response(gateHTML('Admin Access', false), { status: 200, headers: { 'Content-Type': 'text/html; charset=utf-8' } });
+      return new Response(gateHTML('Admin Access', false), {
+        status: 200,
+        headers: { 'Content-Type': 'text/html; charset=utf-8' }
+      });
     }
 
     // Handle letter pages with ?id=
@@ -149,7 +176,10 @@ export async function onRequest(context) {
     var storedPassword = await env.PAGE_PASSWORDS.get(pageId);
 
     if (!storedPassword) {
-      return new Response(letterHTML(pageId, content, footerAudioUrl), { status: 200, headers: { 'Content-Type': 'text/html; charset=utf-8' } });
+      return new Response(letterHTML(pageId, content, footerAudioUrl), {
+        status: 200,
+        headers: { 'Content-Type': 'text/html; charset=utf-8' }
+      });
     }
 
     var expectedCookieValue = await hash(pageId + ':' + storedPassword);
@@ -160,20 +190,37 @@ export async function onRequest(context) {
       var submittedPassword = formData.get('password');
       if (submittedPassword === storedPassword) {
         var redirectUrl = url.pathname + url.search;
-        return new Response(null, { status: 302, headers: { 'Location': redirectUrl, 'Set-Cookie': cookieName + '=' + expectedCookieValue + '; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=86400' } });
+        return new Response(null, {
+          status: 302,
+          headers: {
+            'Location': redirectUrl,
+            'Set-Cookie': cookieName + '=' + expectedCookieValue + '; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=86400'
+          }
+        });
       } else {
-        return new Response(gateHTML('This Page is Protected', true), { status: 401, headers: { 'Content-Type': 'text/html; charset=utf-8' } });
+        return new Response(gateHTML('This Page is Protected', true), {
+          status: 401,
+          headers: { 'Content-Type': 'text/html; charset=utf-8' }
+        });
       }
     }
 
     var cookies = request.headers.get('Cookie') || '';
-    var cookieMatch = cookies.split(';').some(function(c) { return c.trim() === cookieName + '=' + expectedCookieValue; });
+    var cookieMatch = cookies.split(';').some(function(c) {
+      return c.trim() === cookieName + '=' + expectedCookieValue;
+    });
 
     if (cookieMatch) {
-      return new Response(letterHTML(pageId, content, footerAudioUrl), { status: 200, headers: { 'Content-Type': 'text/html; charset=utf-8' } });
+      return new Response(letterHTML(pageId, content, footerAudioUrl), {
+        status: 200,
+        headers: { 'Content-Type': 'text/html; charset=utf-8' }
+      });
     }
 
-    return new Response(gateHTML('This Page is Protected', false), { status: 200, headers: { 'Content-Type': 'text/html; charset=utf-8' } });
+    return new Response(gateHTML('This Page is Protected', false), {
+      status: 200,
+      headers: { 'Content-Type': 'text/html; charset=utf-8' }
+    });
   } catch (e) {
     return next();
   }
