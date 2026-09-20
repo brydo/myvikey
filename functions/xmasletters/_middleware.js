@@ -61,20 +61,17 @@ function letterHTML(id, content, footerAudioUrl) {
     '.audio-footer audio{height:30px;max-width:380px;flex:1}' +
     '@media(max-width:768px){.letter-card{top:36%;left:46%;width:min(46%,380px)}.letter-title{font-size:clamp(1.3rem,5.8vw,2.2rem)}}' +
     '@media(max-width:480px){.letter-card{width:min(52%,320px);padding:0 8px;top:38%;transform:translate(-50%,0)}.letter-card h1{font-size:1.2rem;margin-bottom:16px}.letter-icon{font-size:2rem;margin-bottom:12px}.audio-label{font-size:0.75rem}.letter-text{font-size:0.78rem;line-height:1.18;max-height:42vh;overflow-y:auto}.audio-footer{padding:5px 8px}.audio-footer .audio-footer-label{font-size:0.7rem}.audio-footer audio{height:26px;max-width:100%}}' +
-    '.landscape-note{display:none;position:fixed;inset:0;z-index:9999;background:#E40A2D;color:#f5e6c8;text-align:center;padding:24px;font-family:Georgia,"Times New Roman",serif;overflow:hidden;flex-direction:column;align-items:center;justify-content:center;gap:16px}' +
-    '.landscape-text{position:relative;z-index:2;font-size:1.2rem;max-width:90vw;line-height:1.4}' +
-    '.elves{position:absolute;inset:0;z-index:1;pointer-events:none;overflow:hidden}' +
-    '.elf{position:absolute;font-size:1.8rem;opacity:.9}' +
+    '.landscape-note{display:none;position:fixed;inset:0;z-index:9999;background:url(https://pub-07ed0b0955a4401f9956c3ca7a33c40e.r2.dev/cosy.jpg) center/cover no-repeat;color:#f5e6c8;text-align:center;padding:24px;font-family:Georgia,"Times New Roman",serif;overflow:hidden;flex-direction:column;align-items:center;justify-content:center;gap:16px}' +
+    '.landscape-text{position:relative;z-index:2;font-size:1.2rem;max-width:90vw;line-height:1.4;background:rgba(0,0,0,0.55);padding:16px 24px;border-radius:8px}' +
     'body.mobile-landscape .scroll-wrapper{display:none!important}' +
     'body.mobile-landscape .landscape-note{display:flex!important}' +
     '</style></head>' +
     '<body' + (footerAudioUrl ? ' class="has-audio-footer"' : '') + '>' +
       '<div class="landscape-note">' +
         '<div class="landscape-text">Please rotate your phone to portrait.</div>' +
-        '<div class="elves" id="elves"></div>' +
       '</div>' +
       '<div class="scroll-wrapper"><img class="scroll-bg" src="' + bgImage + '" alt="Christmas scroll"><div class="letter-card">' + body + '</div></div>' +
-      '<script>(function(){const mq=window.matchMedia("(max-width: 900px) and (orientation: landscape)");const elvesWrap=document.getElementById("elves");let built=false;function buildStaticElves(){if(!elvesWrap||built)return;built=true;const icons=["🧝","🧝‍♀️","🎄","🎁","✨"];const spots=[[8,12],[22,28],[38,10],[56,24],[74,14],[88,30],[14,52],[30,46],[48,58],[66,50],[84,62],[10,80],[26,74],[44,86],[62,78],[80,88]];for(let i=0;i<spots.length;i++){const e=document.createElement("span");e.className="elf";e.textContent=icons[i%icons.length];e.style.left=spots[i][0]+"%";e.style.top=spots[i][1]+"%";elvesWrap.appendChild(e)}}function apply(){document.body.classList.toggle("mobile-landscape",mq.matches);if(mq.matches)buildStaticElves()}buildStaticElves();apply();if(mq.addEventListener)mq.addEventListener("change",apply);else mq.addListener(apply)})();</script>' +
+      '<script>(function(){const mq=window.matchMedia("(max-width: 900px) and (orientation: landscape)");function apply(){document.body.classList.toggle("mobile-landscape",mq.matches)}apply();if(mq.addEventListener)mq.addEventListener("change",apply);else mq.addListener(apply)})();</script>' +
       footerAudio +
     '</body></html>';
 }
