@@ -15,22 +15,13 @@ function escapeHtml(str) {
 }
 
 function letterHTML(id, content, footerAudioUrl) {
+  var greeting = (content && content.greeting) ? String(content.greeting).trim() : '';
   var raw = (content && content.text) ? String(content.text) : '';
-  var lines = raw.split(/\r?\n/);
-  var heading = '';
-  var rest = '';
-
-  if (lines.length > 0 && lines[0].trim()) {
-    heading = lines[0].trim();
-    rest = lines.slice(1).join('\n').trim();
-  } else {
-    rest = raw;
-  }
 
   var body = '';
-  if (raw) {
-    body += '<h1 class="letter-title">' + escapeHtml(heading || 'Christmas Wish Message') + '</h1>';
-    body += '<div class="letter-text">' + escapeHtml(rest) + '</div>';
+  if (greeting || raw) {
+    body += '<h1 class="letter-title">' + escapeHtml(greeting || 'Christmas Wish Message') + '</h1>';
+    body += '<div class="letter-text">' + escapeHtml(raw) + '</div>';
   }
 
   if (content && content.audioUrl) {
@@ -56,7 +47,7 @@ function letterHTML(id, content, footerAudioUrl) {
     '.scroll-wrapper{position:relative;max-width:1000px;width:100%;margin:0 auto}' +
     '.scroll-bg{display:block;width:100%;height:auto;border-radius:8px}' +
     '.letter-card{position:absolute;top:50%;left:50%;transform:translate(-50%,-46%);width:min(42%,420px);padding:0 16px;text-align:center;text-shadow:0 1px 2px rgba(255,255,255,0.5)}' +
-    '.letter-title{font-family:"Mountains of Christmas","Great Vibes",cursive;font-size:clamp(1.6rem,4.2vw,3rem);line-height:1.1;margin:0 0 14px;letter-spacing:1px;text-transform:uppercase;color:var(--title-red)}' +
+    '.letter-title{font-family:"Mountains of Christmas","Great Vibes",cursive;font-size:clamp(1.6rem,4.2vw,3rem);line-height:1.1;margin:0 0 14px;letter-spacing:1px;color:var(--text-color)}' +
     '.letter-text{font-family:"Caveat",cursive;color:var(--text-color);font-size:clamp(1rem,2.2vw,1.5rem);margin-bottom:30px;white-space:pre-wrap;text-align:left;line-height:1.5}' +
     '.audio-section{margin-top:24px;padding-top:24px;border-top:1px solid rgba(107,90,62,0.3)}' +
     '.audio-label{color:#5c3a1e;font-size:0.9rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px}' +
