@@ -26,7 +26,7 @@ function letterHTML(id, content, footerAudioUrl) {
 
   
 
-  i    if (!content || !content.text) {
+  if (!content || !content.text) {
 
   var footerAudio = '';
   if (footerAudioUrl) {
