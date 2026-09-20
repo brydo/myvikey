@@ -24,19 +24,13 @@ function letterHTML(id, content, footerAudioUrl) {
     body += '<div class="letter-text">' + escapeHtml(raw) + '</div>';
   }
 
-  
-
-  if (!content || !content.text) {
-
   if (!content || !content.text) {
     body = '<div class="empty">This letter is not ready yet. Please check back soon.</div>';
   }
-
   var footerAudio = '';
   if (footerAudioUrl) {
     footerAudio = '<div class="audio-footer"><span class="audio-footer-label">&#127925;</span><audio controls controlslist="nodownload" preload="metadata"><source src="' + escapeHtml(footerAudioUrl) + '" type="audio/mpeg"></audio></div>';
   }
-
   var bgImage = 'https://pub-07ed0b0955a4401f9956c3ca7a33c40e.r2.dev/santa%20scroll%202.jpg';
 
   return '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Christmas Letter - ' + escapeHtml(id) + ' - V I Key</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Mountains+of+Christmas:wght@700&family=Caveat:wght@400;600&display=swap" rel="stylesheet"><style>' +
