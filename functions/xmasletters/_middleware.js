@@ -26,9 +26,7 @@ function letterHTML(id, content, footerAudioUrl) {
 
   
 
-  if (!content || (!content.text && !content.audioUrl)) {
-    body = '<div class="empty">This letter is not ready yet. Please check back soon.</div>';
-  }
+  i  if (!content || !content.text) {
 
   var footerAudio = '';
   if (footerAudioUrl) {
