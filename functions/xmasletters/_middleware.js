@@ -68,7 +68,7 @@ function letterHTML(id, content, footerAudioUrl) {
     '</style></head>' +
     '<body' + (footerAudioUrl ? ' class="has-audio-footer"' : '') + '>' +
       '<div class="landscape-note">' +
-        '<div class="landscape-text">Please rotate your phone to portrait.</div>' +
+        '<div class="landscape-text">Ho ho ho! You\'re holding it like a Christmas cracker! 🎁 Please rotate your phone or your device to portrait.</div>' +
       '</div>' +
       '<div class="scroll-wrapper"><img class="scroll-bg" src="' + bgImage + '" alt="Christmas scroll"><div class="letter-card">' + body + '</div></div>' +
       '<script>(function(){const mq=window.matchMedia("(max-width: 900px) and (orientation: landscape)");function apply(){document.body.classList.toggle("mobile-landscape",mq.matches)}apply();if(mq.addEventListener)mq.addEventListener("change",apply);else mq.addListener(apply)})();</script>' +
