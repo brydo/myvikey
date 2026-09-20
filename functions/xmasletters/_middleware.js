@@ -24,9 +24,7 @@ function letterHTML(id, content, footerAudioUrl) {
     body += '<div class="letter-text">' + escapeHtml(raw) + '</div>';
   }
 
-  if (content && content.audioUrl) {
-    body += '<div class="audio-section"><div class="audio-label">&#127925; Listen to your letter</div><audio controls controlslist="nodownload" preload="metadata"><source src="' + escapeHtml(content.audioUrl) + '" type="audio/mpeg">Your browser does not support the audio element.</audio></div>';
-  }
+  
 
   if (!content || (!content.text && !content.audioUrl)) {
     body = '<div class="empty">This letter is not ready yet. Please check back soon.</div>';
