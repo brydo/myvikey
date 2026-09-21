@@ -509,6 +509,53 @@
             margin-top: 10px;
         }
 
+        .santa-footer {
+            margin-top: 40px;
+            padding: 25px 15px;
+            background: rgba(30, 30, 30, 0.92);
+            border-top: 1px solid #333;
+            border-radius: 8px 8px 0 0;
+            text-align: center;
+            position: relative;
+            z-index: 2;
+        }
+
+        .santa-footer .footer-brand {
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            color: #fff;
+            margin-bottom: 15px;
+        }
+
+        .santa-footer .footer-brand a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .santa-footer .footer-links {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .santa-footer .footer-link {
+            color: #b3b3b3;
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .santa-footer .footer-link:hover {
+            color: #fde047;
+            text-decoration: underline;
+        }
+
         @media (max-width: 768px) {
             body {
                 flex-direction: column;
@@ -650,7 +697,7 @@
                 </div>
 
                 <div class="tag-selection">
-                    <p style="font-size:0.9rem;color:#475569;margin-bottom:12px;">Tick the VI-Key you'd like to order..</p>
+                    <p style="font-size:0.9rem;color:#475569;margin-bottom:12px;">Tick the tag(s) you'd like to order. You can see all designs by scrolling to the right.</p>
                     <div class="tag-options">
                         <label class="tag-option">
                             <input type="checkbox" name="tag_choice" value="Santa VI-Key 1 — £6.99">
@@ -748,6 +795,20 @@
             <div class="tag-label">Santa VI-Key 5 — <span class="price">£7.99</span></div>
         </div>
     </div>
+
+    <footer class="santa-footer">
+        <div class="footer-brand"><a href="https://myvikey.pages.dev/">V I Key®</a></div>
+        <div class="footer-links">
+            <a href="https://wa.me/201067531455" target="_blank" rel="noopener noreferrer" class="footer-link">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981z"/></svg>
+                WhatsApp
+            </a>
+            <a href="mailto:vikeyshop@outlook.com" class="footer-link">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                Email Us
+            </a>
+        </div>
+    </footer>
 
     <script>
         const form = document.getElementById('santaForm');
