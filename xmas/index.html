@@ -18,6 +18,7 @@
             justify-content: center;
             align-items: flex-start;
             gap: 32px;
+            flex-wrap: wrap;
             position: relative;
         }
 
@@ -512,7 +513,8 @@
         .santa-footer {
             margin-top: 40px;
             padding: 25px 15px;
-            background: rgba(30, 30, 30, 0.92);
+            width: 100%;
+                        background: transparent;
             border-top: 1px solid #333;
             border-radius: 8px 8px 0 0;
             text-align: center;
@@ -531,6 +533,14 @@
         .santa-footer .footer-brand a {
             text-decoration: none;
             color: inherit;
+            transition: color 0.2s ease;
+        }
+
+        .santa-footer .footer-brand a:hover {
+            color: #fde047;
+            text-decoration: underline;
+        }
+
         }
 
         .santa-footer .footer-links {
@@ -697,7 +707,7 @@
                 </div>
 
                 <div class="tag-selection">
-                    <p style="font-size:0.9rem;color:#475569;margin-bottom:12px;">Tick the tag(s) you'd like to order. You can see all designs by scrolling to the right.</p>
+                    <p style="font-size:0.9rem;color:#475569;margin-bottom:12px;">Pick Your V i Key Below</p>
                     <div class="tag-options">
                         <label class="tag-option">
                             <input type="checkbox" name="tag_choice" value="Santa VI-Key 1 — £6.99">
