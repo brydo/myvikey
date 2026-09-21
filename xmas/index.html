@@ -321,6 +321,46 @@
             font-weight: 700;
         }
 
+        .tag-selection {
+            margin-bottom: 20px;
+        }
+
+        .tag-options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .tag-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.9);
+            cursor: pointer;
+            transition: border-color 0.2s ease, background 0.2s ease;
+            font-size: 0.95rem;
+        }
+
+        .tag-option:hover {
+            border-color: #dc2626;
+            background: #fff1f2;
+        }
+
+        .tag-option input[type="checkbox"] {
+            transform: scale(1.2);
+            accent-color: #dc2626;
+            flex-shrink: 0;
+        }
+
+        .tag-option .tag-price {
+            font-weight: 700;
+            color: #dc2626;
+            margin-left: auto;
+        }
+
         .payment-box {
             margin: 18px 0 22px;
             padding: 18px;
@@ -603,6 +643,43 @@
                     </p>
                 </div>
 
+                <!-- STEP 1b: CHOOSE YOUR TAG -->
+                <div class="step-header">
+                    <span class="step-number">★</span>
+                    <h2 class="step-title">Choose Your Tag Design</h2>
+                </div>
+
+                <div class="tag-selection">
+                    <p style="font-size:0.9rem;color:#475569;margin-bottom:12px;">Tick the tag(s) you'd like to order. You can see all designs by scrolling to the right.</p>
+                    <div class="tag-options">
+                        <label class="tag-option">
+                            <input type="checkbox" name="tag_choice" value="Santa VI-Key 1 — £6.99">
+                            Santa VI-Key 1
+                            <span class="tag-price">£6.99</span>
+                        </label>
+                        <label class="tag-option">
+                            <input type="checkbox" name="tag_choice" value="Santa VI-Key 2 — £6.99">
+                            Santa VI-Key 2
+                            <span class="tag-price">£6.99</span>
+                        </label>
+                        <label class="tag-option">
+                            <input type="checkbox" name="tag_choice" value="Santa VI-Key 3 — £6.99">
+                            Santa VI-Key 3
+                            <span class="tag-price">£6.99</span>
+                        </label>
+                        <label class="tag-option">
+                            <input type="checkbox" name="tag_choice" value="Santa VI-Key 4 — £7.49">
+                            Santa VI-Key 4
+                            <span class="tag-price">£7.49</span>
+                        </label>
+                        <label class="tag-option">
+                            <input type="checkbox" name="tag_choice" value="Santa VI-Key 5 — £7.99">
+                            Santa VI-Key 5
+                            <span class="tag-price">£7.99</span>
+                        </label>
+                    </div>
+                </div>
+
                 <!-- STEP 2: PAYMENT -->
                 <div class="step-header">
                     <span class="step-number">2</span>
@@ -676,12 +753,15 @@
         const form = document.getElementById('santaForm');
         const submitBtn = document.getElementById('submitBtn');
         const paidConfirm = document.getElementById('paid_confirm');
+        const tagCheckboxes = document.querySelectorAll('input[name="tag_choice"]');
 
         function updateSubmitState() {
-            submitBtn.disabled = !paidConfirm.checked;
+            const tagSelected = Array.from(tagCheckboxes).some(cb => cb.checked);
+            submitBtn.disabled = !paidConfirm.checked || !tagSelected;
         }
 
         paidConfirm.addEventListener('change', updateSubmitState);
+        tagCheckboxes.forEach(cb => cb.addEventListener('change', updateSubmitState));
         updateSubmitState();
 
         form.addEventListener('submit', async function(e) {
