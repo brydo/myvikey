@@ -675,7 +675,7 @@
         </div>
     </div>
 
-    <script>
+        <script>
         const form = document.getElementById('santaForm');
         const submitBtn = document.getElementById('submitBtn');
         const paidConfirm = document.getElementById('paid_confirm');
@@ -683,6 +683,41 @@
         function updateSubmitState() {
             submitBtn.disabled = !paidConfirm.checked;
         }
+
+        paidConfirm.addEventListener('change', updateSubmitState);
+        updateSubmitState();
+
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const ok = confirm('Important: please make sure payment has been completed before continuing. Tap OK only if payment is done.');
+            if (!ok) return;
+
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Submitting...';
+
+            try {
+                const response = await fetch(form.action, {
+                    method: 'POST',
+                    headers: { 'Accept': 'application/json' },
+                    body: new FormData(form)
+                });
+
+                if (response.ok) {
+                    window.location.href = 'https://myvikey.pages.dev/xmas/thanks.html';
+                } else {
+                    alert('Something went wrong. Please try again.');
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Complete Order';
+                }
+            } catch (err) {
+                alert('Something went wrong. Please try again.');
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Complete Order';
+            }
+        });
+    </script>
+
 
         paidConfirm.addEventListener('change', updateSubmitState);
         updateSubmitState();
