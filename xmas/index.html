@@ -81,6 +81,10 @@
             color: #fde047;
         }
 
+        .mobile-hero {
+            display: none;
+        }
+
         .price-summary {
             background: rgba(255, 255, 255, 0.88);
             border: 2px solid #dc2626;
@@ -133,14 +137,8 @@
         }
 
         @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(6px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .festive-header {
@@ -151,7 +149,7 @@
             border-radius: 14px;
             text-align: center;
             color: #fff;
-            margin-bottom: 28px;
+            margin-bottom: 24px;
             box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
             position: relative;
             overflow: hidden;
@@ -201,18 +199,54 @@
             opacity: 0.9;
         }
 
-        .form-group {
-            margin-bottom: 20px;
+        .what-you-get {
+            background: rgba(255, 255, 255, 0.75);
+            border-radius: 10px;
+            padding: 16px;
+            margin-bottom: 24px;
+            font-size: 0.92rem;
+            color: #475569;
+            line-height: 1.6;
+            border: 1px solid #e2e8f0;
         }
 
-        .section-title {
-            font-size: 1.1rem;
-            font-weight: 700;
+        .what-you-get strong {
             color: #0f172a;
+        }
+
+        .step-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
             margin-top: 24px;
             margin-bottom: 16px;
             padding-bottom: 8px;
             border-bottom: 2px solid #dc2626;
+        }
+
+        .step-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            background: #dc2626;
+            color: #fff;
+            border-radius: 50%;
+            font-weight: 700;
+            font-size: 1rem;
+            flex-shrink: 0;
+        }
+
+        .step-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #0f172a;
+            margin: 0;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
         }
 
         label {
@@ -294,27 +328,10 @@
             box-shadow: 0 2px 10px rgba(15, 23, 42, 0.05);
         }
 
-        .payment-box h3 {
-            margin: 0 0 8px;
-            font-size: 1.05rem;
-            color: #0f172a;
-        }
-
         .payment-box p {
             margin: 0 0 10px;
             font-size: 0.95rem;
             color: #334155;
-            line-height: 1.5;
-        }
-
-        .payment-ref {
-            margin: 10px 0 0;
-            padding: 12px 14px;
-            border-left: 4px solid #dc2626;
-            background: #fff7ed;
-            border-radius: 8px;
-            color: #7c2d12;
-            font-size: 0.95rem;
             line-height: 1.5;
         }
 
@@ -474,11 +491,39 @@
             .tag-img {
                 width: 200px;
             }
+
+            .mobile-hero {
+                display: block;
+                text-align: center;
+                margin-bottom: 16px;
+            }
+
+            .mobile-hero img {
+                width: 100%;
+                max-width: 320px;
+                border-radius: 10px;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+                border: 2px solid rgba(255, 255, 255, 0.2);
+            }
+
+            .mobile-hero .tag-label {
+                font-family: 'Segoe Print', 'Segoe UI', cursive, sans-serif;
+                color: #fff;
+                font-size: 1.1rem;
+                margin-top: 8px;
+                text-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
+            }
         }
     </style>
 </head>
 
 <body>
+
+    <!-- Mobile hero image (phones only — shows a tag at the top before the form) -->
+    <div class="mobile-hero">
+        <img src="https://pub-07ed0b0955a4401f9956c3ca7a33c40e.r2.dev/tag1.jpg" alt="Santa VI-Key Tag">
+        <div class="tag-label">Santa VI-Key 1 — <span style="color:#fde047; font-weight:700;">£6.99</span></div>
+    </div>
 
     <div class="left-column">
 
@@ -497,8 +542,19 @@
                 <p class="festive-subtitle">A Personalised Christmas Letter<br>In A VI Key®</p>
             </div>
 
+            <div class="what-you-get">
+                <strong>What you get:</strong> What you get: A personalised VI-Key that arrives in the post. Tap it with a phone and your child sees a magical personalised letter from Santa — personalised with their name, town, and special interests. They can listen to Santa read it aloud. A keepsake they'll treasure long after Christmas.
+
+            </div>
+
             <form id="santaForm" action="https://formspree.io/f/mvkoqwyr" method="POST">
                 <input type="hidden" name="_redirect" value="https://myvikey.pages.dev/xmas/thanks.html">
+
+                <!-- STEP 1: YOUR DETAILS -->
+                <div class="step-header">
+                    <span class="step-number">1</span>
+                    <h2 class="step-title">Your Details</h2>
+                </div>
 
                 <div class="form-group">
                     <label for="parent_name">Parent / Guardian Full Name:</label>
@@ -535,8 +591,6 @@
                     <input type="text" id="child_town" name="child_town" required>
                 </div>
 
-                <div class="section-title">Tell Santa About Your Child</div>
-
                 <div class="form-group">
                     <label for="keywords">Special Interests &amp; Keywords:</label>
                     <textarea id="keywords" name="keywords" placeholder="e.g., best friend, pet, gift, family" required></textarea>
@@ -554,12 +608,23 @@
                     </p>
                 </div>
 
+                <!-- STEP 2: PAYMENT -->
+                <div class="step-header">
+                    <span class="step-number">2</span>
+                    <h2 class="step-title">Payment</h2>
+                </div>
+
                 <div class="payment-box">
-                    <h3>Payment</h3>
-                    <p>Please complete your payment before submitting your order, using your child's first name and postcode as the reference so we can match it to your order.</p>
+                    <p>Tap the link below to pay. Use your child's first name and postcode as the reference so we can match it to your order.</p>
                     <a class="bank-link" href="https://paymentrequest.natwestpayit.com/reusable-links/63e0aa5c-adef-4914-9f44-a5c147a1ced6" target="_blank" rel="noopener noreferrer">
                         <div class="security-note">Tap Here To Pay — It's safe, easy and secure</div>
                     </a>
+                </div>
+
+                <!-- STEP 3: CONFIRM & SUBMIT -->
+                <div class="step-header">
+                    <span class="step-number">3</span>
+                    <h2 class="step-title">Confirm &amp; Submit</h2>
                 </div>
 
                 <div class="pay-confirm-box">
