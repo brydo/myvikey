@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Order Your Santa V I Key® Tag</title>
+    <title>Order Your Santa VI Key® Tag</title>
 
     <style>
         body {
@@ -51,7 +51,7 @@
             position: relative;
             z-index: 2;
             height: auto;
-            padding:  0;
+            padding: 0;
             flex: 0 0 525px;
         }
 
@@ -63,37 +63,66 @@
             border: 2px solid rgba(255, 255, 255, 0.2);
         }
 
-        .warning-banner {
-            background: linear-gradient(135deg, #dc2626, #b91c1c);
+        .tag-wrapper {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .tag-label {
+            font-family: 'Segoe Print', 'Segoe UI', cursive, sans-serif;
             color: #fff;
-            padding: 14px 24px;
-            border-radius: 10px;
+            font-size: 1.2rem;
+            margin-top: 8px;
+            text-shadow: 0 2px 6px rgba(0, 0, 0, 0.7);
+        }
+
+        .tag-label .price {
+            font-weight: 700;
+            color: #fde047;
+        }
+
+        .price-summary {
+            background: rgba(255, 255, 255, 0.88);
+            border: 2px solid #dc2626;
+            border-radius: 12px;
+            padding: 18px 24px;
             margin-bottom: 24px;
             text-align: center;
-            font-weight: 600;
-            font-size: 1rem;
-            box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            width: 90%;
-            max-width: 600px;
-        }
-
-        .banner-image {
-            display: block;
             width: 100%;
-            max-width: 300px;
-            height: auto;
-            margin: 0 auto 12px;
-            border-radius: 8px;
+            max-width: 480px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
         }
 
-        .warning-banner::before {
-            content: "⚠️ ";
-            margin-right: 8px;
+        .price-summary h2 {
+            font-family: 'Segoe Print', 'Segoe UI', cursive, sans-serif;
+            font-size: 1.35rem;
+            color: #0f172a;
+            margin: 0 0 10px 0;
+        }
+
+        .price-summary p {
+            font-family: 'Segoe Print', 'Segoe UI', cursive, sans-serif;
+            font-size: 1.1rem;
+            color: #334155;
+            margin: 4px 0;
+            line-height: 1.7;
+        }
+
+        .price-summary .price-highlight {
+            color: #dc2626;
+            font-weight: 700;
+        }
+
+        .price-summary .pp-note {
+            font-size: 0.9rem;
+            color: #64748b;
+            margin-top: 10px;
+            font-family: 'Inter', Arial, sans-serif;
+            font-style: italic;
         }
 
         .form-container {
-            background: rgba(255, 255, 255, 0.65);
+            background: rgba(255, 255, 255, 0.88);
             padding: 36px;
             border-radius: 16px;
             max-width: 480px;
@@ -108,7 +137,6 @@
                 opacity: 0;
                 transform: translateY(6px);
             }
-
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -149,13 +177,8 @@
         }
 
         @keyframes festiveGlow {
-            from {
-                transform: rotate(0deg);
-            }
-
-            to {
-                transform: rotate(360deg);
-            }
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
         }
 
         .festive-icon {
@@ -458,15 +481,20 @@
 <body>
 
     <div class="left-column">
-        <div class="warning-banner">
-            Under construction - Call back soon!!
+
+        <div class="price-summary">
+            <h2>🎄 Our Santa VI-Key® Tags</h2>
+            <p>Santa VI-Key 1, 2 &amp; 3 — <span class="price-highlight">£6.99</span> each</p>
+            <p>Santa VI-Key 4 — <span class="price-highlight">£7.49</span></p>
+            <p>Santa VI-Key 5 — <span class="price-highlight">£7.99</span></p>
+            <p class="pp-note">All prices include postage (UK only)</p>
         </div>
 
         <div class="form-container">
             <div class="festive-header">
                 <div class="festive-icon">🎄</div>
                 <h1 class="festive-title">Letter From Santa</h1>
-                <p class="festive-subtitle">A Personalised Christmas Letter<br>In A V I Key®</p>
+                <p class="festive-subtitle">A Personalised Christmas Letter<br>In A VI Key®</p>
             </div>
 
             <form id="santaForm" action="https://formspree.io/f/mvkoqwyr" method="POST">
@@ -507,10 +535,10 @@
                     <input type="text" id="child_town" name="child_town" required>
                 </div>
 
-                <div class="section-title">Keywords</div>
+                <div class="section-title">Tell Santa About Your Child</div>
 
                 <div class="form-group">
-                    <label for="keywords">Special Interests & Keywords:</label>
+                    <label for="keywords">Special Interests &amp; Keywords:</label>
                     <textarea id="keywords" name="keywords" placeholder="e.g., best friend, pet, gift, family" required></textarea>
                 </div>
 
@@ -527,10 +555,10 @@
                 </div>
 
                 <div class="payment-box">
-                    <h3>Payment Reminder</h3>
+                    <h3>Payment</h3>
                     <p>Please complete your payment before submitting your order, using your child's first name and postcode as the reference so we can match it to your order.</p>
                     <a class="bank-link" href="https://paymentrequest.natwestpayit.com/reusable-links/63e0aa5c-adef-4914-9f44-a5c147a1ced6" target="_blank" rel="noopener noreferrer">
-                        <div class="security-note">Tap Here To Pay, It's safe, easy and secure</div>
+                        <div class="security-note">Tap Here To Pay — It's safe, easy and secure</div>
                     </a>
                 </div>
 
@@ -547,12 +575,12 @@
                     <h4>Important Notices</h4>
 
                     <div class="disclaimer-box">
-                        <strong>Service & Delivery Terms</strong>
+                        <strong>Service &amp; Delivery Terms</strong>
                         <p>Tags are sent via post. Orders must be placed and paid by December 16th to ensure delivery before Christmas Day. We cannot guarantee delivery dates for orders placed after this deadline.</p>
                     </div>
 
                     <div class="disclaimer-box">
-                        <strong>Technical Disclaimer & Mobile Viewing Notice</strong>
+                        <strong>Technical Disclaimer &amp; Mobile Viewing Notice</strong>
                         <p>The Santa's Very Important Key digital experience is designed exclusively for mobile devices. For the intended display and functionality, please open or scan this link using a smartphone. Viewing this link on a laptop, desktop, or tablet may result in formatting errors or missing features.</p>
                     </div>
                 </div>
@@ -562,12 +590,26 @@
     </div>
 
     <div class="right-column">
-        <img class="tag-img" src="https://pub-07ed0b0955a4401f9956c3ca7a33c40e.r2.dev/tag1.jpg" alt="Tag 1">
-        <img class="tag-img" src="https://pub-07ed0b0955a4401f9956c3ca7a33c40e.r2.dev/tag2.jpg" alt="Tag 2">
-        <img class="tag-img" src="https://pub-07ed0b0955a4401f9956c3ca7a33c40e.r2.dev/tag3.jpg" alt="Tag 3">
-        <img class="tag-img" src="https://pub-07ed0b0955a4401f9956c3ca7a33c40e.r2.dev/tag4.jpg" alt="Tag 4">
-        <img class="tag-img" src="https://pub-07ed0b0955a4401f9956c3ca7a33c40e.r2.dev/tag5.jpg" alt="Tag 5">
-
+        <div class="tag-wrapper">
+            <img class="tag-img" src="https://pub-07ed0b0955a4401f9956c3ca7a33c40e.r2.dev/tag1.jpg" alt="Santa VI-Key 1">
+            <div class="tag-label">Santa VI-Key 1 — <span class="price">£6.99</span></div>
+        </div>
+        <div class="tag-wrapper">
+            <img class="tag-img" src="https://pub-07ed0b0955a4401f9956c3ca7a33c40e.r2.dev/tag2.jpg" alt="Santa VI-Key 2">
+            <div class="tag-label">Santa VI-Key 2 — <span class="price">£6.99</span></div>
+        </div>
+        <div class="tag-wrapper">
+            <img class="tag-img" src="https://pub-07ed0b0955a4401f9956c3ca7a33c40e.r2.dev/tag3.jpg" alt="Santa VI-Key 3">
+            <div class="tag-label">Santa VI-Key 3 — <span class="price">£6.99</span></div>
+        </div>
+        <div class="tag-wrapper">
+            <img class="tag-img" src="https://pub-07ed0b0955a4401f9956c3ca7a33c40e.r2.dev/tag4.jpg" alt="Santa VI-Key 4">
+            <div class="tag-label">Santa VI-Key 4 — <span class="price">£7.49</span></div>
+        </div>
+        <div class="tag-wrapper">
+            <img class="tag-img" src="https://pub-07ed0b0955a4401f9956c3ca7a33c40e.r2.dev/tag5.jpg" alt="Santa VI-Key 5">
+            <div class="tag-label">Santa VI-Key 5 — <span class="price">£7.99</span></div>
+        </div>
     </div>
 
     <script>
