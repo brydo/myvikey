@@ -1,576 +1,597 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Order Your Santa V I Key® Tag</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Your Santa V I Key® Tag</title>
 
-  <style>
-    body {
-      background: #870b03 url('https://pub-07ed0b0955a4401f9956c3ca7a33c40e.r2.dev/santaweb.jpg') no-repeat center center fixed;
-      background-size: cover;
-      font-family: 'Inter', Arial, sans-serif;
-      color: #334155;
-      padding: 32px;
-      display: flex;
-      flex-direction: row;
-      justify-content: center;
-      align-items: flex-start;
-      gap: 32px;
-      position: relative;
-    }
+    <style>
+        body {
+            background: #870b03 url('https://pub-07ed0b0955a4401f9956c3ca7a33c40e.r2.dev/santaweb.jpg') no-repeat center center fixed;
+            background-size: cover;
+            font-family: 'Inter', Arial, sans-serif;
+            color: #334155;
+            padding: 32px;
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: flex-start;
+            gap: 32px;
+            position: relative;
+        }
 
-    body::before {
-      content: "";
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,0.45);
-      backdrop-filter: blur(1px);
-      z-index: 1;
-    }
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.45);
+            backdrop-filter: blur(1px);
+            z-index: 1;
+        }
 
-    .left-column {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      position: relative;
-      z-index: 2;
-      flex: 0 0 480px;
-      max-width: 480px;
-    }
+        .left-column {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            z-index: 2;
+            flex: 0 0 480px;
+            max-width: 480px;
+        }
 
-    .right-column {
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      align-items: center;
-      position: relative;
-      z-index: 2;
-      height: 100vh;
-      padding: 32px 0;
-      flex: 0 0 525px;
-    }
+        .right-column {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            z-index: 2;
+            height: auto;
+            padding:  0;
+            flex: 0 0 525px;
+        }
 
-    .tag-img {
-      width: 450px;
-      height: auto;
-      border-radius: 10px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-      border: 2px solid rgba(255,255,255,0.2);
-    }
+        .tag-img {
+            width: 450px;
+            height: auto;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
 
-    .warning-banner {
-      background: linear-gradient(135deg, #dc2626, #b91c1c);
-      color: #fff;
-      padding: 14px 24px;
-      border-radius: 10px;
-      margin-bottom: 24px;
-      text-align: center;
-      font-weight: 600;
-      font-size: 1rem;
-      box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      width: 90%;
-      max-width: 600px;
-    }
+        .warning-banner {
+            background: linear-gradient(135deg, #dc2626, #b91c1c);
+            color: #fff;
+            padding: 14px 24px;
+            border-radius: 10px;
+            margin-bottom: 24px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 1rem;
+            box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            width: 90%;
+            max-width: 600px;
+        }
 
-    .banner-image {
-      display: block;
-      width: 100%;
-      max-width: 300px;
-      height: auto;
-      margin: 0 auto 12px;
-      border-radius: 8px;
-    }
+        .banner-image {
+            display: block;
+            width: 100%;
+            max-width: 300px;
+            height: auto;
+            margin: 0 auto 12px;
+            border-radius: 8px;
+        }
 
-    .warning-banner::before {
-      content: "⚠️ ";
-      margin-right: 8px;
-    }
+        .warning-banner::before {
+            content: "⚠️ ";
+            margin-right: 8px;
+        }
 
-    .form-container {
-      background: rgba(255,255,255,0.65);
-      padding: 36px;
-      border-radius: 16px;
-      max-width: 480px;
-      width: 100%;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.25);
-      border: 1px solid #f1f5f9;
-      animation: fadeIn 0.4s ease;
-    }
+        .form-container {
+            background: rgba(255, 255, 255, 0.65);
+            padding: 36px;
+            border-radius: 16px;
+            max-width: 480px;
+            width: 100%;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+            border: 1px solid #f1f5f9;
+            animation: fadeIn 0.4s ease;
+        }
 
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(6px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(6px);
+            }
 
-    .festive-header {
-      background:
-        linear-gradient(135deg, rgba(220,38,38,0.96), rgba(185,28,28,0.96)),
-        repeating-linear-gradient(45deg, rgba(255,255,255,0.16) 0 10px, rgba(255,255,255,0.02) 10px 20px);
-      padding: 24px;
-      border-radius: 14px;
-      text-align: center;
-      color: #fff;
-      margin-bottom: 28px;
-      box-shadow: 0 6px 18px rgba(0,0,0,0.15);
-      position: relative;
-      overflow: hidden;
-      border: 1px solid rgba(255,255,255,0.22);
-    }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
 
-    .festive-header::before,
-    .festive-header::after {
-      content: "";
-      position: absolute;
-      width: 140%;
-      height: 140%;
-      top: -20%;
-      left: -20%;
-      background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 60%);
-      animation: festiveGlow 6s infinite linear;
-      pointer-events: none;
-    }
+        .festive-header {
+            background:
+                linear-gradient(135deg, rgba(220, 38, 38, 0.96), rgba(185, 28, 28, 0.96)),
+                repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.16) 0 10px, rgba(255, 255, 255, 0.02) 10px 20px);
+            padding: 24px;
+            border-radius: 14px;
+            text-align: center;
+            color: #fff;
+            margin-bottom: 28px;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.22);
+        }
 
-    .festive-header::after {
-      animation-duration: 9s;
-      opacity: 0.5;
-    }
+        .festive-header::before,
+        .festive-header::after {
+            content: "";
+            position: absolute;
+            width: 140%;
+            height: 140%;
+            top: -20%;
+            left: -20%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.15) 0%, transparent 60%);
+            animation: festiveGlow 6s infinite linear;
+            pointer-events: none;
+        }
 
-    @keyframes festiveGlow {
-      from { transform: rotate(0deg); }
-      to { transform: rotate(360deg); }
-    }
+        .festive-header::after {
+            animation-duration: 9s;
+            opacity: 0.5;
+        }
 
-    .festive-icon {
-      font-size: 2.6rem;
-      margin-bottom: 6px;
-      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
-    }
+        @keyframes festiveGlow {
+            from {
+                transform: rotate(0deg);
+            }
 
-    .festive-title {
-      font-size: 1.9rem;
-      font-weight: 800;
-      margin: 0;
-      letter-spacing: 1px;
-      text-shadow: 0 2px 8px rgba(0,0,0,0.18);
-    }
+            to {
+                transform: rotate(360deg);
+            }
+        }
 
-    .festive-subtitle {
-      font-size: 1rem;
-      margin-top: 6px;
-      opacity: 0.9;
-    }
+        .festive-icon {
+            font-size: 2.6rem;
+            margin-bottom: 6px;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+        }
 
-    .form-group { margin-bottom: 20px; }
+        .festive-title {
+            font-size: 1.9rem;
+            font-weight: 800;
+            margin: 0;
+            letter-spacing: 1px;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+        }
 
-    .section-title {
-      font-size: 1.1rem;
-      font-weight: 700;
-      color: #0f172a;
-      margin-top: 24px;
-      margin-bottom: 16px;
-      padding-bottom: 8px;
-      border-bottom: 2px solid #dc2626;
-    }
+        .festive-subtitle {
+            font-size: 1rem;
+            margin-top: 6px;
+            opacity: 0.9;
+        }
 
-    label {
-      display: block;
-      margin-bottom: 8px;
-      font-weight: 600;
-      color: #1e293b;
-    }
+        .form-group {
+            margin-bottom: 20px;
+        }
 
-    input[type="text"],
-    input[type="email"],
-    textarea {
-      width: 100%;
-      padding: 12px;
-      border: 1px solid #cbd5e1;
-      border-radius: 8px;
-      font-size: 1rem;
-      font-family: 'Inter', Arial, sans-serif;
-      transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
-      box-sizing: border-box;
-      background:
-        linear-gradient(180deg, rgba(255,255,255,0.95), rgba(255,255,255,0.9)),
-        repeating-linear-gradient(90deg, rgba(220,38,38,0.045) 0 12px, rgba(22,163,74,0.045) 12px 24px);
-      box-shadow: inset 0 1px 2px rgba(15,23,42,0.05);
-    }
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #0f172a;
+            margin-top: 24px;
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #dc2626;
+        }
 
-    input[type="text"]:focus,
-    input[type="email"]:focus,
-    textarea:focus {
-      border-color: #dc2626;
-      outline: none;
-      box-shadow: 0 0 0 3px rgba(220,38,38,0.15), 0 0 0 6px rgba(34,197,94,0.08);
-      transform: translateY(-1px);
-    }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #1e293b;
+        }
 
-    textarea {
-      resize: vertical;
-      min-height: 80px;
-    }
+        input[type="text"],
+        input[type="email"],
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-family: 'Inter', Arial, sans-serif;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+            box-sizing: border-box;
+            background:
+                linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.9)),
+                repeating-linear-gradient(90deg, rgba(220, 38, 38, 0.045) 0 12px, rgba(22, 163, 74, 0.045) 12px 24px);
+            box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.05);
+        }
 
-    .consent-box {
-      background: linear-gradient(180deg, rgba(248,250,252,0.96), rgba(255,255,255,0.94));
-      border: 1px solid #e2e8f0;
-      padding: 16px;
-      border-radius: 8px;
-      margin-bottom: 20px;
-      font-size: 0.9rem;
-      position: relative;
-      overflow: hidden;
-    }
+        input[type="text"]:focus,
+        input[type="email"]:focus,
+        textarea:focus {
+            border-color: #dc2626;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.15), 0 0 0 6px rgba(34, 197, 94, 0.08);
+            transform: translateY(-1px);
+        }
 
-    .consent-box::before {
-      content: "❄";
-      position: absolute;
-      right: 12px;
-      top: 10px;
-      opacity: 0.16;
-      font-size: 2rem;
-    }
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
 
-    .privacy-note {
-      font-size: 0.8rem;
-      color: #64748b;
-      margin-top: 10px;
-    }
+        .consent-box {
+            background: linear-gradient(180deg, rgba(248, 250, 252, 0.96), rgba(255, 255, 255, 0.94));
+            border: 1px solid #e2e8f0;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            position: relative;
+            overflow: hidden;
+        }
 
-    .privacy-note a,
-    .bank-link {
-      color: #dc2626;
-      font-weight: 700;
-    }
+        .consent-box::before {
+            content: "❄";
+            position: absolute;
+            right: 12px;
+            top: 10px;
+            opacity: 0.16;
+            font-size: 2rem;
+        }
 
-    .payment-box {
-      margin: 18px 0 22px;
-      padding: 18px;
-      border: 1px solid #e2e8f0;
-      border-radius: 10px;
-      background: linear-gradient(180deg, rgba(255,255,255,0.96), rgba(248,250,252,0.96));
-      box-shadow: 0 2px 10px rgba(15,23,42,0.05);
-    }
+        .privacy-note {
+            font-size: 0.8rem;
+            color: #64748b;
+            margin-top: 10px;
+        }
 
-    .payment-box h3 {
-      margin: 0 0 8px;
-      font-size: 1.05rem;
-      color: #0f172a;
-    }
+        .privacy-note a,
+        .bank-link {
+            color: #dc2626;
+            font-weight: 700;
+        }
 
-    .payment-box p {
-      margin: 0 0 10px;
-      font-size: 0.95rem;
-      color: #334155;
-      line-height: 1.5;
-    }
+        .payment-box {
+            margin: 18px 0 22px;
+            padding: 18px;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(248, 250, 252, 0.96));
+            box-shadow: 0 2px 10px rgba(15, 23, 42, 0.05);
+        }
 
-    .payment-ref {
-      margin: 10px 0 0;
-      padding: 12px 14px;
-      border-left: 4px solid #dc2626;
-      background: #fff7ed;
-      border-radius: 8px;
-      color: #7c2d12;
-      font-size: 0.95rem;
-      line-height: 1.5;
-    }
+        .payment-box h3 {
+            margin: 0 0 8px;
+            font-size: 1.05rem;
+            color: #0f172a;
+        }
 
-    .security-note {
-      margin-top: 10px;
-      padding: 10px 12px;
-      background: #f0fdf4;
-      border: 1px solid #dcfce7;
-      border-radius: 6px;
-      color: #166534;
-      font-size: 0.9rem;
-      font-weight: 500;
-    }
+        .payment-box p {
+            margin: 0 0 10px;
+            font-size: 0.95rem;
+            color: #334155;
+            line-height: 1.5;
+        }
 
-    .security-note::before {
-      content: "🔒 ";
-      margin-right: 4px;
-    }
+        .payment-ref {
+            margin: 10px 0 0;
+            padding: 12px 14px;
+            border-left: 4px solid #dc2626;
+            background: #fff7ed;
+            border-radius: 8px;
+            color: #7c2d12;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
 
-    .bank-link {
-      display: inline-block;
-      margin-top: 4px;
-      text-decoration: none;
-      background: #fff;
-      border: 1px solid #fca5a5;
-      padding: 12px 14px;
-      border-radius: 8px;
-      word-wrap: break-word;
-      overflow-wrap: break-word;
-    }
+        .security-note {
+            margin-top: 10px;
+            padding: 10px 12px;
+            background: #f0fdf4;
+            border: 1px solid #dcfce7;
+            border-radius: 6px;
+            color: #166534;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
 
-    .bank-link:hover { background: #fff1f2; }
+        .security-note::before {
+            content: "🔒 ";
+            margin-right: 4px;
+        }
 
-    .pay-confirm-box {
-      margin: 18px 0 22px;
-      padding: 16px;
-      border: 1px solid #e2e8f0;
-      border-radius: 10px;
-      background: rgba(255,255,255,0.9);
-    }
+        .bank-link {
+            display: inline-block;
+            margin-top: 4px;
+            text-decoration: none;
+            background: #fff;
+            border: 1px solid #fca5a5;
+            padding: 12px 14px;
+            border-radius: 8px;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
 
-    .pay-confirm-box label {
-      display: flex;
-      gap: 10px;
-      align-items: flex-start;
-      margin-bottom: 0;
-      font-size: 0.95rem;
-      font-weight: 600;
-      color: #0f172a;
-      line-height: 1.5;
-    }
+        .bank-link:hover {
+            background: #fff1f2;
+        }
 
-    .pay-confirm-box input[type="checkbox"] {
-      margin-top: 4px;
-      transform: scale(1.1);
-      accent-color: #dc2626;
-    }
+        .pay-confirm-box {
+            margin: 18px 0 22px;
+            padding: 16px;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.9);
+        }
 
-    button {
-      width: 100%;
-      background: linear-gradient(180deg, #dc2626, #b91c1c);
-      color: white;
-      padding: 14px;
-      border: none;
-      border-radius: 8px;
-      font-size: 1.05rem;
-      font-weight: 700;
-      cursor: pointer;
-      transition: background 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
-      box-shadow: 0 8px 16px rgba(185,28,28,0.2);
-    }
+        .pay-confirm-box label {
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+            margin-bottom: 0;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #0f172a;
+            line-height: 1.5;
+        }
 
-    button:hover {
-      background: linear-gradient(180deg, #b91c1c, #991b1b);
-      transform: translateY(-1px);
-    }
+        .pay-confirm-box input[type="checkbox"] {
+            margin-top: 4px;
+            transform: scale(1.1);
+            accent-color: #dc2626;
+        }
 
-    button:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-      transform: none;
-      box-shadow: none;
-    }
+        button {
+            width: 100%;
+            background: linear-gradient(180deg, #dc2626, #b91c1c);
+            color: white;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.05rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
+            box-shadow: 0 8px 16px rgba(185, 28, 28, 0.2);
+        }
 
-    .disclaimer-section {
-      background: linear-gradient(180deg, rgba(241,245,249,0.98), rgba(248,250,252,0.98));
-      border: 1px solid #cbd5e1;
-      padding: 20px;
-      border-radius: 10px;
-      margin-top: 20px;
-      font-size: 0.85rem;
-      color: #475569;
-      line-height: 1.6;
-    }
+        button:hover {
+            background: linear-gradient(180deg, #b91c1c, #991b1b);
+            transform: translateY(-1px);
+        }
 
-    .disclaimer-section h4 {
-      color: #0f172a;
-      font-size: 0.95rem;
-      font-weight: 700;
-      margin: 0 0 10px 0;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
 
-    .disclaimer-section h4::before {
-      content: "ℹ️";
-    }
+        .disclaimer-section {
+            background: linear-gradient(180deg, rgba(241, 245, 249, 0.98), rgba(248, 250, 252, 0.98));
+            border: 1px solid #cbd5e1;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            font-size: 0.85rem;
+            color: #475569;
+            line-height: 1.6;
+        }
 
-    .disclaimer-box {
-      margin-top: 12px;
-      padding: 12px;
-      background: rgba(255,255,255,0.8);
-      border-left: 3px solid #0ea5e9;
-      border-radius: 6px;
-    }
+        .disclaimer-section h4 {
+            color: #0f172a;
+            font-size: 0.95rem;
+            font-weight: 700;
+            margin: 0 0 10px 0;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
 
-    .disclaimer-box strong {
-      color: #0f172a;
-      display: block;
-      margin-bottom: 6px;
-      font-size: 0.9rem;
-    }
+        .disclaimer-section h4::before {
+            content: "ℹ️";
+        }
 
-    .disclaimer-box p {
-      margin: 0;
-      font-size: 0.85rem;
-    }
+        .disclaimer-box {
+            margin-top: 12px;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.8);
+            border-left: 3px solid #0ea5e9;
+            border-radius: 6px;
+        }
 
-    .disclaimer-box:last-child {
-      margin-top: 10px;
-    }
+        .disclaimer-box strong {
+            color: #0f172a;
+            display: block;
+            margin-bottom: 6px;
+            font-size: 0.9rem;
+        }
 
-    @media (max-width: 768px) {
-      body {
-        flex-direction: column;
-        padding: 16px;
-      }
-      .left-column {
-        flex: 1 1 auto;
-        max-width: 100%;
-      }
-      .right-column {
-        flex-direction: row;
-        flex: 0 0 auto;
-        height: auto;
-        padding: 16px 0;
-        gap: 12px;
-        flex-wrap: wrap;
-        justify-content: center;
-      }
-      .tag-img {
-        width: 200px;
-      }
-    }
-  </style>
+        .disclaimer-box p {
+            margin: 0;
+            font-size: 0.85rem;
+        }
+
+        .disclaimer-box:last-child {
+            margin-top: 10px;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column;
+                padding: 16px;
+            }
+
+            .left-column {
+                flex: 1 1 auto;
+                max-width: 100%;
+            }
+
+            .right-column {
+                flex-direction: row;
+                flex: 0 0 auto;
+                height: auto;
+                padding: 16px 0;
+                gap: 12px;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .tag-img {
+                width: 200px;
+            }
+        }
+    </style>
 </head>
 
 <body>
 
-  <div class="left-column">
-    <div class="warning-banner">
-      Under construction - Call back soon!!
-    </div>
-
-    <div class="form-container">
-      <div class="festive-header">
-        <div class="festive-icon">🎄</div>
-        <h1 class="festive-title">Letter From Santa</h1>
-        <p class="festive-subtitle">A Personalised Christmas Letter<br>In A V I Key®</p>
-      </div>
-
-      <form id="santaForm" action="https://formspree.io/f/mvkoqwyr" method="POST">
-        <input type="hidden" name="_redirect" value="https://myvikey.pages.dev/xmas/thanks.html">
-
-        <div class="form-group">
-          <label for="parent_name">Parent / Guardian Full Name:</label>
-          <input type="text" id="parent_name" name="parent_name" required>
+    <div class="left-column">
+        <div class="warning-banner">
+            Under construction - Call back soon!!
         </div>
 
-        <div class="form-group">
-          <label for="email">Your Email:</label>
-          <input type="email" id="email" name="email" placeholder="example@email.com" required>
-        </div>
+        <div class="form-container">
+            <div class="festive-header">
+                <div class="festive-icon">🎄</div>
+                <h1 class="festive-title">Letter From Santa</h1>
+                <p class="festive-subtitle">A Personalised Christmas Letter<br>In A V I Key®</p>
+            </div>
 
-        <div class="form-group">
-          <label for="delivery_address">Delivery Address (Street):</label>
-          <input type="text" id="delivery_address" name="delivery_address" required>
-        </div>
+            <form id="santaForm" action="https://formspree.io/f/mvkoqwyr" method="POST">
+                <input type="hidden" name="_redirect" value="https://myvikey.pages.dev/xmas/thanks.html">
 
-        <div class="form-group">
-          <label for="delivery_town">Delivery Town / City:</label>
-          <input type="text" id="delivery_town" name="delivery_town" required>
-        </div>
+                <div class="form-group">
+                    <label for="parent_name">Parent / Guardian Full Name:</label>
+                    <input type="text" id="parent_name" name="parent_name" required>
+                </div>
 
-        <div class="form-group">
-          <label for="delivery_postcode">Delivery Postcode:</label>
-          <input type="text" id="delivery_postcode" name="delivery_postcode" required>
-        </div>
+                <div class="form-group">
+                    <label for="email">Your Email:</label>
+                    <input type="email" id="email" name="email" placeholder="example@email.com" required>
+                </div>
 
-        <div class="form-group">
-          <label for="child_name">Child's First Name:</label>
-          <input type="text" id="child_name" name="child_name" required>
-        </div>
+                <div class="form-group">
+                    <label for="delivery_address">Delivery Address (Street):</label>
+                    <input type="text" id="delivery_address" name="delivery_address" required>
+                </div>
 
-        <div class="form-group">
-          <label for="child_town">Child's Town / City:</label>
-          <input type="text" id="child_town" name="child_town" required>
-        </div>
+                <div class="form-group">
+                    <label for="delivery_town">Delivery Town / City:</label>
+                    <input type="text" id="delivery_town" name="delivery_town" required>
+                </div>
 
-        <div class="section-title">Keywords</div>
+                <div class="form-group">
+                    <label for="delivery_postcode">Delivery Postcode:</label>
+                    <input type="text" id="delivery_postcode" name="delivery_postcode" required>
+                </div>
 
-        <div class="form-group">
-          <label for="keywords">Special Interests & Keywords:</label>
-          <textarea id="keywords" name="keywords" placeholder="e.g., best friend, pet, gift, family" required></textarea>
-        </div>
+                <div class="form-group">
+                    <label for="child_name">Child's First Name:</label>
+                    <input type="text" id="child_name" name="child_name" required>
+                </div>
 
-        <div class="consent-box">
-          <label>
-            <input type="checkbox" name="gdpr_consent" required>
-            I consent to providing my child's first name and town, and my own delivery details,
-            solely to create and post their Santa Tag.
-          </label>
-          <p class="privacy-note">
-            All personalised details are permanently deleted by January 31st.
-            Read our full <a href="https://myvikey.pages.dev/privacy" target="_blank" rel="noopener noreferrer">Privacy Policy</a>.
-          </p>
-        </div>
+                <div class="form-group">
+                    <label for="child_town">Child's Town / City:</label>
+                    <input type="text" id="child_town" name="child_town" required>
+                </div>
 
-        <div class="payment-box">
-          <h3>Payment Reminder</h3>
-          <p>Please complete your payment before submitting your order, using your child's first name and postcode as the reference so we can match it to your order.</p>
+                <div class="section-title">Keywords</div>
+
+                <div class="form-group">
+                    <label for="keywords">Special Interests & Keywords:</label>
+                    <textarea id="keywords" name="keywords" placeholder="e.g., best friend, pet, gift, family" required></textarea>
+                </div>
+
+                <div class="consent-box">
+                    <label>
+                        <input type="checkbox" name="gdpr_consent" required>
+                        I consent to providing my child's first name and town, and my own delivery details,
+                        solely to create and post their Santa Tag.
+                    </label>
+                    <p class="privacy-note">
+                        All personalised details are permanently deleted by January 31st.
+                        Read our full <a href="https://myvikey.pages.dev/privacy" target="_blank" rel="noopener noreferrer">Privacy Policy</a>.
+                    </p>
+                </div>
+
+                <div class="payment-box">
+                    <h3>Payment Reminder</h3>
+                    <p>Please complete your payment before submitting your order, using your child's first name and postcode as the reference so we can match it to your order.</p>
                     <a class="bank-link" href="https://paymentrequest.natwestpayit.com/reusable-links/63e0aa5c-adef-4914-9f44-a5c147a1ced6" target="_blank" rel="noopener noreferrer">
-          <div class="security-note">Tap Here To Pay, It's safe, easy and secure</div>
-          </a>
+                        <div class="security-note">Tap Here To Pay, It's safe, easy and secure</div>
+                    </a>
+                </div>
+
+                <div class="pay-confirm-box">
+                    <label for="paid_confirm">
+                        <input type="checkbox" id="paid_confirm" name="paid_confirm" required>
+                        I confirm I have paid and I'm ready to submit my order.
+                    </label>
+                </div>
+
+                <button id="submitBtn" type="submit" disabled>Complete Order</button>
+
+                <div class="disclaimer-section">
+                    <h4>Important Notices</h4>
+
+                    <div class="disclaimer-box">
+                        <strong>Service & Delivery Terms</strong>
+                        <p>Tags are sent via post. Orders must be placed and paid by December 16th to ensure delivery before Christmas Day. We cannot guarantee delivery dates for orders placed after this deadline.</p>
+                    </div>
+
+                    <div class="disclaimer-box">
+                        <strong>Technical Disclaimer & Mobile Viewing Notice</strong>
+                        <p>The Santa's Very Important Key digital experience is designed exclusively for mobile devices. For the intended display and functionality, please open or scan this link using a smartphone. Viewing this link on a laptop, desktop, or tablet may result in formatting errors or missing features.</p>
+                    </div>
+                </div>
+
+            </form>
         </div>
-
-        <div class="pay-confirm-box">
-          <label for="paid_confirm">
-            <input type="checkbox" id="paid_confirm" name="paid_confirm" required>
-            I confirm I have paid and I'm ready to submit my order.
-          </label>
-        </div>
-
-        <button id="submitBtn" type="submit" disabled>Complete Order</button>
-
-        <div class="disclaimer-section">
-          <h4>Important Notices</h4>
-          
-          <div class="disclaimer-box">
-            <strong>Service & Delivery Terms</strong>
-            <p>Tags are sent via post. Orders must be placed and paid by December 16th to ensure delivery before Christmas Day. We cannot guarantee delivery dates for orders placed after this deadline.</p>
-          </div>
-
-          <div class="disclaimer-box">
-            <strong>Technical Disclaimer & Mobile Viewing Notice</strong>
-            <p>The Santa's Very Important Key digital experience is designed exclusively for mobile devices. For the intended display and functionality, please open or scan this link using a smartphone. Viewing this link on a laptop, desktop, or tablet may result in formatting errors or missing features.</p>
-          </div>
-        </div>
-
-      </form>
     </div>
-  </div>
 
-  <div class="right-column">
-    <img class="tag-img" src="https://pub-07ed0b0955a4401f9956c3ca7a33c40e.r2.dev/tag1.jpg" alt="Tag 1">
-    <img class="tag-img" src="https://pub-07ed0b0955a4401f9956c3ca7a33c40e.r2.dev/tag2.jpg" alt="Tag 2">
-    <img class="tag-img" src="https://pub-07ed0b0955a4401f9956c3ca7a33c40e.r2.dev/tag3.jpg" alt="Tag 3">
-    <img class="tag-img" src="https://pub-07ed0b0955a4401f9956c3ca7a33c40e.r2.dev/tag4.jpg" alt="Tag 4">
-    <img class="tag-img" src="https://pub-07ed0b0955a4401f9956c3ca7a33c40e.r2.dev/tag5.jpg" alt="Tag 5">
+    <div class="right-column">
+        <img class="tag-img" src="https://pub-07ed0b0955a4401f9956c3ca7a33c40e.r2.dev/tag1.jpg" alt="Tag 1">
+        <img class="tag-img" src="https://pub-07ed0b0955a4401f9956c3ca7a33c40e.r2.dev/tag2.jpg" alt="Tag 2">
+        <img class="tag-img" src="https://pub-07ed0b0955a4401f9956c3ca7a33c40e.r2.dev/tag3.jpg" alt="Tag 3">
+        <img class="tag-img" src="https://pub-07ed0b0955a4401f9956c3ca7a33c40e.r2.dev/tag4.jpg" alt="Tag 4">
+        <img class="tag-img" src="https://pub-07ed0b0955a4401f9956c3ca7a33c40e.r2.dev/tag5.jpg" alt="Tag 5">
 
-  </div>
+    </div>
 
-  <script>
-    const form = document.getElementById('santaForm');
-    const submitBtn = document.getElementById('submitBtn');
-    const paidConfirm = document.getElementById('paid_confirm');
+    <script>
+        const form = document.getElementById('santaForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const paidConfirm = document.getElementById('paid_confirm');
 
-    function updateSubmitState() {
-      submitBtn.disabled = !paidConfirm.checked;
-    }
+        function updateSubmitState() {
+            submitBtn.disabled = !paidConfirm.checked;
+        }
 
-    paidConfirm.addEventListener('change', updateSubmitState);
-    updateSubmitState();
+        paidConfirm.addEventListener('change', updateSubmitState);
+        updateSubmitState();
 
-    form.addEventListener('submit', function (e) {
-      const ok = confirm('Important: please make sure payment has been completed before continuing. Tap OK only if payment is done.');
-      if (!ok) {
-        e.preventDefault();
-        return;
-      }
-      submitBtn.disabled = true;
-      submitBtn.textContent = 'Submitting...';
-    });
-  </script>
+        form.addEventListener('submit', function(e) {
+            const ok = confirm('Important: please make sure payment has been completed before continuing. Tap OK only if payment is done.');
+            if (!ok) {
+                e.preventDefault();
+                return;
+            }
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Submitting...';
+        });
+    </script>
 </body>
+
 </html>
