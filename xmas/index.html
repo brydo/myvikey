@@ -690,8 +690,12 @@
         form.addEventListener('submit', async function(e) {
             e.preventDefault();
 
-            const ok = confirm('Important: please make sure payment has been completed before continuing. Tap OK only if payment is done.');
-            if (!ok) return;
+        const ok = confirm('Ho ho ho! All paid? Tap OK to send your order! 🎅');
+            if (!ok) {
+                alert('No worries! Please complete your payment first, then come back and submit. 🎄');
+                document.querySelector('.payment-box').scrollIntoView({ behavior: 'smooth' });
+                return;
+            }
 
             submitBtn.disabled = true;
             submitBtn.textContent = 'Submitting...';
