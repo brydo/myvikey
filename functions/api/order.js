@@ -1,5 +1,4 @@
 // POST /api/order — decrements stock for selected tags
-// Body: { "tags": ["tag1", "tag3"] }
 
 const TAGS = ["tag1", "tag2", "tag3", "tag4", "tag5"];
 
@@ -31,7 +30,8 @@ export async function onRequestPost(context) {
     for (const tag of selectedTags) {
       if (!TAGS.includes(tag)) continue;
       const current = parseInt((await env.STOCK_KV.get("stock:" + tag)) || "50");
-      const newVal = Math.max(0, current - 1);
+      const realCurrent = isNaN(current) ? 50 : current;
+      const newVal = Math.max(0, realCurrent - 1);
       await env.STOCK_KV.put("stock:" + tag, String(newVal));
       results[tag] = newVal;
     }
