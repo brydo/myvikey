@@ -49,9 +49,4 @@ export async function onRequestGet(context) {
 
   // DEFAULT: return current stock levels
   const stock = {};
-  for (const tag of TAGS) {
-    const val = await env.STOCK_KV.get("stock:" + tag);
-    stock[tag] = val ? parseInt(val) : 50;
-  }
-  return new Response(JSON.stringify(stock, null, 2), { headers: corsHeaders });
-}
+  for (cons
