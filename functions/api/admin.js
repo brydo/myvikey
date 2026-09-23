@@ -1,8 +1,9 @@
 // GET /api/admin — admin actions for stock management
 // Usage:
-//   /api/admin?secret=xxx&action=reset          → reset ALL tags to 50
+//   /api/admin?secret=xxx&action=reset              → reset ALL tags to 50
+//   /api/admin?secret=xxx&action=setall&value=0     → set ALL tags to any number
 //   /api/admin?secret=xxx&action=set&tag=tag1&value=50  → set one tag
-//   /api/admin?secret=xxx                        → view current stock
+//   /api/admin?secret=xxx                          → view current stock
 
 const TAGS = ["tag1", "tag2", "tag3", "tag4", "tag5"];
 const ADMIN_SECRET = "Qnwbevrctxyz123!"; // ← CHANGE THIS TO YOUR OWN SECRET!
@@ -34,6 +35,18 @@ export async function onRequestGet(context) {
     );
   }
 
+  // SET ALL tags to a specific value
+  if (action === "setall" && url.searchParams.get("value") !== null) {
+    const value = url.searchParams.get("value");
+    for (const tag of TAGS) {
+      await env.STOCK_KV.put("stock:" + tag, value);
+    }
+    return new Response(
+      JSON.stringify({ success: true, message: "All tags set to " + value }, null, 2),
+      { headers: corsHeaders }
+    );
+  }
+
   // SET a specific tag to a specific value
   if (action === "set" && url.searchParams.get("tag") && url.searchParams.get("value")) {
     const tag = url.searchParams.get("tag");
@@ -41,7 +54,7 @@ export async function onRequestGet(context) {
     if (TAGS.includes(tag)) {
       await env.STOCK_KV.put("stock:" + tag, value);
       return new Response(
-        JSON.stringify({ success: true, message: `${tag} set to ${value}` }, null, 2),
+        JSON.stringify({ success: true, message: tag + " set to " + value }, null, 2),
         { headers: corsHeaders }
       );
     }
@@ -49,4 +62,10 @@ export async function onRequestGet(context) {
 
   // DEFAULT: return current stock levels
   const stock = {};
-  for (cons
+  for (const tag of TAGS) {
+    const val = await env.STOCK_KV.get("stock:" + tag);
+    const num = val ? parseInt(val) : 50;
+    stock[tag] = isNaN(num) ? 50 : num;
+  }
+  return new Response(JSON.stringify(stock, null, 2), { headers: corsHeaders });
+}
