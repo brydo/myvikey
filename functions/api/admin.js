@@ -6,7 +6,7 @@
 //   /api/admin?secret=xxx                          → view current stock
 
 const TAGS = ["tag1", "tag2", "tag3", "tag4", "tag5"];
-const ADMIN_SECRET = "Qnwbevrctxyz123!"; // ← CHANGE THIS TO YOUR OWN SECRET!
+const ADMIN_SECRET ="Qnwbevrctxyz123!"; // ← CHANGE THIS TO YOUR OWN SECRET!
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
