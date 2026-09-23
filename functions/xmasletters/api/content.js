@@ -38,7 +38,11 @@ export async function onRequestPost(context) {
     case 'get-content': {
       const raw = await env.XMAS_CONTENT.get(safeId);
       if (!raw) return Response.json({ success: true, content: null });
-      return Response.json({ success: true, content: JSON.parse(raw) });
+      try {
+        return Response.json({ success: true, content: JSON.parse(raw) });
+      } catch {
+        return Response.json({ success: true, content: null });
+      }
     }
 
     case 'delete-content': {
@@ -50,10 +54,19 @@ export async function onRequestPost(context) {
       const list = await env.XMAS_CONTENT.list();
       const items = [];
       for (const key of list.keys) {
+        // Skip stock keys — they share this namespace but aren't content
+        if (key.name.startsWith('stock:')) continue;
         const raw = await env.XMAS_CONTENT.get(key.name);
         if (raw) {
-          const content = JSON.parse(raw);
-          items.push({ id: key.name, hasGreeting: !!content.greeting, hasText: !!content.text, hasAudio: !!content.audioUrl, updated: content.updated });
+          let content;
+          try { content = JSON.parse(raw); } catch { continue; }
+          items.push({
+            id: key.name,
+            hasGreeting: !!content.greeting,
+            hasText: !!content.text,
+            hasAudio: !!content.audioUrl,
+            updated: content.updated
+          });
         }
       }
       return Response.json({ success: true, pages: items, count: items.length });
