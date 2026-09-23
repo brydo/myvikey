@@ -362,6 +362,52 @@
             margin-left: auto;
         }
 
+        /* === OUT OF STOCK STYLES (added by stock system) === */
+        .tag-option.out-of-stock {
+            opacity: 0.55;
+            cursor: not-allowed;
+            background: #f1f5f9;
+            border-color: #94a3b8;
+            border-style: dashed;
+        }
+
+        .tag-option.out-of-stock:hover {
+            border-color: #94a3b8;
+            background: #f1f5f9;
+        }
+
+        .tag-option.out-of-stock input[type="checkbox"] {
+            cursor: not-allowed;
+        }
+
+        .tag-option .out-of-stock-badge {
+            display: none;
+            margin-left: auto;
+            background: #dc2626;
+            color: #fff;
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 3px 10px;
+            border-radius: 20px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .tag-option.out-of-stock .tag-price {
+            display: none;
+        }
+
+        .tag-option.out-of-stock .out-of-stock-badge {
+            display: inline-block;
+        }
+
+        .tag-stock-loading {
+            text-align: center;
+            padding: 8px;
+            font-size: 0.85rem;
+            color: #64748b;
+        }
+
         .payment-box {
             margin: 18px 0 22px;
             padding: 18px;
@@ -710,32 +756,38 @@ In Your VI-Key®</p>
                 <div class="tag-selection">
                     <p style="font-size:0.9rem;color:#475569;margin-bottom:12px;">Pick Your V i Key Below</p>
                     <div class="tag-options">
-                        <label class="tag-option">
+                        <label class="tag-option" data-tag="tag1">
                             <input type="checkbox" name="tag_choice" value="Santa VI-Key 1 — £6.99">
                             Santa VI-Key 1
                             <span class="tag-price">£6.99</span>
+                            <span class="out-of-stock-badge">Out of Stock</span>
                         </label>
-                        <label class="tag-option">
+                        <label class="tag-option" data-tag="tag2">
                             <input type="checkbox" name="tag_choice" value="Santa VI-Key 2 — £6.99">
                             Santa VI-Key 2
                             <span class="tag-price">£6.99</span>
+                            <span class="out-of-stock-badge">Out of Stock</span>
                         </label>
-                        <label class="tag-option">
+                        <label class="tag-option" data-tag="tag3">
                             <input type="checkbox" name="tag_choice" value="Santa VI-Key 3 — £6.99">
                             Santa VI-Key 3
                             <span class="tag-price">£6.99</span>
+                            <span class="out-of-stock-badge">Out of Stock</span>
                         </label>
-                        <label class="tag-option">
+                        <label class="tag-option" data-tag="tag4">
                             <input type="checkbox" name="tag_choice" value="Santa VI-Key 4 — £7.49">
                             Santa VI-Key 4
                             <span class="tag-price">£7.49</span>
+                            <span class="out-of-stock-badge">Out of Stock</span>
                         </label>
-                        <label class="tag-option">
+                        <label class="tag-option" data-tag="tag5">
                             <input type="checkbox" name="tag_choice" value="Santa VI-Key 5 — £7.99">
                             Santa VI-Key 5
                             <span class="tag-price">£7.99</span>
+                            <span class="out-of-stock-badge">Out of Stock</span>
                         </label>
                     </div>
+                    <div class="tag-stock-loading" id="stockLoading">Checking availability…</div>
                 </div>
 
                 <!-- STEP 2: PAYMENT -->
@@ -816,20 +868,77 @@ In Your VI-Key®</p>
     </footer>
 
     <script>
+        // ============================================================
+        // TAG STOCK MANAGEMENT SYSTEM
+        // ============================================================
+        // Each tag has a stock count stored in Cloudflare KV.
+        // When the page loads, we fetch current stock levels.
+        // When a tag hits 0, it shows "Out of Stock" and is disabled.
+        // When the form is submitted, stock is decremented automatically.
+        // You can reset stock via: /api/admin?secret=YOUR_SECRET&action=reset
+        // ============================================================
+
         const form = document.getElementById('santaForm');
         const submitBtn = document.getElementById('submitBtn');
         const paidConfirm = document.getElementById('paid_confirm');
         const tagCheckboxes = document.querySelectorAll('input[name="tag_choice"]');
+        const tagOptionLabels = document.querySelectorAll('.tag-option');
+        const stockLoading = document.getElementById('stockLoading');
 
+        // Map tag IDs to checkbox indices
+        const tagIdMap = ['tag1', 'tag2', 'tag3', 'tag4', 'tag5'];
+
+        // --- Fetch stock levels on page load ---
+        async function loadStock() {
+            try {
+                const resp = await fetch('/api/stock');
+                const stock = await resp.json();
+                stockLoading.style.display = 'none';
+
+                tagOptionLabels.forEach((label, index) => {
+                    const tagId = label.dataset.tag;
+                    const stockCount = stock[tagId] !== undefined ? stock[tagId] : 50;
+                    const checkbox = label.querySelector('input[type="checkbox"]');
+
+                    if (stockCount <= 0) {
+                        label.classList.add('out-of-stock');
+                        checkbox.disabled = true;
+                        checkbox.checked = false;
+                    } else {
+                        label.classList.remove('out-of-stock');
+                        checkbox.disabled = false;
+                    }
+                });
+
+                updateSubmitState();
+            } catch (e) {
+                // If stock API fails, allow all tags (fail open)
+                stockLoading.textContent = '';
+                stockLoading.style.display = 'none';
+                console.log('Stock check unavailable, all tags available');
+            }
+        }
+
+        // --- Submit button state ---
         function updateSubmitState() {
-            const tagSelected = Array.from(tagCheckboxes).some(cb => cb.checked);
+            const tagSelected = Array.from(tagCheckboxes).some(cb => cb.checked && !cb.disabled);
             submitBtn.disabled = !paidConfirm.checked || !tagSelected;
         }
 
         paidConfirm.addEventListener('change', updateSubmitState);
         tagCheckboxes.forEach(cb => cb.addEventListener('change', updateSubmitState));
-        updateSubmitState();
 
+        // --- Prevent checking out-of-stock tags ---
+        tagCheckboxes.forEach(cb => {
+            cb.addEventListener('click', function(e) {
+                if (cb.disabled) {
+                    e.preventDefault();
+                    return false;
+                }
+            });
+        });
+
+        // --- Form submit: decrement stock then submit to Formspree ---
         form.addEventListener('submit', async function(e) {
             e.preventDefault();
 
@@ -843,6 +952,27 @@ In Your VI-Key®</p>
             submitBtn.disabled = true;
             submitBtn.textContent = 'Submitting...';
 
+            // Collect selected tag IDs
+            const selectedTagIds = [];
+            tagCheckboxes.forEach((cb, index) => {
+                if (cb.checked && !cb.disabled) {
+                    selectedTagIds.push(tagIdMap[index]);
+                }
+            });
+
+            // Decrement stock in KV
+            try {
+                await fetch('/api/order', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ tags: selectedTagIds })
+                });
+            } catch (err) {
+                // Stock decrement failed — still submit the order
+                console.log('Stock update failed, continuing with submission');
+            }
+
+            // Submit form to Formspree
             try {
                 const response = await fetch(form.action, {
                     method: 'POST',
@@ -863,6 +993,10 @@ In Your VI-Key®</p>
                 submitBtn.textContent = 'Complete Order';
             }
         });
+
+        // --- Load stock levels when page loads ---
+        loadStock();
+        updateSubmitState();
     </script>
 </body>
 
