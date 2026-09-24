@@ -1,6 +1,6 @@
 // GET /api/stock — returns current stock levels for all tags
 
-const TAGS = ["tag1", "tag2", "tag3", "tag4", "tag5"];
+const TAGS = ["tag1", "tag2", "tag3", "tag4", "tag5", "tag6"];
 
 export async function onRequestGet(context) {
   const { env } = context;
