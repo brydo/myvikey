@@ -5,7 +5,7 @@
 //   /api/admin?secret=xxx&action=set&tag=tag1&value=50  → set one tag
 //   /api/admin?secret=xxx                          → view current stock
 
-const TAGS = ["tag1", "tag2", "tag3", "tag4", "tag5"];
+const TAGS = ["tag1", "tag2", "tag3", "tag4", "tag5","tag6"];
 const ADMIN_SECRET ="Qnwbevrctxyz123!"; // ← CHANGE THIS TO YOUR OWN SECRET!
 
 const corsHeaders = {
