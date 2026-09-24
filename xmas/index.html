@@ -786,6 +786,12 @@ In Your VI-Key®</p>
                             <span class="tag-price">£7.99</span>
                             <span class="out-of-stock-badge">Out of Stock</span>
                         </label>
+                        <label class="tag-option" data-tag="tag6">
+                            <input type="checkbox" name="tag_choice" value="Santa VI-Key 6 — £7.99">
+                            Santa VI-Key 6
+                            <span class="tag-price">£7.99</span>
+                            <span class="out-of-stock-badge">Out of Stock</span>
+                        </label>
                     </div>
                     <div class="tag-stock-loading" id="stockLoading">Checking availability…</div>
                 </div>
@@ -819,7 +825,6 @@ In Your VI-Key®</p>
                 <button id="submitBtn" type="submit" disabled>Complete Order</button>
 
              
-                
 
             </form>
         </div>
@@ -840,6 +845,9 @@ In Your VI-Key®</p>
         </div>
         <div class="tag-wrapper">
             <img class="tag-img" src="https://pub-07ed0b0955a4401f9956c3ca7a33c40e.r2.dev/tag5.jpg" alt="Santa VI-Key 5">
+        </div>
+        <div class="tag-wrapper">
+            <img class="tag-img" src="https://pub-07ed0b0955a4401f9956c3ca7a33c40e.r2.dev/tag6.jpg" alt="Santa VI-Key 6">
         </div>
     </div>
     
@@ -886,7 +894,7 @@ In Your VI-Key®</p>
         const stockLoading = document.getElementById('stockLoading');
 
         // Map tag IDs to checkbox indices
-        const tagIdMap = ['tag1', 'tag2', 'tag3', 'tag4', 'tag5'];
+        const tagIdMap = ['tag1', 'tag2', 'tag3', 'tag4', 'tag5', 'tag6'];
 
         // --- Fetch stock levels on page load ---
         async function loadStock() {
