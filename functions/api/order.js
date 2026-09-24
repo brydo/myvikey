@@ -1,6 +1,6 @@
 // POST /api/order — decrements stock for selected tags
 
-const TAGS = ["tag1", "tag2", "tag3", "tag4", "tag5"];
+const TAGS = ["tag1", "tag2", "tag3", "tag4", "tag5", "tag6"];
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
