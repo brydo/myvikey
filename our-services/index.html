@@ -1,26 +1,17 @@
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Our Services - VI Key®</title>
+    <title>What We Offer - VI Key®</title>
     <style>
         :root {
-            --bg-base: #12110F;
-            --bg-gradient: radial-gradient(circle at top, #1c1a16 0%, #12110F 70%);
-            --card-bg: rgba(255, 255, 255, 0.04);
-            --card-bg-hover: rgba(255, 255, 255, 0.07);
-            --card-border: rgba(255, 255, 255, 0.08);
-            --card-border-hover: rgba(255, 255, 255, 0.14);
-            --accent: #c9a96e;
-            --accent-hover: #d4b883;
-            --accent-glow: rgba(201, 169, 110, 0.15);
-            --accent-cta-bg: rgba(201, 169, 110, 0.1);
-            --accent-cta-border: rgba(201, 169, 110, 0.3);
-            --text: #e8e6e3;
-            --text-muted: #a8a4a0;
+            --bg-color: #121212;
+            --card-bg: #1a1a1a;
+            --gold: #d4af37;
+            --gold-hover: #f3e5ab;
+            --text-color: #e0e0e0;
+            --text-muted: #aaaaaa;
         }
 
         * {
@@ -31,31 +22,24 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background: var(--bg-gradient);
-            background-color: var(--bg-base);
-            color: var(--text);
+            background-color: var(--bg-color);
+            color: var(--text-color);
             line-height: 1.6;
             padding-bottom: 100px;
-            overflow-x: hidden;
         }
 
+        /* Top Dead Centre Logo */
         .tdc-logo {
             display: block;
             margin: 40px auto 20px auto;
             max-width: 140px;
-            width: 30%;
             height: auto;
         }
 
+        /* Navigation */
         .page-nav {
             text-align: center;
             margin-bottom: 30px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 4px 8px;
-            padding: 0 10px;
         }
 
         .nav-link {
@@ -66,19 +50,14 @@
             letter-spacing: 1px;
             padding: 5px 10px;
             transition: color 0.3s;
-            white-space: nowrap;
         }
 
         .nav-link.active, .nav-link:hover {
-            color: var(--accent);
-            border-bottom: 1px solid var(--accent);
+            color: var(--gold);
+            border-bottom: 1px solid var(--gold);
         }
 
-        .nav-divider {
-            color: #444;
-            font-size: 0.9rem;
-        }
-
+        /* Main Content Packaging */
         .content-container {
             max-width: 700px;
             margin: 0 auto;
@@ -86,7 +65,7 @@
         }
 
         h1, h2, h3 {
-            color: var(--accent);
+            color: var(--gold);
             text-align: center;
             margin-bottom: 20px;
             font-weight: 500;
@@ -105,28 +84,23 @@
             padding: 30px;
             border-radius: 8px;
             margin-bottom: 25px;
-            border: 1px solid var(--card-border);
-            transition: border-color 0.3s, box-shadow 0.3s;
-        }
-
-        section:hover {
-            border-color: var(--card-border-hover);
-            box-shadow: 0 0 20px rgba(201, 169, 110, 0.05);
+            border: 1px solid #2a2a2a;
         }
 
         p {
             margin-bottom: 15px;
-            color: var(--text);
+            color: var(--text-color);
             font-size: 1.05rem;
         }
 
         .divider-icon {
             text-align: center;
             font-size: 1.8rem;
-            color: var(--accent);
+            color: var(--gold);
             margin: 30px 0;
         }
 
+        /* Service Cards */
         .services-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -136,17 +110,16 @@
 
         .service-card {
             background-color: var(--card-bg);
-            border: 1px solid var(--card-border);
+            border: 1px solid #2a2a2a;
             border-radius: 8px;
             padding: 20px 16px;
             text-align: center;
-            transition: border-color 0.3s, transform 0.3s, box-shadow 0.3s;
+            transition: border-color 0.3s, transform 0.3s;
         }
 
         .service-card:hover {
-            border-color: var(--card-border-hover);
+            border-color: var(--gold);
             transform: translateY(-4px);
-            box-shadow: 0 0 15px var(--accent-glow);
         }
 
         .service-icon {
@@ -155,7 +128,7 @@
         }
 
         .service-card h3 {
-            color: var(--accent);
+            color: var(--gold);
             font-size: 1rem;
             font-weight: 600;
             margin-bottom: 8px;
@@ -174,27 +147,27 @@
             padding: 14px 32px;
             font-size: 1rem;
             font-weight: 600;
-            color: var(--accent);
-            background-color: var(--accent-cta-bg);
-            border: 1px solid var(--accent-cta-border);
+            color: var(--gold);
+            background-color: rgba(212, 175, 55, 0.1);
+            border: 1px solid rgba(212, 175, 55, 0.3);
             border-radius: 8px;
             text-decoration: none;
             transition: background-color 0.3s, box-shadow 0.3s;
         }
 
         .cta-link:hover {
-            background-color: rgba(201, 169, 110, 0.2);
-            box-shadow: 0 0 20px var(--accent-glow);
+            background-color: rgba(212, 175, 55, 0.2);
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.15);
         }
 
+        /* Persistent Footer */
         footer {
             position: fixed;
             bottom: 0;
             left: 0;
             width: 100%;
-            background-color: rgba(10, 10, 10, 0.9);
-            backdrop-filter: blur(8px);
-            border-top: 1px solid var(--card-border);
+            background-color: #0a0a0a;
+            border-top: 1px solid #222222;
             padding: 15px 20px;
             display: flex;
             justify-content: center;
@@ -209,7 +182,7 @@
             font-size: 16px;
             line-height: 1;
             text-decoration: none;
-            color: var(--text);
+            color: var(--text-color);
             transition: color 0.3s;
         }
 
@@ -228,45 +201,45 @@
         }
 
         .footer-btn:hover {
-            color: var(--accent);
-        }
-
-        @media (max-width: 768px) {
-            .tdc-logo { max-width: 120px; }
-            h1 { font-size: 1.7rem; letter-spacing: 1.5px; }
-            section { padding: 25px 20px; }
+            color: var(--gold);
         }
 
         @media (max-width: 480px) {
-            .tdc-logo { margin: 25px auto 15px auto; max-width: 100px; }
-            .page-nav { gap: 2px 6px; margin-bottom: 25px; }
-            .nav-link { font-size: 0.8rem; padding: 5px 8px; letter-spacing: 0.5px; }
-            .content-container { padding: 0 12px; }
-            h1 { font-size: 1.5rem; letter-spacing: 1px; margin-bottom: 25px; }
-            h2 { font-size: 1.2rem; }
-            section { padding: 20px 16px; margin-bottom: 20px; }
-            p { font-size: 0.95rem; margin-bottom: 12px; }
-            .divider-icon { font-size: 1.5rem; margin: 20px 0; }
-            .services-grid { grid-template-columns: 1fr; }
-            footer { gap: 15px; flex-direction: column; align-items: center; padding: 10px; }
-            body { padding-bottom: 120px; }
+            section {
+                padding: 20px;
+            }
+            .services-grid {
+                grid-template-columns: 1fr;
+            }
+            footer {
+                gap: 15px;
+                flex-direction: column;
+                align-items: center;
+                padding: 10px;
+            }
+            body {
+                padding-bottom: 120px;
+            }
         }
     </style>
 </head>
 <body>
 
+    <!-- TDC Logo -->
     <img src="https://pub-07ed0b0955a4401f9956c3ca7a33c40e.r2.dev/3dlogosmall.png" alt="VI Key Logo" class="tdc-logo">
 
+    <!-- Navigation -->
     <div class="page-nav">
         <a href="https://myvikey.pages.dev" class="nav-link">Our Story</a>
-        <span class="nav-divider">|</span>
-        <a href="https://myvikey.pages.dev/our-services/" class="nav-link active">Our Services</a>
-        <span class="nav-divider">|</span>
+        <span style="color:#444">|</span>
+        <a href="https://myvikey.pages.dev/our-services/" class="nav-link active">What We Offer</a>
+        <span style="color:#444">|</span>
         <a href="https://myvikey.pages.dev/showcase/" class="nav-link">Our Showcase</a>
     </div>
 
+    <!-- Main Content -->
     <div class="content-container">
-        
+        <h1>What We Offer</h1>
 
         <section>
             <h2>Customized NFC Tags</h2>
@@ -329,13 +302,9 @@
             <p>We also create beautiful, private digital memorial pages for loved ones. A physical V I Key® that opens a quiet, personal space — preserving memories, stories, and photos for the people who shared the love. No public feeds, no noise — just a dignified tribute that lasts.</p>
         </section>
 
-        <section style="text-align:center;">
-            <h2>Ready to Create Yours?</h2>
-            <p>Get in touch and we will help you bring your idea to life.</p>
-            <a href="https://wa.me/qr/S3WV63OUV4CTP1" class="cta-link" target="_blank" rel="noopener noreferrer">Enquire on WhatsApp →</a>
-        </section>
-    </div>
+        </div>
 
+    <!-- Persistent Action Footer -->
     <footer>
         <a href="https://wa.me/qr/S3WV63OUV4CTP1" class="footer-btn" target="_blank" rel="noopener noreferrer">
             <svg class="whatsapp-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
