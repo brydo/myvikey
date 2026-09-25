@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,26 +6,13 @@
 <title>Robbie Memorial</title>
 
 <style>
-  :root {
-    --bg-base: #12110F;
-    --bg-gradient: radial-gradient(circle at top, #1c1a16 0%, #12110F 70%);
-    --card-bg: rgba(255, 255, 255, 0.04);
-    --card-border: rgba(255, 255, 255, 0.08);
-    --card-border-hover: rgba(255, 255, 255, 0.14);
-    --accent: #c9a96e;
-    --accent-hover: #d4b883;
-    --accent-glow: rgba(201, 169, 110, 0.15);
-    --text: #e8e6e3;
-    --text-muted: #a8a4a0;
-  }
-
   body {
     margin: 0;
     padding: 0;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    background: var(--bg-gradient);
-    background-color: var(--bg-base);
-    color: var(--text);
+    padding-bottom: 100px;
+    font-family: "Segoe UI", sans-serif;
+    background: radial-gradient(circle at top, #222 0%, #050505 60%);
+    color: #eee;
     text-align: center;
   }
 
@@ -41,30 +26,27 @@
     width: 100%;
     max-width: 420px;
     border-radius: 12px;
-    box-shadow: 0 0 25px var(--accent-glow);
+    box-shadow: 0 0 25px rgba(255,255,255,0.15);
     margin-top: 20px;
-    border: 1px solid var(--card-border);
   }
 
   h1 {
     font-size: 32px;
     margin-top: 25px;
     font-weight: 600;
-    color: var(--accent);
   }
 
   .subtitle {
     font-size: 20px;
-    color: var(--text-muted);
+    color: #ccc;
     margin-bottom: 25px;
   }
 
   .audio-card {
-    background: var(--card-bg);
+    background: rgba(255,255,255,0.05);
     padding: 20px;
     border-radius: 12px;
-    border: 1px solid var(--card-border);
-    box-shadow: 0 0 15px var(--accent-glow);
+    box-shadow: 0 0 15px rgba(255,255,255,0.1);
     margin-top: 25px;
     backdrop-filter: blur(4px);
   }
@@ -90,67 +72,84 @@
     margin: 40px auto 20px;
     width: 120px;
     height: 2px;
-    background: linear-gradient(to right, transparent, var(--accent), transparent);
+    background: linear-gradient(to right, transparent, #888, transparent);
     border-radius: 2px;
-    opacity: 0.5;
   }
 
   .tribute-line {
     font-size: 18px;
-    color: var(--text-muted);
+    color: #ccc;
     letter-spacing: 0.5px;
     margin-bottom: 30px;
-  }
-
-  .site-footer {
-    text-align: center;
-    padding: 2rem 1.5rem;
-    background: rgba(255, 255, 255, 0.02);
-    border-top: 1px solid var(--card-border);
-    color: var(--text-muted);
-    font-size: 0.9rem;
-  }
-
-  .site-footer a {
-    color: var(--accent);
-    text-decoration: none;
-  }
-
-  .site-footer a:hover {
-    text-decoration: underline;
-  }
-
-  .logout-btn {
-    display: inline-block;
-    margin-top: 1rem;
-    padding: 0.5rem 1.5rem;
-    background: transparent;
-    border: 1px solid var(--card-border-hover);
-    border-radius: 5px;
-    color: var(--text-muted);
-    cursor: pointer;
-    font-family: inherit;
-    font-size: 0.85rem;
-    transition: all 0.2s;
-  }
-
-  .logout-btn:hover {
-    background: var(--card-bg);
-    border-color: var(--accent);
-    color: var(--accent);
   }
 
   .back-link {
     display: inline-block;
     margin-top: 20px;
-    color: var(--text-muted);
+    color: #888;
     font-size: 14px;
     text-decoration: none;
     transition: 0.25s ease;
   }
 
   .back-link:hover {
-    color: var(--text);
+    color: #ccc;
+  }
+
+  /* Persistent Footer */
+  footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: #0d0c0a;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 15px 20px;
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    z-index: 1000;
+  }
+
+  .footer-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 16px;
+    line-height: 1;
+    text-decoration: none;
+    color: #e8e6e3;
+    transition: color 0.3s;
+  }
+
+  .footer-btn .whatsapp-icon {
+    width: 1em;
+    height: 1em;
+    fill: #25D366;
+    display: inline-block;
+    vertical-align: middle;
+  }
+
+  .footer-btn .email-icon {
+    font-size: 1em;
+    display: inline-block;
+    line-height: 1;
+  }
+
+  .footer-btn:hover {
+    color: #c9a96e;
+  }
+
+  @media (max-width: 480px) {
+    footer {
+      gap: 15px;
+      flex-direction: column;
+      align-items: center;
+      padding: 10px;
+    }
+    body {
+      padding-bottom: 120px;
+    }
   }
 </style>
 </head>
@@ -182,14 +181,21 @@
 
   <a class="back-link" href="/">&larr; Back to home</a>
 
-  <footer class="site-footer">
-    <p>In loving memory of Robbie &mdash; gone but never forgotten.</p>
-    <p style="margin-top: 0.5rem;">For inquiries: <a href="mailto:brydo@outlook.com">brydo@outlook.com</a></p>
-    <form method="POST" action="/__logout">
-      <button type="submit" class="logout-btn">Log out</button>
-    </form>
-  </footer>
-
 </div>
+
+<!-- Persistent Action Footer -->
+<footer>
+    <a href="https://wa.me/qr/S3WV63OUV4CTP1" class="footer-btn" target="_blank" rel="noopener noreferrer">
+        <svg class="whatsapp-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-1.157 4.228 4.305-1.129z"/>
+        </svg>
+        <span>WhatsApp Us</span>
+    </a>
+    <a href="mailto:vikeyshop@outlook.com" class="footer-btn">
+        <span class="email-icon">✉</span>
+        <span>Email Us</span>
+    </a>
+</footer>
+
 </body>
 </html>
