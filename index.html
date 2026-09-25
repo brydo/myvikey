@@ -3,15 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>V I Key®</title>
+    <title>Our Story</title>
     <style>
         :root {
-            --bg-color: #121212;
-            --card-bg: #1a1a1a;
-            --gold: #d4af37;
-            --gold-hover: #f3e5ab;
-            --text-color: #e0e0e0;
-            --text-muted: #aaaaaa;
+            --bg-base: #12110F;
+            --bg-gradient: radial-gradient(circle at top, #1c1a16 0%, #12110F 70%);
+            --card-bg: rgba(255, 255, 255, 0.04);
+            --card-border: rgba(255, 255, 255, 0.08);
+            --card-border-hover: rgba(255, 255, 255, 0.14);
+            --gold: #c9a96e;
+            --gold-hover: #d4b883;
+            --gold-glow: rgba(201, 169, 110, 0.15);
+            --gold-cta-bg: rgba(201, 169, 110, 0.1);
+            --gold-cta-border: rgba(201, 169, 110, 0.3);
+            --text-color: #e8e6e3;
+            --text-muted: #a8a4a0;
         }
 
         * {
@@ -22,7 +28,8 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg-color);
+            background: var(--bg-gradient);
+            background-color: var(--bg-base);
             color: var(--text-color);
             line-height: 1.6;
             padding-bottom: 100px;
@@ -84,7 +91,7 @@
             padding: 30px;
             border-radius: 8px;
             margin-bottom: 25px;
-            border: 1px solid #2a2a2a;
+            border: 1px solid var(--card-border);
         }
 
         p {
@@ -107,16 +114,16 @@
             font-size: 1rem;
             font-weight: 600;
             color: var(--gold);
-            background-color: rgba(212, 175, 55, 0.1);
-            border: 1px solid rgba(212, 175, 55, 0.3);
+            background-color: var(--gold-cta-bg);
+            border: 1px solid var(--gold-cta-border);
             border-radius: 8px;
             text-decoration: none;
             transition: background-color 0.3s, box-shadow 0.3s;
         }
 
         .cta-link:hover {
-            background-color: rgba(212, 175, 55, 0.2);
-            box-shadow: 0 0 20px rgba(212, 175, 55, 0.15);
+            background-color: rgba(201, 169, 110, 0.2);
+            box-shadow: 0 0 20px var(--gold-glow);
         }
 
         /* Persistent Footer */
@@ -125,8 +132,8 @@
             bottom: 0;
             left: 0;
             width: 100%;
-            background-color: #0a0a0a;
-            border-top: 1px solid #222222;
+            background-color: #0d0c0a;
+            border-top: 1px solid var(--card-border);
             padding: 15px 20px;
             display: flex;
             justify-content: center;
@@ -188,17 +195,17 @@
     <div class="page-nav">
         <a href="https://myvikey.pages.dev" class="nav-link active">Our Story</a>
         <span style="color:#444">|</span>
-        <a href="https://myvikey.pages.dev/our-services/" class="nav-link">Our Services</a>
+        <a href="https://myvikey.pages.dev/our-services/" class="nav-link">What We Offer</a>
         <span style="color:#444">|</span>
         <a href="https://myvikey.pages.dev/showcase/" class="nav-link">Our Showcase</a>
     </div>
 
     <!-- Main Content -->
     <div class="content-container">
-   
+        <h1>Our Story</h1>
 
         <section>
-            <h2>Our Story</h2>
+            <h2>Our Purpose</h2>
             <p><strong>V I Key®</strong> was created to bring physical items and digital spaces together in a meaningful way. We believe that technology should be simple, helpful, and serve a real human purpose—whether that is making everyday tasks easier or holding onto the memories that matter most.</p>
             <p>By using simple tap-and-go <strong>NFC technology</strong>, we create physical keys that open digital pages instantly. Every piece we make is crafted with care, respect, and a commitment to privacy, giving you a smooth and secure way to share information.</p>
         </section>
