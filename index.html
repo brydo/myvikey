@@ -45,9 +45,14 @@
 
         /* Navigation */
         .page-nav {
-            text-align: center;
-            margin-bottom: 30px;
-        }
+    text-align: center;
+    margin-bottom: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: nowrap;
+    gap: 8px;
+}
 
         .nav-link {
             color: var(--text-muted);
@@ -180,8 +185,15 @@
         }
 
         @media (max-width: 480px) {
-            section {
-                padding: 20px;
+            .page-nav {
+    gap: 4px;
+    padding: 0 8px;
+}
+.nav-link {
+    font-size: 0.72rem;
+    letter-spacing: 0.5px;
+    padding: 4px 6px;
+    white-space: nowrap;
             }
             footer {
                 gap: 15px;
