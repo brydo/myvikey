@@ -1,1 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>What We Offer - VI Key®</title>
+    <style>
+        :root {
+            --bg-base: #12110F;
+            --bg-gradient: radial-gradient(circle at top, #1c1a16 0%, #12110F 70%);
+            --card-bg: rgba(255, 255, 255, 0.04);
+            --card-border: rgba(255, 255, 255, 0.08);
+            --card-border-hover: rgba(255, 255, 255, 0.14);
+            --gold: #c9a96e;
+            --gold-hover: #d4b883;
+            --gold-glow: rgba(201, 169, 110, 0.15);
+            --gold-cta-bg: rgba(201, 169, 110, 0.1);
+            --gold-cta-border: rgba(201, 169, 110, 0.3);
+            --text-color: #e8e6e3;
+            --text-muted: #a8a4a0;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: var(--bg-gradient);
+            background-color: var(--bg-base);
+            color: var(--text-color);
+            line-height: 1.6;
+            padding-bottom: 100px;
+        }
+
+        /* Top Dead Centre Logo */
+        .tdc-logo {
+            display: block;
+            margin: 40px auto 20px auto;
+            max-width: 140px;
+            height: auto;
+        }
+
+        /* Navigation */
+        .page-nav {
+            text-align: center;
+            margin-bottom: 30px;
+            white-space: nowrap;
+        }
+
+        .nav-link {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 5px 10px;
+            transition: color 0.3s;
+        }
+
+        .nav-link.active, .nav-link:hover {
+            color: var(--gold);
+            border-bottom: 1px solid var(--gold);
+        }
+
+        /* Main Content Packaging */
+        .content-container {
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        h1, h2, h3 {
+            color: var(--gold);
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+
+        h1 {
+            font-size: 2rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 30px;
+        }
+
+        section {
+            background-color: var(--card-bg);
+            padding: 30px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            border: 1px solid var(--card-border);
+        }
+
+        p {
+            margin-bottom: 15px;
+            color: var(--text-color);
+            font-size: 1.05rem;
+        }
+
+        .divider-icon {
+            text-align: center;
+            font-size: 1.8rem;
+            color: var(--gold);
+            margin: 30px 0;
+        }
+
+        /* Services Grid */
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin: 25px 0;
+        }
+
+        .service-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            padding: 20px 16px;
+            text-align: center;
+            transition: border-color 0.3s, transform 0.3s, box-shadow 0.3s;
+        }
+
+        .service-card:hover {
+            border-color: var(--card-border-hover);
+            transform: translateY(-4px);
+            box-shadow: 0 0 15px var(--gold-glow);
+        }
+
+        .service-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .service-card h3 {
+            color: var(--gold);
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .service-card p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+            margin-bottom: 0;
+        }
+
+        .cta-link {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 14px 32px;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--gold);
+            background-color: var(--gold-cta-bg);
+            border: 1px solid var(--gold-cta-border);
+            border-radius: 8px;
+            text-decoration: none;
+            transition: background-color 0.3s, box-shadow 0.3s;
+        }
+
+        .cta-link:hover {
+            background-color: rgba(201, 169, 110, 0.2);
+            box-shadow: 0 0 20px var(--gold-glow);
+        }
+
+        /* Persistent Footer */
+        footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: #0d0c0a;
+            border-top: 1px solid var(--card-border);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            z-index: 1000;
+        }
+
+        .footer-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 16px;
+            line-height: 1;
+            text-decoration: none;
+            color: var(--text-color);
+            transition: color 0.3s;
+        }
+
+        .footer-btn .whatsapp-icon {
+            width: 1em;
+            height: 1em;
+            fill: #25D366;
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        .footer-btn .facebook-icon {
+            width: 1em;
+            height: 1em;
+            fill: #1877F2;
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        .footer-btn .email-icon {
+            font-size: 1em;
+            display: inline-block;
+            line-height: 1;
+        }
+
+        .footer-btn:hover {
+            color: var(--gold);
+        }
+
+        @media (max-width: 480px) {
+            section {
+                padding: 20px;
+            }
+            .page-nav {
+                padding: 0 4px;
+                font-size: 0.85rem;
+            }
+            .nav-link {
+                font-size: 0.85rem;
+                letter-spacing: 0.3px;
+                padding: 3px 4px;
+                white-space: nowrap;
+            }
+            .services-grid {
+                grid-template-columns: 1fr;
+            }
+            footer {
+                gap: 20px;
+                flex-direction: row;
+                flex-wrap: nowrap;
+                align-items: center;
+                justify-content: center;
+                padding: 10px;
+            }
+            body {
+                padding-bottom: 120px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- TDC Logo -->
+    <img src="https://pub-07ed0b0955a4401f9956c3ca7a33c40e.r2.dev/transparentlogo.png" alt="VI Key Logo" class="tdc-logo">
+
+    <!-- Navigation -->
+    <div class="page-nav">
+        <a href="https://myvikey.pages.dev" class="nav-link">Our Story</a>
+        <span style="color:#444">|</span>
+        <a href="https://myvikey.pages.dev/our-services/" class="nav-link active">Our Services</a>
+        <span style="color:#444">|</span>
+        <a href="https://myvikey.pages.dev/showcase/" class="nav-link">Our Showcase</a>
+    </div>
+
+    <!-- Main Content -->
+    <div class="content-container">
+
+        <section>
+            <h2>Customized NFC Tags</h2>
+            <p>We offer custom-programmed NFC tags tailored to your needs. Simply tap the tag with any smartphone and it opens instantly — no apps, no hassle. Whether you are a business looking to connect with customers or an individual wanting to share something meaningful, we have a solution for you.</p>
+        </section>
+
+        <div class="divider-icon">✨</div>
+
+        <section>
+            <h2>Our Services</h2>
+            <p style="text-align:center; margin-bottom:20px;">Here are just some of the ways we can programme your V I Key®:</p>
+            <div class="services-grid">
+                <div class="service-card">
+                    <div class="service-icon">🔗</div>
+                    <h3>Website Links</h3>
+                    <p>Direct visitors straight to your homepage, landing page, or any URL.</p>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">📋</div>
+                    <h3>Menu Links</h3>
+                    <p>Restaurant menus, service lists, or product catalogues — one tap and they're reading.</p>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">📱</div>
+                    <h3>WhatsApp Links</h3>
+                    <p>Open a pre-filled WhatsApp chat with your number and a custom message, ready to send.</p>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">✉️</div>
+                    <h3>Contact Us Links</h3>
+                    <p>Phone, email, or full contact card — everything a customer needs to reach you.</p>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">📍</div>
+                    <h3>Location Links</h3>
+                    <p>Open Google Maps directions to your business or event instantly.</p>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">📷</div>
+                    <h3>Social Media</h3>
+                    <p>Instagram, Facebook, TikTok, LinkedIn — send followers straight to your profile.</p>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">📶</div>
+                    <h3>Wi-Fi Sharing</h3>
+                    <p>Guests tap to connect to your Wi-Fi network automatically — no password typing.</p>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">✨</div>
+                    <h3>…and much more</h3>
+                    <p>Payment links, vCards, calendar events, reviews, video links — the list is endless.</p>
+                </div>
+            </div>
+        </section>
+
+        <div class="divider-icon">✨️</div>
+
+        <section>
+            <h2>Memorial Pages</h2>
+            <p>We also create beautiful, private digital memorial pages for loved ones. A physical V I Key® that opens a quiet, personal space — preserving memories, stories, and photos for the people who shared the love. No public feeds, no noise — just a dignified tribute that lasts.</p>
+        </section>
+
+       
+
+    </div>
+
+    <!-- Persistent Action Footer -->
+    <footer>
+        <a href="https://wa.me/qr/S3WV63OUV4CTP1" class="footer-btn" target="_blank" rel="noopener noreferrer">
+            <svg class="whatsapp-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-1.157 4.228 4.305-1.129z"/>
+            </svg>
+            <span></span>
+        </a>
+        <a href="mailto:vikeyshop@outlook.com" class="footer-btn">
+            <span class="email-icon">✉</span>
+            <span></span>
+        </a>
+        <a href="https://www.facebook.com/vi.key.page" class="footer-btn" target="_blank" rel="noopener noreferrer">
+            <svg class="facebook-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+            </svg>
+            <span></span>
+        </a>
+    </footer>
+
+</body>
+</html>
 
