@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tag Stock Admin</title>
+    <style>
+        /* Password Gate */
+        #gate {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: #12110F;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+        #gate h1 {
+            color: #c9a96e;
+            font-weight: 500;
+            letter-spacing: 1px;
+            margin-bottom: 20px;
+        }
+        #gate input {
+            padding: 12px 16px;
+            background: #0d0c0a;
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 8px;
+            color: #e8e6e3;
+            font-size: 1rem;
+            width: 250px;
+            text-align: center;
+            margin-bottom: 12px;
+        }
+        #gate input:focus {
+            border-color: #c9a96e;
+            outline: none;
+        }
+        #gate button {
+            padding: 10px 28px;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #fff;
+            background: linear-gradient(180deg, #c9a96e, #b8965a);
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        #gate button:hover { opacity: 0.9; }
+        #gate .error {
+            color: #ef4444;
+            font-size: 0.85rem;
+            margin-top: 10px;
+            display: none;
+        }
+        #gate .error.show { display: block; }
+        #content { display: none; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: #12110F;
+            color: #e8e6e3;
+            line-height: 1.6;
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 30px 20px 60px;
+        }
+        h1 {
+            color: #c9a96e;
+            text-align: center;
+            font-weight: 500;
+            letter-spacing: 1px;
+            margin-bottom: 30px;
+        }
+        h2 {
+            color: #c9a96e;
+            font-weight: 500;
+            margin: 25px 0 10px;
+        }
+        .card {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .card:hover {
+            border-color: rgba(255,255,255,0.14);
+        }
+        .card p {
+            color: #a8a4a0;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+        .url-box {
+            background: #0d0c0a;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 6px;
+            padding: 12px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.82rem;
+            color: #c9a96e;
+            word-break: break-all;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: border-color 0.3s;
+        }
+        .url-box:hover {
+            border-color: #c9a96e;
+        }
+        .copy-btn {
+            display: inline-block;
+            padding: 6px 16px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #c9a96e;
+            background: rgba(201,169,110,0.1);
+            border: 1px solid rgba(201,169,110,0.3);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .copy-btn:hover {
+            background: rgba(201,169,110,0.2);
+        }
+        .copy-btn.copied {
+            color: #4ade80;
+            border-color: #4ade80;
+        }
+        .open-btn {
+            display: inline-block;
+            padding: 6px 16px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #e8e6e3;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 6px;
+            text-decoration: none;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .open-btn:hover {
+            background: rgba(255,255,255,0.12);
+        }
+        .btn-row {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .result {
+            margin-top: 10px;
+            padding: 10px;
+            background: #0d0c0a;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.82rem;
+            color: #a8a4a0;
+            white-space: pre-wrap;
+            display: none;
+        }
+        .result.show {
+            display: block;
+        }
+        .divider {
+            text-align: center;
+            color: #c9a96e;
+            margin: 30px 0;
+            font-size: 1.5rem;
+        }
+        input[type="number"] {
+            width: 80px;
+            padding: 8px 10px;
+            background: #0d0c0a;
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 6px;
+            color: #e8e6e3;
+            font-size: 0.9rem;
+        }
+        input[type="text"] {
+            width: 120px;
+            padding: 8px 10px;
+            background: #0d0c0a;
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 6px;
+            color: #e8e6e3;
+            font-size: 0.9rem;
+        }
+        .input-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+        .input-row label {
+            font-size: 0.85rem;
+            color: #a8a4a0;
+        }
+        .action-btn {
+            display: inline-block;
+            padding: 8px 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #fff;
+            background: linear-gradient(180deg, #c9a96e, #b8965a);
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: opacity 0.3s;
+        }
+        .action-btn:hover {
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Password Gate -->
+    <div id="gate">
+        <h1>🔒 Admin Access</h1>
+        <input type="password" id="gateInput" placeholder="Enter password" autocomplete="off">
+        <button onclick="checkGate()">Enter</button>
+        <div class="error" id="gateError">Wrong password. Try again.</div>
+    </div>
+
+    <!-- Main Content -->
+    <div id="content">
+
+    <h1>🎄 Tag Stock Admin</h1>
+
+    <!-- VIEW STOCK -->
+    <div class="card">
+        <h2>View Current Stock</h2>
+        <p>See the current stock level for all 6 tags.</p>
+        <div class="url-box" onclick="copyText(this)">https://myvikey.pages.dev/api/admin?secret=Qnwbevrctxyz123!</div>
+        <div class="btn-row">
+            <button class="copy-btn" onclick="copyUrl(0)">Copy URL</button>
+            <a class="open-btn" href="https://myvikey.pages.dev/api/admin?secret=Qnwbevrctxyz123!" target="_blank">Open in Browser</a>
+            <button class="action-btn" onclick="fetchStock()">Fetch Stock Now</button>
+        </div>
+        <div class="result" id="stockResult"></div>
+    </div>
+
+    <div class="divider">✨</div>
+
+    <!-- RESET ALL -->
+    <div class="card">
+        <h2>Reset All Tags to 50</h2>
+        <p>Set every tag back to 50 units.</p>
+        <div class="url-box" onclick="copyText(this)">https://myvikey.pages.dev/api/admin?secret=Qnwbevrctxyz123!&action=reset</div>
+        <div class="btn-row">
+            <button class="copy-btn" onclick="copyUrl(1)">Copy URL</button>
+            <a class="open-btn" href="https://myvikey.pages.dev/api/admin?secret=Qnwbevrctxyz123!&action=reset" target="_blank">Open in Browser</a>
+            <button class="action-btn" onclick="doAction('https://myvikey.pages.dev/api/admin?secret=Qnwbevrctxyz123!&action=reset', 'resetResult')">Reset Now</button>
+        </div>
+        <div class="result" id="resetResult"></div>
+    </div>
+
+    <div class="divider">✨</div>
+
+    <!-- SET ALL -->
+    <div class="card">
+        <h2>Set All Tags to a Number</h2>
+        <p>Set every tag to the same stock level.</p>
+        <div class="input-row">
+            <label>Value:</label>
+            <input type="number" id="setallValue" value="20" min="0">
+        </div>
+        <div class="url-box" id="setallUrl">https://myvikey.pages.dev/api/admin?secret=Qnwbevrctxyz123!&action=setall&value=20</div>
+        <div class="btn-row">
+            <button class="copy-btn" onclick="copyUrl(2)">Copy URL</button>
+            <button class="action-btn" onclick="setAll()">Set All Now</button>
+        </div>
+        <div class="result" id="setallResult"></div>
+    </div>
+
+    <div class="divider">✨</div>
+
+    <!-- SET ONE TAG -->
+    <div class="card">
+        <h2>Set One Tag</h2>
+        <p>Change the stock for a single tag.</p>
+        <div class="input-row">
+            <label>Tag:</label>
+            <select id="oneTag" style="padding:8px 10px;background:#0d0c0a;border:1px solid rgba(255,255,255,0.12);border-radius:6px;color:#e8e6e3;font-size:0.9rem;">
+                <option value="tag1">tag1</option>
+                <option value="tag2">tag2</option>
+                <option value="tag3">tag3</option>
+                <option value="tag4">tag4</option>
+                <option value="tag5">tag5</option>
+                <option value="tag6">tag6</option>
+            </select>
+            <label>Value:</label>
+            <input type="number" id="oneValue" value="10" min="0">
+        </div>
+        <div class="url-box" id="oneUrl">https://myvikey.pages.dev/api/admin?secret=Qnwbevrctxyz123!&action=set&tag=tag1&value=10</div>
+        <div class="btn-row">
+            <button class="copy-btn" onclick="copyUrl(3)">Copy URL</button>
+            <button class="action-btn" onclick="setOne()">Set Tag Now</button>
+        </div>
+        <div class="result" id="oneResult"></div>
+    </div>
+
+    <script>
+        // Password Gate
+        const GATE_PASSWORD = "Qnwbevrctxyz123!";
+        function checkGate() {
+            const input = document.getElementById('gateInput').value;
+            const error = document.getElementById('gateError');
+            if (input === GATE_PASSWORD) {
+                document.getElementById('gate').style.display = 'none';
+                document.getElementById('content').style.display = 'block';
+            } else {
+                error.classList.add('show');
+                document.getElementById('gateInput').value = '';
+            }
+        }
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && document.getElementById('gate').style.display !== 'none') {
+                checkGate();
+            }
+        });
+
+        const BASE = 'https://myvikey.pages.dev/api/admin?secret=Qnwbevrctxyz123!';
+
+        // Update URLs when inputs change
+        document.getElementById('setallValue').addEventListener('input', updateSetAllUrl);
+        document.getElementById('oneTag').addEventListener('change', updateOneUrl);
+        document.getElementById('oneValue').addEventListener('input', updateOneUrl);
+
+        function updateSetAllUrl() {
+            const val = document.getElementById('setallValue').value;
+            document.getElementById('setallUrl').textContent = `${BASE}&action=setall&value=${val}`;
+        }
+
+        function updateOneUrl() {
+            const tag = document.getElementById('oneTag').value;
+            const val = document.getElementById('oneValue').value;
+            document.getElementById('oneUrl').textContent = `${BASE}&action=set&tag=${tag}&value=${val}`;
+        }
+
+        function copyUrl(which) {
+            const boxes = document.querySelectorAll('.url-box');
+            copyText(boxes[which]);
+            const btns = document.querySelectorAll('.copy-btn');
+            btns[which].textContent = 'Copied!';
+            btns[which].classList.add('copied');
+            setTimeout(() => {
+                btns[which].textContent = 'Copy URL';
+                btns[which].classList.remove('copied');
+            }, 2000);
+        }
+
+        function copyText(el) {
+            const range = document.createRange();
+            range.selectNode(el);
+            window.getSelection().removeAllRanges();
+            window.getSelection().addRange(range);
+            document.execCommand('copy');
+            window.getSelection().removeAllRanges();
+        }
+
+        async function fetchStock() {
+            const el = document.getElementById('stockResult');
+            el.textContent = 'Fetching...';
+            el.classList.add('show');
+            try {
+                const resp = await fetch(`${BASE}`);
+                const data = await resp.json();
+                el.textContent = JSON.stringify(data, null, 2);
+            } catch (e) {
+                el.textContent = 'Error: ' + e.message;
+            }
+        }
+
+        async function doAction(url, resultId) {
+            const el = document.getElementById(resultId);
+            el.textContent = 'Working...';
+            el.classList.add('show');
+            try {
+                const resp = await fetch(url);
+                const data = await resp.json();
+                el.textContent = JSON.stringify(data, null, 2);
+            } catch (e) {
+                el.textContent = 'Error: ' + e.message;
+            }
+        }
+
+        function setAll() {
+            const val = document.getElementById('setallValue').value;
+            doAction(`${BASE}&action=setall&value=${val}`, 'setallResult');
+        }
+
+        function setOne() {
+            const tag = document.getElementById('oneTag').value;
+            const val = document.getElementById('oneValue').value;
+            doAction(`${BASE}&action=set&tag=${tag}&value=${val}`, 'oneResult');
+        }
+    </script>
+
+    </div><!-- /content -->
+
+</body>
+</html>
