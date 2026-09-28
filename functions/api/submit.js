@@ -14,17 +14,17 @@ export async function onRequestPost({ request, env }) {
     const submissionId = `sub_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     await env.FORM_SUBMISSIONS.put(submissionId, JSON.stringify(data));
 
-    // Build email body from form data
-    let emailBody = '<h2>New Christmas Order Submission</h2>';
-    emailBody += `<p><strong>Submission ID:</strong> ${submissionId}</p>`;
-    emailBody += `<p><strong>Timestamp:</strong> ${timestamp}</p>`;
-    emailBody += '<hr>';
+    // Build email body for you (the shop)
+    let shopEmailBody = '<h2>New Christmas Order Submission</h2>';
+    shopEmailBody += `<p><strong>Submission ID:</strong> ${submissionId}</p>`;
+    shopEmailBody += `<p><strong>Timestamp:</strong> ${timestamp}</p>`;
+    shopEmailBody += '<hr>';
     for (const [key, value] of formData.entries()) {
       if (key === '_gotcha') continue;
-      emailBody += `<p><strong>${key}:</strong> ${value}</p>`;
+      shopEmailBody += `<p><strong>${key}:</strong> ${value}</p>`;
     }
 
-    // Send email via Resend
+    // Send order email to you
     try {
       await fetch('https://api.resend.com/emails', {
         method: 'POST',
@@ -36,11 +36,44 @@ export async function onRequestPost({ request, env }) {
           from: 'onboarding@resend.dev',
           to: 'vikeyshop@outlook.com',
           subject: 'New Christmas Order Submission!',
-          html: emailBody
+          html: shopEmailBody
         })
       });
     } catch (emailErr) {
-      console.error('Email notification failed:', emailErr.message);
+      console.error('Shop email failed:', emailErr.message);
+    }
+
+    // Send acknowledgement email to the customer
+    const customerEmail = data.email;
+    if (customerEmail) {
+      const customerEmailBody = `
+        <h2>Thank you for your order! 🎄</h2>
+        <p>Hi ${data.parent_name || 'there'},</p>
+        <p>We've received your Christmas order and it will be processed in 2 to 3 working days.</p>
+        <p><strong>Order details:</strong></p>
+        <ul>
+          <li><strong>Child's name:</strong> ${data.child_name || 'N/A'}</li>
+          <li><strong>Tag choice:</strong> ${data.tag_choice || 'N/A'}</li>
+        </ul>
+        <p>Best wishes,<br>The VI-Key Team 🎅</p>
+      `;
+      try {
+        await fetch('https://api.resend.com/emails', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${env.RESEND_API_KEY}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            from: 'onboarding@resend.dev',
+            to: customerEmail,
+            subject: 'Order Received — VI-Key Christmas 🎄',
+            html: customerEmailBody
+          })
+        });
+      } catch (emailErr) {
+        console.error('Customer email failed:', emailErr.message);
+      }
     }
 
     return new Response(JSON.stringify({ success: true, id: submissionId }), {
