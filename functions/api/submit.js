@@ -1,6 +1,4 @@
-// Form handler — stores submissions in KV + sends email notification
-// Email notifications via FormSubmit.co (free, no signup needed)
-
+// Form handler — stores submissions in KV + sends email via Resend
 export async function onRequestPost({ request, env }) {
   try {
     const formData = await request.formData();
@@ -9,7 +7,6 @@ export async function onRequestPost({ request, env }) {
       data[key] = value;
     }
 
-    // Add timestamp
     const timestamp = new Date().toISOString();
     data._timestamp = timestamp;
 
@@ -17,26 +14,32 @@ export async function onRequestPost({ request, env }) {
     const submissionId = `sub_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     await env.FORM_SUBMISSIONS.put(submissionId, JSON.stringify(data));
 
-    // Send email notification to vikeyshop@outlook.com via FormSubmit.co
-    // First submission will trigger a confirmation email — click the link to activate
+    // Build email body from form data
+    let emailBody = '<h2>New Christmas Order Submission</h2>';
+    emailBody += `<p><strong>Submission ID:</strong> ${submissionId}</p>`;
+    emailBody += `<p><strong>Timestamp:</strong> ${timestamp}</p>`;
+    emailBody += '<hr>';
+    for (const [key, value] of formData.entries()) {
+      if (key === '_gotcha') continue;
+      emailBody += `<p><strong>${key}:</strong> ${value}</p>`;
+    }
+
+    // Send email via Resend
     try {
-      const emailData = new FormData();
-      emailData.append('_subject', 'New Christmas Order Submission!');
-      emailData.append('Submission_ID', submissionId);
-      emailData.append('Timestamp', timestamp);
-
-      // Add all form fields to the email
-      for (const [key, value] of formData.entries()) {
-        emailData.append(key, value);
-      }
-
-      // FormSubmit.co — no API key needed, just the email address
-      await fetch('https://formsubmit.co/vikeyshop@outlook.com', {
+      await fetch('https://api.resend.com/emails', {
         method: 'POST',
-        body: emailData
+        headers: {
+          'Authorization': `Bearer ${env.RESEND_API_KEY}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          from: 'onboarding@resend.dev',
+          to: 'vikeyshop@outlook.com',
+          subject: 'New Christmas Order Submission!',
+          html: emailBody
+        })
       });
     } catch (emailErr) {
-      // Email send failed, but submission is still stored in KV
       console.error('Email notification failed:', emailErr.message);
     }
 
