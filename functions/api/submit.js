@@ -56,6 +56,7 @@ export async function onRequestPost({ request, env }) {
           <li><strong>Tag choice:</strong> ${data.tag_choice || 'N/A'}</li>
         </ul>
         <p>Best wishes,<br>The VI-Key Team 🎅</p>
+        <p>Visit us at <a href="https://vi-key.uk">vi-key.uk</a></p>
       `;
       try {
         await fetch('https://api.resend.com/emails', {
