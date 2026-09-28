@@ -362,7 +362,6 @@
             margin-left: auto;
         }
 
-        /* === OUT OF STOCK STYLES (added by stock system) === */
         .tag-option.out-of-stock {
             opacity: 0.55;
             cursor: not-allowed;
@@ -507,60 +506,11 @@
             box-shadow: none;
         }
 
-        .disclaimer-section {
-            background: linear-gradient(180deg, rgba(241, 245, 249, 0.98), rgba(248, 250, 252, 0.98));
-            border: 1px solid #cbd5e1;
-            padding: 20px;
-            border-radius: 10px;
-            margin-top: 20px;
-            font-size: 0.85rem;
-            color: #475569;
-            line-height: 1.6;
-        }
-
-        .disclaimer-section h4 {
-            color: #0f172a;
-            font-size: 0.95rem;
-            font-weight: 700;
-            margin: 0 0 10px 0;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .disclaimer-section h4::before {
-            content: "ℹ️";
-        }
-
-        .disclaimer-box {
-            margin-top: 12px;
-            padding: 12px;
-            background: rgba(255, 255, 255, 0.8);
-            border-left: 3px solid #0ea5e9;
-            border-radius: 6px;
-        }
-
-        .disclaimer-box strong {
-            color: #0f172a;
-            display: block;
-            margin-bottom: 6px;
-            font-size: 0.9rem;
-        }
-
-        .disclaimer-box p {
-            margin: 0;
-            font-size: 0.85rem;
-        }
-
-        .disclaimer-box:last-child {
-            margin-top: 10px;
-        }
-
         .santa-footer {
             margin-top: 40px;
             padding: 25px 15px;
             width: 100%;
-                        background: transparent;
+            background: transparent;
             border-top: 1px solid #333;
             border-radius: 8px 8px 0 0;
             text-align: center;
@@ -610,17 +560,24 @@
             text-decoration: underline;
         }
 
+        .honeypot {
+            position: absolute;
+            left: -9999px;
+            top: -9999px;
+            width: 1px;
+            height: 1px;
+            opacity: 0;
+        }
+
         @media (max-width: 768px) {
             body {
                 flex-direction: column;
                 padding: 16px;
             }
-
             .left-column {
                 flex: 1 1 auto;
                 max-width: 100%;
             }
-
             .right-column {
                 flex-direction: row;
                 flex: 0 0 auto;
@@ -630,11 +587,9 @@
                 flex-wrap: wrap;
                 justify-content: center;
             }
-
             .tag-img {
                 width: 325px;
             }
-
             .see-tags-link {
                 display: block;
                 text-align: center;
@@ -650,7 +605,6 @@
                 position: relative;
                 z-index: 2;
             }
-
             .see-tags-link:hover {
                 background: linear-gradient(180deg, #b91c1c, #991b1b);
             }
@@ -664,32 +618,32 @@
 
         <a href="#tags" class="see-tags-link">👇Tap To View Our Santa VI-Keys</a>
 
-               <div class="price-summary">
+        <div class="price-summary">
             <h2>🎅 Choose Your Santa VI-Key® Below</h2>
             <p class="pp-note">All prices include postage (UK only)</p>
         </div>
 
-
         <div class="form-container">
             <div class="festive-header">
                 <div class="festive-icon">🎅</div>
-             <h1 class="festive-title">Santa's Special Letter</h1>
-
+                <h1 class="festive-title">Santa's Special Letter</h1>
                 <p class="festive-subtitle">A Magical Christmas Message
 In Your VI-Key®</p>
             </div>
 
-                       <div class="what-you-get">
+            <div class="what-you-get">
                 <strong>What you get:</strong> A personalised VI-Key that arrives in the post. Tap it with a phone and your child sees a magical personalised letter from Santa — personalised with their name, town, and special interests. They can listen to Santa read it aloud. A keepsake they'll treasure long after Christmas.
             </div>
 
             <a href="https://myvikey.pages.dev/xmasletters/?id=example" target="_blank" rel="noopener noreferrer" style="display:block;text-align:center;margin-bottom:24px;padding:12px 20px;background:linear-gradient(180deg,#dc2626,#b91c1c);color:#fff;font-weight:700;font-size:1rem;text-decoration:none;border-radius:8px;box-shadow:0 4px 12px rgba(185,28,28,0.3);">👀 See How It Works —(password = example) Tap Here</a>
 
-            <form id="santaForm" action="https://formspree.io/f/mvkoqwyr" method="POST">
-                <input type="hidden" name="_next" value="https://myvikey.pages.dev/xmas/thanks.html">
+            <form id="santaForm" action="/api/submit" method="POST">
+                <!-- Honeypot anti-spam field -->
+                <div class="honeypot">
+                    <label>Leave this field empty</label>
+                    <input type="text" name="_gotcha" tabindex="-1" autocomplete="off">
+                </div>
 
-
-                <!-- STEP 1: YOUR DETAILS -->
                 <div class="step-header">
                     <span class="step-number">1</span>
                     <h2 class="step-title">Your Details</h2>
@@ -747,7 +701,6 @@ In Your VI-Key®</p>
                     </p>
                 </div>
 
-                <!-- STEP 1b: CHOOSE YOUR TAG -->
                 <div class="step-header">
                     <span class="step-number">★</span>
                     <h2 class="step-title">Choose Your Tag Design</h2>
@@ -796,7 +749,6 @@ In Your VI-Key®</p>
                     <div class="tag-stock-loading" id="stockLoading">Checking availability…</div>
                 </div>
 
-                <!-- STEP 2: PAYMENT -->
                 <div class="step-header">
                     <span class="step-number">2</span>
                     <h2 class="step-title">Payment</h2>
@@ -809,7 +761,6 @@ In Your VI-Key®</p>
                     </a>
                 </div>
 
-                <!-- STEP 3: CONFIRM & SUBMIT -->
                 <div class="step-header">
                     <span class="step-number">3</span>
                     <h2 class="step-title">Confirm &amp; Submit</h2>
@@ -823,8 +774,6 @@ In Your VI-Key®</p>
                 </div>
 
                 <button id="submitBtn" type="submit" disabled>Complete Order</button>
-
-             
 
             </form>
         </div>
@@ -850,8 +799,8 @@ In Your VI-Key®</p>
             <img class="tag-img" src="https://pub-07ed0b0955a4401f9956c3ca7a33c40e.r2.dev/tag6.jpg" alt="Santa VI-Key 6">
         </div>
     </div>
-    
-        <div style="width:100%;margin-top:40px;padding:0 15px;text-align:center;position:relative;z-index:2;background:transparent;">
+
+    <div style="width:100%;margin-top:40px;padding:0 15px;text-align:center;position:relative;z-index:2;background:transparent;">
         <p style="color:#fff;font-size:0.85rem;font-weight:700;margin-bottom:10px;">Important Notices</p>
         <p style="color:#fff;font-size:0.8rem;line-height:1.6;margin-bottom:12px;opacity:0.85;">
             <strong>Service &amp; Delivery Terms:</strong> Tags are sent via post. Orders must be placed and paid by December 16th to ensure delivery before Christmas Day. We cannot guarantee delivery dates for orders placed after this deadline.
@@ -860,7 +809,7 @@ In Your VI-Key®</p>
             <strong>Technical Disclaimer &amp; Mobile Viewing Notice:</strong> The Santa's Very Important Key digital experience is designed exclusively for mobile devices. For the intended display and functionality, please open or scan this link using a smartphone. Viewing this link on a laptop, desktop, or tablet may result in formatting errors or missing features.
         </p>
     </div>
-    
+
     <footer class="santa-footer">
         <div class="footer-brand"><a href="https://myvikey.pages.dev/">V I Key®</a></div>
         <div class="footer-links">
@@ -876,16 +825,6 @@ In Your VI-Key®</p>
     </footer>
 
     <script>
-        // ============================================================
-        // TAG STOCK MANAGEMENT SYSTEM
-        // ============================================================
-        // Each tag has a stock count stored in Cloudflare KV.
-        // When the page loads, we fetch current stock levels.
-        // When a tag hits 0, it shows "Out of Stock" and is disabled.
-        // When the form is submitted, stock is decremented automatically.
-        // You can reset stock via: /api/admin?secret=YOUR_SECRET&action=reset
-        // ============================================================
-
         const form = document.getElementById('santaForm');
         const submitBtn = document.getElementById('submitBtn');
         const paidConfirm = document.getElementById('paid_confirm');
@@ -893,10 +832,8 @@ In Your VI-Key®</p>
         const tagOptionLabels = document.querySelectorAll('.tag-option');
         const stockLoading = document.getElementById('stockLoading');
 
-        // Map tag IDs to checkbox indices
         const tagIdMap = ['tag1', 'tag2', 'tag3', 'tag4', 'tag5', 'tag6'];
 
-        // --- Fetch stock levels on page load ---
         async function loadStock() {
             try {
                 const resp = await fetch('/api/stock');
@@ -920,14 +857,12 @@ In Your VI-Key®</p>
 
                 updateSubmitState();
             } catch (e) {
-                // If stock API fails, allow all tags (fail open)
                 stockLoading.textContent = '';
                 stockLoading.style.display = 'none';
                 console.log('Stock check unavailable, all tags available');
             }
         }
 
-        // --- Submit button state ---
         function updateSubmitState() {
             const tagSelected = Array.from(tagCheckboxes).some(cb => cb.checked && !cb.disabled);
             submitBtn.disabled = !paidConfirm.checked || !tagSelected;
@@ -936,7 +871,6 @@ In Your VI-Key®</p>
         paidConfirm.addEventListener('change', updateSubmitState);
         tagCheckboxes.forEach(cb => cb.addEventListener('change', updateSubmitState));
 
-        // --- Prevent checking out-of-stock tags ---
         tagCheckboxes.forEach(cb => {
             cb.addEventListener('click', function(e) {
                 if (cb.disabled) {
@@ -946,7 +880,6 @@ In Your VI-Key®</p>
             });
         });
 
-        // --- Form submit: decrement stock then submit to Formspree ---
         form.addEventListener('submit', async function(e) {
             e.preventDefault();
 
@@ -960,7 +893,6 @@ In Your VI-Key®</p>
             submitBtn.disabled = true;
             submitBtn.textContent = 'Submitting...';
 
-            // Collect selected tag IDs
             const selectedTagIds = [];
             tagCheckboxes.forEach((cb, index) => {
                 if (cb.checked && !cb.disabled) {
@@ -968,7 +900,6 @@ In Your VI-Key®</p>
                 }
             });
 
-            // Decrement stock in KV
             try {
                 await fetch('/api/order', {
                     method: 'POST',
@@ -976,16 +907,14 @@ In Your VI-Key®</p>
                     body: JSON.stringify({ tags: selectedTagIds })
                 });
             } catch (err) {
-                // Stock decrement failed — still submit the order
                 console.log('Stock update failed, continuing with submission');
             }
 
-            // Submit form to Formspree
             try {
-                const response = await fetch(form.action, {
+                const formData = new FormData(form);
+                const response = await fetch('/api/submit', {
                     method: 'POST',
-                    headers: { 'Accept': 'application/json' },
-                    body: new FormData(form)
+                    body: formData
                 });
 
                 if (response.ok) {
@@ -1002,7 +931,6 @@ In Your VI-Key®</p>
             }
         });
 
-        // --- Load stock levels when page loads ---
         loadStock();
         updateSubmitState();
     </script>
