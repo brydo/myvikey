@@ -33,7 +33,7 @@ export async function onRequestPost({ request, env }) {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          from: 'onboarding@resend.dev',
+          from: 'noreply@vi-key.uk',
           to: 'vikeyshop@outlook.com',
           subject: 'New Christmas Order Submission!',
           html: shopEmailBody
@@ -65,7 +65,7 @@ export async function onRequestPost({ request, env }) {
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({
-            from: 'onboarding@resend.dev',
+            from: 'noreply@vi-key.uk',
             to: customerEmail,
             subject: 'Order Received — VI-Key Christmas 🎄',
             html: customerEmailBody
