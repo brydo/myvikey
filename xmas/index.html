@@ -362,6 +362,7 @@
             margin-left: auto;
         }
 
+        /* === OUT OF STOCK STYLES === */
         .tag-option.out-of-stock {
             opacity: 0.55;
             cursor: not-allowed;
@@ -506,6 +507,55 @@
             box-shadow: none;
         }
 
+        .disclaimer-section {
+            background: linear-gradient(180deg, rgba(241, 245, 259, 0.98), rgba(248, 250, 252, 0.98));
+            border: 1px solid #cbd5e1;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            font-size: 0.85rem;
+            color: #475569;
+            line-height: 1.6;
+        }
+
+        .disclaimer-section h4 {
+            color: #0f172a;
+            font-size: 0.95rem;
+            font-weight: 700;
+            margin: 0 0 10px 0;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .disclaimer-section h4::before {
+            content: "ℹ️";
+        }
+
+        .disclaimer-box {
+            margin-top: 12px;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.8);
+            border-left: 3px solid #0ea5e9;
+            border-radius: 6px;
+        }
+
+        .disclaimer-box strong {
+            color: #0f172a;
+            display: block;
+            margin-bottom: 6px;
+            font-size: 0.9rem;
+        }
+
+        .disclaimer-box p {
+            margin: 0;
+            font-size: 0.85rem;
+        }
+
+        .disclaimer-box:last-child {
+            margin-top: 10px;
+        }
+
         .santa-footer {
             margin-top: 40px;
             padding: 25px 15px;
@@ -560,6 +610,7 @@
             text-decoration: underline;
         }
 
+        /* Honeypot field — hidden from real users, visible to bots */
         .honeypot {
             position: absolute;
             left: -9999px;
@@ -574,10 +625,12 @@
                 flex-direction: column;
                 padding: 16px;
             }
+
             .left-column {
                 flex: 1 1 auto;
                 max-width: 100%;
             }
+
             .right-column {
                 flex-direction: row;
                 flex: 0 0 auto;
@@ -587,9 +640,11 @@
                 flex-wrap: wrap;
                 justify-content: center;
             }
+
             .tag-img {
                 width: 325px;
             }
+
             .see-tags-link {
                 display: block;
                 text-align: center;
@@ -605,6 +660,7 @@
                 position: relative;
                 z-index: 2;
             }
+
             .see-tags-link:hover {
                 background: linear-gradient(180deg, #b91c1c, #991b1b);
             }
@@ -613,7 +669,6 @@
 </head>
 
 <body>
-
     <div class="left-column">
 
         <a href="#tags" class="see-tags-link">👇Tap To View Our Santa VI-Keys</a>
@@ -638,12 +693,13 @@ In Your VI-Key®</p>
             <a href="https://myvikey.pages.dev/xmasletters/?id=example" target="_blank" rel="noopener noreferrer" style="display:block;text-align:center;margin-bottom:24px;padding:12px 20px;background:linear-gradient(180deg,#dc2626,#b91c1c);color:#fff;font-weight:700;font-size:1rem;text-decoration:none;border-radius:8px;box-shadow:0 4px 12px rgba(185,28,28,0.3);">👀 See How It Works —(password = example) Tap Here</a>
 
             <form id="santaForm" action="/api/submit" method="POST">
-                <!-- Honeypot anti-spam field -->
+                <!-- Honeypot anti-spam field — bots fill this, humans never see it -->
                 <div class="honeypot">
                     <label>Leave this field empty</label>
                     <input type="text" name="_gotcha" tabindex="-1" autocomplete="off">
                 </div>
 
+                <!-- STEP 1: YOUR DETAILS -->
                 <div class="step-header">
                     <span class="step-number">1</span>
                     <h2 class="step-title">Your Details</h2>
@@ -701,75 +757,79 @@ In Your VI-Key®</p>
                     </p>
                 </div>
 
+                <!-- STEP 1b: CHOOSE YOUR TAG -->
                 <div class="step-header">
                     <span class="step-number">★</span>
                     <h2 class="step-title">Choose Your Tag Design</h2>
                 </div>
 
-              <div class="tag-selection">
-    <p style="font-size:0.9rem;color:#475569;margin-bottom:12px;">Pick Your Santa Magic VI-Key Below</p>
-    <div class="tag-options">
-        <label class="tag-option" data-tag="tag1" data-price="7.99">
-            <input type="checkbox" name="tag_choice" value="Santa Magic Pass - Midnight Black Edition — £7.99">
-            Santa Magic Pass - Midnight Black Edition
-            <span class="tag-price">£7.99</span>
-            <input type="number" class="tag-qty" min="0" max="10" value="0" style="width:50px;padding:4px 6px;margin-left:8px;border:1px solid rgba(255,255,255,0.2);border-radius:6px;background:#0d0c0a;color:#e8e6e3;font-size:0.85rem;display:none;" data-tag="tag1">
-            <span class="out-of-stock-badge">Out of Stock</span>
-        </label>
-        <label class="tag-option" data-tag="tag2" data-price="7.99">
-            <input type="checkbox" name="tag_choice" value="Santa Magic Pass - Snow White Edition — £7.99">
-            Santa Magic Pass - Snow White Edition
-            <span class="tag-price">£7.99</span>
-            <input type="number" class="tag-qty" min="0" max="10" value="0" style="width:50px;padding:4px 6px;margin-left:8px;border:1px solid rgba(255,255,255,0.2);border-radius:6px;background:#0d0c0a;color:#e8e6e3;font-size:0.85rem;display:none;" data-tag="tag2">
-            <span class="out-of-stock-badge">Out of Stock</span>
-        </label>
-        <label class="tag-option" data-tag="tag3" data-price="8.49">
-            <input type="checkbox" name="tag_choice" value="Santa Magic Fob — £8.49">
-            Santa Magic Fob
-            <span class="tag-price">£8.49</span>
-            <input type="number" class="tag-qty" min="0" max="10" value="0" style="width:50px;padding:4px 6px;margin-left:8px;border:1px solid rgba(255,255,255,0.2);border-radius:6px;background:#0d0c0a;color:#e8e6e3;font-size:0.85rem;display:none;" data-tag="tag3">
-            <span class="out-of-stock-badge">Out of Stock</span>
-        </label>
-        <label class="tag-option" data-tag="tag4" data-price="8.99">
-            <input type="checkbox" name="tag_choice" value="Santa Premium Carbon Pass — £8.99">
-            Santa Premium Carbon Pass
-            <span class="tag-price">£8.99</span>
-            <input type="number" class="tag-qty" min="0" max="10" value="0" style="width:50px;padding:4px 6px;margin-left:8px;border:1px solid rgba(255,255,255,0.2);border-radius:6px;background:#0d0c0a;color:#e8e6e3;font-size:0.85rem;display:none;" data-tag="tag4">
-            <span class="out-of-stock-badge">Out of Stock</span>
-        </label>
-        <label class="tag-option" data-tag="tag5" data-price="8.99">
-            <input type="checkbox" name="tag_choice" value="Santa Magic Keyring — £8.99">
-            Santa Magic Keyring
-            <span class="tag-price">£8.99</span>
-            <input type="number" class="tag-qty" min="0" max="10" value="0" style="width:50px;padding:4px 6px;margin-left:8px;border:1px solid rgba(255,255,255,0.2);border-radius:6px;background:#0d0c0a;color:#e8e6e3;font-size:0.85rem;display:none;" data-tag="tag5">
-            <span class="out-of-stock-badge">Out of Stock</span>
-        </label>
-        <label class="tag-option" data-tag="tag6" data-price="9.49">
-            <input type="checkbox" name="tag_choice" value="Santa Nice List Deluxe Experience — £9.49">
-            Santa Nice List Deluxe Experience
-            <span class="tag-price">£9.49</span>
-            <input type="number" class="tag-qty" min="0" max="10" value="0" style="width:50px;padding:4px 6px;margin-left:8px;border:1px solid rgba(255,255,255,0.2);border-radius:6px;background:#0d0c0a;color:#e8e6e3;font-size:0.85rem;display:none;" data-tag="tag6">
-            <span class="out-of-stock-badge">Out of Stock</span>
-        </label>
-    </div>
-    <div class="tag-stock-loading" id="stockLoading">Checking availability…</div>
-</div>
+                <div class="tag-selection">
+                    <p style="font-size:0.9rem;color:#475569;margin-bottom:12px;">Pick Your Santa Magic VI-Key Below</p>
+                    <div class="tag-options">
+                        <label class="tag-option" data-tag="tag1" data-price="7.99">
+                            <input type="checkbox" name="tag_choice" value="Santa Magic Pass - Midnight Black Edition — £7.99">
+                            Santa Magic Pass - Midnight Black Edition
+                            <span class="tag-price">£7.99</span>
+                            <input type="number" class="tag-qty" min="1" max="10" value="1" style="width:50px;padding:4px 6px;margin-left:8px;border:1px solid #cbd5e1;border-radius:6px;background:#fff;color:#334155;font-size:0.85rem;display:none;" data-tag="tag1">
+                            <span class="out-of-stock-badge">Out of Stock</span>
+                        </label>
+                        <label class="tag-option" data-tag="tag2" data-price="7.99">
+                            <input type="checkbox" name="tag_choice" value="Santa Magic Pass - Snow White Edition — £7.99">
+                            Santa Magic Pass - Snow White Edition
+                            <span class="tag-price">£7.99</span>
+                            <input type="number" class="tag-qty" min="1" max="10" value="1" style="width:50px;padding:4px 6px;margin-left:8px;border:1px solid #cbd5e1;border-radius:6px;background:#fff;color:#334155;font-size:0.85rem;display:none;" data-tag="tag2">
+                            <span class="out-of-stock-badge">Out of Stock</span>
+                        </label>
+                        <label class="tag-option" data-tag="tag3" data-price="8.49">
+                            <input type="checkbox" name="tag_choice" value="Santa Magic Fob — £8.49">
+                            Santa Magic Fob
+                            <span class="tag-price">£8.49</span>
+                            <input type="number" class="tag-qty" min="1" max="10" value="1" style="width:50px;padding:4px 6px;margin-left:8px;border:1px solid #cbd5e1;border-radius:6px;background:#fff;color:#334155;font-size:0.85rem;display:none;" data-tag="tag3">
+                            <span class="out-of-stock-badge">Out of Stock</span>
+                        </label>
+                        <label class="tag-option" data-tag="tag4" data-price="8.99">
+                            <input type="checkbox" name="tag_choice" value="Santa Premium Carbon Pass — £8.99">
+                            Santa Premium Carbon Pass
+                            <span class="tag-price">£8.99</span>
+                            <input type="number" class="tag-qty" min="1" max="10" value="1" style="width:50px;padding:4px 6px;margin-left:8px;border:1px solid #cbd5e1;border-radius:6px;background:#fff;color:#334155;font-size:0.85rem;display:none;" data-tag="tag4">
+                            <span class="out-of-stock-badge">Out of Stock</span>
+                        </label>
+                        <label class="tag-option" data-tag="tag5" data-price="8.99">
+                            <input type="checkbox" name="tag_choice" value="Santa Magic Keyring — £8.99">
+                            Santa Magic Keyring
+                            <span class="tag-price">£8.99</span>
+                            <input type="number" class="tag-qty" min="1" max="10" value="1" style="width:50px;padding:4px 6px;margin-left:8px;border:1px solid #cbd5e1;border-radius:6px;background:#fff;color:#334155;font-size:0.85rem;display:none;" data-tag="tag5">
+                            <span class="out-of-stock-badge">Out of Stock</span>
+                        </label>
+                        <label class="tag-option" data-tag="tag6" data-price="9.49">
+                            <input type="checkbox" name="tag_choice" value="Santa Nice List Deluxe Experience — £9.49">
+                            Santa Nice List Deluxe Experience
+                            <span class="tag-price">£9.49</span>
+                            <input type="number" class="tag-qty" min="1" max="10" value="1" style="width:50px;padding:4px 6px;margin-left:8px;border:1px solid #cbd5e1;border-radius:6px;background:#fff;color:#334155;font-size:0.85rem;display:none;" data-tag="tag6">
+                            <span class="out-of-stock-badge">Out of Stock</span>
+                        </label>
+                    </div>
+                    <div class="tag-stock-loading" id="stockLoading">Checking availability…</div>
+                </div>
 
+                <!-- STEP 2: PAYMENT -->
                 <div class="step-header">
                     <span class="step-number">2</span>
                     <h2 class="step-title">Payment</h2>
                 </div>
-<div class="payment-box">
-    <div style="background:rgba(201,169,110,0.1);border:1px solid rgba(201,169,110,0.3);border-radius:8px;padding:15px;margin-bottom:15px;text-align:center;">
-        <p style="font-size:0.9rem;color:#475569;margin-bottom:5px;">Your Order Total</p>
-        <p id="orderTotal" style="font-size:2rem;font-weight:700;color:#c9a96e;margin:0;">£0.00</p>
-    </div>
-    <p>Tap the link below to pay. <strong>Enter the exact total shown above as the payment amount.</strong> Use your child's first name and postcode as the reference so we can match it to your order.</p>
-    <a class="bank-link" href="https://paymentrequest.natwestpayit.com/reusable-links/63e0aa5c-adef-4914-9f44-a5c147a1ced6" target="_blank" rel="noopener noreferrer">
-        <div class="security-note">   Tap Here To Pay — It's safe, easy and secure</div>
-    </a>
-</div>
 
+                <div class="payment-box">
+                    <div style="background:rgba(201,169,110,0.1);border:1px solid rgba(201,169,110,0.3);border-radius:8px;padding:15px;margin-bottom:15px;text-align:center;">
+                        <p style="font-size:0.9rem;color:#475569;margin-bottom:5px;">Your Order Total</p>
+                        <p id="orderTotal" style="font-size:2rem;font-weight:700;color:#c9a96e;margin:0;">£0.00</p>
+                    </div>
+                    <p>Tap the link below to pay. <strong>Enter the exact total shown above as the payment amount.</strong> Use your child's first name and postcode as the reference so we can match it to your order.</p>
+                    <a class="bank-link" href="https://paymentrequest.natwestpayit.com/reusable-links/63e0aa5c-adef-4914-9f44-a5c147a1ced6" target="_blank" rel="noopener noreferrer">
+                        <div class="security-note">   Tap Here To Pay — It's safe, easy and secure</div>
+                    </a>
+                </div>
+
+                <!-- STEP 3: CONFIRM & SUBMIT -->
                 <div class="step-header">
                     <span class="step-number">3</span>
                     <h2 class="step-title">Confirm &amp; Submit</h2>
@@ -790,22 +850,22 @@ In Your VI-Key®</p>
 
     <div class="right-column" id="tags">
         <div class="tag-wrapper">
-            <img class="tag-img" src="https://pub-07ed0b0955a4401f9956c3ca7a33c40e.r2.dev/tag1.jpg" alt="Santa VI-Key 1">
+            <img class="tag-img" src="https://pub-07ed0b0955a4401f9956c3ca7a33c40e.r2.dev/tag1.jpg" alt="Santa Magic Pass - Midnight Black Edition">
         </div>
         <div class="tag-wrapper">
-            <img class="tag-img" src="https://pub-07ed0b0955a4401f9956c3ca7a33c40e.r2.dev/tag2.jpg" alt="Santa VI-Key 2">
+            <img class="tag-img" src="https://pub-07ed0b0955a4401f9956c3ca7a33c40e.r2.dev/tag2.jpg" alt="Santa Magic Pass - Snow White Edition">
         </div>
         <div class="tag-wrapper">
-            <img class="tag-img" src="https://pub-07ed0b0955a4401f9956c3ca7a33c40e.r2.dev/tag3.jpg" alt="Santa VI-Key 3">
+            <img class="tag-img" src="https://pub-07ed0b0955a4401f9956c3ca7a33c40e.r2.dev/tag3.jpg" alt="Santa Magic Fob">
         </div>
         <div class="tag-wrapper">
-            <img class="tag-img" src="https://pub-07ed0b0955a4401f9956c3ca7a33c40e.r2.dev/tag4.jpg" alt="Santa VI-Key 4">
+            <img class="tag-img" src="https://pub-07ed0b0955a4401f9956c3ca7a33c40e.r2.dev/tag4.jpg" alt="Santa Premium Carbon Pass">
         </div>
         <div class="tag-wrapper">
-            <img class="tag-img" src="https://pub-07ed0b0955a4401f9956c3ca7a33c40e.r2.dev/tag5.jpg" alt="Santa VI-Key 5">
+            <img class="tag-img" src="https://pub-07ed0b0955a4401f9956c3ca7a33c40e.r2.dev/tag5.jpg" alt="Santa Magic Keyring">
         </div>
         <div class="tag-wrapper">
-            <img class="tag-img" src="https://pub-07ed0b0955a4401f9956c3ca7a33c40e.r2.dev/tag6.jpg" alt="Santa VI-Key 6">
+            <img class="tag-img" src="https://pub-07ed0b0955a4401f9956c3ca7a33c40e.r2.dev/tag6.jpg" alt="Santa Nice List Deluxe Experience">
         </div>
     </div>
 
@@ -834,22 +894,28 @@ In Your VI-Key®</p>
     </footer>
 
     <script>
+        // ============================================================
+        // TAG STOCK + QUANTITY SELECTOR + LIVE ORDER TOTAL + FORM SUBMISSION
+        // ============================================================
+
         const form = document.getElementById('santaForm');
         const submitBtn = document.getElementById('submitBtn');
         const paidConfirm = document.getElementById('paid_confirm');
         const tagCheckboxes = document.querySelectorAll('input[name="tag_choice"]');
         const tagOptionLabels = document.querySelectorAll('.tag-option');
         const stockLoading = document.getElementById('stockLoading');
+        const orderTotal = document.getElementById('orderTotal');
 
         const tagIdMap = ['tag1', 'tag2', 'tag3', 'tag4', 'tag5', 'tag6'];
 
+        // --- Fetch stock levels on page load ---
         async function loadStock() {
             try {
                 const resp = await fetch('/api/stock');
                 const stock = await resp.json();
                 stockLoading.style.display = 'none';
 
-                tagOptionLabels.forEach((label, index) => {
+                tagOptionLabels.forEach((label) => {
                     const tagId = label.dataset.tag;
                     const stockCount = stock[tagId] !== undefined ? stock[tagId] : 50;
                     const checkbox = label.querySelector('input[type="checkbox"]');
@@ -872,14 +938,55 @@ In Your VI-Key®</p>
             }
         }
 
+        // --- Calculate live order total ---
+        function calculateTotal() {
+            let total = 0;
+            tagOptionLabels.forEach(label => {
+                const checkbox = label.querySelector('input[type="checkbox"]');
+                const qtyInput = label.querySelector('.tag-qty');
+                if (checkbox.checked && !checkbox.disabled) {
+                    const price = parseFloat(label.dataset.price);
+                    const qty = parseInt(qtyInput.value) || 1;
+                    total += price * qty;
+                }
+            });
+            if (orderTotal) {
+                orderTotal.textContent = '£' + total.toFixed(2);
+            }
+        }
+
+        // --- Show/hide quantity input when checkbox toggled ---
+        tagOptionLabels.forEach(label => {
+            const checkbox = label.querySelector('input[type="checkbox"]');
+            const qtyInput = label.querySelector('.tag-qty');
+
+            checkbox.addEventListener('change', function() {
+                if (checkbox.checked) {
+                    qtyInput.style.display = 'inline-block';
+                    if (parseInt(qtyInput.value) < 1) qtyInput.value = 1;
+                } else {
+                    qtyInput.style.display = 'none';
+                    qtyInput.value = 1;
+                }
+                calculateTotal();
+                updateSubmitState();
+            });
+
+            if (qtyInput) {
+                qtyInput.addEventListener('input', calculateTotal);
+                qtyInput.addEventListener('change', calculateTotal);
+            }
+        });
+
+        // --- Submit button state ---
         function updateSubmitState() {
             const tagSelected = Array.from(tagCheckboxes).some(cb => cb.checked && !cb.disabled);
             submitBtn.disabled = !paidConfirm.checked || !tagSelected;
         }
 
         paidConfirm.addEventListener('change', updateSubmitState);
-        tagCheckboxes.forEach(cb => cb.addEventListener('change', updateSubmitState));
 
+        // --- Prevent checking out-of-stock tags ---
         tagCheckboxes.forEach(cb => {
             cb.addEventListener('click', function(e) {
                 if (cb.disabled) {
@@ -889,6 +996,7 @@ In Your VI-Key®</p>
             });
         });
 
+        // --- Form submit: decrement stock then submit to our own API ---
         form.addEventListener('submit', async function(e) {
             e.preventDefault();
 
@@ -902,13 +1010,27 @@ In Your VI-Key®</p>
             submitBtn.disabled = true;
             submitBtn.textContent = 'Submitting...';
 
+            // Collect selected tags with quantities
             const selectedTagIds = [];
-            tagCheckboxes.forEach((cb, index) => {
-                if (cb.checked && !cb.disabled) {
-                    selectedTagIds.push(tagIdMap[index]);
+            const orderItems = [];
+            tagOptionLabels.forEach((label) => {
+                const checkbox = label.querySelector('input[type="checkbox"]');
+                const qtyInput = label.querySelector('.tag-qty');
+                if (checkbox.checked && !checkbox.disabled) {
+                    const qty = parseInt(qtyInput.value) || 1;
+                    const tagId = label.dataset.tag;
+                    for (let i = 0; i < qty; i++) {
+                        selectedTagIds.push(tagId);
+                    }
+                    orderItems.push({
+                        tag: tagId,
+                        name: checkbox.value,
+                        qty: qty
+                    });
                 }
             });
 
+            // Decrement stock in KV
             try {
                 await fetch('/api/order', {
                     method: 'POST',
@@ -919,8 +1041,13 @@ In Your VI-Key®</p>
                 console.log('Stock update failed, continuing with submission');
             }
 
+            // Submit form to our own /api/submit endpoint
             try {
                 const formData = new FormData(form);
+                // Add order items as JSON
+                formData.append('order_items', JSON.stringify(orderItems));
+                formData.append('order_total', orderTotal ? orderTotal.textContent : '');
+
                 const response = await fetch('/api/submit', {
                     method: 'POST',
                     body: formData
@@ -940,6 +1067,7 @@ In Your VI-Key®</p>
             }
         });
 
+        // --- Load stock levels when page loads ---
         loadStock();
         updateSubmitState();
     </script>
