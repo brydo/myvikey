@@ -1,0 +1,264 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memorial · V I Key®</title>
+    <style>
+        :root {
+            --bg-color: #12110F;
+            --card-bg: rgba(255,255,255,0.04);
+            --gold: #c9a96e;
+            --text-color: #e8e6e3;
+            --text-muted: #a8a4a0;
+            --card-border: rgba(255,255,255,0.08);
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .container { max-width: 600px; margin: 0 auto; }
+        .memorial-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 32px;
+            margin-top: 40px;
+            text-align: center;
+        }
+        .memorial-photo {
+            width: 160px;
+            height: 160px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--gold);
+            margin-bottom: 24px;
+        }
+        .memorial-photo-placeholder {
+            width: 160px;
+            height: 160px;
+            border-radius: 50%;
+            background: rgba(201,169,110,0.1);
+            border: 3px solid var(--gold);
+            margin: 0 auto 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+        }
+        .memorial-name {
+            color: var(--gold);
+            font-size: 1.8rem;
+            margin-bottom: 8px;
+            letter-spacing: 1px;
+        }
+        .memorial-text {
+            color: var(--text-color);
+            font-size: 1.05rem;
+            line-height: 1.8;
+            margin-bottom: 28px;
+            white-space: pre-wrap;
+            font-style: italic;
+        }
+        .audio-player {
+            width: 100%;
+            margin-top: 20px;
+            border-radius: 8px;
+        }
+        .password-section {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 32px;
+            margin-top: 60px;
+            text-align: center;
+        }
+        .password-section h2 {
+            color: var(--gold);
+            font-size: 1.2rem;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        .password-section p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+        }
+        input[type="password"] {
+            width: 100%;
+            max-width: 300px;
+            padding: 12px 14px;
+            font-size: 1rem;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 8px;
+            margin-bottom: 16px;
+            outline: none;
+            transition: border-color 0.3s;
+            text-align: center;
+        }
+        input:focus { border-color: var(--gold); }
+        button {
+            padding: 12px 32px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--gold);
+            background-color: rgba(201,169,110,0.1);
+            border: 1px solid rgba(201,169,110,0.3);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover { background-color: rgba(201,169,110,0.2); }
+        .msg { font-size: 0.9rem; margin-top: 12px; min-height: 1.2em; color: #ff6b6b; }
+        .loading { text-align: center; color: var(--text-muted); padding: 60px 20px; font-size: 1rem; }
+        .error-page { text-align: center; padding: 60px 20px; }
+        .error-page h2 { color: var(--gold); font-size: 1.3rem; margin-bottom: 12px; }
+        .error-page p { color: var(--text-muted); font-size: 0.95rem; }
+        .back-link { display: block; text-align: center; margin-top: 30px; color: var(--gold); text-decoration: none; font-size: 0.9rem; }
+        .back-link:hover { text-decoration: underline; }
+        .candle { font-size: 2rem; margin-bottom: 16px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="loading" class="loading">Loading memorial…</div>
+        <div id="passwordPrompt" class="password-section" style="display:none;">
+            <div class="candle">🕯️</div>
+            <h2>This memorial is private</h2>
+            <p>Please enter the password to view this memorial.</p>
+            <input type="password" id="passInput" placeholder="Password" autofocus>
+            <br>
+            <button onclick="submitPassword()">Enter</button>
+            <div class="msg" id="passMsg"></div>
+        </div>
+        <div id="memorial" class="memorial-card" style="display:none;">
+            <div id="photoContainer"></div>
+            <h1 class="memorial-name" id="memName"></h1>
+            <div class="memorial-text" id="memText"></div>
+            <div id="audioContainer"></div>
+        </div>
+        <div id="notFound" class="error-page" style="display:none;">
+            <h2>Memorial not found</h2>
+            <p>No memorial exists with that ID. Please check the link and try again.</p>
+        </div>
+        <a href="/" class="back-link">← Back to home</a>
+    </div>
+
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const memorialId = params.get('id');
+
+        if (!memorialId) {
+            document.getElementById('loading').innerHTML = 'No memorial ID specified. Please use a link like <strong>/memorials/?id=john</strong>';
+        } else {
+            loadMemorial();
+        }
+
+        async function safeJson(resp) {
+            const text = await resp.text();
+            if (!text) return {};
+            try { return JSON.parse(text); }
+            catch { return { error: 'Invalid response' }; }
+        }
+
+        async function loadMemorial(password) {
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('passwordPrompt').style.display = 'none';
+            document.getElementById('memorial').style.display = 'none';
+            document.getElementById('notFound').style.display = 'none';
+
+            try {
+                const body = { action: 'get-content', id: memorialId };
+                if (password) body.password = password;
+
+                const resp = await fetch('/api/content', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+                const data = await safeJson(resp);
+
+                document.getElementById('loading').style.display = 'none';
+
+                if (resp.ok && data.success && data.content) {
+                    showMemorial(data.content);
+                } else if (resp.status === 401 || data.requiresPassword) {
+                    document.getElementById('passwordPrompt').style.display = 'block';
+                    document.getElementById('passInput').focus();
+                } else if (resp.status === 404 || data.notFound) {
+                    document.getElementById('notFound').style.display = 'block';
+                } else {
+                    document.getElementById('passwordPrompt').style.display = 'block';
+                    document.getElementById('passInput').focus();
+                }
+            } catch (e) {
+                document.getElementById('loading').innerHTML = 'Error loading memorial: ' + e.message;
+            }
+        }
+
+        async function submitPassword() {
+            const pass = document.getElementById('passInput').value.trim();
+            const msg = document.getElementById('passMsg');
+            if (!pass) { msg.textContent = 'Please enter a password.'; return; }
+            msg.textContent = '';
+
+            try {
+                const resp = await fetch('/api/password', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'verify', id: memorialId, password: pass })
+                });
+                const data = await safeJson(resp);
+
+                if (resp.ok && data.success) {
+                    loadMemorial(pass);
+                } else {
+                    msg.textContent = '✗ Incorrect password. Please try again.';
+                    document.getElementById('passInput').value = '';
+                    document.getElementById('passInput').focus();
+                }
+            } catch (e) {
+                msg.textContent = '✗ Error: ' + e.message;
+            }
+        }
+
+        document.getElementById('passInput').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') submitPassword();
+        });
+
+        function showMemorial(content) {
+            const mem = document.getElementById('memorial');
+            document.getElementById('memName').textContent = content.name || 'In Loving Memory';
+
+            if (content.photoUrl) {
+                document.getElementById('photoContainer').innerHTML =
+                    '<img src="' + content.photoUrl + '" class="memorial-photo" alt="' + (content.name || 'Memorial') + '">';
+            } else {
+                document.getElementById('photoContainer').innerHTML =
+                    '<div class="memorial-photo-placeholder">🕯️</div>';
+            }
+
+            if (content.text) {
+                document.getElementById('memText').textContent = content.text;
+            } else {
+                document.getElementById('memText').textContent = 'Forever in our hearts.';
+            }
+
+            if (content.audioUrl) {
+                document.getElementById('audioContainer').innerHTML =
+                    '<audio controls class="audio-player" src="' + content.audioUrl + '"></audio>';
+            } else {
+                document.getElementById('audioContainer').innerHTML = '';
+            }
+
+            mem.style.display = 'block';
+        }
+    </script>
+</body>
+</html>
