@@ -706,61 +706,69 @@ In Your VI-Key®</p>
                     <h2 class="step-title">Choose Your Tag Design</h2>
                 </div>
 
-                <div class="tag-selection">
-    <p style="font-size:0.9rem;color:#475569;margin-bottom:12px;"Pick Your Santa Magic VI-Key Below>w</p>
+              <div class="tag-selection">
+    <p style="font-size:0.9rem;color:#475569;margin-bottom:12px;">Pick Your Santa Magic VI-Key Below</p>
     <div class="tag-options">
-        <label class="tag-option" data-tag="tag1">
+        <label class="tag-option" data-tag="tag1" data-price="7.99">
             <input type="checkbox" name="tag_choice" value="Santa Magic Pass - Midnight Black Edition — £7.99">
             Santa Magic Pass - Midnight Black Edition
             <span class="tag-price">£7.99</span>
+            <input type="number" class="tag-qty" min="0" max="10" value="0" style="width:50px;padding:4px 6px;margin-left:8px;border:1px solid rgba(255,255,255,0.2);border-radius:6px;background:#0d0c0a;color:#e8e6e3;font-size:0.85rem;display:none;" data-tag="tag1">
             <span class="out-of-stock-badge">Out of Stock</span>
         </label>
-        <label class="tag-option" data-tag="tag2">
+        <label class="tag-option" data-tag="tag2" data-price="7.99">
             <input type="checkbox" name="tag_choice" value="Santa Magic Pass - Snow White Edition — £7.99">
             Santa Magic Pass - Snow White Edition
             <span class="tag-price">£7.99</span>
+            <input type="number" class="tag-qty" min="0" max="10" value="0" style="width:50px;padding:4px 6px;margin-left:8px;border:1px solid rgba(255,255,255,0.2);border-radius:6px;background:#0d0c0a;color:#e8e6e3;font-size:0.85rem;display:none;" data-tag="tag2">
             <span class="out-of-stock-badge">Out of Stock</span>
         </label>
-        <label class="tag-option" data-tag="tag3">
+        <label class="tag-option" data-tag="tag3" data-price="8.49">
             <input type="checkbox" name="tag_choice" value="Santa Magic Fob — £8.49">
             Santa Magic Fob
             <span class="tag-price">£8.49</span>
+            <input type="number" class="tag-qty" min="0" max="10" value="0" style="width:50px;padding:4px 6px;margin-left:8px;border:1px solid rgba(255,255,255,0.2);border-radius:6px;background:#0d0c0a;color:#e8e6e3;font-size:0.85rem;display:none;" data-tag="tag3">
             <span class="out-of-stock-badge">Out of Stock</span>
         </label>
-        <label class="tag-option" data-tag="tag4">
+        <label class="tag-option" data-tag="tag4" data-price="8.99">
             <input type="checkbox" name="tag_choice" value="Santa Premium Carbon Pass — £8.99">
             Santa Premium Carbon Pass
             <span class="tag-price">£8.99</span>
+            <input type="number" class="tag-qty" min="0" max="10" value="0" style="width:50px;padding:4px 6px;margin-left:8px;border:1px solid rgba(255,255,255,0.2);border-radius:6px;background:#0d0c0a;color:#e8e6e3;font-size:0.85rem;display:none;" data-tag="tag4">
             <span class="out-of-stock-badge">Out of Stock</span>
         </label>
-        <label class="tag-option" data-tag="tag5">
+        <label class="tag-option" data-tag="tag5" data-price="8.99">
             <input type="checkbox" name="tag_choice" value="Santa Magic Keyring — £8.99">
             Santa Magic Keyring
             <span class="tag-price">£8.99</span>
+            <input type="number" class="tag-qty" min="0" max="10" value="0" style="width:50px;padding:4px 6px;margin-left:8px;border:1px solid rgba(255,255,255,0.2);border-radius:6px;background:#0d0c0a;color:#e8e6e3;font-size:0.85rem;display:none;" data-tag="tag5">
             <span class="out-of-stock-badge">Out of Stock</span>
         </label>
-        <label class="tag-option" data-tag="tag6">
+        <label class="tag-option" data-tag="tag6" data-price="9.49">
             <input type="checkbox" name="tag_choice" value="Santa Nice List Deluxe Experience — £9.49">
             Santa Nice List Deluxe Experience
             <span class="tag-price">£9.49</span>
+            <input type="number" class="tag-qty" min="0" max="10" value="0" style="width:50px;padding:4px 6px;margin-left:8px;border:1px solid rgba(255,255,255,0.2);border-radius:6px;background:#0d0c0a;color:#e8e6e3;font-size:0.85rem;display:none;" data-tag="tag6">
             <span class="out-of-stock-badge">Out of Stock</span>
         </label>
     </div>
     <div class="tag-stock-loading" id="stockLoading">Checking availability…</div>
 </div>
 
-
                 <div class="step-header">
                     <span class="step-number">2</span>
                     <h2 class="step-title">Payment</h2>
                 </div>
-
-                <div class="payment-box">
-                    <p>Tap the link below to pay. Use your child's first name and postcode as the reference so we can match it to your order.</p>
-                    <a class="bank-link" href="https://paymentrequest.natwestpayit.com/reusable-links/63e0aa5c-adef-4914-9f44-a5c147a1ced6" target="_blank" rel="noopener noreferrer">
-                        <div class="security-note">   Tap Here To Pay — It's safe, easy and secure</div>
-                    </a>
-                </div>
+<div class="payment-box">
+    <div style="background:rgba(201,169,110,0.1);border:1px solid rgba(201,169,110,0.3);border-radius:8px;padding:15px;margin-bottom:15px;text-align:center;">
+        <p style="font-size:0.9rem;color:#475569;margin-bottom:5px;">Your Order Total</p>
+        <p id="orderTotal" style="font-size:2rem;font-weight:700;color:#c9a96e;margin:0;">£0.00</p>
+    </div>
+    <p>Tap the link below to pay. <strong>Enter the exact total shown above as the payment amount.</strong> Use your child's first name and postcode as the reference so we can match it to your order.</p>
+    <a class="bank-link" href="https://paymentrequest.natwestpayit.com/reusable-links/63e0aa5c-adef-4914-9f44-a5c147a1ced6" target="_blank" rel="noopener noreferrer">
+        <div class="security-note">   Tap Here To Pay — It's safe, easy and secure</div>
+    </a>
+</div>
 
                 <div class="step-header">
                     <span class="step-number">3</span>
