@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -179,7 +177,7 @@
             const msg = document.getElementById('setMsg');
             if (!id || !pass) { msg.textContent = 'Please enter both ID and password.'; msg.className = 'msg err'; return; }
             try {
-                const resp = await fetch('/memorials/api/password', {
+                const resp = await fetch('/api/password', {
                     method: 'POST', headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ action: 'set', id, password: pass })
                 });
@@ -194,7 +192,7 @@
             const msg = document.getElementById('delMsg');
             if (!id) { msg.textContent = 'Please enter a page ID.'; msg.className = 'msg err'; return; }
             try {
-                const resp = await fetch('/memorials/api/password', {
+                const resp = await fetch('/api/password', {
                     method: 'POST', headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ action: 'delete', id })
                 });
@@ -218,7 +216,7 @@
             const msg = document.getElementById('contentMsg');
             if (!id) { msg.textContent = 'Please enter a page ID.'; msg.className = 'msg err'; return; }
             try {
-                const resp = await fetch('/memorials/api/content', {
+                const resp = await fetch('/api/content', {
                     method: 'POST', headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ action: 'set-content', id, name, photoUrl, text, audioUrl })
                 });
@@ -233,7 +231,7 @@
             const msg = document.getElementById('contentMsg');
             if (!id) { msg.textContent = 'Please enter a page ID.'; msg.className = 'msg err'; return; }
             try {
-                const resp = await fetch('/memorials/api/content', {
+                const resp = await fetch('/api/content', {
                     method: 'POST', headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ action: 'get-content', id })
                 });
@@ -258,13 +256,13 @@
             if (!id) { msg.textContent = 'Please enter a page ID.'; msg.className = 'msg err'; return; }
             if (!confirm('Delete ALL data for "' + id + '"? This cannot be undone.')) return;
             try {
-                const resp = await fetch('/memorials/api/content', {
+                const resp = await fetch('/api/content', {
                     method: 'POST', headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ action: 'delete-content', id })
                 });
                 const data = await safeJson(resp);
                 if (resp.ok && data.success) {
-                    await fetch('/memorials/api/password', {
+                    await fetch('/api/password', {
                         method: 'POST', headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ action: 'delete', id })
                     });
@@ -278,7 +276,7 @@
             const msg = document.getElementById('listMsg');
             listEl.innerHTML = '<div style="color:#a8a4a0;font-size:0.9rem;">Loading...</div>';
             try {
-                const resp = await fetch('/memorials/api/content', {
+                const resp = await fetch('/api/content', {
                     method: 'POST', headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ action: 'list-content' })
                 });
