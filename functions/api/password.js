@@ -1,5 +1,3 @@
-
-
 export async function onRequestPost(context) {
   var request = context.request;
   var env = context.env;
@@ -20,6 +18,17 @@ export async function onRequestPost(context) {
       if (!id) return json({ success: false, error: 'No ID provided' });
       await env.MEMORIAL_PASSWORDS.delete(id);
       return json({ success: true });
+    }
+
+    if (action === 'verify') {
+      var id = body.id;
+      var password = body.password;
+      if (!id || !password) return json({ success: false, error: 'Missing ID or password' });
+      var stored = await env.MEMORIAL_PASSWORDS.get(id);
+      if (stored && stored === password) {
+        return json({ success: true });
+      }
+      return json({ success: false, error: 'Incorrect password' });
     }
 
     return json({ success: false, error: 'Unknown action' });
