@@ -698,7 +698,7 @@ In Your VI-Key®</p>
                 <strong>What you get:</strong> A personalised VI-Key that arrives in the post. Tap it with a phone and your child sees a magical personalised letter from Santa — personalised with their name, town, and special interests. They can listen to Santa read it aloud. A keepsake they'll treasure long after Christmas.
             </div>
 
-            <a href="https://myvikey.pages.dev/xmasletters/?id=example" target="_blank" rel="noopener noreferrer" style="display:block;text-align:center;margin-bottom:24px;padding:12px 20px;background:linear-gradient(180deg,#dc2626,#b91c1c);color:#fff;font-weight:700;font-size:1rem;text-decoration:none;border-radius:8px;box-shadow:0 4px 12px rgba(185,28,28,0.3);">👀 See How It Works —(password = example) Tap Here</a>
+            <a href="/xmasletters/?id=example" target="_blank" rel="noopener noreferrer" style="display:block;text-align:center;margin-bottom:24px;padding:12px 20px;background:linear-gradient(180deg,#dc2626,#b91c1c);color:#fff;font-weight:700;font-size:1rem;text-decoration:none;border-radius:8px;box-shadow:0 4px 12px rgba(185,28,28,0.3);">👀 See How It Works —(password = example) Tap Here</a>
 
             <form id="santaForm" action="/api/submit" method="POST">
                 <!-- Honeypot anti-spam field — bots fill this, humans never see it -->
@@ -761,7 +761,7 @@ In Your VI-Key®</p>
                     </label>
                     <p class="privacy-note">
                         All personalised details are permanently deleted by January 31st.
-                        Read our full <a href="https://myvikey.pages.dev/privacy" target="_blank" rel="noopener noreferrer">Privacy Policy</a>.
+                        Read our full <a href="/privacy" target="_blank" rel="noopener noreferrer">Privacy Policy</a>.
                     </p>
                 </div>
 
@@ -888,7 +888,7 @@ In Your VI-Key®</p>
     </div>
 
     <footer class="santa-footer">
-        <div class="footer-brand"><a href="https://myvikey.pages.dev/">V I Key®</a></div>
+        <div class="footer-brand"><a href="/">V I Key®</a></div>
         <div class="footer-links">
             <a href="https://wa.me/201067531455" target="_blank" rel="noopener noreferrer" class="footer-link">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981z"/></svg>
@@ -1062,7 +1062,7 @@ In Your VI-Key®</p>
                 });
 
                 if (response.ok) {
-                    window.location.href = 'https://myvikey.pages.dev/xmas/thanks.html';
+                    window.location.href = '/xmas/thanks.html';
                 } else {
                     alert('Something went wrong. Please try again.');
                     submitBtn.disabled = false;

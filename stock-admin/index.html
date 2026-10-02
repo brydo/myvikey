@@ -235,10 +235,10 @@
     <div class="card">
         <h2>View Current Stock</h2>
         <p>See the current stock level for all 6 tags.</p>
-        <div class="url-box" onclick="copyText(this)">https://myvikey.pages.dev/api/admin?secret=Qnwbevrctxyz123!</div>
+        <div class="url-box" onclick="copyText(this)">/api/admin?secret=Qnwbevrctxyz123!</div>
         <div class="btn-row">
             <button class="copy-btn" onclick="copyUrl(0)">Copy URL</button>
-            <a class="open-btn" href="https://myvikey.pages.dev/api/admin?secret=Qnwbevrctxyz123!" target="_blank">Open in Browser</a>
+            <a class="open-btn" href="/api/admin?secret=Qnwbevrctxyz123!" target="_blank">Open in Browser</a>
             <button class="action-btn" onclick="fetchStock()">Fetch Stock Now</button>
         </div>
         <div class="result" id="stockResult"></div>
@@ -250,11 +250,11 @@
     <div class="card">
         <h2>Reset All Tags to 50</h2>
         <p>Set every tag back to 50 units.</p>
-        <div class="url-box" onclick="copyText(this)">https://myvikey.pages.dev/api/admin?secret=Qnwbevrctxyz123!&action=reset</div>
+        <div class="url-box" onclick="copyText(this)">/api/admin?secret=Qnwbevrctxyz123!&action=reset</div>
         <div class="btn-row">
             <button class="copy-btn" onclick="copyUrl(1)">Copy URL</button>
-            <a class="open-btn" href="https://myvikey.pages.dev/api/admin?secret=Qnwbevrctxyz123!&action=reset" target="_blank">Open in Browser</a>
-            <button class="action-btn" onclick="doAction('https://myvikey.pages.dev/api/admin?secret=Qnwbevrctxyz123!&action=reset', 'resetResult')">Reset Now</button>
+            <a class="open-btn" href="/api/admin?secret=Qnwbevrctxyz123!&action=reset" target="_blank">Open in Browser</a>
+            <button class="action-btn" onclick="doAction('/api/admin?secret=Qnwbevrctxyz123!&action=reset', 'resetResult')">Reset Now</button>
         </div>
         <div class="result" id="resetResult"></div>
     </div>
@@ -269,7 +269,7 @@
             <label>Value:</label>
             <input type="number" id="setallValue" value="20" min="0">
         </div>
-        <div class="url-box" id="setallUrl">https://myvikey.pages.dev/api/admin?secret=Qnwbevrctxyz123!&action=setall&value=20</div>
+        <div class="url-box" id="setallUrl">/api/admin?secret=Qnwbevrctxyz123!&action=setall&value=20</div>
         <div class="btn-row">
             <button class="copy-btn" onclick="copyUrl(2)">Copy URL</button>
             <button class="action-btn" onclick="setAll()">Set All Now</button>
@@ -296,7 +296,7 @@
             <label>Value:</label>
             <input type="number" id="oneValue" value="10" min="0">
         </div>
-        <div class="url-box" id="oneUrl">https://myvikey.pages.dev/api/admin?secret=Qnwbevrctxyz123!&action=set&tag=tag1&value=10</div>
+        <div class="url-box" id="oneUrl">/api/admin?secret=Qnwbevrctxyz123!&action=set&tag=tag1&value=10</div>
         <div class="btn-row">
             <button class="copy-btn" onclick="copyUrl(3)">Copy URL</button>
             <button class="action-btn" onclick="setOne()">Set Tag Now</button>
@@ -324,7 +324,7 @@
             }
         });
 
-        const BASE = 'https://myvikey.pages.dev/api/admin?secret=Qnwbevrctxyz123!';
+        const BASE = '/api/admin?secret=Qnwbevrctxyz123!';
 
         // Update URLs when inputs change
         document.getElementById('setallValue').addEventListener('input', updateSetAllUrl);
