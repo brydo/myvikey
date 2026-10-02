@@ -41,7 +41,7 @@ function letterHTML(id, content, footerAudioUrl) {
     '.scroll-wrapper{position:relative;max-width:1000px;width:100%;margin:0 auto}' +
     '.scroll-bg{display:block;width:100%;height:auto;border-radius:8px}' +
     '.letter-card{position:absolute;top:50%;left:50%;transform:translate(-50%,-46%);width:min(42%,420px);padding:0 16px;text-align:center;text-shadow:0 1px 2px rgba(255,255,255,0.5)}' +
-    '.letter-title{font-family:"Mountains of Christmas","Great Vibes",cursive;font-size:clamp(1.6rem,4.2vw,3rem);line-height:1.1;margin:0 0 14px;letter-spacing:1px;color:var(--text-color)}' +
+    '.letter-title{font-family:"Mountains of Christmas","Great Vibes",cursive;font-size:clamp(1.6rem,4.2vw,3rem);line-height:1.1;margin:0 0 -1px;letter-spacing:1px;color:var(--text-color)}' +
     '.letter-text{font-family:"Caveat",cursive;color:var(--text-color);font-size:clamp(1rem,2.2vw,1.5rem);margin-bottom:30px;white-space:pre-wrap;text-align:left;line-height:1.5}' +
     '.audio-section{margin-top:24px;padding-top:24px;border-top:1px solid rgba(107,90,62,0.3)}' +
     '.audio-label{color:#5c3a1e;font-size:0.9rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px}' +
@@ -54,7 +54,7 @@ function letterHTML(id, content, footerAudioUrl) {
     '.audio-footer .audio-footer-label{color:#d4af37;font-size:0.85rem;white-space:nowrap}' +
     '.audio-footer audio{height:30px;max-width:380px;flex:1}' +
     '@media(max-width:768px){.letter-card{top:36%;left:46%;width:min(46%,380px)}.letter-title{font-size:clamp(1.3rem,5.8vw,2.2rem)}}' +
-    '@media(max-width:480px){.letter-card{width:min(52%,320px);padding:0 8px;top:calc(38% - 20px);transform:translate(-50%,0)}.letter-card h1{font-size:1.2rem;margin-bottom:16px}.letter-icon{font-size:2rem;margin-bottom:12px}.audio-label{font-size:0.75rem}.letter-text{font-size:0.78rem;line-height:1.18;max-height:42vh;overflow-y:auto}.audio-footer{padding:5px 8px}.audio-footer .audio-footer-label{font-size:0.7rem}.audio-footer audio{height:26px;max-width:100%}}' +
+    '@media(max-width:480px){.letter-card{width:min(52%,320px);padding:0 8px;top:calc(38% - 20px);transform:translate(-50%,0)}.letter-card h1{font-size:1.2rem;margin-bottom:1px}.letter-icon{font-size:2rem;margin-bottom:12px}.audio-label{font-size:0.75rem}.letter-text{font-size:0.78rem;line-height:1.18;max-height:42vh;overflow-y:auto}.audio-footer{padding:5px 8px}.audio-footer .audio-footer-label{font-size:0.7rem}.audio-footer audio{height:26px;max-width:100%}}' +
     '.landscape-note{display:none;position:fixed;inset:0;z-index:9999;background:url(https://pub-07ed0b0955a4401f9956c3ca7a33c40e.r2.dev/cosy.jpg) center/cover no-repeat;color:#f5e6c8;text-align:center;padding:24px;font-family:Georgia,"Times New Roman",serif;overflow:hidden;flex-direction:column;align-items:center;justify-content:center;gap:16px}' +
     '.landscape-text{position:relative;z-index:2;font-size:1.2rem;max-width:90vw;line-height:1.4;background:rgba(0,0,0,0.55);padding:16px 24px;border-radius:8px}' +
     'body.mobile-landscape .scroll-wrapper{display:none!important}' +
