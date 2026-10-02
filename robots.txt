@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+
+# Hide admin pages from search engines
+Disallow: /stock-admin/
+Disallow: /memorials/admin.html
+Disallow: /xmasletters/admin.html
+Disallow: /xmas/submissions.html
+
+Sitemap: https://vi-key.uk/sitemap.xml
