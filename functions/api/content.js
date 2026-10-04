@@ -1,58 +1,75 @@
-
+// functions/api/content.js
+// API for managing memorial page content in KV.
+// Actions: set-content, get-content, delete-content, list-content
 
 export async function onRequestPost(context) {
-  var request = context.request;
-  var env = context.env;
-  try {
-    var body = await request.json();
-    var action = body.action;
+  const { request, env } = context;
 
-    if (action === 'set-content') {
-      var id = body.id;
-      if (!id) return json({ success: false, error: 'No ID provided' });
-      var content = {
-        name: body.name || '',
-        photoUrl: body.photoUrl || '',
-        text: body.text || '',
-        audioUrl: body.audioUrl || '',
+  let body;
+  try {
+    body = await request.json();
+  } catch {
+    return Response.json({ success: false, error: 'Invalid JSON' }, { status: 400 });
+  }
+
+  const { action, id, dob, name, photoUrl, text, audioUrl } = body;
+
+  if (!id && action !== 'list-content') {
+    return Response.json({ success: false, error: 'Page ID is required' }, { status: 400 });
+  }
+
+  const safeId = id ? id.trim().replace(/[^a-zA-Z0-9_-]/g, '') : '';
+  if (!safeId && action !== 'list-content') {
+    return Response.json({ success: false, error: 'Invalid page ID' }, { status: 400 });
+  }
+
+  switch (action) {
+    case 'set-content': {
+      const content = {
+        dob: (dob || '').trim(),
+        name: (name || '').trim(),
+        photoUrl: (photoUrl || '').trim(),
+        text: (text || '').trim(),
+        audioUrl: (audioUrl || '').trim(),
         updated: new Date().toISOString()
       };
-      await env.MEMORIAL_CONTENT.put(id, JSON.stringify(content));
-      return json({ success: true });
+      await env.MEMORIAL_CONTENT.put(safeId, JSON.stringify(content));
+      return Response.json({ success: true, message: `Content saved for ${safeId}` });
     }
 
-    if (action === 'get-content') {
-      var id = body.id;
-      if (!id) return json({ success: false, error: 'No ID provided' });
-      var raw = await env.MEMORIAL_CONTENT.get(id);
-      if (!raw) return json({ success: true, content: null });
-      var content = JSON.parse(raw);
-      return json({ success: true, content: content });
+    case 'get-content': {
+      const raw = await env.MEMORIAL_CONTENT.get(safeId);
+      if (!raw) return Response.json({ success: true, content: null });
+      return Response.json({ success: true, content: JSON.parse(raw) });
     }
 
-    if (action === 'delete-content') {
-      var id = body.id;
-      if (!id) return json({ success: false, error: 'No ID provided' });
-      await env.MEMORIAL_CONTENT.delete(id);
-      return json({ success: true });
+    case 'delete-content': {
+      await env.MEMORIAL_CONTENT.delete(safeId);
+      return Response.json({ success: true, message: `Content removed for ${safeId}` });
     }
 
-    if (action === 'list-content') {
-      var list = await env.MEMORIAL_CONTENT.list();
-      var pages = list.keys.map(function(key) {
-        return { id: key.name };
-      });
-      return json({ success: true, pages: pages, count: pages.length });
+    case 'list-content': {
+      const list = await env.MEMORIAL_CONTENT.list();
+      const items = [];
+      for (const key of list.keys) {
+        const raw = await env.MEMORIAL_CONTENT.get(key.name);
+        if (raw) {
+          const content = JSON.parse(raw);
+          items.push({
+            id: key.name,
+            dob: content.dob || '',
+            hasName: !!content.name,
+            hasPhoto: !!content.photoUrl,
+            hasText: !!content.text,
+            hasAudio: !!content.audioUrl,
+            updated: content.updated
+          });
+        }
+      }
+      return Response.json({ success: true, pages: items, count: items.length });
     }
 
-    return json({ success: false, error: 'Unknown action' });
-  } catch (e) {
-    return json({ success: false, error: e.message });
+    default:
+      return Response.json({ success: false, error: 'Unknown action' }, { status: 400 });
   }
-}
-
-function json(obj) {
-  return new Response(JSON.stringify(obj), {
-    headers: { 'Content-Type': 'application/json' }
-  });
 }
