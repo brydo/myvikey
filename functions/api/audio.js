@@ -41,9 +41,12 @@ export async function onRequestGet(context) {
       'Accept-Ranges': 'bytes',
     };
 
-    if (obj.size) headers['Content-Length'] = obj.size;
     if (range && obj.range) {
+      const partialLength = obj.range.end - obj.range.offset + 1;
       headers['Content-Range'] = `bytes ${obj.range.offset}-${obj.range.end}/${obj.size}`;
+      headers['Content-Length'] = partialLength;
+    } else if (obj.size) {
+      headers['Content-Length'] = obj.size;
     }
 
     return new Response(obj.body, {
