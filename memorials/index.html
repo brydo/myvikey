@@ -274,8 +274,12 @@
             }
 
             if (content.audioUrl) {
+                var audioSrc = content.audioUrl;
+                if (!audioSrc.startsWith('/api/') && !audioSrc.startsWith('http')) {
+                    audioSrc = '/api/audio?file=' + encodeURIComponent(audioSrc);
+                }
                 document.getElementById('audioContainer').innerHTML =
-                    '<audio controls class="audio-player" src="' + (content.audioUrl.startsWith('/api/') || content.audioUrl.startsWith('http') ? content.audioUrl : '/api/audio?file=' + encodeURIComponent(content.audioUrl)) + '"></audio>';
+                    '<audio controls class="audio-player" src="' + audioSrc + '"></audio>';
             } else {
                 document.getElementById('audioContainer').innerHTML = '';
             }
