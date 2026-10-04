@@ -205,12 +205,10 @@
                 } else if (resp.status === 401 || data.requiresPassword) {
                     document.getElementById('passwordPrompt').style.display = 'block';
                     document.getElementById('passInput').focus();
-                } else if (resp.status === 404 || data.notFound) {
-                    document.getElementById('notFound').style.display = 'block';
                 } else {
-                    document.getElementById('passwordPrompt').style.display = 'block';
-                    document.getElementById('passInput').focus();
+                    document.getElementById('notFound').style.display = 'block';
                 }
+
             } catch (e) {
                 document.getElementById('loading').innerHTML = 'Error loading memorial: ' + e.message;
             }
