@@ -4,13 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Forever Pets · V I Key®</title>
-    <meta name="description" content="Forever Pets — digital tributes that preserve and honour the memories of our beloved pets.">
-    <meta property="og:title" content="Forever Pets · VI Key®">
-    <meta property="og:description" content="Forever Pets — digital tributes that preserve and honour the memories of our beloved pets.">
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://vi-key.uk/foreverpets/index.html">
-    <meta property="og:image" content="https://vi-key.uk/apple-touch-icon.png">
-    <meta name="twitter:card" content="summary_large_image">
+    <meta name="description" content="Forever Pets — digital tributes for beloved animal companions.">
     <style>
         :root {
             --bg-color: #12110F;
@@ -135,14 +129,14 @@
         .error-page p { color: var(--text-muted); font-size: 0.95rem; }
         .back-link { display: block; text-align: center; margin-top: 30px; color: var(--gold); text-decoration: none; font-size: 0.9rem; }
         .back-link:hover { text-decoration: underline; }
-        .paw { font-size: 2rem; margin-bottom: 16px; }
+        .candle { font-size: 2rem; margin-bottom: 16px; }
     </style>
 </head>
 <body>
     <div class="container">
         <div id="loading" class="loading">Loading pet memorial…</div>
         <div id="passwordPrompt" class="password-section" style="display:none;">
-            <div class="paw">🐾</div>
+            <div class="candle">🐾</div>
             <h2>This pet memorial is private</h2>
             <p>Please enter the password to view this memorial.</p>
             <input type="password" id="passInput" placeholder="Password" autofocus>
@@ -200,7 +194,7 @@
 
                 document.getElementById('loading').style.display = 'none';
 
-          if (resp.ok && data.success && data.content) {
+                if (resp.ok && data.success && data.content) {
                     showMemorial(data.content);
                 } else if (resp.status === 401 || data.requiresPassword) {
                     document.getElementById('passwordPrompt').style.display = 'block';
@@ -208,7 +202,6 @@
                 } else {
                     document.getElementById('notFound').style.display = 'block';
                 }
-
             } catch (e) {
                 document.getElementById('loading').innerHTML = 'Error loading pet memorial: ' + e.message;
             }
@@ -286,4 +279,3 @@
     </script>
 </body>
 </html>
-
