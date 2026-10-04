@@ -275,7 +275,7 @@
 
             if (content.audioUrl) {
                 document.getElementById('audioContainer').innerHTML =
-                    '<audio controls class="audio-player" src="' + content.audioUrl + '"></audio>';
+                    '<audio controls class="audio-player" src="' + (content.audioUrl.startsWith('/api/') || content.audioUrl.startsWith('http') ? content.audioUrl : '/api/audio?file=' + encodeURIComponent(content.audioUrl)) + '"></audio>';
             } else {
                 document.getElementById('audioContainer').innerHTML = '';
             }
