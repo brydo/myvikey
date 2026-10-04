@@ -121,8 +121,8 @@
 <body>
     <div id="loginScreen" class="container">
         <div class="login-section">
-            <div style="font-size: 2rem; margin-bottom: 16px;">🔐</div>
-            <h2>Forever Pets Admin Login</h2>
+            <div style="font-size: 2rem; margin-bottom: 16px;">🐾</div>
+            <h2>Forever Pets Admin</h2>
             <p>Enter your admin password to continue.</p>
             <input type="password" id="adminPass" placeholder="Admin password" autofocus>
             <br>
@@ -134,7 +134,7 @@
     <div id="adminPanel" class="container" style="display:none;">
         <button class="logout-btn secondary" onclick="logout()">Logout</button>
         <h1>🐾 Forever Pets Admin</h1>
-        <p class="sub">Manage memorial pages for beloved pets</p>
+        <p class="sub">Manage pet memorial pages</p>
 
         <section>
             <h2>🔑 Set or Update Password</h2>
@@ -162,13 +162,13 @@
             <label for="contentId">Page ID</label>
             <input type="text" id="contentId" placeholder="bella">
             <label for="contentDob">DOB (date of birth)</label>
-            <input type="text" id="contentDob" placeholder="e.g. 15/03/2015">
+            <input type="text" id="contentDob" placeholder="e.g. 15/03/2020">
             <label for="contentName">Pet Name (e.g. Bella)</label>
             <input type="text" id="contentName" placeholder="Bella">
             <label for="contentPhoto">Photo URL (R2 link to image)</label>
             <input type="text" id="contentPhoto" placeholder="https://pub-xxxxx.r2.dev/bella.jpg">
             <label for="contentText">Words / Message</label>
-            <textarea id="contentText" placeholder="A loyal companion and best friend. We will miss you always."></textarea>
+            <textarea id="contentText" placeholder="A beloved companion who brought joy to our lives every single day."></textarea>
             <label for="contentAudio">Audio File (from R2 bucket "audiofiles")</label>
             <select id="contentAudio">
                 <option value="">Loading audio files…</option>
@@ -203,7 +203,7 @@
     </div>
 
     <script>
-        if (sessionStorage.getItem('pets_admin_authed') === 'yes') {
+        if (sessionStorage.getItem('foreverpets_admin_authed') === 'yes') {
             showAdmin();
         }
 
@@ -255,7 +255,7 @@
                 });
                 const data = await safeJson(resp);
                 if (resp.ok && data.success) {
-                    sessionStorage.setItem('pets_admin_authed', 'yes');
+                    sessionStorage.setItem('foreverpets_admin_authed', 'yes');
                     showAdmin();
                     loadAudioFiles();
                 } else {
@@ -280,7 +280,7 @@
         }
 
         function logout() {
-            sessionStorage.removeItem('pets_admin_authed');
+            sessionStorage.removeItem('foreverpets_admin_authed');
             document.getElementById('adminPanel').style.display = 'none';
             document.getElementById('loginScreen').style.display = 'block';
             document.getElementById('adminPass').value = '';
@@ -434,4 +434,3 @@
     </script>
 </body>
 </html>
-
