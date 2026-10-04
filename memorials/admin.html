@@ -1,6 +1,3 @@
-
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -36,7 +33,7 @@
         }
         h2 { color: var(--gold); font-size: 1.1rem; margin-bottom: 16px; font-weight: 500; }
         label { display: block; color: var(--text-muted); font-size: 0.85rem; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
-        input[type="text"], input[type="password"], textarea {
+        input[type="text"], input[type="password"], textarea, select {
             width: 100%;
             padding: 12px 14px;
             font-size: 1rem;
@@ -49,7 +46,7 @@
             transition: border-color 0.3s;
             font-family: inherit;
         }
-        input:focus, textarea:focus { border-color: var(--gold); }
+        input:focus, textarea:focus, select:focus { border-color: var(--gold); }
         textarea { min-height: 80px; max-height: 80px; resize: none; }
         button {
             padding: 12px 24px;
@@ -94,6 +91,7 @@
             font-size: 0.9rem;
         }
         .page-list-item .id { color: var(--gold); font-weight: 600; }
+        .page-list-item .dob { color: var(--text-muted); font-size: 0.85rem; margin-left: 8px; }
         .page-list-item .badges { font-size: 0.8rem; color: var(--text-muted); }
         .page-list-item .badge { margin-left: 6px; }
         .login-section {
@@ -163,14 +161,21 @@
             <h2>📝 Memorial Content (Name + Photo + Words + Audio)</h2>
             <label for="contentId">Page ID</label>
             <input type="text" id="contentId" placeholder="john">
+            <label for="contentDob">DOB (date of birth)</label>
+            <input type="text" id="contentDob" placeholder="e.g. 15/03/1950">
             <label for="contentName">Name (e.g. John Smith)</label>
             <input type="text" id="contentName" placeholder="John Smith">
             <label for="contentPhoto">Photo URL (R2 link to image)</label>
             <input type="text" id="contentPhoto" placeholder="https://pub-xxxxx.r2.dev/john.jpg">
             <label for="contentText">Words / Message</label>
             <textarea id="contentText" placeholder="A wonderful father, husband, and friend. We will miss you always."></textarea>
-            <label for="contentAudio">MP3 URL (direct link to audio file)</label>
-            <input type="text" id="contentAudio" placeholder="https://pub-xxxxx.r2.dev/song.mp3">
+            <label for="contentAudio">Audio File (from R2 bucket "audiofiles")</label>
+            <select id="contentAudio">
+                <option value="">Loading audio files…</option>
+            </select>
+            <div class="btn-row" style="margin-bottom:14px;">
+                <button class="secondary" onclick="loadAudioFiles()">Refresh Audio List</button>
+            </div>
             <div class="btn-row">
                 <button onclick="setContent()">Save Content</button>
                 <button class="secondary" onclick="getContent()">Load Content</button>
@@ -196,7 +201,8 @@
 
         <p class="status">Admin: <a href="/memorials/admin">/memorials/admin</a> · Test: <a href="/memorials/?id=john">/memorials/?id=john</a></p>
     </div>
-  <script>
+
+    <script>
         if (sessionStorage.getItem('memorials_admin_authed') === 'yes') {
             showAdmin();
         }
@@ -206,6 +212,33 @@
             if (!text) return {};
             try { return JSON.parse(text); }
             catch { return { error: 'Invalid JSON response (status ' + resp.status + ')' }; }
+        }
+
+        async function loadAudioFiles(selectedKey) {
+            var select = document.getElementById('contentAudio');
+            select.innerHTML = '<option value="">Loading audio files…</option>';
+            try {
+                var resp = await fetch('/api/audio');
+                var data = await safeJson(resp);
+                if (resp.ok && data.success && data.files) {
+                    if (data.files.length === 0) {
+                        select.innerHTML = '<option value="">No audio files found in bucket</option>';
+                    } else {
+                        select.innerHTML = '<option value="">— Select an audio file —</option>';
+                        data.files.forEach(function(f) {
+                            var opt = document.createElement('option');
+                            opt.value = '/api/audio?file=' + encodeURIComponent(f.key);
+                            opt.textContent = f.key + ' (' + Math.round(f.size / 1024) + ' KB)';
+                            if (selectedKey && f.key === selectedKey) opt.selected = true;
+                            select.appendChild(opt);
+                        });
+                    }
+                } else {
+                    select.innerHTML = '<option value="">Error loading audio files</option>';
+                }
+            } catch (e) {
+                select.innerHTML = '<option value="">Error: ' + e.message + '</option>';
+            }
         }
 
         async function login() {
@@ -224,6 +257,7 @@
                 if (resp.ok && data.success) {
                     sessionStorage.setItem('memorials_admin_authed', 'yes');
                     showAdmin();
+                    loadAudioFiles();
                 } else {
                     msg.textContent = '✗ Incorrect password.';
                     msg.className = 'msg err';
@@ -291,6 +325,7 @@
 
         async function setContent() {
             const id = document.getElementById('contentId').value.trim();
+            const dob = document.getElementById('contentDob').value.trim();
             const name = document.getElementById('contentName').value.trim();
             const photoUrl = document.getElementById('contentPhoto').value.trim();
             const text = document.getElementById('contentText').value;
@@ -300,7 +335,7 @@
             try {
                 const resp = await fetch('/api/content', {
                     method: 'POST', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ action: 'set-content', id, name, photoUrl, text, audioUrl })
+                    body: JSON.stringify({ action: 'set-content', id, dob, name, photoUrl, text, audioUrl })
                 });
                 const data = await safeJson(resp);
                 if (resp.ok && data.success) { msg.textContent = '✓ Content saved for "' + id + '".'; msg.className = 'msg ok'; }
@@ -320,10 +355,23 @@
                 const data = await safeJson(resp);
                 if (resp.ok && data.success) {
                     if (data.content) {
+                        document.getElementById('contentDob').value = data.content.dob || '';
                         document.getElementById('contentName').value = data.content.name || '';
                         document.getElementById('contentPhoto').value = data.content.photoUrl || '';
                         document.getElementById('contentText').value = data.content.text || '';
-                        document.getElementById('contentAudio').value = data.content.audioUrl || '';
+                        var audioUrl = data.content.audioUrl || '';
+                        var audioFileMatch = audioUrl.match(/[?&]file=([^&]+)/);
+                        if (audioFileMatch) {
+                            var fileKey = decodeURIComponent(audioFileMatch[1]);
+                            loadAudioFiles(fileKey);
+                        } else if (audioUrl) {
+                            var select = document.getElementById('contentAudio');
+                            var opt = document.createElement('option');
+                            opt.value = audioUrl;
+                            opt.textContent = '(custom) ' + audioUrl.split('/').pop();
+                            opt.selected = true;
+                            select.appendChild(opt);
+                        }
                         msg.textContent = '✓ Loaded content for "' + id + '".'; msg.className = 'msg ok';
                     } else {
                         msg.textContent = 'No content set for "' + id + '" yet.'; msg.className = 'msg err';
@@ -370,6 +418,7 @@
                         listEl.innerHTML = data.pages.map(function(p) {
                             return '<div class="page-list-item">' +
                                 '<span class="id">' + p.id + '</span>' +
+                                (p.dob ? '<span class="dob">' + p.dob + '</span>' : '') +
                                 '<span class="badges">' +
                                 (p.hasName ? '<span class="badge">👤</span>' : '') +
                                 (p.hasPhoto ? '<span class="badge">🖼️</span>' : '') +
