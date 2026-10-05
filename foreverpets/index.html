@@ -270,7 +270,7 @@
                     audioSrc = '/api/audio?file=' + encodeURIComponent(audioSrc);
                 }
                 document.getElementById('audioContainer').innerHTML =
-                    '<audio controls class="audio-player" src="' + audioSrc + '"></audio>';
+                  '<audio controls class="audio-player" controlslist="nodownload" src="' + audioSrc + '"></audio>'; 
             } else {
                 document.getElementById('audioContainer').innerHTML = '';
             }
