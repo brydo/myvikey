@@ -251,8 +251,9 @@
             }
 
             if (content.photoUrl) {
+                var pos = content.photoPosition || '50% 50%';
                 document.getElementById('photoContainer').innerHTML =
-                    '<img src="' + content.photoUrl + '" class="memorial-photo" alt="' + (content.name || 'Pet Memorial') + '">';
+                    '<img src="' + content.photoUrl + '" class="memorial-photo" style="object-position: ' + pos + ';" alt="' + (content.name || 'Pet Memorial') + '">';
             } else {
                 document.getElementById('photoContainer').innerHTML =
                     '<div class="memorial-photo-placeholder">🐾</div>';
