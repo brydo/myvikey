@@ -8,7 +8,7 @@
     <meta property="og:title" content="Memorials · VI Key®">
     <meta property="og:description" content="Explore memorial pages created with VI Key® — digital tributes that preserve and honour the memories of loved ones.">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://vi-key.uk/memorials-index.html">
+    <meta property="og:url" content="https://vi-key.uk/memorials/">
     <meta property="og:image" content="https://vi-key.uk/apple-touch-icon.png">
     <meta name="twitter:card" content="summary_large_image">
     <style>
@@ -96,7 +96,8 @@
             font-style: italic;
         }
         .audio-player {
-            width: 25%;
+            width: 100%;
+            max-width: 360px;
             height: 32px;
             margin: 20px auto 0;
             border-radius: 8px;
@@ -191,7 +192,7 @@
         const memorialId = params.get('id');
 
         if (!memorialId) {
-            document.getElementById('loading').innerHTML = 'No memorial ID specified. Please use a link like <strong>/memorials/?id=john</strong>';
+            document.getElementById('loading').textContent = 'No memorial ID specified. Please use a link like /memorials/?id=john';
         } else {
             loadMemorial();
         }
@@ -231,7 +232,7 @@
                     document.getElementById('notFound').style.display = 'block';
                 }
             } catch (e) {
-                document.getElementById('loading').innerHTML = 'Error loading memorial: ' + e.message;
+                document.getElementById('loading').textContent = 'Error loading memorial: ' + e.message;
             }
         }
 
@@ -278,15 +279,17 @@
             }
 
             if (content.photoUrl) {
-                var posStyle = '';
-                if (content.photoPosition) {
-                    posStyle = ' style="object-position: ' + content.photoPosition + ';"';
-                }
-                document.getElementById('photoContainer').innerHTML =
-                    '<img src="' + content.photoUrl + '" class="memorial-photo"' + posStyle + ' alt="' + (content.name || 'Memorial') + '">';
+                const photo = document.createElement('img');
+                photo.src = content.photoUrl;
+                photo.className = 'memorial-photo';
+                photo.alt = content.name || 'Memorial';
+                if (content.photoPosition) photo.style.objectPosition = content.photoPosition;
+                document.getElementById('photoContainer').replaceChildren(photo);
             } else {
-                document.getElementById('photoContainer').innerHTML =
-                    '<div class="memorial-photo-placeholder">🕯️</div>';
+                const placeholder = document.createElement('div');
+                placeholder.className = 'memorial-photo-placeholder';
+                placeholder.textContent = '🕯️';
+                document.getElementById('photoContainer').replaceChildren(placeholder);
             }
 
             if (content.text) {
@@ -300,10 +303,14 @@
                 if (!audioSrc.startsWith('/api/') && !audioSrc.startsWith('http')) {
                     audioSrc = '/api/audio?file=' + encodeURIComponent(audioSrc);
                 }
-                document.getElementById('audioContainer').innerHTML =
-                    '<audio controls class="audio-player" controlslist="nodownload" src="' + audioSrc + '"></audio>';
+                const audio = document.createElement('audio');
+                audio.controls = true;
+                audio.className = 'audio-player';
+                audio.setAttribute('controlslist', 'nodownload');
+                audio.src = audioSrc;
+                document.getElementById('audioContainer').replaceChildren(audio);
             } else {
-                document.getElementById('audioContainer').innerHTML = '';
+                document.getElementById('audioContainer').replaceChildren();
             }
 
             mem.style.display = 'block';
