@@ -12,7 +12,7 @@ export async function onRequestPost(context) {
     return Response.json({ success: false, error: 'Invalid JSON' }, { status: 400 });
   }
 
-  const { action, id, dob, name, photoUrl, text, audioUrl } = body;
+  const { action, id, dob, name, photoUrl, text, audioUrl, photoPosition } = body;
 
   if (!id && action !== 'list-content') {
     return Response.json({ success: false, error: 'Page ID is required' }, { status: 400 });
@@ -31,6 +31,7 @@ export async function onRequestPost(context) {
         photoUrl: (photoUrl || '').trim(),
         text: (text || '').trim(),
         audioUrl: (audioUrl || '').trim(),
+        photoPosition: (photoPosition || '50% 50%').trim(),
         updated: new Date().toISOString()
       };
       await env.MEMORIAL_CONTENT.put(safeId, JSON.stringify(content));
@@ -62,6 +63,7 @@ export async function onRequestPost(context) {
             hasPhoto: !!content.photoUrl,
             hasText: !!content.text,
             hasAudio: !!content.audioUrl,
+            hasPhotoPosition: !!content.photoPosition,
             updated: content.updated
           });
         }
