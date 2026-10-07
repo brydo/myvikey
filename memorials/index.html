@@ -278,8 +278,12 @@
             }
 
             if (content.photoUrl) {
+                var posStyle = '';
+                if (content.photoPosition) {
+                    posStyle = ' style="object-position: ' + content.photoPosition + ';"';
+                }
                 document.getElementById('photoContainer').innerHTML =
-                    '<img src="' + content.photoUrl + '" class="memorial-photo" alt="' + (content.name || 'Memorial') + '">';
+                    '<img src="' + content.photoUrl + '" class="memorial-photo"' + posStyle + ' alt="' + (content.name || 'Memorial') + '">';
             } else {
                 document.getElementById('photoContainer').innerHTML =
                     '<div class="memorial-photo-placeholder">🕯️</div>';
