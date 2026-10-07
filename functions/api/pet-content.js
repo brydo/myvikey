@@ -1,6 +1,7 @@
 // functions/api/pet-content.js
 // API for managing pet memorial page content in KV.
 // Actions: set-content, get-content, delete-content, list-content
+// Updated: added photoPosition field for adjustable photo centering.
 
 export async function onRequestPost(context) {
   const { request, env } = context;
@@ -12,7 +13,7 @@ export async function onRequestPost(context) {
     return Response.json({ success: false, error: 'Invalid JSON' }, { status: 400 });
   }
 
-  const { action, id, dob, name, photoUrl, text, audioUrl } = body;
+  const { action, id, dob, name, photoUrl, text, audioUrl, photoPosition } = body;
 
   if (!id && action !== 'list-content') {
     return Response.json({ success: false, error: 'Page ID is required' }, { status: 400 });
@@ -25,12 +26,25 @@ export async function onRequestPost(context) {
 
   switch (action) {
     case 'set-content': {
+      // Preserve existing photoPosition if not provided in this update
+      let existingPosition = '50% 50%';
+      if (photoPosition === undefined) {
+        const existing = await env.PET_CONTENT.get(safeId);
+        if (existing) {
+          try {
+            const parsed = JSON.parse(existing);
+            if (parsed.photoPosition) existingPosition = parsed.photoPosition;
+          } catch {}
+        }
+      }
+
       const content = {
         dob: (dob || '').trim(),
         name: (name || '').trim(),
         photoUrl: (photoUrl || '').trim(),
         text: (text || '').trim(),
         audioUrl: (audioUrl || '').trim(),
+        photoPosition: (photoPosition !== undefined ? photoPosition : existingPosition).trim(),
         updated: new Date().toISOString()
       };
       await env.PET_CONTENT.put(safeId, JSON.stringify(content));
@@ -62,6 +76,7 @@ export async function onRequestPost(context) {
             hasPhoto: !!content.photoUrl,
             hasText: !!content.text,
             hasAudio: !!content.audioUrl,
+            photoPosition: content.photoPosition || '50% 50%',
             updated: content.updated
           });
         }
