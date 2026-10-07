@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin · Memorials · V I Key®</title>
     <style>
-        /* ===== Shared Admin Styles ===== */
         :root {
             --bg-color: #12110F;
             --card-bg: rgba(255,255,255,0.04);
@@ -113,111 +112,56 @@
             font-size: 0.85rem;
             padding: 8px 16px;
         }
-        @media (max-width: 480px) {
-            .btn-row { flex-direction: column; gap: 8px; }
-            .btn-row button.secondary { margin-left: 0; }
-        }
-        /* ===== Photo Positioning Controls ===== */
-        .photo-position-section {
-            margin: 16px 0;
-            padding: 16px;
-            border: 1px solid var(--card-border);
-            border-radius: 8px;
-            background: rgba(255,255,255,0.02);
-        }
-        .photo-position-section .section-label {
-            color: var(--gold);
-            font-size: 0.85rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 12px;
-            display: block;
-        }
+        /* Photo position controls */
         .photo-preview-wrap {
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 16px;
+            margin-bottom: 16px;
         }
         .photo-preview-circle {
-            width: 200px;
-            height: 200px;
+            width: 240px;
+            height: 240px;
             border-radius: 50%;
             border: 3px solid var(--gold);
             overflow: hidden;
-            position: relative;
-            cursor: grab;
-            background: rgba(201,169,110,0.08);
-            flex-shrink: 0;
-            touch-action: none;
+            background: rgba(201,169,110,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4.5rem;
         }
-        .photo-preview-circle:active { cursor: grabbing; }
         .photo-preview-circle img {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            pointer-events: none;
-            user-select: none;
-            -webkit-user-drag: none;
         }
-        .photo-preview-placeholder {
-            width: 100%;
-            height: 100%;
+        .slider-row {
             display: flex;
             align-items: center;
-            justify-content: center;
-            font-size: 3rem;
-            color: var(--text-muted);
+            gap: 12px;
+            margin-bottom: 12px;
         }
-        .slider-group { width: 100%; max-width: 320px; }
-        .slider-group label {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.8rem;
-            color: var(--text-muted);
-            margin-bottom: 4px;
-            text-transform: none;
-            letter-spacing: 0;
+        .slider-row label {
+            margin-bottom: 0;
+            min-width: 60px;
+            text-align: right;
         }
-        .slider-group label .val { color: var(--gold); font-weight: 600; }
-        input[type="range"] {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 100%;
-            height: 6px;
-            border-radius: 3px;
-            background: rgba(255,255,255,0.12);
-            outline: none;
-            margin-bottom: 14px;
+        .slider-row input[type="range"] {
+            flex: 1;
+            accent-color: var(--gold);
         }
-        input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 18px;
-            height: 18px;
-            border-radius: 50%;
-            background: var(--gold);
-            cursor: pointer;
-            border: none;
+        .slider-row .val {
+            min-width: 50px;
+            text-align: left;
+            color: var(--gold);
+            font-size: 0.85rem;
+            font-weight: 600;
         }
-        input[type="range"]::-moz-range-thumb {
-            width: 18px;
-            height: 18px;
-            border-radius: 50%;
-            background: var(--gold);
-            cursor: pointer;
-            border: none;
-        }
-        .position-hint {
-            font-size: 0.8rem;
-            color: var(--text-muted);
-            text-align: center;
-            margin-top: 4px;
-        }
-        .reset-pos-btn {
-            font-size: 0.8rem;
-            padding: 6px 16px;
-            margin-top: 4px;
+        @media (max-width: 480px) {
+            .btn-row { flex-direction: column; gap: 8px; }
+            .btn-row button.secondary { margin-left: 0; }
+            .photo-preview-circle { width: 180px; height: 180px; }
         }
     </style>
 </head>
@@ -244,7 +188,7 @@
             <label for="setId">Page ID (e.g. john)</label>
             <input type="text" id="setId" placeholder="john">
             <label for="setPass">Password</label>
-            <input type="text" id="setPass" placeholder="s3cret">
+            <input type="password" id="setPass" placeholder="s3cret">
             <div class="btn-row">
                 <button onclick="setPassword()">Save Password</button>
                 <button class="secondary" onclick="loadContentForPassword()">Load Content for this ID</button>
@@ -271,23 +215,23 @@
             <label for="contentPhoto">Photo URL (R2 link to image)</label>
             <input type="text" id="contentPhoto" placeholder="https://pub-xxxxx.r2.dev/john.jpg">
 
-            <!-- ===== Photo Positioning Control ===== -->
-            <div class="photo-position-section" id="photoPositionSection" style="display:none;">
-                <span class="section-label">🖼️ Adjust Photo Position</span>
-                <div class="photo-preview-wrap">
-                    <div class="photo-preview-circle" id="photoPreviewCircle">
-                        <div class="photo-preview-placeholder">🕯️</div>
-                    </div>
-                    <div class="slider-group">
-                        <label>Horizontal <span class="val" id="posXVal">50%</span></label>
-                        <input type="range" id="posXSlider" min="0" max="100" value="50" step="1">
-                        <label>Vertical <span class="val" id="posYVal">50%</span></label>
-                        <input type="range" id="posYSlider" min="0" max="100" value="50" step="1">
-                        <p class="position-hint">Drag the photo or use sliders to recenter. Default is 50% 50%.</p>
-                        <button class="secondary reset-pos-btn" onclick="resetPhotoPosition()">Reset to Centre</button>
-                    </div>
+            <label>Photo Position (centre the subject in the circular frame)</label>
+            <div class="photo-preview-wrap">
+                <div class="photo-preview-circle" id="photoPreview">
+                    <span>🕯️</span>
                 </div>
             </div>
+            <div class="slider-row">
+                <label>Horizontal</label>
+                <input type="range" id="posX" min="0" max="100" value="50" oninput="onSliderInput()">
+                <span class="val" id="posXVal">50%</span>
+            </div>
+            <div class="slider-row">
+                <label>Vertical</label>
+                <input type="range" id="posY" min="0" max="100" value="50" oninput="onSliderInput()">
+                <span class="val" id="posYVal">50%</span>
+            </div>
+            <button type="button" onclick="resetPhotoPosition()">Reset to Centre</button>
 
             <label for="contentText">Words / Message</label>
             <textarea id="contentText" placeholder="Forever in our hearts. A life well lived and deeply loved."></textarea>
@@ -325,16 +269,41 @@
     </div>
 
     <script>
-        var currentPhotoPosition = '50% 50%';
-        var positionKnown = false;
-        var dragHandlersAttached = false;
+        const ADMIN_SESSION_TTL_MS = 30 * 60 * 1000;
 
-        if (sessionStorage.getItem('memorials_admin_authed') === 'yes') {
-            showAdmin();
-            loadAudioFiles();
+        function isAdminSessionValid() {
+            const isAuthed = sessionStorage.getItem('memorials_admin_authed') === 'yes';
+            const expiresAt = Number(sessionStorage.getItem('memorials_admin_authed_until') || 0);
+            return isAuthed && Number.isFinite(expiresAt) && expiresAt > Date.now();
         }
 
-        /* ===== API Helpers ===== */
+        function refreshAdminSession() {
+            if (sessionStorage.getItem('memorials_admin_authed') === 'yes') {
+                sessionStorage.setItem('memorials_admin_authed_until', String(Date.now() + ADMIN_SESSION_TTL_MS));
+            }
+        }
+
+        function bindAdminSessionTimeout() {
+            const events = ['mousemove', 'keydown', 'click', 'touchstart'];
+            events.forEach(function(eventName) {
+                document.addEventListener(eventName, function() {
+                    if (isAdminSessionValid()) {
+                        refreshAdminSession();
+                    }
+                });
+            });
+        }
+
+        if (sessionStorage.getItem('memorials_admin_authed') === 'yes') {
+            if (!isAdminSessionValid()) {
+                logout();
+            } else {
+                showAdmin();
+            }
+        }
+
+        bindAdminSessionTimeout();
+
         async function safeJson(resp) {
             const text = await resp.text();
             if (!text) return {};
@@ -365,9 +334,7 @@
                     select.innerHTML = '<option value="">Error loading audio files</option>';
                 }
             } catch (e) {
-                var option = document.createElement('option');
-                option.textContent = 'Error: ' + e.message;
-                select.replaceChildren(option);
+                select.innerHTML = '<option value="">Error: ' + e.message + '</option>';
             }
         }
 
@@ -386,6 +353,7 @@
                 const data = await safeJson(resp);
                 if (resp.ok && data.success) {
                     sessionStorage.setItem('memorials_admin_authed', 'yes');
+                    sessionStorage.setItem('memorials_admin_authed_until', String(Date.now() + ADMIN_SESSION_TTL_MS));
                     showAdmin();
                     loadAudioFiles();
                 } else {
@@ -405,12 +373,18 @@
         });
 
         function showAdmin() {
+            if (!isAdminSessionValid()) {
+                logout();
+                return;
+            }
+            refreshAdminSession();
             document.getElementById('loginScreen').style.display = 'none';
             document.getElementById('adminPanel').style.display = 'block';
         }
 
         function logout() {
             sessionStorage.removeItem('memorials_admin_authed');
+            sessionStorage.removeItem('memorials_admin_authed_until');
             document.getElementById('adminPanel').style.display = 'none';
             document.getElementById('loginScreen').style.display = 'block';
             document.getElementById('adminPass').value = '';
@@ -453,87 +427,42 @@
             if (id) { document.getElementById('contentId').value = id; getContent(); }
         }
 
-        /* ===== Photo Positioning Helpers ===== */
-        function updatePhotoPreview() {
-            var img = document.querySelector('#photoPreviewCircle img');
-            if (img) img.style.objectPosition = currentPhotoPosition;
+        var positionKnown = false;
+        var dragHandlersAttached = false;
 
-            var parts = currentPhotoPosition.split(' ');
-            var xVal = parseInt(parts[0]) || 50;
-            var yVal = parseInt(parts[1]) || 50;
-            document.getElementById('posXSlider').value = xVal;
-            document.getElementById('posYSlider').value = yVal;
-            document.getElementById('posXVal').textContent = xVal + '%';
-            document.getElementById('posYVal').textContent = yVal + '%';
-        }
-
-        function buildPhotoPreview(url) {
-            var section = document.getElementById('photoPositionSection');
-            var circle = document.getElementById('photoPreviewCircle');
-
-            if (!url) {
-                section.style.display = 'none';
-                return;
-            }
-
-            section.style.display = 'block';
-            var placeholder = document.createElement('div');
-            placeholder.className = 'photo-preview-placeholder';
-            placeholder.textContent = 'Loading…';
-            circle.replaceChildren(placeholder);
-
-            var img = new Image();
-            img.onload = function() {
-                img.style.objectPosition = currentPhotoPosition;
-                circle.replaceChildren(img);
-                updatePhotoPreview();
-                attachDragHandlers();
-            };
-            img.onerror = function() {
-                var errorPlaceholder = document.createElement('div');
-                errorPlaceholder.className = 'photo-preview-placeholder';
-                errorPlaceholder.textContent = '⚠️';
-                circle.replaceChildren(errorPlaceholder);
-            };
-            img.src = url;
+        function onSliderInput() {
+            positionKnown = true;
+            updatePreview();
         }
 
         function resetPhotoPosition() {
-            currentPhotoPosition = '50% 50%';
+            document.getElementById('posX').value = 50;
+            document.getElementById('posY').value = 50;
             positionKnown = true;
-            updatePhotoPreview();
+            updatePreview();
         }
 
         function attachDragHandlers() {
             if (dragHandlersAttached) return;
             dragHandlersAttached = true;
-            var circle = document.getElementById('photoPreviewCircle');
+            var circle = document.getElementById('photoPreview');
             var dragging = false;
-
-            function setFrom(clientX, clientY) {
+            function setFrom(e) {
+                var pt = e.touches ? e.touches[0] : e;
                 var rect = circle.getBoundingClientRect();
-                var x = Math.max(0, Math.min(100, Math.round(((clientX - rect.left) / rect.width) * 100)));
-                var y = Math.max(0, Math.min(100, Math.round(((clientY - rect.top) / rect.height) * 100)));
-                currentPhotoPosition = x + '% ' + y + '%';
+                var x = Math.max(0, Math.min(100, Math.round(((pt.clientX - rect.left) / rect.width) * 100)));
+                var y = Math.max(0, Math.min(100, Math.round(((pt.clientY - rect.top) / rect.height) * 100)));
+                document.getElementById('posX').value = x;
+                document.getElementById('posY').value = y;
                 positionKnown = true;
-                updatePhotoPreview();
+                updatePreview();
             }
-
             function onDown(e) {
                 if (!circle.querySelector('img')) return;
-                dragging = true;
-                e.preventDefault();
-                var pt = e.touches ? e.touches[0] : e;
-                setFrom(pt.clientX, pt.clientY);
+                dragging = true; e.preventDefault(); setFrom(e);
             }
-            function onMove(e) {
-                if (!dragging) return;
-                e.preventDefault();
-                var pt = e.touches ? e.touches[0] : e;
-                setFrom(pt.clientX, pt.clientY);
-            }
+            function onMove(e) { if (!dragging) return; e.preventDefault(); setFrom(e); }
             function onUp() { dragging = false; }
-
             circle.addEventListener('mousedown', onDown);
             document.addEventListener('mousemove', onMove);
             document.addEventListener('mouseup', onUp);
@@ -541,30 +470,39 @@
             document.addEventListener('touchmove', onMove, { passive: false });
             document.addEventListener('touchend', onUp);
         }
+        attachDragHandlers();
 
-        document.addEventListener('DOMContentLoaded', function() {
-            var xSlider = document.getElementById('posXSlider');
-            var ySlider = document.getElementById('posYSlider');
-            xSlider.addEventListener('input', function() {
-                currentPhotoPosition = xSlider.value + '% ' + ySlider.value + '%';
-                positionKnown = true;
-                updatePhotoPreview();
-            });
-            ySlider.addEventListener('input', function() {
-                currentPhotoPosition = xSlider.value + '% ' + ySlider.value + '%';
-                positionKnown = true;
-                updatePhotoPreview();
-            });
-
-            document.getElementById('contentId').addEventListener('input', function() {
-                currentPhotoPosition = '50% 50%';
-                positionKnown = false;
-                updatePhotoPreview();
-            });
-            document.getElementById('contentPhoto').addEventListener('input', function() {
-                buildPhotoPreview(this.value.trim());
-            });
+        document.getElementById('contentId').addEventListener('input', function() {
+            positionKnown = false;
+            document.getElementById('posX').value = 50;
+            document.getElementById('posY').value = 50;
+            updatePreview();
         });
+
+        function updatePreview() {
+            var x = document.getElementById('posX').value;
+            var y = document.getElementById('posY').value;
+            document.getElementById('posXVal').textContent = x + '%';
+            document.getElementById('posYVal').textContent = y + '%';
+            var preview = document.getElementById('photoPreview');
+            var img = preview.querySelector('img');
+            if (img) {
+                img.style.objectPosition = x + '% ' + y + '%';
+            }
+        }
+
+        function updatePhotoPreview() {
+            var url = document.getElementById('contentPhoto').value.trim();
+            var preview = document.getElementById('photoPreview');
+            if (url) {
+                preview.innerHTML = '<img src="' + url + '" alt="Preview">';
+                updatePreview();
+            } else {
+                preview.innerHTML = '<span>🕯️</span>';
+            }
+        }
+
+        document.getElementById('contentPhoto').addEventListener('input', updatePhotoPreview);
 
         async function setContent() {
             const id = document.getElementById('contentId').value.trim();
@@ -577,7 +515,9 @@
             if (!id) { msg.textContent = 'Please enter a page ID.'; msg.className = 'msg err'; return; }
             try {
                 const payload = { action: 'set-content', id, dob, name, photoUrl, text, audioUrl };
-                if (positionKnown) payload.photoPosition = currentPhotoPosition;
+                if (positionKnown) {
+                    payload.photoPosition = document.getElementById('posX').value + '% ' + document.getElementById('posY').value + '%';
+                }
                 const resp = await fetch('/api/content', {
                     method: 'POST', headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
@@ -603,33 +543,28 @@
                         document.getElementById('contentDob').value = data.content.dob || '';
                         document.getElementById('contentName').value = data.content.name || '';
                         document.getElementById('contentPhoto').value = data.content.photoUrl || '';
-                        currentPhotoPosition = data.content.photoPosition || '50% 50%';
+                        var pos = (data.content.photoPosition || '50% 50%').split(' ');
+                        var posX = parseInt(pos[0]) || 50;
+                        var posY = parseInt(pos[1]) || 50;
+                        document.getElementById('posX').value = posX;
+                        document.getElementById('posY').value = posY;
+                        document.getElementById('posXVal').textContent = posX + '%';
+                        document.getElementById('posYVal').textContent = posY + '%';
                         positionKnown = true;
                         updatePhotoPreview();
-                        if (data.content.photoUrl) {
-                            buildPhotoPreview(data.content.photoUrl);
-                        } else {
-                            document.getElementById('photoPositionSection').style.display = 'none';
-                        }
                         document.getElementById('contentText').value = data.content.text || '';
                         var audioUrl = data.content.audioUrl || '';
                         var audioFileMatch = audioUrl.match(/[?&]file=([^&]+)/);
-                        var fileKey = audioFileMatch ? decodeURIComponent(audioFileMatch[1]) : '';
-                        await loadAudioFiles(fileKey);
-                        var select = document.getElementById('contentAudio');
-                        var matchingOption = Array.from(select.options).find(function(option) {
-                            return option.value === audioUrl || (fileKey && option.value === '/api/audio?file=' + encodeURIComponent(fileKey));
-                        });
-                        if (audioUrl && !matchingOption) {
+                        if (audioFileMatch) {
+                            var fileKey = decodeURIComponent(audioFileMatch[1]);
+                            loadAudioFiles(fileKey);
+                        } else if (audioUrl) {
+                            var select = document.getElementById('contentAudio');
                             var opt = document.createElement('option');
                             opt.value = audioUrl;
                             opt.textContent = '(custom) ' + audioUrl.split('/').pop();
                             opt.selected = true;
                             select.appendChild(opt);
-                        } else if (audioUrl) {
-                            select.value = matchingOption.value;
-                        } else if (!audioUrl) {
-                            select.value = '';
                         }
                         msg.textContent = '✓ Loaded content for "' + id + '".'; msg.className = 'msg ok';
                     } else {
@@ -651,23 +586,11 @@
                 });
                 const data = await safeJson(resp);
                 if (resp.ok && data.success) {
-                    try {
-                        const passwordResp = await fetch('/api/password', {
-                            method: 'POST', headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ action: 'delete', id })
-                        });
-                        const passwordData = await safeJson(passwordResp);
-                        if (passwordResp.ok && passwordData.success) {
-                            msg.textContent = '✓ All data deleted for "' + id + '".';
-                            msg.className = 'msg ok';
-                        } else {
-                            msg.textContent = '⚠ Content deleted for "' + id + '", but password deletion failed: ' + (passwordData.error || 'Failed');
-                            msg.className = 'msg err';
-                        }
-                    } catch (e) {
-                        msg.textContent = '⚠ Content deleted for "' + id + '", but password deletion failed: ' + e.message;
-                        msg.className = 'msg err';
-                    }
+                    await fetch('/api/password', {
+                        method: 'POST', headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ action: 'delete', id })
+                    });
+                    msg.textContent = '✓ All data deleted for "' + id + '".'; msg.className = 'msg ok';
                 } else { msg.textContent = '✗ ' + (data.error || 'Failed'); msg.className = 'msg err'; }
             } catch (e) { msg.textContent = '✗ Error: ' + e.message; msg.className = 'msg err'; }
         }
@@ -675,7 +598,7 @@
         async function listContent() {
             const listEl = document.getElementById('pageList');
             const msg = document.getElementById('listMsg');
-            setPageListStatus('Loading...');
+            listEl.innerHTML = '<div style="color:#a8a4a0;font-size:0.9rem;">Loading...</div>';
             try {
                 const resp = await fetch('/api/content', {
                     method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -684,46 +607,23 @@
                 const data = await safeJson(resp);
                 if (resp.ok && data.success) {
                     if (data.pages.length === 0) {
-                        setPageListStatus('No memorials yet.');
+                        listEl.innerHTML = '<div style="color:#a8a4a0;font-size:0.9rem;">No memorials yet.</div>';
                     } else {
-                        const items = data.pages.map(function(p) {
-                            const item = document.createElement('div');
-                            item.className = 'page-list-item';
-                            const id = document.createElement('span');
-                            id.className = 'id';
-                            id.textContent = p.id;
-                            item.appendChild(id);
-                            if (p.dob) {
-                                const dob = document.createElement('span');
-                                dob.className = 'dob';
-                                dob.textContent = p.dob;
-                                item.appendChild(dob);
-                            }
-                            const badges = document.createElement('span');
-                            badges.className = 'badges';
-                            [[p.hasName, '👤'], [p.hasPhoto, '🖼️'], [p.hasText, '📝'], [p.hasAudio, '🎵']].forEach(function(badge) {
-                                if (!badge[0]) return;
-                                const span = document.createElement('span');
-                                span.className = 'badge';
-                                span.textContent = badge[1];
-                                badges.appendChild(span);
-                            });
-                            item.appendChild(badges);
-                            return item;
-                        });
-                        listEl.replaceChildren(...items);
+                        listEl.innerHTML = data.pages.map(function(p) {
+                            return '<div class="page-list-item">' +
+                                '<span class="id">' + p.id + '</span>' +
+                                (p.dob ? '<span class="dob">' + p.dob + '</span>' : '') +
+                                '<span class="badges">' +
+                                (p.hasName ? '<span class="badge">👤</span>' : '') +
+                                (p.hasPhoto ? '<span class="badge">🖼️</span>' : '') +
+                                (p.hasText ? '<span class="badge">📝</span>' : '') +
+                                (p.hasAudio ? '<span class="badge">🎵</span>' : '') +
+                                '</span></div>';
+                        }).join('');
                     }
                     msg.textContent = data.count + ' memorial(s).'; msg.className = 'msg ok';
                 } else { msg.textContent = '✗ ' + (data.error || 'Failed'); msg.className = 'msg err'; }
             } catch (e) { msg.textContent = '✗ Error: ' + e.message; msg.className = 'msg err'; }
-        }
-
-        function setPageListStatus(text) {
-            const status = document.createElement('div');
-            status.style.color = '#a8a4a0';
-            status.style.fontSize = '0.9rem';
-            status.textContent = text;
-            document.getElementById('pageList').replaceChildren(status);
         }
     </script>
 </body>

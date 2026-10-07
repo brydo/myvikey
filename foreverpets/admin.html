@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin · Forever Pets · V I Key®</title>
     <style>
-        /* ===== Shared Admin Styles ===== */
         :root {
             --bg-color: #12110F;
             --card-bg: rgba(255,255,255,0.04);
@@ -245,7 +244,7 @@
             <label for="setId">Page ID (e.g. bella)</label>
             <input type="text" id="setId" placeholder="bella">
             <label for="setPass">Password</label>
-            <input type="text" id="setPass" placeholder="s3cret">
+            <input type="password" id="setPass" placeholder="s3cret">
             <div class="btn-row">
                 <button onclick="setPassword()">Save Password</button>
                 <button class="secondary" onclick="loadContentForPassword()">Load Content for this ID</button>
@@ -326,14 +325,43 @@
     </div>
 
     <script>
+        const ADMIN_SESSION_TTL_MS = 30 * 60 * 1000;
         var currentPhotoPosition = '50% 50%';
         var positionKnown = false;
         var dragHandlersAttached = false;
 
-        if (sessionStorage.getItem('foreverpets_admin_authed') === 'yes') {
-            showAdmin();
-            loadAudioFiles();
+        function isAdminSessionValid() {
+            const isAuthed = sessionStorage.getItem('foreverpets_admin_authed') === 'yes';
+            const expiresAt = Number(sessionStorage.getItem('foreverpets_admin_authed_until') || 0);
+            return isAuthed && Number.isFinite(expiresAt) && expiresAt > Date.now();
         }
+
+        function refreshAdminSession() {
+            if (sessionStorage.getItem('foreverpets_admin_authed') === 'yes') {
+                sessionStorage.setItem('foreverpets_admin_authed_until', String(Date.now() + ADMIN_SESSION_TTL_MS));
+            }
+        }
+
+        function bindAdminSessionTimeout() {
+            ['mousemove', 'keydown', 'click', 'touchstart'].forEach(function(eventName) {
+                document.addEventListener(eventName, function() {
+                    if (isAdminSessionValid()) {
+                        refreshAdminSession();
+                    }
+                });
+            });
+        }
+
+        if (sessionStorage.getItem('foreverpets_admin_authed') === 'yes') {
+            if (!isAdminSessionValid()) {
+                logout();
+            } else {
+                showAdmin();
+                loadAudioFiles();
+            }
+        }
+
+        bindAdminSessionTimeout();
 
         /* ===== API Helpers ===== */
         async function safeJson(resp) {
@@ -387,6 +415,7 @@
                 const data = await safeJson(resp);
                 if (resp.ok && data.success) {
                     sessionStorage.setItem('foreverpets_admin_authed', 'yes');
+                    sessionStorage.setItem('foreverpets_admin_authed_until', String(Date.now() + ADMIN_SESSION_TTL_MS));
                     showAdmin();
                     loadAudioFiles();
                 } else {
@@ -406,12 +435,18 @@
         });
 
         function showAdmin() {
+            if (!isAdminSessionValid()) {
+                logout();
+                return;
+            }
+            refreshAdminSession();
             document.getElementById('loginScreen').style.display = 'none';
             document.getElementById('adminPanel').style.display = 'block';
         }
 
         function logout() {
             sessionStorage.removeItem('foreverpets_admin_authed');
+            sessionStorage.removeItem('foreverpets_admin_authed_until');
             document.getElementById('adminPanel').style.display = 'none';
             document.getElementById('loginScreen').style.display = 'block';
             document.getElementById('adminPass').value = '';
