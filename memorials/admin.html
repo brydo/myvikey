@@ -223,14 +223,15 @@
             </div>
             <div class="slider-row">
                 <label>Horizontal</label>
-                <input type="range" id="posX" min="0" max="100" value="50" oninput="updatePreview()">
+                <input type="range" id="posX" min="0" max="100" value="50" oninput="onSliderInput()">
                 <span class="val" id="posXVal">50%</span>
             </div>
             <div class="slider-row">
                 <label>Vertical</label>
-                <input type="range" id="posY" min="0" max="100" value="50" oninput="updatePreview()">
+                <input type="range" id="posY" min="0" max="100" value="50" oninput="onSliderInput()">
                 <span class="val" id="posYVal">50%</span>
             </div>
+            <button type="button" onclick="resetPhotoPosition()">Reset to Centre</button>
 
             <label for="contentText">Words / Message</label>
             <textarea id="contentText" placeholder="Forever in our hearts. A life well lived and deeply loved."></textarea>
@@ -388,6 +389,58 @@
             if (id) { document.getElementById('contentId').value = id; getContent(); }
         }
 
+        var positionKnown = false;
+        var dragHandlersAttached = false;
+
+        function onSliderInput() {
+            positionKnown = true;
+            updatePreview();
+        }
+
+        function resetPhotoPosition() {
+            document.getElementById('posX').value = 50;
+            document.getElementById('posY').value = 50;
+            positionKnown = true;
+            updatePreview();
+        }
+
+        function attachDragHandlers() {
+            if (dragHandlersAttached) return;
+            dragHandlersAttached = true;
+            var circle = document.getElementById('photoPreview');
+            var dragging = false;
+            function setFrom(e) {
+                var pt = e.touches ? e.touches[0] : e;
+                var rect = circle.getBoundingClientRect();
+                var x = Math.max(0, Math.min(100, Math.round(((pt.clientX - rect.left) / rect.width) * 100)));
+                var y = Math.max(0, Math.min(100, Math.round(((pt.clientY - rect.top) / rect.height) * 100)));
+                document.getElementById('posX').value = x;
+                document.getElementById('posY').value = y;
+                positionKnown = true;
+                updatePreview();
+            }
+            function onDown(e) {
+                if (!circle.querySelector('img')) return;
+                dragging = true; e.preventDefault(); setFrom(e);
+            }
+            function onMove(e) { if (!dragging) return; e.preventDefault(); setFrom(e); }
+            function onUp() { dragging = false; }
+            circle.addEventListener('mousedown', onDown);
+            document.addEventListener('mousemove', onMove);
+            document.addEventListener('mouseup', onUp);
+            circle.addEventListener('touchstart', onDown, { passive: false });
+            document.addEventListener('touchmove', onMove, { passive: false });
+            document.addEventListener('touchend', onUp);
+        }
+        attachDragHandlers();
+
+        document.getElementById('contentId').addEventListener('input', function() {
+            positionKnown = false;
+            document.getElementById('posX').value = 50;
+            document.getElementById('posY').value = 50;
+            updatePreview();
+        });
+
         function updatePreview() {
             var x = document.getElementById('posX').value;
             var y = document.getElementById('posY').value;
@@ -418,17 +471,18 @@
             const dob = document.getElementById('contentDob').value.trim();
             const name = document.getElementById('contentName').value.trim();
             const photoUrl = document.getElementById('contentPhoto').value.trim();
-            const posX = document.getElementById('posX').value;
-            const posY = document.getElementById('posY').value;
-            const photoPosition = posX + '% ' + posY + '%';
             const text = document.getElementById('contentText').value;
             const audioUrl = document.getElementById('contentAudio').value.trim();
             const msg = document.getElementById('contentMsg');
             if (!id) { msg.textContent = 'Please enter a page ID.'; msg.className = 'msg err'; return; }
             try {
+                const payload = { action: 'set-content', id, dob, name, photoUrl, text, audioUrl };
+                if (positionKnown) {
+                    payload.photoPosition = document.getElementById('posX').value + '% ' + document.getElementById('posY').value + '%';
+                }
                 const resp = await fetch('/api/content', {
                     method: 'POST', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ action: 'set-content', id, dob, name, photoUrl, photoPosition, text, audioUrl })
+                    body: JSON.stringify(payload)
                 });
                 const data = await safeJson(resp);
                 if (resp.ok && data.success) { msg.textContent = '✓ Content saved for "' + id + '".'; msg.className = 'msg ok'; }
@@ -458,6 +512,7 @@
                         document.getElementById('posY').value = posY;
                         document.getElementById('posXVal').textContent = posX + '%';
                         document.getElementById('posYVal').textContent = posY + '%';
+                        positionKnown = true;
                         updatePhotoPreview();
                         document.getElementById('contentText').value = data.content.text || '';
                         var audioUrl = data.content.audioUrl || '';
