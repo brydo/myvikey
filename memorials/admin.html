@@ -316,7 +316,9 @@
             const now = new Date();
             const minutesLeft = Math.floor((sessionExpiresAt - now) / 60000);
             if (minutesLeft > 0) {
-                info.textContent = `Session expires in ${minutesLeft} minute${minutesLeft !== 1 ? 's' : ''} (${expiresAtDate.toLocaleTimeString()})`;
+                info.style.color = minutesLeft <= 5 ? '#c0392b' : '';
+                info.style.fontWeight = minutesLeft <= 5 ? 'bold' : '';
+                info.textContent = (minutesLeft <= 5 ? '⚠ Warning: ' : '') + `Session expires in ${minutesLeft} minute${minutesLeft !== 1 ? 's' : ''} (${expiresAtDate.toLocaleTimeString()})`;
             } else {
                 info.textContent = 'Session expired. Please log in again.';
                 clearSessionToken();
