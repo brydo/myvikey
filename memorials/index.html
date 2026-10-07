@@ -12,6 +12,7 @@
     <meta property="og:image" content="https://vi-key.uk/apple-touch-icon.png">
     <meta name="twitter:card" content="summary_large_image">
     <style>
+        /* ===== Shared Page Styles ===== */
         :root {
             --bg-color: #12110F;
             --card-bg: rgba(255,255,255,0.04);
@@ -192,11 +193,15 @@
         const memorialId = params.get('id');
 
         if (!memorialId) {
-            document.getElementById('loading').textContent = 'No memorial ID specified. Please use a link like /memorials/?id=john';
+            const loading = document.getElementById('loading');
+            const linkText = document.createElement('strong');
+            linkText.textContent = '/memorials/?id=john';
+            loading.replaceChildren(document.createTextNode('No memorial ID specified. Please use a link like '), linkText);
         } else {
             loadMemorial();
         }
 
+        /* ===== API Helpers ===== */
         async function safeJson(resp) {
             const text = await resp.text();
             if (!text) return {};
@@ -266,6 +271,7 @@
             if (e.key === 'Enter') submitPassword();
         });
 
+        /* ===== Memorial Rendering ===== */
         function showMemorial(content) {
             const mem = document.getElementById('memorial');
             document.getElementById('memName').textContent = content.name || 'In Loving Memory';

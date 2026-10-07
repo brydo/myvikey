@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin · Forever Pets · V I Key®</title>
     <style>
+        /* ===== Shared Admin Styles ===== */
         :root {
             --bg-color: #12110F;
             --card-bg: rgba(255,255,255,0.04);
@@ -276,7 +277,7 @@
                 <span class="section-label">🖼️ Adjust Photo Position</span>
                 <div class="photo-preview-wrap">
                     <div class="photo-preview-circle" id="photoPreviewCircle">
-                        <div class="photo-preview-placeholder" id="photoPreviewPlaceholder">🐾</div>
+                        <div class="photo-preview-placeholder">🐾</div>
                     </div>
                     <div class="slider-group">
                         <label>Horizontal <span class="val" id="posXVal">50%</span></label>
@@ -321,7 +322,7 @@
             <div class="msg" id="listMsg"></div>
         </section>
 
-        <p class="status">Admin: <a href="/foreverpets/admin">/foreverpets/admin</a> · Test: <a href="/foreverpets/?id=bella">/foreverpets/?id=bella</a></p>
+        <p class="status">Admin: <a href="/foreverpets/admin.html">/foreverpets/admin.html</a> · Test: <a href="/foreverpets/?id=bella">/foreverpets/?id=bella</a></p>
     </div>
 
     <script>
@@ -331,8 +332,10 @@
 
         if (sessionStorage.getItem('foreverpets_admin_authed') === 'yes') {
             showAdmin();
+            loadAudioFiles();
         }
 
+        /* ===== API Helpers ===== */
         async function safeJson(resp) {
             const text = await resp.text();
             if (!text) return {};
@@ -363,7 +366,9 @@
                     select.innerHTML = '<option value="">Error loading audio files</option>';
                 }
             } catch (e) {
-                select.innerHTML = '<option value="">Error: ' + e.message + '</option>';
+                var option = document.createElement('option');
+                option.textContent = 'Error: ' + e.message;
+                select.replaceChildren(option);
             }
         }
 
@@ -452,9 +457,8 @@
         /* ===== Photo Positioning Helpers ===== */
         function updatePhotoPreview() {
             var img = document.querySelector('#photoPreviewCircle img');
-            if (img) {
-                img.style.objectPosition = currentPhotoPosition;
-            }
+            if (img) img.style.objectPosition = currentPhotoPosition;
+
             var parts = currentPhotoPosition.split(' ');
             var xVal = parseInt(parts[0]) || 50;
             var yVal = parseInt(parts[1]) || 50;
@@ -467,27 +471,30 @@
         function buildPhotoPreview(url) {
             var section = document.getElementById('photoPositionSection');
             var circle = document.getElementById('photoPreviewCircle');
-            var placeholder = document.getElementById('photoPreviewPlaceholder');
 
             if (!url) {
                 section.style.display = 'none';
-                circle.innerHTML = '<div class="photo-preview-placeholder">🐾</div>';
                 return;
             }
 
             section.style.display = 'block';
-            circle.innerHTML = '<div class="photo-preview-placeholder">Loading…</div>';
+            var placeholder = document.createElement('div');
+            placeholder.className = 'photo-preview-placeholder';
+            placeholder.textContent = 'Loading…';
+            circle.replaceChildren(placeholder);
 
             var img = new Image();
             img.onload = function() {
-                circle.innerHTML = '';
                 img.style.objectPosition = currentPhotoPosition;
-                circle.appendChild(img);
+                circle.replaceChildren(img);
                 updatePhotoPreview();
                 attachDragHandlers();
             };
             img.onerror = function() {
-                circle.innerHTML = '<div class="photo-preview-placeholder">⚠️</div>';
+                var errorPlaceholder = document.createElement('div');
+                errorPlaceholder.className = 'photo-preview-placeholder';
+                errorPlaceholder.textContent = '⚠️';
+                circle.replaceChildren(errorPlaceholder);
             };
             img.src = url;
         }
@@ -498,43 +505,34 @@
             updatePhotoPreview();
         }
 
-        /* Drag-to-reposition on the circular preview */
         function attachDragHandlers() {
             if (dragHandlersAttached) return;
             dragHandlersAttached = true;
             var circle = document.getElementById('photoPreviewCircle');
             var dragging = false;
-            var rect = null;
 
-            function getPercent(clientX, clientY) {
-                rect = circle.getBoundingClientRect();
-                var x = ((clientX - rect.left) / rect.width) * 100;
-                var y = ((clientY - rect.top) / rect.height) * 100;
-                x = Math.max(0, Math.min(100, Math.round(x)));
-                y = Math.max(0, Math.min(100, Math.round(y)));
-                return { x: x, y: y };
-            }
-
-            function onDown(e) {
-                dragging = true;
-                e.preventDefault();
-                var pt = e.touches ? e.touches[0] : e;
-                var p = getPercent(pt.clientX, pt.clientY);
-                currentPhotoPosition = p.x + '% ' + p.y + '%';
+            function setFrom(clientX, clientY) {
+                var rect = circle.getBoundingClientRect();
+                var x = Math.max(0, Math.min(100, Math.round(((clientX - rect.left) / rect.width) * 100)));
+                var y = Math.max(0, Math.min(100, Math.round(((clientY - rect.top) / rect.height) * 100)));
+                currentPhotoPosition = x + '% ' + y + '%';
                 positionKnown = true;
                 updatePhotoPreview();
             }
 
+            function onDown(e) {
+                if (!circle.querySelector('img')) return;
+                dragging = true;
+                e.preventDefault();
+                var pt = e.touches ? e.touches[0] : e;
+                setFrom(pt.clientX, pt.clientY);
+            }
             function onMove(e) {
                 if (!dragging) return;
                 e.preventDefault();
                 var pt = e.touches ? e.touches[0] : e;
-                var p = getPercent(pt.clientX, pt.clientY);
-                currentPhotoPosition = p.x + '% ' + p.y + '%';
-                positionKnown = true;
-                updatePhotoPreview();
+                setFrom(pt.clientX, pt.clientY);
             }
-
             function onUp() { dragging = false; }
 
             circle.addEventListener('mousedown', onDown);
@@ -545,49 +543,28 @@
             document.addEventListener('touchend', onUp);
         }
 
-        /* Update position from sliders */
         document.addEventListener('DOMContentLoaded', function() {
             var xSlider = document.getElementById('posXSlider');
             var ySlider = document.getElementById('posYSlider');
-            if (xSlider) {
-                xSlider.addEventListener('input', function() {
-                    var y = parseInt(ySlider.value) || 50;
-                    currentPhotoPosition = xSlider.value + '% ' + y + '%';
-                    positionKnown = true;
-                    updatePhotoPreview();
-                });
-            }
-            if (ySlider) {
-                ySlider.addEventListener('input', function() {
-                    var x = parseInt(xSlider.value) || 50;
-                    currentPhotoPosition = x + '% ' + ySlider.value + '%';
-                    positionKnown = true;
-                    updatePhotoPreview();
-                });
-            }
+            xSlider.addEventListener('input', function() {
+                currentPhotoPosition = xSlider.value + '% ' + ySlider.value + '%';
+                positionKnown = true;
+                updatePhotoPreview();
+            });
+            ySlider.addEventListener('input', function() {
+                currentPhotoPosition = xSlider.value + '% ' + ySlider.value + '%';
+                positionKnown = true;
+                updatePhotoPreview();
+            });
 
-            /* Reset position state when the page ID changes */
-            var idInput = document.getElementById('contentId');
-            if (idInput) {
-                idInput.addEventListener('input', function() {
-                    currentPhotoPosition = '50% 50%';
-                    positionKnown = false;
-                    updatePhotoPreview();
-                });
-            }
-
-            /* Rebuild preview when photo URL changes */
-            var photoInput = document.getElementById('contentPhoto');
-            if (photoInput) {
-                photoInput.addEventListener('input', function() {
-                    var url = photoInput.value.trim();
-                    if (url) {
-                        buildPhotoPreview(url);
-                    } else {
-                        document.getElementById('photoPositionSection').style.display = 'none';
-                    }
-                });
-            }
+            document.getElementById('contentId').addEventListener('input', function() {
+                currentPhotoPosition = '50% 50%';
+                positionKnown = false;
+                updatePhotoPreview();
+            });
+            document.getElementById('contentPhoto').addEventListener('input', function() {
+                buildPhotoPreview(this.value.trim());
+            });
         });
 
         async function setContent() {
@@ -643,16 +620,22 @@
 
                         var audioUrl = data.content.audioUrl || '';
                         var audioFileMatch = audioUrl.match(/[?&]file=([^&]+)/);
-                        if (audioFileMatch) {
-                            var fileKey = decodeURIComponent(audioFileMatch[1]);
-                            loadAudioFiles(fileKey);
-                        } else if (audioUrl) {
-                            var select = document.getElementById('contentAudio');
+                        var fileKey = audioFileMatch ? decodeURIComponent(audioFileMatch[1]) : '';
+                        await loadAudioFiles(fileKey);
+                        var select = document.getElementById('contentAudio');
+                        var matchingOption = Array.from(select.options).find(function(option) {
+                            return option.value === audioUrl || (fileKey && option.value === '/api/audio?file=' + encodeURIComponent(fileKey));
+                        });
+                        if (audioUrl && !matchingOption) {
                             var opt = document.createElement('option');
                             opt.value = audioUrl;
                             opt.textContent = '(custom) ' + audioUrl.split('/').pop();
                             opt.selected = true;
                             select.appendChild(opt);
+                        } else if (audioUrl) {
+                            select.value = matchingOption.value;
+                        } else if (!audioUrl) {
+                            select.value = '';
                         }
                         msg.textContent = '✓ Loaded content for "' + id + '".'; msg.className = 'msg ok';
                     } else {
@@ -674,11 +657,23 @@
                 });
                 const data = await safeJson(resp);
                 if (resp.ok && data.success) {
-                    await fetch('/api/pet-password', {
-                        method: 'POST', headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ action: 'delete', id })
-                    });
-                    msg.textContent = '✓ All data deleted for "' + id + '".'; msg.className = 'msg ok';
+                    try {
+                        const passwordResp = await fetch('/api/pet-password', {
+                            method: 'POST', headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ action: 'delete', id })
+                        });
+                        const passwordData = await safeJson(passwordResp);
+                        if (passwordResp.ok && passwordData.success) {
+                            msg.textContent = '✓ All data deleted for "' + id + '".';
+                            msg.className = 'msg ok';
+                        } else {
+                            msg.textContent = '⚠ Content deleted for "' + id + '", but password deletion failed: ' + (passwordData.error || 'Failed');
+                            msg.className = 'msg err';
+                        }
+                    } catch (e) {
+                        msg.textContent = '⚠ Content deleted for "' + id + '", but password deletion failed: ' + e.message;
+                        msg.className = 'msg err';
+                    }
                 } else { msg.textContent = '✗ ' + (data.error || 'Failed'); msg.className = 'msg err'; }
             } catch (e) { msg.textContent = '✗ Error: ' + e.message; msg.className = 'msg err'; }
         }
@@ -686,7 +681,7 @@
         async function listContent() {
             const listEl = document.getElementById('pageList');
             const msg = document.getElementById('listMsg');
-            listEl.innerHTML = '<div style="color:#a8a4a0;font-size:0.9rem;">Loading...</div>';
+            setPageListStatus('Loading...');
             try {
                 const resp = await fetch('/api/pet-content', {
                     method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -695,23 +690,46 @@
                 const data = await safeJson(resp);
                 if (resp.ok && data.success) {
                     if (data.pages.length === 0) {
-                        listEl.innerHTML = '<div style="color:#a8a4a0;font-size:0.9rem;">No pet memorials yet.</div>';
+                        setPageListStatus('No pet memorials yet.');
                     } else {
-                        listEl.innerHTML = data.pages.map(function(p) {
-                            return '<div class="page-list-item">' +
-                                '<span class="id">' + p.id + '</span>' +
-                                (p.dob ? '<span class="dob">' + p.dob + '</span>' : '') +
-                                '<span class="badges">' +
-                                (p.hasName ? '<span class="badge">👤</span>' : '') +
-                                (p.hasPhoto ? '<span class="badge">🖼️</span>' : '') +
-                                (p.hasText ? '<span class="badge">📝</span>' : '') +
-                                (p.hasAudio ? '<span class="badge">🎵</span>' : '') +
-                                '</span></div>';
-                        }).join('');
+                        const items = data.pages.map(function(p) {
+                            const item = document.createElement('div');
+                            item.className = 'page-list-item';
+                            const id = document.createElement('span');
+                            id.className = 'id';
+                            id.textContent = p.id;
+                            item.appendChild(id);
+                            if (p.dob) {
+                                const dob = document.createElement('span');
+                                dob.className = 'dob';
+                                dob.textContent = p.dob;
+                                item.appendChild(dob);
+                            }
+                            const badges = document.createElement('span');
+                            badges.className = 'badges';
+                            [[p.hasName, '👤'], [p.hasPhoto, '🖼️'], [p.hasText, '📝'], [p.hasAudio, '🎵']].forEach(function(badge) {
+                                if (!badge[0]) return;
+                                const span = document.createElement('span');
+                                span.className = 'badge';
+                                span.textContent = badge[1];
+                                badges.appendChild(span);
+                            });
+                            item.appendChild(badges);
+                            return item;
+                        });
+                        listEl.replaceChildren(...items);
                     }
                     msg.textContent = data.count + ' pet memorial(s).'; msg.className = 'msg ok';
                 } else { msg.textContent = '✗ ' + (data.error || 'Failed'); msg.className = 'msg err'; }
             } catch (e) { msg.textContent = '✗ Error: ' + e.message; msg.className = 'msg err'; }
+        }
+
+        function setPageListStatus(text) {
+            const status = document.createElement('div');
+            status.style.color = '#a8a4a0';
+            status.style.fontSize = '0.9rem';
+            status.textContent = text;
+            document.getElementById('pageList').replaceChildren(status);
         }
     </script>
 </body>
