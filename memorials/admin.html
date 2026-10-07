@@ -112,17 +112,64 @@
             font-size: 0.85rem;
             padding: 8px 16px;
         }
+        /* Photo position controls */
+        .photo-preview-wrap {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        .photo-preview-circle {
+            width: 240px;
+            height: 240px;
+            border-radius: 50%;
+            border: 3px solid var(--gold);
+            overflow: hidden;
+            background: rgba(201,169,110,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4.5rem;
+        }
+        .photo-preview-circle img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .slider-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+        .slider-row label {
+            margin-bottom: 0;
+            min-width: 60px;
+            text-align: right;
+        }
+        .slider-row input[type="range"] {
+            flex: 1;
+            accent-color: var(--gold);
+        }
+        .slider-row .val {
+            min-width: 50px;
+            text-align: left;
+            color: var(--gold);
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
         @media (max-width: 480px) {
             .btn-row { flex-direction: column; gap: 8px; }
             .btn-row button.secondary { margin-left: 0; }
+            .photo-preview-circle { width: 180px; height: 180px; }
         }
     </style>
 </head>
 <body>
     <div id="loginScreen" class="container">
         <div class="login-section">
-            <div style="font-size: 2rem; margin-bottom: 16px;">🔐</div>
-            <h2>Admin Login</h2>
+            <div style="font-size: 2rem; margin-bottom: 16px;">🕯️</div>
+            <h2>Memorials Admin</h2>
             <p>Enter your admin password to continue.</p>
             <input type="password" id="adminPass" placeholder="Admin password" autofocus>
             <br>
@@ -134,7 +181,7 @@
     <div id="adminPanel" class="container" style="display:none;">
         <button class="logout-btn secondary" onclick="logout()">Logout</button>
         <h1>🕯️ Memorials Admin</h1>
-        <p class="sub">Manage memorial pages for loved ones</p>
+        <p class="sub">Manage memorial pages</p>
 
         <section>
             <h2>🔑 Set or Update Password</h2>
@@ -158,17 +205,35 @@
         </section>
 
         <section>
-            <h2>📝 Memorial Content (Name + Photo + Words + Audio)</h2>
+            <h2>📝 Memorial Content (Name + Photo + Position + Words + Audio)</h2>
             <label for="contentId">Page ID</label>
             <input type="text" id="contentId" placeholder="john">
-            <label for="contentDob">DOB (date of birth)</label>
-            <input type="text" id="contentDob" placeholder="e.g. 15/03/1950">
-            <label for="contentName">Name (e.g. John Smith)</label>
-            <input type="text" id="contentName" placeholder="John Smith">
+            <label for="contentDob">DOB / Dates (e.g. 15/03/1960 – 20/06/2024)</label>
+            <input type="text" id="contentDob" placeholder="15/03/1960 – 20/06/2024">
+            <label for="contentName">Name (e.g. John)</label>
+            <input type="text" id="contentName" placeholder="John">
             <label for="contentPhoto">Photo URL (R2 link to image)</label>
             <input type="text" id="contentPhoto" placeholder="https://pub-xxxxx.r2.dev/john.jpg">
+
+            <label>Photo Position (centre the subject in the circular frame)</label>
+            <div class="photo-preview-wrap">
+                <div class="photo-preview-circle" id="photoPreview">
+                    <span>🕯️</span>
+                </div>
+            </div>
+            <div class="slider-row">
+                <label>Horizontal</label>
+                <input type="range" id="posX" min="0" max="100" value="50" oninput="updatePreview()">
+                <span class="val" id="posXVal">50%</span>
+            </div>
+            <div class="slider-row">
+                <label>Vertical</label>
+                <input type="range" id="posY" min="0" max="100" value="50" oninput="updatePreview()">
+                <span class="val" id="posYVal">50%</span>
+            </div>
+
             <label for="contentText">Words / Message</label>
-            <textarea id="contentText" placeholder="A wonderful father, husband, and friend. We will miss you always."></textarea>
+            <textarea id="contentText" placeholder="Forever in our hearts. A life well lived and deeply loved."></textarea>
             <label for="contentAudio">Audio File (from R2 bucket "audiofiles")</label>
             <select id="contentAudio">
                 <option value="">Loading audio files…</option>
@@ -199,7 +264,7 @@
             <div class="msg" id="listMsg"></div>
         </section>
 
-        <p class="status">Admin: <a href="/memorials/admin">/memorials/admin</a> · Test: <a href="/memorials/?id=john">/memorials/?id=john</a></p>
+        <p class="status">Admin: <a href="/memorials/admin.html">/memorials/admin.html</a> · Test: <a href="/memorials/?id=john">/memorials/?id=john</a></p>
     </div>
 
     <script>
@@ -323,11 +388,39 @@
             if (id) { document.getElementById('contentId').value = id; getContent(); }
         }
 
+        function updatePreview() {
+            var x = document.getElementById('posX').value;
+            var y = document.getElementById('posY').value;
+            document.getElementById('posXVal').textContent = x + '%';
+            document.getElementById('posYVal').textContent = y + '%';
+            var preview = document.getElementById('photoPreview');
+            var img = preview.querySelector('img');
+            if (img) {
+                img.style.objectPosition = x + '% ' + y + '%';
+            }
+        }
+
+        function updatePhotoPreview() {
+            var url = document.getElementById('contentPhoto').value.trim();
+            var preview = document.getElementById('photoPreview');
+            if (url) {
+                preview.innerHTML = '<img src="' + url + '" alt="Preview">';
+                updatePreview();
+            } else {
+                preview.innerHTML = '<span>🕯️</span>';
+            }
+        }
+
+        document.getElementById('contentPhoto').addEventListener('input', updatePhotoPreview);
+
         async function setContent() {
             const id = document.getElementById('contentId').value.trim();
             const dob = document.getElementById('contentDob').value.trim();
             const name = document.getElementById('contentName').value.trim();
             const photoUrl = document.getElementById('contentPhoto').value.trim();
+            const posX = document.getElementById('posX').value;
+            const posY = document.getElementById('posY').value;
+            const photoPosition = posX + '% ' + posY + '%';
             const text = document.getElementById('contentText').value;
             const audioUrl = document.getElementById('contentAudio').value.trim();
             const msg = document.getElementById('contentMsg');
@@ -335,7 +428,7 @@
             try {
                 const resp = await fetch('/api/content', {
                     method: 'POST', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ action: 'set-content', id, dob, name, photoUrl, text, audioUrl })
+                    body: JSON.stringify({ action: 'set-content', id, dob, name, photoUrl, photoPosition, text, audioUrl })
                 });
                 const data = await safeJson(resp);
                 if (resp.ok && data.success) { msg.textContent = '✓ Content saved for "' + id + '".'; msg.className = 'msg ok'; }
@@ -358,6 +451,14 @@
                         document.getElementById('contentDob').value = data.content.dob || '';
                         document.getElementById('contentName').value = data.content.name || '';
                         document.getElementById('contentPhoto').value = data.content.photoUrl || '';
+                        var pos = (data.content.photoPosition || '50% 50%').split(' ');
+                        var posX = parseInt(pos[0]) || 50;
+                        var posY = parseInt(pos[1]) || 50;
+                        document.getElementById('posX').value = posX;
+                        document.getElementById('posY').value = posY;
+                        document.getElementById('posXVal').textContent = posX + '%';
+                        document.getElementById('posYVal').textContent = posY + '%';
+                        updatePhotoPreview();
                         document.getElementById('contentText').value = data.content.text || '';
                         var audioUrl = data.content.audioUrl || '';
                         var audioFileMatch = audioUrl.match(/[?&]file=([^&]+)/);
