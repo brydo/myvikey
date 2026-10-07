@@ -25,13 +25,28 @@ export async function onRequestPost(context) {
 
   switch (action) {
     case 'set-content': {
+      const posRe = /^(\d{1,3}(?:\.\d+)?)% (\d{1,3}(?:\.\d+)?)%$/;
+      const normalisePos = (v) => {
+        if (typeof v !== 'string') return null;
+        const m = v.trim().match(posRe);
+        if (!m) return null;
+        const clamp = (n) => Math.min(100, Math.max(0, parseFloat(n)));
+        return clamp(m[1]) + '% ' + clamp(m[2]) + '%';
+      };
+      let finalPosition = normalisePos(photoPosition);
+      if (!finalPosition) {
+        try {
+          const existingRaw = await env.PET_CONTENT.get(safeId);
+          if (existingRaw) finalPosition = normalisePos(JSON.parse(existingRaw).photoPosition);
+        } catch {}
+      }
       const content = {
         dob: (dob || '').trim(),
         name: (name || '').trim(),
         photoUrl: (photoUrl || '').trim(),
         text: (text || '').trim(),
         audioUrl: (audioUrl || '').trim(),
-        photoPosition: (photoPosition || '50% 50%').trim(),
+        photoPosition: finalPosition || '50% 50%',
         updated: new Date().toISOString()
       };
       await env.PET_CONTENT.put(safeId, JSON.stringify(content));
@@ -64,6 +79,7 @@ export async function onRequestPost(context) {
             hasText: !!content.text,
             hasAudio: !!content.audioUrl,
             hasPhotoPosition: !!content.photoPosition,
+            photoPosition: content.photoPosition || '50% 50%',
             updated: content.updated
           });
         }

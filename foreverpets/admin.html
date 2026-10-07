@@ -326,6 +326,8 @@
 
     <script>
         var currentPhotoPosition = '50% 50%';
+        var positionKnown = false;
+        var dragHandlersAttached = false;
 
         if (sessionStorage.getItem('foreverpets_admin_authed') === 'yes') {
             showAdmin();
@@ -492,11 +494,14 @@
 
         function resetPhotoPosition() {
             currentPhotoPosition = '50% 50%';
+            positionKnown = true;
             updatePhotoPreview();
         }
 
         /* Drag-to-reposition on the circular preview */
         function attachDragHandlers() {
+            if (dragHandlersAttached) return;
+            dragHandlersAttached = true;
             var circle = document.getElementById('photoPreviewCircle');
             var dragging = false;
             var rect = null;
@@ -516,6 +521,7 @@
                 var pt = e.touches ? e.touches[0] : e;
                 var p = getPercent(pt.clientX, pt.clientY);
                 currentPhotoPosition = p.x + '% ' + p.y + '%';
+                positionKnown = true;
                 updatePhotoPreview();
             }
 
@@ -525,6 +531,7 @@
                 var pt = e.touches ? e.touches[0] : e;
                 var p = getPercent(pt.clientX, pt.clientY);
                 currentPhotoPosition = p.x + '% ' + p.y + '%';
+                positionKnown = true;
                 updatePhotoPreview();
             }
 
@@ -546,6 +553,7 @@
                 xSlider.addEventListener('input', function() {
                     var y = parseInt(ySlider.value) || 50;
                     currentPhotoPosition = xSlider.value + '% ' + y + '%';
+                    positionKnown = true;
                     updatePhotoPreview();
                 });
             }
@@ -553,6 +561,17 @@
                 ySlider.addEventListener('input', function() {
                     var x = parseInt(xSlider.value) || 50;
                     currentPhotoPosition = x + '% ' + ySlider.value + '%';
+                    positionKnown = true;
+                    updatePhotoPreview();
+                });
+            }
+
+            /* Reset position state when the page ID changes */
+            var idInput = document.getElementById('contentId');
+            if (idInput) {
+                idInput.addEventListener('input', function() {
+                    currentPhotoPosition = '50% 50%';
+                    positionKnown = false;
                     updatePhotoPreview();
                 });
             }
@@ -578,16 +597,17 @@
             const photoUrl = document.getElementById('contentPhoto').value.trim();
             const text = document.getElementById('contentText').value;
             const audioUrl = document.getElementById('contentAudio').value.trim();
-            const photoPosition = currentPhotoPosition;
             const msg = document.getElementById('contentMsg');
             if (!id) { msg.textContent = 'Please enter a page ID.'; msg.className = 'msg err'; return; }
             try {
+                const payload = { action: 'set-content', id, dob, name, photoUrl, text, audioUrl };
+                if (positionKnown) payload.photoPosition = currentPhotoPosition;
                 const resp = await fetch('/api/pet-content', {
                     method: 'POST', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ action: 'set-content', id, dob, name, photoUrl, text, audioUrl, photoPosition })
+                    body: JSON.stringify(payload)
                 });
                 const data = await safeJson(resp);
-                if (resp.ok && data.success) { msg.textContent = '✓ Content saved for "' + id + '".'; msg.className = 'msg ok'; }
+                if (resp.ok && data.success) { msg.textContent = '✓ Content saved for "' + id + '".' + (positionKnown ? ' Photo position: ' + currentPhotoPosition : ''); msg.className = 'msg ok'; }
                 else { msg.textContent = '✗ ' + (data.error || 'Failed'); msg.className = 'msg err'; }
             } catch (e) { msg.textContent = '✗ Error: ' + e.message; msg.className = 'msg err'; }
         }
@@ -611,6 +631,7 @@
 
                         /* Restore photo position */
                         currentPhotoPosition = data.content.photoPosition || '50% 50%';
+                        positionKnown = true;
                         updatePhotoPreview();
 
                         /* Build preview if photo URL exists */
