@@ -76,6 +76,7 @@
         .msg { font-size: 0.9rem; margin-top: 12px; min-height: 1.2em; }
         .msg.ok { color: #4caf50; }
         .msg.err { color: #ff6b6b; }
+        .msg.warn { color: #ffb74d; }
         .btn-row { display: flex; align-items: center; }
         .status { font-size: 0.85rem; color: var(--text-muted); text-align: center; margin-top: 20px; }
         .status a { color: var(--gold); text-decoration: none; }
@@ -111,6 +112,15 @@
             right: 20px;
             font-size: 0.85rem;
             padding: 8px 16px;
+        }
+        .session-info {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-align: center;
+            margin-bottom: 16px;
+            padding: 8px;
+            background: rgba(201,169,110,0.05);
+            border-radius: 4px;
         }
         /* Photo position controls */
         .photo-preview-wrap {
@@ -182,13 +192,14 @@
         <button class="logout-btn secondary" onclick="logout()">Logout</button>
         <h1>🕯️ Memorials Admin</h1>
         <p class="sub">Manage memorial pages</p>
+        <div class="session-info" id="sessionInfo"></div>
 
         <section>
             <h2>🔑 Set or Update Password</h2>
             <label for="setId">Page ID (e.g. john)</label>
             <input type="text" id="setId" placeholder="john">
             <label for="setPass">Password</label>
-            <input type="password" id="setPass" placeholder="s3cret">
+            <input type="text" id="setPass" placeholder="s3cret">
             <div class="btn-row">
                 <button onclick="setPassword()">Save Password</button>
                 <button class="secondary" onclick="loadContentForPassword()">Load Content for this ID</button>
@@ -269,46 +280,82 @@
     </div>
 
     <script>
-        const ADMIN_SESSION_TTL_MS = 30 * 60 * 1000;
+        // Session management
+        let adminSessionToken = null;
+        let sessionExpiresAt = null;
+        const SESSION_STORAGE_KEY = 'memorials_admin_token';
+        const SESSION_EXPIRY_KEY = 'memorials_admin_expiry';
 
-        function isAdminSessionValid() {
-            const isAuthed = sessionStorage.getItem('memorials_admin_authed') === 'yes';
-            const expiresAt = Number(sessionStorage.getItem('memorials_admin_authed_until') || 0);
-            return isAuthed && Number.isFinite(expiresAt) && expiresAt > Date.now();
+        function getSessionToken() {
+            return sessionStorage.getItem(SESSION_STORAGE_KEY);
         }
 
-        function refreshAdminSession() {
-            if (sessionStorage.getItem('memorials_admin_authed') === 'yes') {
-                sessionStorage.setItem('memorials_admin_authed_until', String(Date.now() + ADMIN_SESSION_TTL_MS));
+        function setSessionToken(token, expiresAt) {
+            adminSessionToken = token;
+            sessionExpiresAt = expiresAt;
+            sessionStorage.setItem(SESSION_STORAGE_KEY, token);
+            sessionStorage.setItem(SESSION_EXPIRY_KEY, expiresAt);
+            updateSessionInfo();
+        }
+
+        function clearSessionToken() {
+            adminSessionToken = null;
+            sessionExpiresAt = null;
+            sessionStorage.removeItem(SESSION_STORAGE_KEY);
+            sessionStorage.removeItem(SESSION_EXPIRY_KEY);
+            document.getElementById('sessionInfo').textContent = '';
+        }
+
+        function updateSessionInfo() {
+            const info = document.getElementById('sessionInfo');
+            if (!sessionExpiresAt) {
+                info.textContent = '';
+                return;
             }
-        }
-
-        function bindAdminSessionTimeout() {
-            const events = ['mousemove', 'keydown', 'click', 'touchstart'];
-            events.forEach(function(eventName) {
-                document.addEventListener(eventName, function() {
-                    if (isAdminSessionValid()) {
-                        refreshAdminSession();
-                    }
-                });
-            });
-        }
-
-        if (sessionStorage.getItem('memorials_admin_authed') === 'yes') {
-            if (!isAdminSessionValid()) {
-                logout();
+            const expiresAtDate = new Date(sessionExpiresAt);
+            const now = new Date();
+            const minutesLeft = Math.floor((sessionExpiresAt - now) / 60000);
+            if (minutesLeft > 0) {
+                info.textContent = `Session expires in ${minutesLeft} minute${minutesLeft !== 1 ? 's' : ''} (${expiresAtDate.toLocaleTimeString()})`;
             } else {
-                showAdmin();
+                info.textContent = 'Session expired. Please log in again.';
+                clearSessionToken();
+                showLoginScreen();
             }
         }
 
-        bindAdminSessionTimeout();
+        function isSessionValid() {
+            const token = getSessionToken();
+            const expiry = sessionStorage.getItem(SESSION_EXPIRY_KEY);
+            if (!token || !expiry) return false;
+            if (Date.now() > parseInt(expiry)) {
+                clearSessionToken();
+                return false;
+            }
+            adminSessionToken = token;
+            sessionExpiresAt = parseInt(expiry);
+            updateSessionInfo();
+            return true;
+        }
+
+        // Check session on page load
+        if (isSessionValid()) {
+            showAdmin();
+        }
 
         async function safeJson(resp) {
             const text = await resp.text();
             if (!text) return {};
             try { return JSON.parse(text); }
             catch { return { error: 'Invalid JSON response (status ' + resp.status + ')' }; }
+        }
+
+        function getHeaders(includeSession = true) {
+            const headers = { 'Content-Type': 'application/json' };
+            if (includeSession && adminSessionToken) {
+                headers['X-Admin-Session'] = adminSessionToken;
+            }
+            return headers;
         }
 
         async function loadAudioFiles(selectedKey) {
@@ -347,13 +394,23 @@
             try {
                 const resp = await fetch('/api/password', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: getHeaders(false),
                     body: JSON.stringify({ action: 'verify', id: '__admin__', password: pass })
                 });
                 const data = await safeJson(resp);
-                if (resp.ok && data.success) {
-                    sessionStorage.setItem('memorials_admin_authed', 'yes');
-                    sessionStorage.setItem('memorials_admin_authed_until', String(Date.now() + ADMIN_SESSION_TTL_MS));
+                if (resp.status === 429) {
+                    msg.textContent = '✗ Too many attempts. Please try again later.';
+                    msg.className = 'msg err';
+                    document.getElementById('adminPass').value = '';
+                    document.getElementById('adminPass').focus();
+                } else if (resp.ok && data.success && data.sessionToken) {
+                    setSessionToken(data.sessionToken, data.expiresAt);
+                    showAdmin();
+                    loadAudioFiles();
+                    msg.textContent = '';
+                } else if (resp.ok && data.success) {
+                    msg.textContent = '✓ Logged in.';
+                    msg.className = 'msg ok';
                     showAdmin();
                     loadAudioFiles();
                 } else {
@@ -373,20 +430,20 @@
         });
 
         function showAdmin() {
-            if (!isAdminSessionValid()) {
-                logout();
-                return;
-            }
-            refreshAdminSession();
             document.getElementById('loginScreen').style.display = 'none';
             document.getElementById('adminPanel').style.display = 'block';
+            updateSessionInfo();
+            setInterval(updateSessionInfo, 30000); // Update session info every 30 seconds
+        }
+
+        function showLoginScreen() {
+            document.getElementById('adminPanel').style.display = 'none';
+            document.getElementById('loginScreen').style.display = 'block';
         }
 
         function logout() {
-            sessionStorage.removeItem('memorials_admin_authed');
-            sessionStorage.removeItem('memorials_admin_authed_until');
-            document.getElementById('adminPanel').style.display = 'none';
-            document.getElementById('loginScreen').style.display = 'block';
+            clearSessionToken();
+            showLoginScreen();
             document.getElementById('adminPass').value = '';
             document.getElementById('adminPass').focus();
         }
@@ -398,11 +455,12 @@
             if (!id || !pass) { msg.textContent = 'Please enter both ID and password.'; msg.className = 'msg err'; return; }
             try {
                 const resp = await fetch('/api/password', {
-                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    method: 'POST', headers: getHeaders(true),
                     body: JSON.stringify({ action: 'set', id, password: pass })
                 });
                 const data = await safeJson(resp);
-                if (resp.ok && data.success) { msg.textContent = '✓ Password set for "' + id + '".'; msg.className = 'msg ok'; }
+                if (resp.status === 401) { msg.textContent = '✗ Session expired. Please log in again.'; msg.className = 'msg err'; clearSessionToken(); showLoginScreen(); }
+                else if (resp.ok && data.success) { msg.textContent = '✓ Password set for "' + id + '".'; msg.className = 'msg ok'; }
                 else { msg.textContent = '✗ ' + (data.error || 'Failed'); msg.className = 'msg err'; }
             } catch (e) { msg.textContent = '✗ Error: ' + e.message; msg.className = 'msg err'; }
         }
@@ -413,11 +471,12 @@
             if (!id) { msg.textContent = 'Please enter a page ID.'; msg.className = 'msg err'; return; }
             try {
                 const resp = await fetch('/api/password', {
-                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    method: 'POST', headers: getHeaders(true),
                     body: JSON.stringify({ action: 'delete', id })
                 });
                 const data = await safeJson(resp);
-                if (resp.ok && data.success) { msg.textContent = '✓ Password removed for "' + id + '".'; msg.className = 'msg ok'; }
+                if (resp.status === 401) { msg.textContent = '✗ Session expired. Please log in again.'; msg.className = 'msg err'; clearSessionToken(); showLoginScreen(); }
+                else if (resp.ok && data.success) { msg.textContent = '✓ Password removed for "' + id + '".'; msg.className = 'msg ok'; }
                 else { msg.textContent = '✗ ' + (data.error || 'Failed'); msg.className = 'msg err'; }
             } catch (e) { msg.textContent = '✗ Error: ' + e.message; msg.className = 'msg err'; }
         }
@@ -519,11 +578,12 @@
                     payload.photoPosition = document.getElementById('posX').value + '% ' + document.getElementById('posY').value + '%';
                 }
                 const resp = await fetch('/api/content', {
-                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    method: 'POST', headers: getHeaders(true),
                     body: JSON.stringify(payload)
                 });
                 const data = await safeJson(resp);
-                if (resp.ok && data.success) { msg.textContent = '✓ Content saved for "' + id + '".'; msg.className = 'msg ok'; }
+                if (resp.status === 401) { msg.textContent = '✗ Session expired. Please log in again.'; msg.className = 'msg err'; clearSessionToken(); showLoginScreen(); }
+                else if (resp.ok && data.success) { msg.textContent = '✓ Content saved for "' + id + '".'; msg.className = 'msg ok'; }
                 else { msg.textContent = '✗ ' + (data.error || 'Failed'); msg.className = 'msg err'; }
             } catch (e) { msg.textContent = '✗ Error: ' + e.message; msg.className = 'msg err'; }
         }
@@ -534,7 +594,7 @@
             if (!id) { msg.textContent = 'Please enter a page ID.'; msg.className = 'msg err'; return; }
             try {
                 const resp = await fetch('/api/content', {
-                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    method: 'POST', headers: getHeaders(true),
                     body: JSON.stringify({ action: 'get-content', id })
                 });
                 const data = await safeJson(resp);
@@ -581,13 +641,14 @@
             if (!confirm('Delete ALL data for "' + id + '"? This cannot be undone.')) return;
             try {
                 const resp = await fetch('/api/content', {
-                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    method: 'POST', headers: getHeaders(true),
                     body: JSON.stringify({ action: 'delete-content', id })
                 });
                 const data = await safeJson(resp);
-                if (resp.ok && data.success) {
+                if (resp.status === 401) { msg.textContent = '✗ Session expired. Please log in again.'; msg.className = 'msg err'; clearSessionToken(); showLoginScreen(); }
+                else if (resp.ok && data.success) {
                     await fetch('/api/password', {
-                        method: 'POST', headers: { 'Content-Type': 'application/json' },
+                        method: 'POST', headers: getHeaders(true),
                         body: JSON.stringify({ action: 'delete', id })
                     });
                     msg.textContent = '✓ All data deleted for "' + id + '".'; msg.className = 'msg ok';
@@ -601,11 +662,12 @@
             listEl.innerHTML = '<div style="color:#a8a4a0;font-size:0.9rem;">Loading...</div>';
             try {
                 const resp = await fetch('/api/content', {
-                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    method: 'POST', headers: getHeaders(true),
                     body: JSON.stringify({ action: 'list-content' })
                 });
                 const data = await safeJson(resp);
-                if (resp.ok && data.success) {
+                if (resp.status === 401) { msg.textContent = '✗ Session expired. Please log in again.'; msg.className = 'msg err'; clearSessionToken(); showLoginScreen(); }
+                else if (resp.ok && data.success) {
                     if (data.pages.length === 0) {
                         listEl.innerHTML = '<div style="color:#a8a4a0;font-size:0.9rem;">No memorials yet.</div>';
                     } else {
