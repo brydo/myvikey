@@ -116,6 +116,109 @@
             .btn-row { flex-direction: column; gap: 8px; }
             .btn-row button.secondary { margin-left: 0; }
         }
+
+        /* ===== Photo Positioning Controls ===== */
+        .photo-position-section {
+            margin: 16px 0;
+            padding: 16px;
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            background: rgba(255,255,255,0.02);
+        }
+        .photo-position-section .section-label {
+            color: var(--gold);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+            display: block;
+        }
+        .photo-preview-wrap {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+        }
+        .photo-preview-circle {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            border: 3px solid var(--gold);
+            overflow: hidden;
+            position: relative;
+            cursor: grab;
+            background: rgba(201,169,110,0.08);
+            flex-shrink: 0;
+            touch-action: none;
+        }
+        .photo-preview-circle:active { cursor: grabbing; }
+        .photo-preview-circle img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            pointer-events: none;
+            user-select: none;
+            -webkit-user-drag: none;
+        }
+        .photo-preview-placeholder {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: var(--text-muted);
+        }
+        .slider-group { width: 100%; max-width: 320px; }
+        .slider-group label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+            text-transform: none;
+            letter-spacing: 0;
+        }
+        .slider-group label .val { color: var(--gold); font-weight: 600; }
+        input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: rgba(255,255,255,0.12);
+            outline: none;
+            margin-bottom: 14px;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--gold);
+            cursor: pointer;
+            border: none;
+        }
+        input[type="range"]::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--gold);
+            cursor: pointer;
+            border: none;
+        }
+        .position-hint {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-align: center;
+            margin-top: 4px;
+        }
+        .reset-pos-btn {
+            font-size: 0.8rem;
+            padding: 6px 16px;
+            margin-top: 4px;
+        }
     </style>
 </head>
 <body>
@@ -167,6 +270,25 @@
             <input type="text" id="contentName" placeholder="Bella">
             <label for="contentPhoto">Photo URL (R2 link to image)</label>
             <input type="text" id="contentPhoto" placeholder="https://pub-xxxxx.r2.dev/bella.jpg">
+
+            <!-- ===== Photo Positioning Control ===== -->
+            <div class="photo-position-section" id="photoPositionSection" style="display:none;">
+                <span class="section-label">🖼️ Adjust Photo Position</span>
+                <div class="photo-preview-wrap">
+                    <div class="photo-preview-circle" id="photoPreviewCircle">
+                        <div class="photo-preview-placeholder" id="photoPreviewPlaceholder">🐾</div>
+                    </div>
+                    <div class="slider-group">
+                        <label>Horizontal <span class="val" id="posXVal">50%</span></label>
+                        <input type="range" id="posXSlider" min="0" max="100" value="50" step="1">
+                        <label>Vertical <span class="val" id="posYVal">50%</span></label>
+                        <input type="range" id="posYSlider" min="0" max="100" value="50" step="1">
+                        <p class="position-hint">Drag the photo or use sliders to recenter. Default is 50% 50%.</p>
+                        <button class="secondary reset-pos-btn" onclick="resetPhotoPosition()">Reset to Centre</button>
+                    </div>
+                </div>
+            </div>
+
             <label for="contentText">Words / Message</label>
             <textarea id="contentText" placeholder="A beloved companion who brought joy to our lives every single day."></textarea>
             <label for="contentAudio">Audio File (from R2 bucket "audiofiles")</label>
@@ -203,6 +325,8 @@
     </div>
 
     <script>
+        var currentPhotoPosition = '50% 50%';
+
         if (sessionStorage.getItem('foreverpets_admin_authed') === 'yes') {
             showAdmin();
         }
@@ -323,6 +447,130 @@
             if (id) { document.getElementById('contentId').value = id; getContent(); }
         }
 
+        /* ===== Photo Positioning Helpers ===== */
+        function updatePhotoPreview() {
+            var img = document.querySelector('#photoPreviewCircle img');
+            if (img) {
+                img.style.objectPosition = currentPhotoPosition;
+            }
+            var parts = currentPhotoPosition.split(' ');
+            var xVal = parseInt(parts[0]) || 50;
+            var yVal = parseInt(parts[1]) || 50;
+            document.getElementById('posXSlider').value = xVal;
+            document.getElementById('posYSlider').value = yVal;
+            document.getElementById('posXVal').textContent = xVal + '%';
+            document.getElementById('posYVal').textContent = yVal + '%';
+        }
+
+        function buildPhotoPreview(url) {
+            var section = document.getElementById('photoPositionSection');
+            var circle = document.getElementById('photoPreviewCircle');
+            var placeholder = document.getElementById('photoPreviewPlaceholder');
+
+            if (!url) {
+                section.style.display = 'none';
+                circle.innerHTML = '<div class="photo-preview-placeholder">🐾</div>';
+                return;
+            }
+
+            section.style.display = 'block';
+            circle.innerHTML = '<div class="photo-preview-placeholder">Loading…</div>';
+
+            var img = new Image();
+            img.onload = function() {
+                circle.innerHTML = '';
+                img.style.objectPosition = currentPhotoPosition;
+                circle.appendChild(img);
+                updatePhotoPreview();
+                attachDragHandlers();
+            };
+            img.onerror = function() {
+                circle.innerHTML = '<div class="photo-preview-placeholder">⚠️</div>';
+            };
+            img.src = url;
+        }
+
+        function resetPhotoPosition() {
+            currentPhotoPosition = '50% 50%';
+            updatePhotoPreview();
+        }
+
+        /* Drag-to-reposition on the circular preview */
+        function attachDragHandlers() {
+            var circle = document.getElementById('photoPreviewCircle');
+            var dragging = false;
+            var rect = null;
+
+            function getPercent(clientX, clientY) {
+                rect = circle.getBoundingClientRect();
+                var x = ((clientX - rect.left) / rect.width) * 100;
+                var y = ((clientY - rect.top) / rect.height) * 100;
+                x = Math.max(0, Math.min(100, Math.round(x)));
+                y = Math.max(0, Math.min(100, Math.round(y)));
+                return { x: x, y: y };
+            }
+
+            function onDown(e) {
+                dragging = true;
+                e.preventDefault();
+                var pt = e.touches ? e.touches[0] : e;
+                var p = getPercent(pt.clientX, pt.clientY);
+                currentPhotoPosition = p.x + '% ' + p.y + '%';
+                updatePhotoPreview();
+            }
+
+            function onMove(e) {
+                if (!dragging) return;
+                e.preventDefault();
+                var pt = e.touches ? e.touches[0] : e;
+                var p = getPercent(pt.clientX, pt.clientY);
+                currentPhotoPosition = p.x + '% ' + p.y + '%';
+                updatePhotoPreview();
+            }
+
+            function onUp() { dragging = false; }
+
+            circle.addEventListener('mousedown', onDown);
+            document.addEventListener('mousemove', onMove);
+            document.addEventListener('mouseup', onUp);
+            circle.addEventListener('touchstart', onDown, { passive: false });
+            document.addEventListener('touchmove', onMove, { passive: false });
+            document.addEventListener('touchend', onUp);
+        }
+
+        /* Update position from sliders */
+        document.addEventListener('DOMContentLoaded', function() {
+            var xSlider = document.getElementById('posXSlider');
+            var ySlider = document.getElementById('posYSlider');
+            if (xSlider) {
+                xSlider.addEventListener('input', function() {
+                    var y = parseInt(ySlider.value) || 50;
+                    currentPhotoPosition = xSlider.value + '% ' + y + '%';
+                    updatePhotoPreview();
+                });
+            }
+            if (ySlider) {
+                ySlider.addEventListener('input', function() {
+                    var x = parseInt(xSlider.value) || 50;
+                    currentPhotoPosition = x + '% ' + ySlider.value + '%';
+                    updatePhotoPreview();
+                });
+            }
+
+            /* Rebuild preview when photo URL changes */
+            var photoInput = document.getElementById('contentPhoto');
+            if (photoInput) {
+                photoInput.addEventListener('input', function() {
+                    var url = photoInput.value.trim();
+                    if (url) {
+                        buildPhotoPreview(url);
+                    } else {
+                        document.getElementById('photoPositionSection').style.display = 'none';
+                    }
+                });
+            }
+        });
+
         async function setContent() {
             const id = document.getElementById('contentId').value.trim();
             const dob = document.getElementById('contentDob').value.trim();
@@ -330,12 +578,13 @@
             const photoUrl = document.getElementById('contentPhoto').value.trim();
             const text = document.getElementById('contentText').value;
             const audioUrl = document.getElementById('contentAudio').value.trim();
+            const photoPosition = currentPhotoPosition;
             const msg = document.getElementById('contentMsg');
             if (!id) { msg.textContent = 'Please enter a page ID.'; msg.className = 'msg err'; return; }
             try {
                 const resp = await fetch('/api/pet-content', {
                     method: 'POST', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ action: 'set-content', id, dob, name, photoUrl, text, audioUrl })
+                    body: JSON.stringify({ action: 'set-content', id, dob, name, photoUrl, text, audioUrl, photoPosition })
                 });
                 const data = await safeJson(resp);
                 if (resp.ok && data.success) { msg.textContent = '✓ Content saved for "' + id + '".'; msg.className = 'msg ok'; }
@@ -359,6 +608,18 @@
                         document.getElementById('contentName').value = data.content.name || '';
                         document.getElementById('contentPhoto').value = data.content.photoUrl || '';
                         document.getElementById('contentText').value = data.content.text || '';
+
+                        /* Restore photo position */
+                        currentPhotoPosition = data.content.photoPosition || '50% 50%';
+                        updatePhotoPreview();
+
+                        /* Build preview if photo URL exists */
+                        if (data.content.photoUrl) {
+                            buildPhotoPreview(data.content.photoUrl);
+                        } else {
+                            document.getElementById('photoPositionSection').style.display = 'none';
+                        }
+
                         var audioUrl = data.content.audioUrl || '';
                         var audioFileMatch = audioUrl.match(/[?&]file=([^&]+)/);
                         if (audioFileMatch) {
