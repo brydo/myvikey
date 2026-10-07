@@ -1,0 +1,30 @@
+[env.production]
+
+# KV Namespaces for production
+[[env.production.kv_namespaces]]
+binding = "MEMORIAL_PASSWORDS"
+id = "your_memorial_passwords_id"
+
+[[env.production.kv_namespaces]]
+binding = "PET_PASSWORDS"
+id = "your_pet_passwords_id"
+
+[[env.production.kv_namespaces]]
+binding = "MEMORIAL_CONTENT"
+id = "your_memorial_content_id"
+
+[[env.production.kv_namespaces]]
+binding = "PET_CONTENT"
+id = "your_pet_content_id"
+
+[[env.production.kv_namespaces]]
+binding = "ADMIN_SESSIONS"
+id = "your_admin_sessions_id"
+
+[[env.production.kv_namespaces]]
+binding = "RATE_LIMIT"
+id = "your_rate_limit_id"
+
+# Enforce HTTPS
+[env.production.env]
+ENFORCE_HTTPS = "true"

@@ -1,9 +1,17 @@
 // functions/api/content.js
 // API for managing memorial page content in KV.
 // Actions: set-content, get-content, delete-content, list-content
+// Requires valid session token for modifications.
+
+import { validateSession } from '../lib/auth.js';
 
 export async function onRequestPost(context) {
   const { request, env } = context;
+  
+  // Enforce HTTPS
+  if (request.url.startsWith('http://')) {
+    return Response.json({ success: false, error: 'HTTPS required' }, { status: 403 });
+  }
 
   let body;
   try {
@@ -13,6 +21,15 @@ export async function onRequestPost(context) {
   }
 
   const { action, id, dob, name, photoUrl, text, audioUrl, photoPosition } = body;
+
+  // Require session token for modifications (set, delete)
+  if (action === 'set-content' || action === 'delete-content') {
+    const sessionToken = request.headers.get('x-admin-session');
+    const session = await validateSession(env, sessionToken);
+    if (!session) {
+      return Response.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    }
+  }
 
   if (!id && action !== 'list-content') {
     return Response.json({ success: false, error: 'Page ID is required' }, { status: 400 });
