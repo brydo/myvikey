@@ -1,0 +1,68 @@
+:root {
+  --bg-color: #12110F;
+  --card-bg: rgba(255,255,255,0.04);
+  --gold: #c9a96e;
+  --text-color: #e8e6e3;
+  --text-muted: #a8a4a0;
+  --card-border: rgba(255,255,255,0.08);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  line-height: 1.6;
+  padding: 20px;
+}
+.container { max-width: 600px; margin: 0 auto; }
+h1 { color: var(--gold); text-align: center; margin: 30px 0 10px; font-size: 1.5rem; letter-spacing: 1px; }
+p.sub { text-align: center; color: var(--text-muted); margin-bottom: 30px; font-size: 0.9rem; }
+section {
+  background-color: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  padding: 24px;
+  margin-bottom: 20px;
+}
+h2 { color: var(--gold); font-size: 1.1rem; margin-bottom: 16px; font-weight: 500; }
+label { display: block; color: var(--text-muted); font-size: 0.85rem; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+input[type="text"], input[type="password"], textarea, select {
+  width: 100%;
+  padding: 12px 14px;
+  font-size: 1rem;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 8px;
+  margin-bottom: 14px;
+  outline: none;
+  transition: border-color 0.3s;
+  font-family: inherit;
+}
+input:focus, textarea:focus, select:focus { border-color: var(--gold); }
+textarea { min-height: 80px; max-height: 80px; resize: none; }
+button {
+  padding: 12px 24px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--gold);
+  background-color: rgba(201,169,110,0.1);
+  border: 1px solid rgba(201,169,110,0.3);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+button:hover { background-color: rgba(201,169,110,0.2); }
+button.secondary {
+  color: var(--text-muted);
+  background-color: transparent;
+  border-color: rgba(255,255,255,0.12);
+  margin-left: 8px;
+}
+button.secondary:hover { background-color: rgba(255,255,255,0.05); }
+button.danger {
+  color: #ff6b6b;
+  border-color: rgba(255,107,107,0.35);
+  background-color: rgba(255,107,107,0.08);
+}
+button.danger:hover { background-color: rgba(255,107,107,0.14); }
