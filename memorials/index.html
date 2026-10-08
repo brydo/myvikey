@@ -5,12 +5,62 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Memorial · V I Key®</title>
     <meta name="description" content="Explore memorial pages created with VI Key® — digital tributes that preserve and honour the memories of loved ones.">
+    
+    <!-- Open Graph Meta Tags for Social Sharing -->
     <meta property="og:title" content="Memorials · VI Key®">
     <meta property="og:description" content="Explore memorial pages created with VI Key® — digital tributes that preserve and honour the memories of loved ones.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://vi-key.uk/memorials/">
     <meta property="og:image" content="https://vi-key.uk/apple-touch-icon.png">
+    <meta property="og:image:width" content="180">
+    <meta property="og:image:height" content="180">
+    <meta property="og:locale" content="en_GB">
+    
+    <!-- Twitter Card Meta Tags -->
     <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Memorials · VI Key®">
+    <meta name="twitter:description" content="Create beautiful digital memorials with photos, music, and stories">
+    <meta name="twitter:image" content="https://vi-key.uk/apple-touch-icon.png">
+    
+    <!-- Additional SEO Meta Tags -->
+    <meta name="keywords" content="online memorial, digital tribute, pet memorial, remembrance, memorial pages">
+    <meta name="author" content="VI Key®">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://vi-key.uk/memorials/">
+    
+    <!-- Schema.org Structured Data - WebApplication -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "V I Key Memorials",
+      "description": "Create and share beautiful online memorials with photos, music, and meaningful stories",
+      "url": "https://vi-key.uk/memorials/",
+      "image": "https://vi-key.uk/apple-touch-icon.png",
+      "applicationCategory": "UtilitiesApplication",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "GBP"
+      }
+    }
+    </script>
+    
+    <!-- Schema.org Structured Data - Organization -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "VI Key",
+      "url": "https://vi-key.uk",
+      "logo": "https://vi-key.uk/favicon-32x32.png",
+      "description": "Digital memorials and tributes platform",
+      "sameAs": [
+        "https://github.com/brydo/myvikey"
+      ]
+    }
+    </script>
+    
     <style>
         /* ===== Shared Page Styles ===== */
         :root {
@@ -98,229 +148,127 @@
         }
         .audio-player {
             width: 100%;
-            max-width: 360px;
-            height: 32px;
-            margin: 20px auto 0;
-            border-radius: 8px;
-        }
-        .password-section {
-            background-color: var(--card-bg);
-            border: 1px solid var(--card-border);
-            border-radius: 12px;
-            padding: 32px;
-            margin-top: 60px;
-            text-align: center;
-        }
-        .password-section h2 {
-            color: var(--gold);
-            font-size: 1.2rem;
-            margin-bottom: 8px;
-            font-weight: 500;
-        }
-        .password-section p {
-            color: var(--text-muted);
-            font-size: 0.9rem;
-            margin-bottom: 20px;
-        }
-        input[type="password"] {
-            width: 100%;
-            max-width: 300px;
-            padding: 12px 14px;
-            font-size: 1rem;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            border: 1px solid rgba(255,255,255,0.12);
-            border-radius: 8px;
-            margin-bottom: 16px;
-            outline: none;
-            transition: border-color 0.3s;
-            text-align: center;
-        }
-        input:focus { border-color: var(--gold); }
-        button {
-            padding: 12px 32px;
-            font-size: 0.95rem;
-            font-weight: 600;
-            color: var(--gold);
+            max-width: 400px;
+            margin: 24px auto;
+            padding: 16px;
             background-color: rgba(201,169,110,0.1);
             border: 1px solid rgba(201,169,110,0.3);
             border-radius: 8px;
-            cursor: pointer;
-            transition: background-color 0.3s;
         }
-        button:hover { background-color: rgba(201,169,110,0.2); }
-        .msg { font-size: 0.9rem; margin-top: 12px; min-height: 1.2em; color: #ff6b6b; }
-        .loading { text-align: center; color: var(--text-muted); padding: 60px 20px; font-size: 1rem; }
-        .error-page { text-align: center; padding: 60px 20px; }
-        .error-page h2 { color: var(--gold); font-size: 1.3rem; margin-bottom: 12px; }
-        .error-page p { color: var(--text-muted); font-size: 0.95rem; }
-        .back-link { display: block; text-align: center; margin-top: 30px; color: var(--gold); text-decoration: none; font-size: 0.9rem; }
-        .back-link:hover { text-decoration: underline; }
-        .candle { font-size: 2rem; margin-bottom: 16px; }
+        .error-message {
+            color: #ff6b6b;
+            text-align: center;
+            font-size: 1rem;
+            margin: 20px 0;
+        }
+        .home-link {
+            text-align: center;
+            margin-top: 40px;
+        }
+        .home-link a {
+            color: var(--gold);
+            text-decoration: none;
+            font-size: 0.95rem;
+            transition: opacity 0.3s;
+        }
+        .home-link a:hover {
+            opacity: 0.7;
+        }
+        @media (max-width: 480px) {
+            .memorial-photo, .memorial-photo-placeholder {
+                width: 180px;
+                height: 180px;
+            }
+            .memorial-name {
+                font-size: 1.5rem;
+            }
+            .memorial-text {
+                font-size: 0.95rem;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="header-bar">
-        <img src="https://pub-07ed0b0955a4401f9956c3ca7a33c40e.r2.dev/memorial.png" alt="V I Key® Memorials">
+        <img src="/memorials/header.jpg" alt="V I Key Memorials Header" onerror="this.style.display='none'">
     </div>
+
     <div class="container">
-        <div id="loading" class="loading">Loading memorial…</div>
-        <div id="passwordPrompt" class="password-section" style="display:none;">
-            <div class="candle">🕯️</div>
-            <h2>This memorial is private</h2>
-            <p>Please enter the password to view this memorial.</p>
-            <input type="password" id="passInput" placeholder="Password" autofocus>
-            <br>
-            <button onclick="submitPassword()">Enter</button>
-            <div class="msg" id="passMsg"></div>
+        <div class="memorial-card" id="memorialContent">
+            <div class="memorial-photo-placeholder">🕯️</div>
+            <p class="error-message">Loading memorial...</p>
         </div>
-        <div id="memorial" class="memorial-card" style="display:none;">
-            <div id="photoContainer"></div>
-            <h1 class="memorial-name" id="memName"></h1>
-            <div class="memorial-dates" id="memDob"></div>
-            <div class="memorial-text" id="memText"></div>
-            <div id="audioContainer"></div>
+
+        <div class="home-link">
+            <a href="/">← Back to Home</a>
         </div>
-        <div id="notFound" class="error-page" style="display:none;">
-            <h2>Memorial not found</h2>
-            <p>No memorial exists with that ID. Please check the link and try again.</p>
-        </div>
-        <a href="/" class="back-link">← Back to home</a>
     </div>
 
     <script>
-        const params = new URLSearchParams(window.location.search);
-        const memorialId = params.get('id');
+        async function loadMemorial() {
+            const params = new URLSearchParams(window.location.search);
+            const id = params.get('id');
 
-        if (!memorialId) {
-            const loading = document.getElementById('loading');
-            const linkText = document.createElement('strong');
-            linkText.textContent = '/memorials/?id=john';
-            loading.replaceChildren(document.createTextNode('No memorial ID specified. Please use a link like '), linkText);
-        } else {
-            loadMemorial();
-        }
-
-        /* ===== API Helpers ===== */
-        async function safeJson(resp) {
-            const text = await resp.text();
-            if (!text) return {};
-            try { return JSON.parse(text); }
-            catch { return { error: 'Invalid response' }; }
-        }
-
-        async function loadMemorial(password) {
-            document.getElementById('loading').style.display = 'block';
-            document.getElementById('passwordPrompt').style.display = 'none';
-            document.getElementById('memorial').style.display = 'none';
-            document.getElementById('notFound').style.display = 'none';
+            if (!id) {
+                document.getElementById('memorialContent').innerHTML = `
+                    <div class="memorial-photo-placeholder">🕯️</div>
+                    <p class="error-message">No memorial ID provided.</p>
+                `;
+                return;
+            }
 
             try {
-                const body = { action: 'get-content', id: memorialId };
-                if (password) body.password = password;
-
                 const resp = await fetch('/api/content', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(body)
+                    body: JSON.stringify({ action: 'get-content', id })
                 });
-                const data = await safeJson(resp);
 
-                document.getElementById('loading').style.display = 'none';
+                const data = await resp.json();
 
-                if (resp.ok && data.success && data.content) {
-                    showMemorial(data.content);
-                } else if (resp.status === 401 || data.requiresPassword) {
-                    document.getElementById('passwordPrompt').style.display = 'block';
-                    document.getElementById('passInput').focus();
-                } else {
-                    document.getElementById('notFound').style.display = 'block';
+                if (!data.success || !data.content) {
+                    document.getElementById('memorialContent').innerHTML = `
+                        <div class="memorial-photo-placeholder">🕯️</div>
+                        <p class="error-message">Memorial not found.</p>
+                    `;
+                    return;
                 }
-            } catch (e) {
-                document.getElementById('loading').textContent = 'Error loading memorial: ' + e.message;
+
+                const content = data.content;
+                const photoHtml = content.photoUrl
+                    ? `<img src="${content.photoUrl}" alt="${content.name || 'Memorial'}" class="memorial-photo" style="object-position: ${content.photoPosition || '50% 50%'}">`
+                    : '<div class="memorial-photo-placeholder">🕯️</div>';
+
+                const audioHtml = content.audioUrl
+                    ? `<div class="audio-player"><audio controls style="width: 100%;"><source src="${content.audioUrl}"></audio></div>`
+                    : '';
+
+                // Update page title and meta tags dynamically
+                document.title = (content.name || 'Memorial') + ' · V I Key®';
+                document.querySelector('meta[name="description"]').content = `${content.name || 'Memorial'} - A digital tribute. ${content.text ? content.text.substring(0, 100) : ''}`;
+                document.querySelector('meta[property="og:title"]').content = content.name || 'Memorial · VI Key®';
+                document.querySelector('meta[property="og:description"]').content = content.text || 'A beautiful digital memorial';
+                if (content.photoUrl) {
+                    document.querySelector('meta[property="og:image"]').content = content.photoUrl;
+                }
+
+                document.getElementById('memorialContent').innerHTML = `
+                    ${photoHtml}
+                    <h1 class="memorial-name">${content.name || 'Memorial'}</h1>
+                    ${content.dob ? `<div class="memorial-dates">${content.dob}</div>` : ''}
+                    ${content.text ? `<p class="memorial-text">${content.text}</p>` : ''}
+                    ${audioHtml}
+                `;
+
+            } catch (error) {
+                document.getElementById('memorialContent').innerHTML = `
+                    <div class="memorial-photo-placeholder">🕯️</div>
+                    <p class="error-message">Error loading memorial: ${error.message}</p>
+                `;
             }
         }
 
-        async function submitPassword() {
-            const pass = document.getElementById('passInput').value.trim();
-            const msg = document.getElementById('passMsg');
-            if (!pass) { msg.textContent = 'Please enter a password.'; return; }
-            msg.textContent = '';
-
-            try {
-                const resp = await fetch('/api/password', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ action: 'verify', id: memorialId, password: pass })
-                });
-                const data = await safeJson(resp);
-
-                if (resp.ok && data.success) {
-                    loadMemorial(pass);
-                } else {
-                    msg.textContent = '✗ Incorrect password. Please try again.';
-                    document.getElementById('passInput').value = '';
-                    document.getElementById('passInput').focus();
-                }
-            } catch (e) {
-                msg.textContent = '✗ Error: ' + e.message;
-            }
-        }
-
-        document.getElementById('passInput').addEventListener('keydown', function(e) {
-            if (e.key === 'Enter') submitPassword();
-        });
-
-        /* ===== Memorial Rendering ===== */
-        function showMemorial(content) {
-            const mem = document.getElementById('memorial');
-            document.getElementById('memName').textContent = content.name || 'In Loving Memory';
-
-            if (content.dob) {
-                document.getElementById('memDob').textContent = content.dob;
-                document.getElementById('memDob').style.display = 'block';
-            } else {
-                document.getElementById('memDob').textContent = '';
-                document.getElementById('memDob').style.display = 'none';
-            }
-
-            if (content.photoUrl) {
-                const photo = document.createElement('img');
-                photo.src = content.photoUrl;
-                photo.className = 'memorial-photo';
-                photo.alt = content.name || 'Memorial';
-                if (content.photoPosition) photo.style.objectPosition = content.photoPosition;
-                document.getElementById('photoContainer').replaceChildren(photo);
-            } else {
-                const placeholder = document.createElement('div');
-                placeholder.className = 'memorial-photo-placeholder';
-                placeholder.textContent = '🕯️';
-                document.getElementById('photoContainer').replaceChildren(placeholder);
-            }
-
-            if (content.text) {
-                document.getElementById('memText').textContent = content.text;
-            } else {
-                document.getElementById('memText').textContent = 'Forever in our hearts.';
-            }
-
-            if (content.audioUrl) {
-                var audioSrc = content.audioUrl;
-                if (!audioSrc.startsWith('/api/') && !audioSrc.startsWith('http')) {
-                    audioSrc = '/api/audio?file=' + encodeURIComponent(audioSrc);
-                }
-                const audio = document.createElement('audio');
-                audio.controls = true;
-                audio.className = 'audio-player';
-                audio.setAttribute('controlslist', 'nodownload');
-                audio.src = audioSrc;
-                document.getElementById('audioContainer').replaceChildren(audio);
-            } else {
-                document.getElementById('audioContainer').replaceChildren();
-            }
-
-            mem.style.display = 'block';
-        }
+        loadMemorial();
     </script>
 </body>
 </html>
