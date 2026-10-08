@@ -4,302 +4,444 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Forever Pets · V I Key®</title>
-    <meta name="description" content="Forever Pets — digital tributes for beloved animal companions.">
+    <meta name="description" content="Digital tributes for beloved animal companions — preserve and honour the memories of your cherished pets.">
     <meta property="og:title" content="Forever Pets · VI Key®">
-    <meta property="og:description" content="Forever Pets — digital tributes for beloved animal companions.">
+    <meta property="og:description" content="Create beautiful, private digital memorial pages for beloved pets.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://vi-key.uk/foreverpets/">
     <meta property="og:image" content="https://vi-key.uk/apple-touch-icon.png">
     <meta name="twitter:card" content="summary_large_image">
     <style>
-        /* ===== Shared Page Styles ===== */
         :root {
-            --bg-color: #12110F;
-            --card-bg: rgba(255,255,255,0.04);
+            --bg-base: #12110F;
+            --bg-gradient: radial-gradient(circle at top, #1c1a16 0%, #12110F 70%);
+            --card-bg: rgba(255, 255, 255, 0.04);
+            --card-border: rgba(255, 255, 255, 0.08);
+            --card-border-hover: rgba(255, 255, 255, 0.14);
             --gold: #c9a96e;
+            --gold-glow: rgba(201, 169, 110, 0.15);
+            --gold-cta-bg: rgba(201, 169, 110, 0.1);
+            --gold-cta-border: rgba(201, 169, 110, 0.3);
             --text-color: #e8e6e3;
             --text-muted: #a8a4a0;
-            --card-border: rgba(255,255,255,0.08);
         }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg-color);
+            background: var(--bg-gradient);
+            background-color: var(--bg-base);
             color: var(--text-color);
             line-height: 1.6;
-            padding: 20px;
-            min-height: 100vh;
+            padding-bottom: 100px;
         }
-        .container { max-width: 600px; margin: 0 auto; }
-        .memorial-card {
-            background-color: transparent;
-            border: none;
-            border-radius: 12px;
-            padding: 32px;
-            margin-top: 40px;
+
+        /* Top Dead Centre Logo */
+        .tdc-logo {
+            display: block;
+            margin: 40px auto 20px auto;
+            max-width: 140px;
+            height: auto;
+        }
+
+        /* Navigation */
+        .page-nav {
             text-align: center;
+            margin-bottom: 30px;
+            white-space: nowrap;
         }
-        .memorial-photo {
-            width: 240px;
-            height: 240px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 3px solid var(--gold);
-            margin-bottom: 24px;
-        }
-        .memorial-photo-placeholder {
-            width: 240px;
-            height: 240px;
-            border-radius: 50%;
-            background: rgba(201,169,110,0.1);
-            border: 3px solid var(--gold);
-            margin: 0 auto 24px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 4.5rem;
-        }
-        .memorial-name {
-            color: var(--gold);
-            font-size: 1.8rem;
-            margin-bottom: 8px;
-            letter-spacing: 1px;
-        }
-        .memorial-dates {
+
+        .nav-link {
             color: var(--text-muted);
+            text-decoration: none;
             font-size: 0.9rem;
-            margin-bottom: 24px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 5px 10px;
+            transition: color 0.3s;
         }
-        .memorial-text {
+
+        .nav-link.active, .nav-link:hover {
+            color: var(--gold);
+            border-bottom: 1px solid var(--gold);
+        }
+
+        /* Main Content Packaging */
+        .content-container {
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        h1, h2, h3 {
+            color: var(--gold);
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+
+        h1 {
+            font-size: 2rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 30px;
+        }
+
+        section {
+            background-color: var(--card-bg);
+            padding: 30px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            border: 1px solid var(--card-border);
+        }
+
+        p {
+            margin-bottom: 15px;
             color: var(--text-color);
             font-size: 1.05rem;
-            line-height: 1.8;
-            margin-bottom: 28px;
-            white-space: pre-wrap;
-            font-style: italic;
         }
-        .audio-player {
-            width: 100%;
-            max-width: 360px;
-            height: 32px;
-            margin: 20px auto 0;
-            border-radius: 8px;
+
+        strong {
+            color: var(--gold);
         }
-        .password-section {
+
+        .divider-icon {
+            text-align: center;
+            font-size: 1.8rem;
+            color: var(--gold);
+            margin: 30px 0;
+        }
+
+        /* Feature Grid */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin: 25px 0;
+        }
+
+        .feature-card {
             background-color: var(--card-bg);
             border: 1px solid var(--card-border);
-            border-radius: 12px;
-            padding: 32px;
-            margin-top: 60px;
-            text-align: center;
-        }
-        .password-section h2 {
-            color: var(--gold);
-            font-size: 1.2rem;
-            margin-bottom: 8px;
-            font-weight: 500;
-        }
-        .password-section p {
-            color: var(--text-muted);
-            font-size: 0.9rem;
-            margin-bottom: 20px;
-        }
-        input[type="password"] {
-            width: 100%;
-            max-width: 300px;
-            padding: 12px 14px;
-            font-size: 1rem;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            border: 1px solid rgba(255,255,255,0.12);
             border-radius: 8px;
-            margin-bottom: 16px;
-            outline: none;
-            transition: border-color 0.3s;
+            padding: 20px 16px;
             text-align: center;
+            transition: border-color 0.3s, transform 0.3s, box-shadow 0.3s;
         }
-        input:focus { border-color: var(--gold); }
-        button {
-            padding: 12px 32px;
+
+        .feature-card:hover {
+            border-color: var(--card-border-hover);
+            transform: translateY(-4px);
+            box-shadow: 0 0 15px var(--gold-glow);
+        }
+
+        .feature-icon {
+            font-size: 2.2rem;
+            margin-bottom: 12px;
+        }
+
+        .feature-card h3 {
+            color: var(--gold);
             font-size: 0.95rem;
             font-weight: 600;
-            color: var(--gold);
-            background-color: rgba(201,169,110,0.1);
-            border: 1px solid rgba(201,169,110,0.3);
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background-color 0.3s;
+            margin-bottom: 8px;
         }
-        button:hover { background-color: rgba(201,169,110,0.2); }
-        .msg { font-size: 0.9rem; margin-top: 12px; min-height: 1.2em; color: #ff6b6b; }
-        .loading { text-align: center; color: var(--text-muted); padding: 60px 20px; font-size: 1rem; }
-        .error-page { text-align: center; padding: 60px 20px; }
-        .error-page h2 { color: var(--gold); font-size: 1.3rem; margin-bottom: 12px; }
-        .error-page p { color: var(--text-muted); font-size: 0.95rem; }
-        .back-link { display: block; text-align: center; margin-top: 30px; color: var(--gold); text-decoration: none; font-size: 0.9rem; }
-        .back-link:hover { text-decoration: underline; }
-        .candle { font-size: 2rem; margin-bottom: 16px; }
+
+        .feature-card p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+            margin-bottom: 0;
+        }
+
+        /* Sample Cards */
+        .samples-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin: 25px 0;
+        }
+
+        .sample-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            padding: 24px 16px;
+            text-align: center;
+            text-decoration: none;
+            transition: border-color 0.3s, transform 0.3s, box-shadow 0.3s;
+            display: block;
+            cursor: pointer;
+        }
+
+        .sample-card:hover {
+            border-color: var(--card-border-hover);
+            transform: translateY(-4px);
+            box-shadow: 0 0 15px var(--gold-glow);
+        }
+
+        .sample-icon {
+            font-size: 2.5rem;
+            margin-bottom: 12px;
+        }
+
+        .sample-card h3 {
+            color: var(--gold);
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .sample-card p {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+            margin-bottom: 0;
+        }
+
+        .cta-link {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 14px 32px;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--gold);
+            background-color: var(--gold-cta-bg);
+            border: 1px solid var(--gold-cta-border);
+            border-radius: 8px;
+            text-decoration: none;
+            transition: background-color 0.3s, box-shadow 0.3s;
+        }
+
+        .cta-link:hover {
+            background-color: rgba(201, 169, 110, 0.2);
+            box-shadow: 0 0 20px var(--gold-glow);
+        }
+
+        /* Persistent Footer */
+        footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: #0d0c0a;
+            border-top: 1px solid var(--card-border);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            z-index: 1000;
+        }
+
+        .footer-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 16px;
+            line-height: 1;
+            text-decoration: none;
+            color: var(--text-color);
+            transition: color 0.3s;
+        }
+
+        .footer-btn .whatsapp-icon {
+            width: 1em;
+            height: 1em;
+            fill: #25D366;
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        .footer-btn .facebook-icon {
+            width: 1em;
+            height: 1em;
+            fill: #1877F2;
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        .footer-btn .instagram-icon {
+            width: 1em;
+            height: 1em;
+            fill: #E4405F;
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        .footer-btn .tiktok-icon {
+            width: 1em;
+            height: 1em;
+            fill: #e8e6e3;
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        .footer-btn .email-icon {
+            font-size: 1em;
+            display: inline-block;
+            line-height: 1;
+        }
+
+        .footer-btn:hover {
+            color: var(--gold);
+        }
+
+        @media (max-width: 480px) {
+            section {
+                padding: 20px;
+            }
+            .page-nav {
+                padding: 0 4px;
+                font-size: 0.85rem;
+            }
+            .nav-link {
+                font-size: 0.85rem;
+                letter-spacing: 0.3px;
+                padding: 3px 4px;
+                white-space: nowrap;
+            }
+            .features-grid, .samples-grid {
+                grid-template-columns: 1fr;
+            }
+            footer {
+                gap: 20px;
+                flex-direction: row;
+                flex-wrap: nowrap;
+                align-items: center;
+                justify-content: center;
+                padding: 10px;
+            }
+            body {
+                padding-bottom: 120px;
+            }
+        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div id="loading" class="loading">Loading pet memorial…</div>
-        <div id="passwordPrompt" class="password-section" style="display:none;">
-            <div class="candle">🐾</div>
-            <h2>This pet memorial is private</h2>
-            <p>Please enter the password to view this memorial.</p>
-            <input type="password" id="passInput" placeholder="Password" autofocus>
-            <br>
-            <button onclick="submitPassword()">Enter</button>
-            <div class="msg" id="passMsg"></div>
-        </div>
-        <div id="memorial" class="memorial-card" style="display:none;">
-            <div id="photoContainer"></div>
-            <h1 class="memorial-name" id="memName"></h1>
-            <div class="memorial-dates" id="memDob"></div>
-            <div class="memorial-text" id="memText"></div>
-            <div id="audioContainer"></div>
-        </div>
-        <div id="notFound" class="error-page" style="display:none;">
-            <h2>Pet memorial not found</h2>
-            <p>No pet memorial exists with that ID. Please check the link and try again.</p>
-        </div>
-        <a href="/" class="back-link">← Back to home</a>
+
+    <!-- TDC Logo -->
+    <img src="https://pub-07ed0b0955a4401f9956c3ca7a33c40e.r2.dev/transparentlogo.png" alt="VI Key Logo" class="tdc-logo">
+
+    <!-- Navigation -->
+    <div class="page-nav">
+        <a href="/" class="nav-link">Our Story</a>
+        <span style="color:#444">|</span>
+        <a href="/our-services/" class="nav-link">Our Services</a>
+        <span style="color:#444">|</span>
+        <a href="/foreverpets/" class="nav-link active">Forever Pets</a>
     </div>
 
-    <script>
-        const params = new URLSearchParams(window.location.search);
-        const memorialId = params.get('id');
+    <!-- Main Content -->
+    <div class="content-container">
 
-        if (!memorialId) {
-            const loading = document.getElementById('loading');
-            const linkText = document.createElement('strong');
-            linkText.textContent = '/foreverpets/?id=bella';
-            loading.replaceChildren(document.createTextNode('No pet memorial ID specified. Please use a link like '), linkText);
-        } else {
-            loadMemorial();
-        }
+        <section>
+            <h2>🐾 Forever Pets</h2>
+            <p>Honour and celebrate the life of your beloved animal companion with a beautiful, private digital memorial. A physical <strong>V I Key®</strong> that opens a quiet, personal space — where cherished memories, photos, and the warmth of their presence live forever.</p>
+        </section>
 
-        /* ===== API Helpers ===== */
-        async function safeJson(resp) {
-            const text = await resp.text();
-            if (!text) return {};
-            try { return JSON.parse(text); }
-            catch { return { error: 'Invalid response' }; }
-        }
+        <div class="divider-icon">✨</div>
 
-        async function loadMemorial(password) {
-            document.getElementById('loading').style.display = 'block';
-            document.getElementById('passwordPrompt').style.display = 'none';
-            document.getElementById('memorial').style.display = 'none';
-            document.getElementById('notFound').style.display = 'none';
+        <section>
+            <h2>What You Can Include</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">📷</div>
+                    <h3>Photo</h3>
+                    <p>A favourite moment, beautifully displayed in a circular frame.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📝</div>
+                    <h3>Story</h3>
+                    <p>Your words of love, gratitude, and fond memories.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🎙️</div>
+                    <h3>Audio</h3>
+                    <p>A recorded message, favourite sound, or words from the heart.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📅</div>
+                    <h3>Dates</h3>
+                    <p>Birth to passing — a lifetime together, remembered.</p>
+                </div>
+            </div>
+        </section>
 
-            try {
-                const body = { action: 'get-content', id: memorialId };
-                if (password) body.password = password;
+        <div class="divider-icon">💫</div>
 
-                const resp = await fetch('/api/pet-content', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(body)
-                });
-                const data = await safeJson(resp);
+        <section>
+            <h2>Entirely Private</h2>
+            <p>Your pet's memorial is password-protected. Only those you invite can view it. It's a sacred space — shared only with those who loved them, when they're ready to remember.</p>
+        </section>
 
-                document.getElementById('loading').style.display = 'none';
+        <div class="divider-icon">🐾</div>
 
-                if (resp.ok && data.success && data.content) {
-                    showMemorial(data.content);
-                } else if (resp.status === 401 || data.requiresPassword) {
-                    document.getElementById('passwordPrompt').style.display = 'block';
-                    document.getElementById('passInput').focus();
-                } else {
-                    document.getElementById('notFound').style.display = 'block';
-                }
-            } catch (e) {
-                document.getElementById('loading').textContent = 'Error loading pet memorial: ' + e.message;
-            }
-        }
+        <section>
+            <h2>See Examples</h2>
+            <p style="text-align:center; margin-bottom:20px;">Here are a couple of beloved companions remembered:</p>
+            <div class="samples-grid">
+                <a href="/foreverpets/?id=charlie" class="sample-card">
+                    <div class="sample-icon">🐕</div>
+                    <h3>Charlie</h3>
+                    <p>A faithful friend and beloved companion. Forever in our hearts.</p>
+                </a>
+                <a href="/foreverpets/?id=robbie" class="sample-card">
+                    <div class="sample-icon">🌟</div>
+                    <h3>Robbie</h3>
+                    <p>A beautiful soul who brought endless joy. Cherished and deeply loved.</p>
+                </a>
+            </div>
+        </section>
 
-        async function submitPassword() {
-            const pass = document.getElementById('passInput').value.trim();
-            const msg = document.getElementById('passMsg');
-            if (!pass) { msg.textContent = 'Please enter a password.'; return; }
-            msg.textContent = '';
+        <div class="divider-icon">✨</div>
 
-            try {
-                const resp = await fetch('/api/pet-password', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ action: 'verify', id: memorialId, password: pass })
-                });
-                const data = await safeJson(resp);
+        <section>
+            <h2>Create a Pet Memorial</h2>
+            <p>Ready to honour your pet? We make it simple. Choose a unique ID, add the photos and stories that matter, protect it with a password, and share it only with those you trust.</p>
+            <p style="text-align: center; margin-top: 24px;">
+                <a href="/foreverpets/admin.html" class="cta-link">Create Pet Memorial</a>
+            </p>
+        </section>
 
-                if (resp.ok && data.success) {
-                    loadMemorial(pass);
-                } else {
-                    msg.textContent = '✗ Incorrect password. Please try again.';
-                    document.getElementById('passInput').value = '';
-                    document.getElementById('passInput').focus();
-                }
-            } catch (e) {
-                msg.textContent = '✗ Error: ' + e.message;
-            }
-        }
+    </div>
 
-        document.getElementById('passInput').addEventListener('keydown', function(e) {
-            if (e.key === 'Enter') submitPassword();
-        });
+    <!-- Persistent Action Footer -->
+    <footer>
+        <a href="https://wa.me/qr/S3WV63OUV4CTP1" class="footer-btn" target="_blank" rel="noopener noreferrer">
+            <svg class="whatsapp-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.556-5.338 11.893-11.893 11.893-1.979 0-3.93-.381-5.746-1.122l-5.924 1.727z"/>
+            </svg>
+            <span></span>
+        </a>
+        <a href="mailto:vikeyshop@outlook.com" class="footer-btn">
+            <span class="email-icon">✉</span>
+            <span></span>
+        </a>
+        <a href="https://www.facebook.com/vi.key.page" class="footer-btn" target="_blank" rel="noopener noreferrer">
+            <svg class="facebook-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+            </svg>
+            <span></span>
+        </a>
+        <a href="https://www.instagram.com/vi_key_shop" class="footer-btn" target="_blank" rel="noopener noreferrer">
+            <svg class="instagram-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163C8.756 0 8.331.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.331 0 8.756 0 12s.015 3.669.072 4.948c.2 4.358 2.622 6.78 6.98 6.98 1.281.058 1.7.072 4.948.072s3.669-.015 4.948-.072c4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.7.073-4.948s-.015-3.669-.072-4.948c-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0z"/>
+            </svg>
+            <span></span>
+        </a>
+        <a href="https://www.tiktok.com/@vi_keyshop" class="footer-btn" target="_blank" rel="noopener noreferrer">
+            <svg class="tiktok-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.23 6.23 0 0 0 5.3 2.7 6.216 6.216 0 0 0 5.91-4.53c.25-1.42.351-2.42.653-4.51.11-.69.587-1.2 1.3-1.002.442.131.804.compromise.694 1.25l-.07 1c-.146 1.98-.223 3.02-.652 4.51-.72 3.9-3.288 6.52-7.18 6.77-2.338.15-4.66-.413-6.2-1.7a6.23 6.23 0 0 1-1.51-1.84l-.49-.72c-.246-.343-.482-.703-.708-1.085.36.088.72.177 1.08.267 2.598.653 5.194 1.86 6.974 3.74z"/>
+            </svg>
+            <span></span>
+        </a>
+    </footer>
 
-        /* ===== Memorial Rendering ===== */
-        function showMemorial(content) {
-            const mem = document.getElementById('memorial');
-            document.getElementById('memName').textContent = content.name || 'In Loving Memory';
-
-            if (content.dob) {
-                document.getElementById('memDob').textContent = content.dob;
-                document.getElementById('memDob').style.display = 'block';
-            } else {
-                document.getElementById('memDob').textContent = '';
-                document.getElementById('memDob').style.display = 'none';
-            }
-
-            if (content.photoUrl) {
-                const photo = document.createElement('img');
-                photo.src = content.photoUrl;
-                photo.className = 'memorial-photo';
-                photo.style.objectPosition = content.photoPosition || '50% 50%';
-                photo.alt = content.name || 'Pet Memorial';
-                document.getElementById('photoContainer').replaceChildren(photo);
-            } else {
-                const placeholder = document.createElement('div');
-                placeholder.className = 'memorial-photo-placeholder';
-                placeholder.textContent = '🐾';
-                document.getElementById('photoContainer').replaceChildren(placeholder);
-            }
-
-            if (content.text) {
-                document.getElementById('memText').textContent = content.text;
-            } else {
-                document.getElementById('memText').textContent = 'Forever in our hearts.';
-            }
-
-            if (content.audioUrl) {
-                var audioSrc = content.audioUrl;
-                if (!audioSrc.startsWith('/api/') && !audioSrc.startsWith('http')) {
-                    audioSrc = '/api/audio?file=' + encodeURIComponent(audioSrc);
-                }
-                const audio = document.createElement('audio');
-                audio.controls = true;
-                audio.className = 'audio-player';
-                audio.setAttribute('controlslist', 'nodownload');
-                audio.src = audioSrc;
-                document.getElementById('audioContainer').replaceChildren(audio);
-            } else {
-                document.getElementById('audioContainer').replaceChildren();
-            }
-
-            mem.style.display = 'block';
-        }
-    </script>
 </body>
 </html>
