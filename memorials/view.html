@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Memorials · V I Key®</title>
+    <title>Memorial · V I Key®</title>
     <style>
         :root {
             --bg-base: #12110F;
@@ -231,7 +231,6 @@
         </div>
 
         <div id="memorial" style="display: none;">
-
             <div class="memorial-header">
                 <div class="memorial-icon" id="icon">🕯️</div>
                 <h1 class="memorial-name" id="name"></h1>
@@ -254,7 +253,6 @@
             <div class="back-link">
                 <a href="/memorials/">← Back to Memorials</a>
             </div>
-
         </div>
 
         <div id="passwordPrompt" class="password-prompt" style="display: none;">
@@ -279,7 +277,6 @@
         const memorialId = urlParams.get('id');
 
         if (!memorialId || !ALLOWED_SAMPLES.includes(memorialId)) {
-            // Redirect to main memorials page
             window.location.href = '/memorials/';
         } else {
             loadMemorial();
@@ -287,20 +284,24 @@
 
         async function loadMemorial() {
             try {
-                const resp = await fetch('/api/content', {
+                const contentResp = await fetch('/api/content', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ action: 'get-content', id: memorialId })
                 });
 
-                const data = await resp.json();
+                if (!contentResp.ok) {
+                    document.getElementById('loading').innerHTML = '<p style="color: #ff6b6b;">Error loading memorial.</p>';
+                    return;
+                }
 
-                if (!data.success || !data.content) {
+                const contentData = await contentResp.json();
+                if (!contentData.success || !contentData.content) {
                     document.getElementById('loading').innerHTML = '<p style="color: #ff6b6b;">Memorial not found.</p>';
                     return;
                 }
 
-                const content = data.content;
+                const content = contentData.content;
 
                 // Check if password protected
                 const passwordResp = await fetch('/api/password', {
@@ -312,11 +313,10 @@
                 if (passwordResp.status === 401) {
                     // Password required
                     showPasswordPrompt();
-                    return;
+                } else {
+                    // No password or correct password - display content
+                    displayMemorial(content);
                 }
-
-                // Display content
-                displayMemorial(content);
             } catch (e) {
                 document.getElementById('loading').innerHTML = '<p style="color: #ff6b6b;">Error loading memorial.</p>';
             }
