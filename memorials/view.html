@@ -177,12 +177,6 @@
             font-size: 0.9rem;
         }
 
-        .success-msg {
-            color: #4caf50;
-            margin-top: 12px;
-            font-size: 0.9rem;
-        }
-
         .loading {
             text-align: center;
             color: var(--text-muted);
@@ -280,11 +274,13 @@
     </div>
 
     <script>
+        const ALLOWED_SAMPLES = ['margaret', 'james'];
         const urlParams = new URLSearchParams(window.location.search);
         const memorialId = urlParams.get('id');
 
-        if (!memorialId) {
-            document.getElementById('loading').innerHTML = '<p style="color: #ff6b6b;">No memorial ID provided.</p>';
+        if (!memorialId || !ALLOWED_SAMPLES.includes(memorialId)) {
+            // Redirect to main memorials page
+            window.location.href = '/memorials/';
         } else {
             loadMemorial();
         }
@@ -312,8 +308,6 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ action: 'verify', id: memorialId, password: '' })
                 });
-
-                const passwordData = await passwordResp.json();
 
                 if (passwordResp.status === 401) {
                     // Password required
