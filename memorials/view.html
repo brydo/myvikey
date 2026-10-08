@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memorials · V I Key®</title>
+    <style>
+        :root {
+            --bg-base: #12110F;
+            --card-bg: rgba(255, 255, 255, 0.04);
+            --gold: #c9a96e;
+            --text-color: #e8e6e3;
+            --text-muted: #a8a4a0;
+            --card-border: rgba(255, 255, 255, 0.08);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-base);
+            color: var(--text-color);
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .memorial-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .memorial-icon {
+            font-size: 3.5rem;
+            margin-bottom: 16px;
+        }
+
+        .memorial-name {
+            color: var(--gold);
+            font-size: 2.2rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            letter-spacing: 1px;
+        }
+
+        .memorial-dates {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+        }
+
+        .photo-circle {
+            width: 280px;
+            height: 280px;
+            border-radius: 50%;
+            border: 3px solid var(--gold);
+            margin: 0 auto 30px;
+            overflow: hidden;
+            background-color: rgba(201, 169, 110, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+        }
+
+        .photo-circle img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .memorial-text {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            padding: 24px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 1.05rem;
+            line-height: 1.8;
+            color: var(--text-color);
+        }
+
+        .audio-section {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            padding: 24px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .audio-section h3 {
+            color: var(--gold);
+            margin-bottom: 16px;
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        audio {
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        .password-prompt {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            padding: 40px 24px;
+            text-align: center;
+            margin-top: 60px;
+        }
+
+        .password-prompt h2 {
+            color: var(--gold);
+            margin-bottom: 12px;
+            font-size: 1.3rem;
+        }
+
+        .password-prompt p {
+            color: var(--text-muted);
+            margin-bottom: 24px;
+        }
+
+        .password-input {
+            max-width: 300px;
+            margin: 0 auto 16px;
+            display: flex;
+            gap: 8px;
+        }
+
+        .password-input input {
+            flex: 1;
+            padding: 12px 14px;
+            font-size: 1rem;
+            background-color: var(--bg-base);
+            color: var(--text-color);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 8px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .password-input input:focus {
+            border-color: var(--gold);
+        }
+
+        .password-input button {
+            padding: 12px 24px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--gold);
+            background-color: rgba(201, 169, 110, 0.1);
+            border: 1px solid rgba(201, 169, 110, 0.3);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .password-input button:hover {
+            background-color: rgba(201, 169, 110, 0.2);
+        }
+
+        .error-msg {
+            color: #ff6b6b;
+            margin-top: 12px;
+            font-size: 0.9rem;
+        }
+
+        .success-msg {
+            color: #4caf50;
+            margin-top: 12px;
+            font-size: 0.9rem;
+        }
+
+        .loading {
+            text-align: center;
+            color: var(--text-muted);
+            padding: 40px 20px;
+        }
+
+        .back-link {
+            text-align: center;
+            margin-top: 40px;
+        }
+
+        .back-link a {
+            color: var(--gold);
+            text-decoration: none;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: color 0.3s;
+        }
+
+        .back-link a:hover {
+            color: var(--text-muted);
+        }
+
+        @media (max-width: 480px) {
+            .memorial-icon {
+                font-size: 2.5rem;
+            }
+
+            .memorial-name {
+                font-size: 1.8rem;
+            }
+
+            .photo-circle {
+                width: 200px;
+                height: 200px;
+            }
+
+            .memorial-text {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+
+        <div id="loading" class="loading">
+            <div style="font-size: 2.5rem; margin-bottom: 16px;">🕯️</div>
+            <p>Loading memorial...</p>
+        </div>
+
+        <div id="memorial" style="display: none;">
+
+            <div class="memorial-header">
+                <div class="memorial-icon" id="icon">🕯️</div>
+                <h1 class="memorial-name" id="name"></h1>
+                <p class="memorial-dates" id="dates"></p>
+            </div>
+
+            <div class="photo-circle" id="photoContainer">
+                <span>🕯️</span>
+            </div>
+
+            <div class="memorial-text" id="textContainer" style="display: none;">
+                <p id="text"></p>
+            </div>
+
+            <div class="audio-section" id="audioContainer" style="display: none;">
+                <h3>Listen</h3>
+                <audio id="audioPlayer" controls></audio>
+            </div>
+
+            <div class="back-link">
+                <a href="/memorials/">← Back to Memorials</a>
+            </div>
+
+        </div>
+
+        <div id="passwordPrompt" class="password-prompt" style="display: none;">
+            <div style="font-size: 2.5rem; margin-bottom: 16px;">🔐</div>
+            <h2>This memorial is private</h2>
+            <p>Please enter the password to view this tribute.</p>
+            <div class="password-input">
+                <input type="password" id="passwordField" placeholder="Password" autofocus>
+                <button onclick="submitPassword()">View</button>
+            </div>
+            <div id="passwordMsg"></div>
+            <div class="back-link" style="margin-top: 24px;">
+                <a href="/memorials/">← Back to Memorials</a>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const memorialId = urlParams.get('id');
+
+        if (!memorialId) {
+            document.getElementById('loading').innerHTML = '<p style="color: #ff6b6b;">No memorial ID provided.</p>';
+        } else {
+            loadMemorial();
+        }
+
+        async function loadMemorial() {
+            try {
+                const resp = await fetch('/api/content', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'get-content', id: memorialId })
+                });
+
+                const data = await resp.json();
+
+                if (!data.success || !data.content) {
+                    document.getElementById('loading').innerHTML = '<p style="color: #ff6b6b;">Memorial not found.</p>';
+                    return;
+                }
+
+                const content = data.content;
+
+                // Check if password protected
+                const passwordResp = await fetch('/api/password', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'verify', id: memorialId, password: '' })
+                });
+
+                const passwordData = await passwordResp.json();
+
+                if (passwordResp.status === 401) {
+                    // Password required
+                    showPasswordPrompt();
+                    return;
+                }
+
+                // Display content
+                displayMemorial(content);
+            } catch (e) {
+                document.getElementById('loading').innerHTML = '<p style="color: #ff6b6b;">Error loading memorial.</p>';
+            }
+        }
+
+        function displayMemorial(content) {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('passwordPrompt').style.display = 'none';
+            document.getElementById('memorial').style.display = 'block';
+
+            document.getElementById('name').textContent = content.name || 'Memorial';
+            document.getElementById('dates').textContent = content.dob || '';
+
+            if (content.photoUrl) {
+                const pos = content.photoPosition || '50% 50%';
+                document.getElementById('photoContainer').innerHTML = `<img src="${content.photoUrl}" alt="${content.name}" style="object-position: ${pos};">`;
+            }
+
+            if (content.text) {
+                document.getElementById('textContainer').style.display = 'block';
+                document.getElementById('text').textContent = content.text;
+            }
+
+            if (content.audioUrl) {
+                document.getElementById('audioContainer').style.display = 'block';
+                document.getElementById('audioPlayer').src = content.audioUrl;
+            }
+        }
+
+        function showPasswordPrompt() {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('memorial').style.display = 'none';
+            document.getElementById('passwordPrompt').style.display = 'block';
+        }
+
+        async function submitPassword() {
+            const password = document.getElementById('passwordField').value;
+            const msgEl = document.getElementById('passwordMsg');
+
+            if (!password) {
+                msgEl.textContent = 'Please enter a password.';
+                msgEl.className = 'error-msg';
+                return;
+            }
+
+            try {
+                const resp = await fetch('/api/password', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'verify', id: memorialId, password })
+                });
+
+                const data = await resp.json();
+
+                if (resp.ok && data.success) {
+                    // Load content now
+                    const contentResp = await fetch('/api/content', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ action: 'get-content', id: memorialId })
+                    });
+
+                    const contentData = await contentResp.json();
+                    if (contentData.success && contentData.content) {
+                        displayMemorial(contentData.content);
+                    }
+                } else {
+                    msgEl.textContent = 'Incorrect password.';
+                    msgEl.className = 'error-msg';
+                    document.getElementById('passwordField').value = '';
+                    document.getElementById('passwordField').focus();
+                }
+            } catch (e) {
+                msgEl.textContent = 'Error verifying password.';
+                msgEl.className = 'error-msg';
+            }
+        }
+
+        document.getElementById('passwordField').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') submitPassword();
+        });
+    </script>
+
+</body>
+</html>
