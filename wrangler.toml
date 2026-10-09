@@ -3,19 +3,19 @@
 # KV Namespaces for production
 [[env.production.kv_namespaces]]
 binding = "MEMORIAL_PASSWORDS"
-id = "your_memorial_passwords_id"
+id = "bffc9ae0a8c645159ab9180e99276a5e"
 
 [[env.production.kv_namespaces]]
 binding = "PET_PASSWORDS"
-id = "your_pet_passwords_id"
+id = "b3ac53bc33f8460fabe7f2e1e6bcd2c7"
 
 [[env.production.kv_namespaces]]
 binding = "MEMORIAL_CONTENT"
-id = "your_memorial_content_id"
+id = "5526ed2e92c7439182bfed013438aa05"
 
 [[env.production.kv_namespaces]]
 binding = "PET_CONTENT"
-id = "your_pet_content_id"
+id = "6e9959eb3bad48139593421da7634b5a"
 
 [[env.production.kv_namespaces]]
 binding = "ADMIN_SESSIONS"
