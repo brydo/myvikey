@@ -24,7 +24,7 @@ npm run seed            # password defaults to "password123"; override with SEED
 npm run seed -- --dry-run   # preview without calling the API
 ```
 
-Then visit `/foreverpets/?id=charlie` or `/memorials/?id=margaret` (password: `password123`).
+Then visit `/foreverpets/view.html?id=charlie` or `/memorials/view.html?id=margaret` (password: `password123`).
 
 The sample photos are placeholders; replace them via the admin pages. The seed overwrites these keys if they already exist, so change the passwords afterwards.
 
