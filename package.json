@@ -2,6 +2,9 @@
   "name": "myvikey",
   "version": "1.0.0",
   "private": true,
+  "scripts": {
+    "seed": "node scripts/seed-kv.mjs"
+  },
   "dependencies": {
     "bcryptjs": "^3.0.3"
   }
