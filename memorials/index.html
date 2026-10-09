@@ -4,14 +4,26 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Memorials · V I Key®</title>
+    <meta name="description" content="Digital memorial pages — preserve and honour the memories of loved ones with a personal V I Key®.">
+    <meta property="og:title" content="Memorials · VI Key®">
+    <meta property="og:description" content="Create beautiful, private digital memorial pages for loved ones.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://vi-key.uk/memorials/">
+    <meta property="og:image" content="https://vi-key.uk/apple-touch-icon.png">
+    <meta name="twitter:card" content="summary_large_image">
     <style>
         :root {
             --bg-base: #12110F;
+            --bg-gradient: radial-gradient(circle at top, #1c1a16 0%, #12110F 70%);
             --card-bg: rgba(255, 255, 255, 0.04);
+            --card-border: rgba(255, 255, 255, 0.08);
+            --card-border-hover: rgba(255, 255, 255, 0.14);
             --gold: #c9a96e;
+            --gold-glow: rgba(201, 169, 110, 0.15);
+            --gold-cta-bg: rgba(201, 169, 110, 0.1);
+            --gold-cta-border: rgba(201, 169, 110, 0.3);
             --text-color: #e8e6e3;
             --text-muted: #a8a4a0;
-            --card-border: rgba(255, 255, 255, 0.08);
         }
 
         * {
@@ -22,32 +34,71 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: var(--bg-gradient);
             background-color: var(--bg-base);
             color: var(--text-color);
             line-height: 1.6;
-            padding: 20px;
+            padding-bottom: 100px;
         }
 
-        .container {
+        /* Top Dead Centre Logo */
+        .tdc-logo {
+            display: block;
+            margin: 40px auto 20px auto;
+            max-width: 140px;
+            height: auto;
+        }
+
+        /* Navigation */
+        .page-nav {
+            text-align: center;
+            margin-bottom: 30px;
+            white-space: nowrap;
+        }
+
+        .nav-link {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 5px 10px;
+            transition: color 0.3s;
+        }
+
+        .nav-link.active, .nav-link:hover {
+            color: var(--gold);
+            border-bottom: 1px solid var(--gold);
+        }
+
+        /* Main Content Packaging */
+        .content-container {
             max-width: 700px;
             margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        h1, h2, h3 {
+            color: var(--gold);
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: 500;
+            letter-spacing: 0.5px;
         }
 
         h1 {
-            color: var(--gold);
-            text-align: center;
-            margin-bottom: 30px;
             font-size: 2rem;
             text-transform: uppercase;
             letter-spacing: 2px;
+            margin-bottom: 30px;
         }
 
         section {
             background-color: var(--card-bg);
-            border: 1px solid var(--card-border);
+            padding: 30px;
             border-radius: 8px;
-            padding: 24px;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
+            border: 1px solid var(--card-border);
         }
 
         p {
@@ -56,43 +107,341 @@
             font-size: 1.05rem;
         }
 
-        .back-link {
-            text-align: center;
-            margin-top: 30px;
+        strong {
+            color: var(--gold);
         }
 
-        .back-link a {
+        .divider-icon {
+            text-align: center;
+            font-size: 1.8rem;
             color: var(--gold);
+            margin: 30px 0;
+        }
+
+        /* Feature Grid */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin: 25px 0;
+        }
+
+        .feature-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            padding: 20px 16px;
+            text-align: center;
+            transition: border-color 0.3s, transform 0.3s, box-shadow 0.3s;
+        }
+
+        .feature-card:hover {
+            border-color: var(--card-border-hover);
+            transform: translateY(-4px);
+            box-shadow: 0 0 15px var(--gold-glow);
+        }
+
+        .feature-icon {
+            font-size: 2.2rem;
+            margin-bottom: 12px;
+        }
+
+        .feature-card h3 {
+            color: var(--gold);
+            font-size: 0.95rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .feature-card p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+            margin-bottom: 0;
+        }
+
+        /* Sample Cards */
+        .samples-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin: 25px 0;
+        }
+
+        .sample-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            padding: 24px 16px;
+            text-align: center;
             text-decoration: none;
+            transition: border-color 0.3s, transform 0.3s, box-shadow 0.3s;
+            display: block;
+            cursor: pointer;
+        }
+
+        .sample-card:hover {
+            border-color: var(--card-border-hover);
+            transform: translateY(-4px);
+            box-shadow: 0 0 15px var(--gold-glow);
+        }
+
+        .sample-icon {
+            font-size: 2.5rem;
+            margin-bottom: 12px;
+        }
+
+        .sample-card h3 {
+            color: var(--gold);
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .sample-card p {
             font-size: 0.9rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+            color: var(--text-muted);
+            line-height: 1.5;
+            margin-bottom: 0;
+        }
+
+        .cta-link {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 14px 32px;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--gold);
+            background-color: var(--gold-cta-bg);
+            border: 1px solid var(--gold-cta-border);
+            border-radius: 8px;
+            text-decoration: none;
+            transition: background-color 0.3s, box-shadow 0.3s;
+        }
+
+        .cta-link:hover {
+            background-color: rgba(201, 169, 110, 0.2);
+            box-shadow: 0 0 20px var(--gold-glow);
+        }
+
+        /* Persistent Footer */
+        footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: #0d0c0a;
+            border-top: 1px solid var(--card-border);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            z-index: 1000;
+        }
+
+        .footer-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 16px;
+            line-height: 1;
+            text-decoration: none;
+            color: var(--text-color);
             transition: color 0.3s;
         }
 
-        .back-link a:hover {
-            color: var(--text-muted);
+        .footer-btn .whatsapp-icon {
+            width: 1em;
+            height: 1em;
+            fill: #25D366;
+            display: inline-block;
+            vertical-align: middle;
         }
 
-        .error-msg {
-            color: #ff6b6b;
-            text-align: center;
-            padding: 40px 20px;
-            font-size: 1.05rem;
+        .footer-btn .facebook-icon {
+            width: 1em;
+            height: 1em;
+            fill: #1877F2;
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        .footer-btn .instagram-icon {
+            width: 1em;
+            height: 1em;
+            fill: #E4405F;
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        .footer-btn .tiktok-icon {
+            width: 1em;
+            height: 1em;
+            fill: #e8e6e3;
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        .footer-btn .email-icon {
+            font-size: 1em;
+            display: inline-block;
+            line-height: 1;
+        }
+
+        .footer-btn:hover {
+            color: var(--gold);
+        }
+
+        @media (max-width: 480px) {
+            section {
+                padding: 20px;
+            }
+            .page-nav {
+                padding: 0 4px;
+                font-size: 0.85rem;
+            }
+            .nav-link {
+                font-size: 0.85rem;
+                letter-spacing: 0.3px;
+                padding: 3px 4px;
+                white-space: nowrap;
+            }
+            .features-grid, .samples-grid {
+                grid-template-columns: 1fr;
+            }
+            footer {
+                gap: 20px;
+                flex-direction: row;
+                flex-wrap: nowrap;
+                align-items: center;
+                justify-content: center;
+                padding: 10px;
+            }
+            body {
+                padding-bottom: 120px;
+            }
         }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <div class="error-msg">
-            <div style="font-size: 2.5rem; margin-bottom: 16px;">🕯️</div>
-            <p>No memorial ID specified. Please use a link like <strong>/memorials/?id=margaret</strong></p>
-            <div class="back-link" style="margin-top: 24px;">
-                <a href="/">← Back to home</a>
-            </div>
-        </div>
+    <!-- TDC Logo -->
+    <img src="https://pub-07ed0b0955a4401f9956c3ca7a33c40e.r2.dev/transparentlogo.png" alt="VI Key Logo" class="tdc-logo">
+
+    <!-- Navigation -->
+    <div class="page-nav">
+        <a href="/" class="nav-link">Our Story</a>
+        <span style="color:#444">|</span>
+        <a href="/our-services/" class="nav-link">Our Services</a>
+        <span style="color:#444">|</span>
+        <a href="/memorials/" class="nav-link active">Memorials</a>
     </div>
+
+    <!-- Main Content -->
+    <div class="content-container">
+
+        <section>
+            <h2>🕯️ Digital Memorials</h2>
+            <p>Honour and preserve the memories of your loved ones with a beautiful, private digital memorial page. A physical <strong>V I Key®</strong> that opens a quiet, personal space — where their story lives on.</p>
+        </section>
+
+        <div class="divider-icon">✨</div>
+
+        <section>
+            <h2>What You Can Include</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">📷</div>
+                    <h3>Photo</h3>
+                    <p>A cherished portrait, beautifully displayed in a circular frame.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📝</div>
+                    <h3>Story</h3>
+                    <p>Your words of remembrance, tribute, or love.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🎙️</div>
+                    <h3>Audio</h3>
+                    <p>A recorded message, song, or words from the heart.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📅</div>
+                    <h3>Dates</h3>
+                    <p>Born and passed — capturing a life's span.</p>
+                </div>
+            </div>
+        </section>
+
+        <div class="divider-icon">💫</div>
+
+        <section>
+            <h2>Entirely Private</h2>
+            <p>Your memorial is password-protected. Only those you invite can view it. It's a sacred space — shared only with those closest to you, when they're ready to remember.</p>
+        </section>
+
+        <div class="divider-icon">🕯️</div>
+
+        <section>
+            <h2>See Examples</h2>
+            <p style="text-align:center; margin-bottom:20px;">Here are a couple of sample memorial pages:</p>
+            <div class="samples-grid">
+                <a href="/memorials/?id=margaret" class="sample-card">
+                    <div class="sample-icon">🕯️</div>
+                    <h3>Margaret</h3>
+                    <p>A life celebrated with love and gratitude. Memories that will forever remain close to our hearts.</p>
+                </a>
+                <a href="/memorials/?id=james" class="sample-card">
+                    <div class="sample-icon">🌟</div>
+                    <h3>James</h3>
+                    <p>A cherished memory. A tribute to a wonderful soul who touched many lives.</p>
+                </a>
+            </div>
+        </section>
+
+        <div class="divider-icon">✨</div>
+
+        <section>
+            <h2>Create a Memorial</h2>
+            <p>Ready to create a digital tribute? We make it simple. Choose a unique ID, add the content that matters, protect it with a password, and share it only with those you trust.</p>
+            <p style="text-align: center; margin-top: 24px;">
+                <a href="https://wa.me/qr/S3WV63OUV4CTP1" target="_blank" rel="noopener noreferrer" class="cta-link">Get in Touch</a>
+            </p>
+        </section>
+
+    </div>
+
+    <!-- Persistent Action Footer -->
+    <footer>
+        <a href="https://wa.me/qr/S3WV63OUV4CTP1" class="footer-btn" target="_blank" rel="noopener noreferrer">
+            <svg class="whatsapp-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.556-5.338 11.891-11.893 11.891-1.953 0-3.834-.356-5.604-1.036l-6.351 2.036z"/>
+            </svg>
+            <span>WhatsApp</span>
+        </a>
+        <a href="mailto:vikeyshop@outlook.com" class="footer-btn">
+            <span class="email-icon">✉</span>
+            <span>Email</span>
+        </a>
+        <a href="https://www.facebook.com/vi.key.page" class="footer-btn" target="_blank" rel="noopener noreferrer">
+            <svg class="facebook-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+            </svg>
+            <span>Facebook</span>
+        </a>
+        <a href="https://www.instagram.com/vi_key_shop" class="footer-btn" target="_blank" rel="noopener noreferrer">
+            <svg class="instagram-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zM5.838 12a6.162 6.162 0 1 1 12.324 0 6.162 6.162 0 0 1-12.324 0zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm4.965-10.322a1.44 1.44 0 1 1 2.881.001 1.44 1.44 0 0 1-2.881-.001z"/>
+            </svg>
+            <span>Instagram</span>
+        </a>
+        <a href="https://www.tiktok.com/@vi_keyshop" class="footer-btn" target="_blank" rel="noopener noreferrer">
+            <svg class="tiktok-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 5.89-6.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-.88-.08z"/>
+            </svg>
+            <span>TikTok</span>
+        </a>
+    </footer>
 
 </body>
 </html>
