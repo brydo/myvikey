@@ -12,67 +12,307 @@
     <meta property="og:image" content="https://vi-key.uk/apple-touch-icon.png">
     <meta name="twitter:card" content="summary_large_image">
     <style>
-        :root { --bg-base:#12110F; --bg-gradient:radial-gradient(circle at top,#1c1a16 0%,#12110F 70%); --card-bg:rgba(255,255,255,0.04); --card-border:rgba(255,255,255,0.08); --card-border-hover:[...] }
-        * { box-sizing:border-box; margin:0; padding:0; }
-        body { font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; background:var(--bg-gradient); background-color:var(--bg-base); color:var(--text-color); l[...] }
-        .hidden { display:none !important; }
-        .tdc-logo { display:block; margin:40px auto 20px auto; max-width:140px; height:auto; }
-        .page-nav { text-align:center; margin-bottom:30px; white-space:nowrap; }
-        .nav-link { color:var(--text-muted); text-decoration:none; font-size:0.9rem; text-transform:uppercase; letter-spacing:1px; padding:5px 10px; transition:color 0.3s; }
-        .nav-link.active,.nav-link:hover { color:var(--gold); border-bottom:1px solid var(--gold); }
-        .content-container { max-width:700px; margin:0 auto; padding:0 20px; }
-        h1,h2,h3 { color:var(--gold); text-align:center; margin-bottom:20px; font-weight:500; letter-spacing:0.5px; }
-        section { background-color:var(--card-bg); padding:30px; border-radius:8px; margin-bottom:25px; border:1px solid var(--card-border); }
-        p { margin-bottom:15px; color:var(--text-color); font-size:1.05rem; }
-        strong { color:var(--gold); }
-        .divider-icon { text-align:center; font-size:1.8rem; color:var(--gold); margin:30px 0; }
-        .features-grid,.samples-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:16px; margin:25px 0; }
-        .feature-card,.sample-card { background-color:var(--card-bg); border:1px solid var(--card-border); border-radius:8px; text-align:center; transition:border-color 0.3s,transform 0.3s,box-sha[...] }
-        .feature-card { padding:20px 16px; }
-        .sample-card { padding:24px 16px; text-decoration:none; display:block; cursor:pointer; }
-        .feature-card:hover,.sample-card:hover { border-color:var(--card-border-hover); transform:translateY(-4px); box-shadow:0 0 15px var(--gold-glow); }
-        .feature-icon { font-size:2.2rem; margin-bottom:12px; }
-        .sample-icon { font-size:2.5rem; margin-bottom:12px; }
-        .feature-card h3 { font-size:0.95rem; font-weight:600; margin-bottom:8px; }
-        .sample-card h3 { font-size:1.1rem; font-weight:600; margin-bottom:8px; }
-        .feature-card p,.sample-card p { font-size:0.85rem; color:var(--text-muted); line-height:1.5; margin-bottom:0; }
-        .sample-card p { font-size:0.9rem; }
-        .cta-link { display:inline-block; margin-top:20px; padding:14px 32px; font-size:1rem; font-weight:600; color:var(--gold); background-color:var(--gold-cta-bg); border:1px solid var(--gold-c[...] }
-        .cta-link:hover { background-color:rgba(201,169,110,0.2); box-shadow:0 0 20px var(--gold-glow); }
-        .memorial-viewer { max-width:700px; margin:0 auto; padding:0 20px 40px; }
-        .memorial-header { text-align:center; margin-bottom:40px; }
-        .memorial-icon { font-size:3.5rem; margin-bottom:16px; }
-        .memorial-name { color:var(--gold); font-size:2.2rem; font-weight:600; margin-bottom:8px; letter-spacing:1px; }
-        .memorial-dates { color:var(--text-muted); font-size:1.1rem; margin-bottom:20px; }
-        .photo-circle { width:280px; height:280px; border-radius:50%; border:3px solid var(--gold); margin:0 auto 30px; overflow:hidden; background-color:rgba(201,169,110,0.1); display:flex; align[...] }
-        .photo-circle img { width:100%; height:100%; object-fit:cover; }
-        .memorial-text,.audio-section { background-color:var(--card-bg); border:1px solid var(--card-border); border-radius:8px; padding:24px; margin-bottom:20px; text-align:center; }
-        .memorial-text { font-size:1.05rem; line-height:1.8; }
-        .audio-section h3 { font-size:0.95rem; text-transform:uppercase; letter-spacing:1px; margin-bottom:16px; }
-        .audio-section audio { width:100%; max-width:400px; margin:0 auto; }
-        .memorial-password { background-color:var(--card-bg); border:1px solid var(--card-border); border-radius:8px; padding:40px 24px; text-align:center; margin-top:30px; }
-        .memorial-password h2 { font-size:1.3rem; margin-bottom:12px; }
-        .memorial-password p { color:var(--text-muted); margin-bottom:24px; }
-        .password-input { max-width:300px; margin:0 auto 16px; display:flex; gap:8px; }
-        .password-input input { flex:1; padding:12px 14px; font-size:1rem; background-color:var(--bg-base); color:var(--text-color); border:1px solid rgba(255,255,255,0.12); border-radius:8px; out[...] }
-        .password-input input:focus { border-color:var(--gold); }
-        .password-input button { padding:12px 24px; font-size:0.95rem; font-weight:600; color:var(--gold); background-color:rgba(201,169,110,0.1); border:1px solid rgba(201,169,110,0.3); border-ra[...] }
-        .error-msg { color:#ff6b6b; margin-top:12px; font-size:0.9rem; }
-        .back-link { text-align:center; margin-top:30px; }
-        .back-link a { color:var(--gold); text-decoration:none; font-size:0.9rem; text-transform:uppercase; letter-spacing:1px; }
-        footer { position:fixed; bottom:0; left:0; width:100%; background-color:#0d0c0a; border-top:1px solid var(--card-border); padding:15px 20px; display:flex; justify-content:center; gap:30px;[...]
-        .footer-btn { display:inline-flex; align-items:center; gap:6px; font-size:16px; line-height:1; text-decoration:none; color:var(--text-color); transition:color 0.3s; }
-        .footer-btn svg { width:1em; height:1em; display:inline-block; vertical-align:middle; }
-        .whatsapp-icon { fill:#25D366; } .facebook-icon { fill:#1877F2; } .instagram-icon { fill:#E4405F; } .tiktok-icon { fill:#e8e6e3; }
-        .footer-btn:hover { color:var(--gold); }
-        @media (max-width:480px) {
-            section { padding:20px; }
-            .nav-link { font-size:0.85rem; letter-spacing:0.3px; padding:3px 4px; }
-            .features-grid,.samples-grid { grid-template-columns:1fr; }
-            footer { gap:20px; padding:10px; }
-            body { padding-bottom:120px; }
-            .memorial-name { font-size:1.8rem; }
-            .photo-circle { width:200px; height:200px; }
+        :root {
+            --bg-base: #12110F;
+            --bg-gradient: radial-gradient(circle at top, #1c1a16 0%, #12110F 70%);
+            --card-bg: rgba(255, 255, 255, 0.04);
+            --card-border: rgba(255, 255, 255, 0.08);
+            --card-border-hover: rgba(255, 255, 255, 0.14);
+            --gold: #c9a96e;
+            --gold-hover: #d4b883;
+            --gold-glow: rgba(201, 169, 110, 0.15);
+            --gold-cta-bg: rgba(201, 169, 110, 0.1);
+            --gold-cta-border: rgba(201, 169, 110, 0.3);
+            --text-color: #e8e6e3;
+            --text-muted: #a8a4a0;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: var(--bg-gradient);
+            background-color: var(--bg-base);
+            color: var(--text-color);
+            line-height: 1.6;
+            padding-bottom: 100px;
+        }
+
+        .hidden { display: none !important; }
+
+        .tdc-logo {
+            display: block;
+            margin: 40px auto 20px auto;
+            max-width: 140px;
+            height: auto;
+        }
+
+        .page-nav {
+            text-align: center;
+            margin-bottom: 30px;
+            white-space: nowrap;
+        }
+
+        .nav-link {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 5px 10px;
+            transition: color 0.3s;
+        }
+
+        .nav-link.active, .nav-link:hover {
+            color: var(--gold);
+            border-bottom: 1px solid var(--gold);
+        }
+
+        .content-container {
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        h1, h2, h3 {
+            color: var(--gold);
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+
+        section {
+            background-color: var(--card-bg);
+            padding: 30px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            border: 1px solid var(--card-border);
+        }
+
+        p {
+            margin-bottom: 15px;
+            color: var(--text-color);
+            font-size: 1.05rem;
+        }
+
+        strong { color: var(--gold); }
+
+        .divider-icon {
+            text-align: center;
+            font-size: 1.8rem;
+            color: var(--gold);
+            margin: 30px 0;
+        }
+
+        .features-grid, .samples-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin: 25px 0;
+        }
+
+        .feature-card, .sample-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            text-align: center;
+            transition: border-color 0.3s, transform 0.3s, box-shadow 0.3s;
+        }
+
+        .feature-card { padding: 20px 16px; }
+        .sample-card { padding: 24px 16px; text-decoration: none; display: block; cursor: pointer; }
+
+        .feature-card:hover, .sample-card:hover {
+            border-color: var(--card-border-hover);
+            transform: translateY(-4px);
+            box-shadow: 0 0 15px var(--gold-glow);
+        }
+
+        .feature-icon { font-size: 2.2rem; margin-bottom: 12px; }
+        .sample-icon { font-size: 2.5rem; margin-bottom: 12px; }
+        .feature-card h3 { font-size: 0.95rem; font-weight: 600; margin-bottom: 8px; }
+        .sample-card h3 { font-size: 1.1rem; font-weight: 600; margin-bottom: 8px; }
+        .feature-card p, .sample-card p { font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 0; }
+        .sample-card p { font-size: 0.9rem; }
+
+        .cta-link {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 14px 32px;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--gold);
+            background-color: var(--gold-cta-bg);
+            border: 1px solid var(--gold-cta-border);
+            border-radius: 8px;
+            text-decoration: none;
+            transition: background-color 0.3s, box-shadow 0.3s;
+        }
+
+        .cta-link:hover {
+            background-color: rgba(201, 169, 110, 0.2);
+            box-shadow: 0 0 20px var(--gold-glow);
+        }
+
+        .memorial-viewer { max-width: 700px; margin: 0 auto; padding: 0 20px 40px; }
+        .memorial-header { text-align: center; margin-bottom: 40px; }
+        .memorial-icon { font-size: 3.5rem; margin-bottom: 16px; }
+        .memorial-name { color: var(--gold); font-size: 2.2rem; font-weight: 600; margin-bottom: 8px; letter-spacing: 1px; }
+        .memorial-dates { color: var(--text-muted); font-size: 1.1rem; margin-bottom: 20px; }
+
+        .photo-circle {
+            width: 280px;
+            height: 280px;
+            border-radius: 50%;
+            border: 3px solid var(--gold);
+            margin: 0 auto 30px;
+            overflow: hidden;
+            background-color: rgba(201, 169, 110, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: var(--gold);
+        }
+
+        .photo-circle img { width: 100%; height: 100%; object-fit: cover; }
+
+        .memorial-text, .audio-section {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            padding: 24px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .memorial-text { font-size: 1.05rem; line-height: 1.8; }
+        .audio-section h3 { font-size: 0.95rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 16px; }
+        .audio-section audio { width: 100%; max-width: 400px; margin: 0 auto; }
+
+        .memorial-password {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            padding: 40px 24px;
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .memorial-password h2 { font-size: 1.3rem; margin-bottom: 12px; }
+        .memorial-password p { color: var(--text-muted); margin-bottom: 24px; }
+
+        .password-input { max-width: 300px; margin: 0 auto 16px; display: flex; gap: 8px; }
+        .password-input input {
+            flex: 1;
+            padding: 12px 14px;
+            font-size: 1rem;
+            background-color: var(--bg-base);
+            color: var(--text-color);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 8px;
+            outline: none;
+        }
+        .password-input input:focus { border-color: var(--gold); }
+        .password-input button {
+            padding: 12px 24px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--gold);
+            background-color: rgba(201, 169, 110, 0.1);
+            border: 1px solid rgba(201, 169, 110, 0.3);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .error-msg { color: #ff6b6b; margin-top: 12px; font-size: 0.9rem; }
+
+        .back-link { text-align: center; margin-top: 30px; }
+        .back-link a { color: var(--gold); text-decoration: none; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; }
+
+        /* Persistent Footer — matches Our Story page */
+        footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: #0d0c0a;
+            border-top: 1px solid var(--card-border);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            z-index: 1000;
+        }
+
+        .footer-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 16px;
+            line-height: 1;
+            text-decoration: none;
+            color: var(--text-color);
+            transition: color 0.3s;
+        }
+
+        .footer-btn .whatsapp-icon {
+            width: 1em;
+            height: 1em;
+            fill: #25D366;
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        .footer-btn .facebook-icon {
+            width: 1em;
+            height: 1em;
+            fill: #1877F2;
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        .footer-btn .instagram-icon {
+            width: 1em;
+            height: 1em;
+            fill: #E4405F;
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        .footer-btn .tiktok-icon {
+            width: 1em;
+            height: 1em;
+            fill: #e8e6e3;
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        .footer-btn .email-icon {
+            font-size: 1em;
+            display: inline-block;
+            line-height: 1;
+        }
+
+        .footer-btn:hover { color: var(--gold); }
+
+        @media (max-width: 480px) {
+            section { padding: 20px; }
+            .nav-link { font-size: 0.85rem; letter-spacing: 0.3px; padding: 3px 4px; }
+            .features-grid, .samples-grid { grid-template-columns: 1fr; }
+            footer {
+                gap: 20px;
+                flex-direction: row;
+                flex-wrap: nowrap;
+                align-items: center;
+                justify-content: center;
+                padding: 10px;
+            }
+            body { padding-bottom: 120px; }
+            .memorial-name { font-size: 1.8rem; }
+            .photo-circle { width: 200px; height: 200px; }
         }
     </style>
 </head>
@@ -91,7 +331,7 @@
     <div class="content-container" id="landingContent">
         <section>
             <h2>🕯️ Digital Memorials</h2>
-            <p>Honour and preserve the memories of your loved ones with a beautiful, private digital memorial page. A physical <strong>V I Key®</strong> that opens a quiet, personal space — whe[...]
+            <p>Honour and preserve the memories of your loved ones with a beautiful, private digital memorial page. A physical <strong>V I Key®</strong> that opens a quiet, personal space — where photos, words, and audio live on, protected by a password and shared only with those you choose.</p>
         </section>
         <div class="divider-icon">✨</div>
         <section>
@@ -228,6 +468,38 @@
         })();
     })();
     </script>
+
+    <!-- Persistent Action Footer — matches Our Story page -->
+    <footer>
+        <a href="https://wa.me/qr/S3WV63OUV4CTP1" class="footer-btn" target="_blank" rel="noopener noreferrer">
+            <svg class="whatsapp-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-1.157 4.228 4.305-1.129z"/>
+            </svg>
+            <span></span>
+        </a>
+        <a href="mailto:vikeyshop@outlook.com" class="footer-btn">
+            <span class="email-icon">✉</span>
+            <span></span>
+        </a>
+        <a href="https://www.facebook.com/vi.key.page" class="footer-btn" target="_blank" rel="noopener noreferrer">
+            <svg class="facebook-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+            </svg>
+            <span></span>
+        </a>
+        <a href="https://www.instagram.com/vi_key_shop?stkn=dHpzNHZqemh5dTIy" class="footer-btn" target="_blank" rel="noopener noreferrer">
+            <svg class="instagram-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+            </svg>
+            <span></span>
+        </a>
+        <a href="https://www.tiktok.com/@vi_keyshop" class="footer-btn" target="_blank" rel="noopener noreferrer">
+            <svg class="tiktok-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1.04-.1z"/>
+            </svg>
+            <span></span>
+        </a>
+    </footer>
 
 </body>
 </html>
