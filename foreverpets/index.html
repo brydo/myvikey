@@ -12,9 +12,9 @@
     <meta property="og:image" content="https://vi-key.uk/apple-touch-icon.png">
     <meta name="twitter:card" content="summary_large_image">
     <style>
-        :root { --bg-base:#12110F; --bg-gradient:radial-gradient(circle at top,#1c1a16 0%,#12110F 70%); --card-bg:rgba(255,255,255,0.04); --card-border:rgba(255,255,255,0.08); --card-border-hover:rgba(255,255,255,0.14); --gold:#c9a96e; --gold-glow:rgba(201,169,110,0.15); --gold-cta-bg:rgba(201,169,110,0.1); --gold-cta-border:rgba(201,169,110,0.3); --text-color:#e8e6e3; --text-muted:#a8a4a0; }
+        :root { --bg-base:#12110F; --bg-gradient:radial-gradient(circle at top,#1c1a16 0%,#12110F 70%); --card-bg:rgba(255,255,255,0.04); --card-border:rgba(255,255,255,0.08); --card-border-hover:[...] }
         * { box-sizing:border-box; margin:0; padding:0; }
-        body { font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; background:var(--bg-gradient); background-color:var(--bg-base); color:var(--text-color); line-height:1.6; padding-bottom:100px; }
+        body { font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; background:var(--bg-gradient); background-color:var(--bg-base); color:var(--text-color); l[...] }
         .hidden { display:none !important; }
         .tdc-logo { display:block; margin:40px auto 20px auto; max-width:140px; height:auto; }
         .page-nav { text-align:center; margin-bottom:30px; white-space:nowrap; }
@@ -27,7 +27,7 @@
         strong { color:var(--gold); }
         .divider-icon { text-align:center; font-size:1.8rem; color:var(--gold); margin:30px 0; }
         .features-grid,.samples-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:16px; margin:25px 0; }
-        .feature-card,.sample-card { background-color:var(--card-bg); border:1px solid var(--card-border); border-radius:8px; text-align:center; transition:border-color 0.3s,transform 0.3s,box-shadow 0.3s; }
+        .feature-card,.sample-card { background-color:var(--card-bg); border:1px solid var(--card-border); border-radius:8px; text-align:center; transition:border-color 0.3s,transform 0.3s,box-sha[...] }
         .feature-card { padding:20px 16px; }
         .sample-card { padding:24px 16px; text-decoration:none; display:block; cursor:pointer; }
         .feature-card:hover,.sample-card:hover { border-color:var(--card-border-hover); transform:translateY(-4px); box-shadow:0 0 15px var(--gold-glow); }
@@ -37,14 +37,14 @@
         .sample-card h3 { font-size:1.1rem; font-weight:600; margin-bottom:8px; }
         .feature-card p,.sample-card p { font-size:0.85rem; color:var(--text-muted); line-height:1.5; margin-bottom:0; }
         .sample-card p { font-size:0.9rem; }
-        .cta-link { display:inline-block; margin-top:20px; padding:14px 32px; font-size:1rem; font-weight:600; color:var(--gold); background-color:var(--gold-cta-bg); border:1px solid var(--gold-cta-border); border-radius:8px; text-decoration:none; transition:background-color 0.3s,box-shadow 0.3s; }
+        .cta-link { display:inline-block; margin-top:20px; padding:14px 32px; font-size:1rem; font-weight:600; color:var(--gold); background-color:var(--gold-cta-bg); border:1px solid var(--gold-c[...] }
         .cta-link:hover { background-color:rgba(201,169,110,0.2); box-shadow:0 0 20px var(--gold-glow); }
         .memorial-viewer { max-width:700px; margin:0 auto; padding:0 20px 40px; }
         .memorial-header { text-align:center; margin-bottom:40px; }
         .memorial-icon { font-size:3.5rem; margin-bottom:16px; }
         .memorial-name { color:var(--gold); font-size:2.2rem; font-weight:600; margin-bottom:8px; letter-spacing:1px; }
         .memorial-dates { color:var(--text-muted); font-size:1.1rem; margin-bottom:20px; }
-        .photo-circle { width:280px; height:280px; border-radius:50%; border:3px solid var(--gold); margin:0 auto 30px; overflow:hidden; background-color:rgba(201,169,110,0.1); display:flex; align-items:center; justify-content:center; font-size:4rem; }
+        .photo-circle { width:280px; height:280px; border-radius:50%; border:3px solid var(--gold); margin:0 auto 30px; overflow:hidden; background-color:rgba(201,169,110,0.1); display:flex; align[...] }
         .photo-circle img { width:100%; height:100%; object-fit:cover; }
         .memorial-text,.audio-section { background-color:var(--card-bg); border:1px solid var(--card-border); border-radius:8px; padding:24px; margin-bottom:20px; text-align:center; }
         .memorial-text { font-size:1.05rem; line-height:1.8; }
@@ -54,13 +54,13 @@
         .memorial-password h2 { font-size:1.3rem; margin-bottom:12px; }
         .memorial-password p { color:var(--text-muted); margin-bottom:24px; }
         .password-input { max-width:300px; margin:0 auto 16px; display:flex; gap:8px; }
-        .password-input input { flex:1; padding:12px 14px; font-size:1rem; background-color:var(--bg-base); color:var(--text-color); border:1px solid rgba(255,255,255,0.12); border-radius:8px; outline:none; }
+        .password-input input { flex:1; padding:12px 14px; font-size:1rem; background-color:var(--bg-base); color:var(--text-color); border:1px solid rgba(255,255,255,0.12); border-radius:8px; out[...] }
         .password-input input:focus { border-color:var(--gold); }
-        .password-input button { padding:12px 24px; font-size:0.95rem; font-weight:600; color:var(--gold); background-color:rgba(201,169,110,0.1); border:1px solid rgba(201,169,110,0.3); border-radius:8px; cursor:pointer; }
+        .password-input button { padding:12px 24px; font-size:0.95rem; font-weight:600; color:var(--gold); background-color:rgba(201,169,110,0.1); border:1px solid rgba(201,169,110,0.3); border-ra[...] }
         .error-msg { color:#ff6b6b; margin-top:12px; font-size:0.9rem; }
         .back-link { text-align:center; margin-top:30px; }
         .back-link a { color:var(--gold); text-decoration:none; font-size:0.9rem; text-transform:uppercase; letter-spacing:1px; }
-        footer { position:fixed; bottom:0; left:0; width:100%; background-color:#0d0c0a; border-top:1px solid var(--card-border); padding:15px 20px; display:flex; justify-content:center; gap:30px; z-index:1000; }
+        footer { position:fixed; bottom:0; left:0; width:100%; background-color:#0d0c0a; border-top:1px solid var(--card-border); padding:15px 20px; display:flex; justify-content:center; gap:30px;[...]
         .footer-btn { display:inline-flex; align-items:center; gap:6px; font-size:16px; line-height:1; text-decoration:none; color:var(--text-color); transition:color 0.3s; }
         .footer-btn svg { width:1em; height:1em; display:inline-block; vertical-align:middle; }
         .whatsapp-icon { fill:#25D366; } .facebook-icon { fill:#1877F2; } .instagram-icon { fill:#E4405F; } .tiktok-icon { fill:#e8e6e3; }
@@ -91,7 +91,7 @@
     <div class="content-container" id="landingContent">
         <section>
             <h2>🐾 Forever Pets</h2>
-            <p>Honour and preserve the memories of your beloved companion with a beautiful, private digital memorial page. A physical <strong>V I Key®</strong> that opens a quiet, personal space — where love, companionship and remembrance live on.</p>
+            <p>Honour and preserve the memories of your beloved companion with a beautiful, private digital memorial page. A physical <strong>V I Key®</strong> that opens a quiet, personal space — whe[...]
         </section>
         <div class="divider-icon">✨</div>
         <section>
@@ -113,7 +113,7 @@
             <h2>See Examples</h2>
             <p style="text-align:center; margin-bottom:20px;">Here are a couple of sample pet memorial pages:</p>
             <div class="samples-grid">
-                <a href="/foreverpets/?id=charlie" class="sample-card"><div class="sample-icon">🐾</div><h3>Charlie</h3><p>A loyal companion who brought endless joy and unconditional love to our hearts.</p></a>
+                <a href="/foreverpets/?id=charlie" class="sample-card"><div class="sample-icon">🐾</div><h3>Charlie</h3><p>A loyal companion who brought endless joy and unconditional love to our family.</p></a>
                 <a href="/foreverpets/?id=robbie" class="sample-card"><div class="sample-icon">🌟</div><h3>Robbie</h3><p>Forever in our hearts. A beloved friend who made every day brighter.</p></a>
             </div>
         </section>
@@ -230,11 +230,11 @@
     </script>
 
     <footer>
-        <a href="https://wa.me/qr/S3WV63OUV4CTP1" class="footer-btn" target="_blank" rel="noopener noreferrer"><svg class="whatsapp-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.556-5.338 11.891-11.893 11.891h-.001c-1.983 0-3.937-.524-5.646-1.521L.057 24zm6.166-3.465c1.553.922 3.352 1.406 5.121 1.407 4.66 0 8.439-3.779 8.439-8.439 0-4.659-3.779-8.439-8.439-8.439-4.659 0-8.439 3.779-8.439 8.439 0 1.573.43 3.111 1.247 4.457l-.803 2.94 3.02-.79zM9.44 7.72c-.267-.6-.548-.6-.795-.61-.206-.01-.442-.01-.678-.01-.236 0-.62.09-.95.45-.33.36-1.26 1.23-1.26 3.01 0 1.78 1.29 3.49 1.47 3.73.18.24 2.48 3.99 6.14 5.41 3.18 1.25 3.82 1 4.52.94.7-.06 2.27-1.11 2.59-2.18.32-1.07.32-1.98.22-2.17-.1-.19-.36-.3-.75-.53-.39-.23-2.27-1.12-2.62-1.26-.35-.13-.61-.2-.87.2-.26.4-.99 1.25-1.21 1.5-.22.25-.45.28-.83.09-.38-.19-1.59-.59-3.04-1.87-1.12-1-1.89-2.24-2.11-2.62-.22-.38-.02-.58.17-.77.18-.18.4-.46.6-.7.2-.23.26-.39.39-.65.13-.26.07-.49-.03-.68-.1-.19-.86-2.07-1.17-2.82-.31-.76-.62-.65-.86-.65h-.74z"/></svg><span>WhatsApp</span></a>
-        <a href="mailto:vikeyshop@outlook.com" class="footer-btn"><span>✉</span><span>Email</span></a>
-        <a href="https://www.facebook.com/vi.key.page" class="footer-btn" target="_blank" rel="noopener noreferrer"><svg class="facebook-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953h-1.513c-1.491 0-1.954.925-1.954 1.873v2.248h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.063 24 12.073z"/></svg><span>Facebook</span></a>
-        <a href="https://www.instagram.com/vi_key_shop" class="footer-btn" target="_blank" rel="noopener noreferrer"><svg class="instagram-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.057-1.646.07-4.85.07-3.204 0-3.584-.013-4.85-.07-3.252-.148-4.771-1.694-4.919-4.919-.058-1.265-.069-1.644-.069-4.849 0-3.204.011-3.584.069-4.849.149-3.227 1.667-4.771 4.919-4.919 1.266-.058 1.646-.07 4.85-.07zm0 1.802c-3.173 0-3.534.012-4.78.068-2.486.113-3.504 1.305-3.617 3.618-.056 1.246-.068 1.607-.068 4.78s.012 3.534.068 4.78c.113 2.313 1.13 3.505 3.617 3.618 1.246.056 1.607.068 4.78.068s3.534-.012 4.78-.068c2.486-.113 3.504-1.305 3.617-3.618.056-1.246.068-1.607.068-4.78s-.012-3.534-.068-4.78c-.113-2.313-1.131-3.505-3.617-3.618-1.246-.056-1.607-.068-4.78-.068zm0 3.8a4.2 4.2 0 1 1 0 8.4 4.2 4.2 0 0 1 0-8.4zm0 1.8a2.4 2.4 0 1 0 0 4.8 2.4 2.4 0 0 0 0-4.8zm5.04-3.64a.96.96 0 1 1 0 1.92.96.96 0 0 1 0-1.92z"/></svg><span>Instagram</span></a>
-        <a href="https://www.tiktok.com/@vi_keyshop" class="footer-btn" target="_blank" rel="noopener noreferrer"><svg class="tiktok-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5.13 15.7a6.33 6.33 0 0 0 6.33 6.33 6.35 6.35 0 0 0 6.35-6.35V9.16a7.98 7.98 0 0 0 4.78 1.62v-3.39a5.15 5.15 0 0 1-3.35-1.7z"/></svg><span>TikTok</span></a>
+        <a href="https://wa.me/qr/S3WV63OUV4CTP1" class="footer-btn" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp" title="WhatsApp"><svg class="whatsapp-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.556-5.338 11.891-11.893 11.891h-.001c-1.983 0-3.937-.524-5.646-1.521L.057 24zm6.166-3.465c1.553.922 3.352 1.406 5.121 1.407 4.66 0 8.439-3.779 8.439-8.439 0-4.659-3.779-8.439-8.439-8.439-4.659 0-8.439 3.779-8.439 8.439 0 1.573.43 3.111 1.247 4.457l-.803 2.94 3.02-.79zM9.44 7.72c-.267-.6-.548-.6-.795-.61-.206-.01-.442-.01-.678-.01-.236 0-.62.09-.95.45-.33.36-1.26 1.23-1.26 3.01 0 1.78 1.29 3.49 1.47 3.73.18.24 2.48 3.99 6.14 5.41 3.18 1.25 3.82 1 4.52.94.7-.06 2.27-1.11 2.59-2.18.32-1.07.32-1.98.22-2.17-.1-.19-.36-.3-.75-.53-.39-.23-2.27-1.12-2.62-1.26-.35-.13-.61-.2-.87.2-.26.4-.99 1.25-1.21 1.5-.22.25-.45.28-.83.09-.38-.19-1.59-.59-3.04-1.87-1.12-1-1.89-2.24-2.11-2.62-.22-.38-.02-.58.17-.77.18-.18.4-.46.6-.7.2-.23.26-.39.39-.65.13-.26.07-.49-.03-.68-.1-.19-.86-2.07-1.17-2.82-.31-.76-.62-.65-.86-.65h-.74z"/></svg></a>
+        <a href="mailto:vikeyshop@outlook.com" class="footer-btn" aria-label="Email" title="Email"><span>✉</span></a>
+        <a href="https://www.facebook.com/vi.key.page" class="footer-btn" target="_blank" rel="noopener noreferrer"><svg class="facebook-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></a>
+        <a href="https://www.instagram.com/vi_key_shop" class="footer-btn" target="_blank" rel="noopener noreferrer"><svg class="instagram-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M7.75 2h8.5A5.75 5.75 0 0 1 22 7.75v8.5A5.75 5.75 0 0 1 16.25 22h-8.5A5.75 5.75 0 0 1 2 16.25v-8.5A5.75 5.75 0 0 1 7.75 2zm0 1.5A4.25 4.25 0 0 0 3.5 7.75v8.5A4.25 4.25 0 0 0 7.75 20.5h8.5a4.25 4.25 0 0 0 4.25-4.25v-8.5A4.25 4.25 0 0 0 16.25 3.5h-8.5zm4.25 3.25a5.25 5.25 0 1 1 0 10.5 5.25 5.25 0 0 1 0-10.5zm0 1.5a3.75 3.75 0 1 1 0 7.5 3.75 3.75 0 0 1 0-7.5zm6.12-2.2a1.12 1.12 0 1 1 0 2.24 1.12 1.12 0 0 1 0-2.24z"/></svg></a>
+        <a href="https://www.tiktok.com/@vi_keyshop" class="footer-btn" target="_blank" rel="noopener noreferrer"><svg class="tiktok-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14.5 3c.8 1.3 2.1 2.2 3.6 2.6v2.3c-1.2-.1-2.4-.6-3.4-1.3V13c0 3.1-2.4 5.5-5.4 5.5A5.4 5.4 0 0 1 4.3 13c0-3.1 2.4-5.5 5.4-5.5.3 0 .6 0 1 .1V10c-.5-.1-.8-.1-1.1-.1A3.8 3.8 0 0 0 6.1 13.8a3.8 3.8 0 0 0 3.8 3.8 3.8 3.8 0 0 0 3.8-3.8V3h1.8z"/></svg></a>
     </footer>
 
 </body>
