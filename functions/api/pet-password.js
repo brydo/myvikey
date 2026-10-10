@@ -24,8 +24,8 @@ export async function onRequestPost(context) {
   // Get client IP for rate limiting
   const ip = request.headers.get('cf-connecting-ip') || 'unknown';
 
-  // Require session token for all non-verify admin actions
-  if (action !== 'verify' || id !== '__admin__') {
+  // 'verify' is public (visitors use it to open pages). 'set' and 'delete' need an admin session.
+  if (action !== 'verify') {
     const sessionToken = request.headers.get('x-admin-session');
     const session = await validateSession(env, sessionToken);
     if (!session) {
