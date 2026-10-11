@@ -416,7 +416,8 @@
         const render = (c) => {
             $('loadingMsg').classList.add('hidden');
             $('passwordPrompt').classList.add('hidden');$('memorialBody').classList.remove('hidden');
-            $('memorialName').textContent = c.name \vert{}\vert{} 'Memorial';$('memorialDates').textContent = c.dob || '';
+            $('memorialName').textContent = c.name || 'Memorial';
+            $('memorialDates').textContent = c.dob || '';
             const photo = resolvePhoto(c.photoUrl);
             if (photo) {
                 const img = document.createElement('img');
