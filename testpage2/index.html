@@ -226,7 +226,6 @@
 
         input[type="text"],
         input[type="email"],
-        input[type="file"],
         textarea {
             width: 100%;
             padding: 12px;
@@ -239,11 +238,6 @@
             transition: border-color 0.2s ease, box-shadow 0.2s ease;
             box-sizing: border-box;
             outline: none;
-        }
-
-        input[type="file"] {
-            cursor: pointer;
-            padding: 8px;
         }
 
         input[type="text"]:focus,
@@ -507,8 +501,8 @@
     <p class="festive-subtitle">Personalised digital tribute page included</p>
    </div>
 
-   <!-- Web3Forms Integration with vi-key.uk Redirect -->
-   <form id="memorialForm" action="https://api.web3forms.com/submit" method="POST" enctype="multipart/form-data">
+   <!-- Web3Forms Integration (Free Tier) -->
+   <form id="memorialForm" action="https://api.web3forms.com/submit" method="POST">
     <!-- Web3Forms Access Key & Settings -->
     <input type="hidden" name="access_key" value="88b3835f-7086-4a0b-baf7-ce9b9eb11488">
     <input type="hidden" name="redirect" value="https://vi-key.uk/thank-you">
@@ -553,14 +547,7 @@
     <div class="form-group">
      <label for="tribute_words">Words of Remembrance / Story &amp; Audio Track:</label> 
      <textarea id="tribute_words" name="message" placeholder="Enter your custom tribute text, special memories, or story..." required></textarea>
-     <p class="field-note">🎵 <strong>Audio Note:</strong> Please include any preferred song title, artist, or music video/audio link (Spotify/YouTube) here that you would like embedded on their tribute page.</p>
-    </div>
-
-    <!-- PHOTO UPLOAD SECTION WITH SIZE VALIDATION -->
-    <div class="form-group">
-     <label for="tribute_photo">Tribute Photograph:</label> 
-     <input type="file" id="tribute_photo" name="attachment" accept="image/*">
-     <p class="field-note">📸 Upload a photo (Max 5 MB). If your photo is larger, you can leave this blank and send it directly via WhatsApp or Email after ordering.</p>
+     <p class="field-note">🎵 <strong>Audio &amp; Photo Note:</strong> Please include any preferred song title, artist, or music link (Spotify/YouTube). <strong>For photos:</strong> You can email or WhatsApp your photograph to us after placing your order quoting your name.</p>
     </div>
 
     <div class="consent-box">
@@ -650,20 +637,6 @@
         const tagOptionLabels = document.querySelectorAll('.tag-option');
         const orderTotal = document.getElementById('orderTotal');
         const hiddenTotal = document.getElementById('hiddenTotal');
-        const photoInput = document.getElementById('tribute_photo');
-
-        // Check image file size to prevent 10MB payload errors
-        if (photoInput) {
-            photoInput.addEventListener('change', function() {
-                if (this.files && this.files[0]) {
-                    const fileSizeMB = this.files[0].size / (1024 * 1024);
-                    if (fileSizeMB > 5) {
-                        alert("The selected photo is " + fileSizeMB.toFixed(1) + "MB, which exceeds the 5MB upload limit. Please select a smaller photo or send it via WhatsApp/Email after ordering.");
-                        this.value = ""; // Clear file selection
-                    }
-                }
-            });
-        }
 
         function calculateTotal() {
             let total = 0;
