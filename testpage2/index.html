@@ -28,13 +28,11 @@
             background: var(--bg-gradient);
             background-color: var(--bg-base);
             color: var(--text-color);
-            padding: 32px;
+            padding: 32px 16px;
             display: flex;
-            flex-direction: row;
-            justify-content: center;
-            align-items: flex-start;
-            gap: 32px;
-            flex-wrap: wrap;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
             position: relative;
             padding-bottom: 120px;
             min-height: 100vh;
@@ -47,29 +45,13 @@
             height: auto;
         }
 
-        .left-column {
+        .main-container {
             display: flex;
             flex-direction: column;
             align-items: center;
-            position: relative;
-            z-index: 2;
-            flex: 0 0 500px;
-            max-width: 500px;
             width: 100%;
-        }
-
-        .right-column {
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-start;
-            align-items: center;
-            position: relative;
-            z-index: 2;
-            height: auto;
-            padding: 0;
-            flex: 0 0 460px;
-            max-width: 460px;
-            width: 100%;
+            max-width: 560px;
+            gap: 24px;
         }
 
         .tag-img {
@@ -83,7 +65,6 @@
 
         .tag-wrapper {
             text-align: center;
-            margin-bottom: 24px;
             width: 100%;
         }
 
@@ -96,7 +77,6 @@
             border: 1px solid var(--card-border);
             border-radius: 8px;
             padding: 18px 24px;
-            margin-bottom: 24px;
             text-align: center;
             width: 100%;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
@@ -121,9 +101,9 @@
             border: 1px solid var(--card-border);
             border-radius: 8px;
             padding: 24px;
-            margin-bottom: 24px;
             width: 100%;
             line-height: 1.7;
+            text-align: center;
         }
 
         .description-card h3 {
@@ -193,6 +173,7 @@
         .step-header {
             display: flex;
             align-items: center;
+            justify-content: center;
             gap: 12px;
             margin-top: 24px;
             margin-bottom: 16px;
@@ -224,6 +205,7 @@
 
         .form-group {
             margin-bottom: 18px;
+            text-align: left;
         }
 
         label {
@@ -234,8 +216,17 @@
             font-size: 0.95rem;
         }
 
+        .field-note {
+            font-size: 0.85rem;
+            color: var(--gold);
+            margin-top: 4px;
+            line-height: 1.4;
+            font-style: italic;
+        }
+
         input[type="text"],
         input[type="email"],
+        input[type="file"],
         textarea {
             width: 100%;
             padding: 12px;
@@ -248,6 +239,11 @@
             transition: border-color 0.2s ease, box-shadow 0.2s ease;
             box-sizing: border-box;
             outline: none;
+        }
+
+        input[type="file"] {
+            cursor: pointer;
+            padding: 8px;
         }
 
         input[type="text"]:focus,
@@ -269,6 +265,7 @@
             border-radius: 8px;
             margin-bottom: 20px;
             font-size: 0.88rem;
+            text-align: left;
         }
 
         .consent-box label {
@@ -329,6 +326,7 @@
             border: 1px solid var(--card-border);
             border-radius: 8px;
             background: rgba(0, 0, 0, 0.2);
+            text-align: center;
         }
 
         .payment-box p {
@@ -362,6 +360,7 @@
             border: 1px solid var(--card-border);
             border-radius: 8px;
             background: rgba(0, 0, 0, 0.2);
+            text-align: left;
         }
 
         .pay-confirm-box label {
@@ -452,11 +451,10 @@
 
         @media (max-width: 768px) {
             body {
-                flex-direction: column;
                 padding: 16px;
+                padding-bottom: 120px;
             }
-            .left-column, .right-column {
-                flex: 1 1 auto;
+            .main-container {
                 max-width: 100%;
             }
             .see-tags-link {
@@ -474,19 +472,23 @@
                 width: 100%;
             }
             footer { gap: 24px; padding: 12px; }
-            body { padding-bottom: 120px; }
         }
     </style>
  </head>
  <body>
 
- <div class="left-column">
+ <div class="main-container">
   <img src="https://pub-07ed0b0955a4401f9956c3ca7a33c40e.r2.dev/transparentlogo.png" alt="VI Key Logo" class="tdc-logo">
   <a href="#tags" class="see-tags-link">👇 Tap To View Keychain Photo</a>
   
   <div class="price-summary">
    <h2>🔑 NFC Memorial Keychain</h2>
    <p class="pp-note">All prices include UK postage</p>
+  </div>
+
+  <!-- Product Image Preview -->
+  <div class="tag-wrapper" id="tags">
+   <img class="tag-img" src="https://pub-07ed0b0955a4401f9956c3ca7a33c40e.r2.dev/memtag.png" alt="NFC Memorial Keychain - Black Faux Leather">
   </div>
 
   <!-- Full Product Description Blended -->
@@ -505,8 +507,8 @@
     <p class="festive-subtitle">Personalised digital tribute page included</p>
    </div>
 
-   <!-- Updated action attribute to send submissions to your email via FormSubmit -->
-   <form id="memorialForm" action="https://formsubmit.co/vikeyshop@outlook.com" method="POST">
+   <!-- FormSubmit endpoint configured to handle submissions & email notifications -->
+   <form id="memorialForm" action="https://formsubmit.co/vikeyshop@outlook.com" method="POST" enctype="multipart/form-data">
     <!-- FormSubmit Configurations -->
     <input type="hidden" name="_subject" value="New Memorial Keychain Order!">
     <input type="hidden" name="_captcha" value="false">
@@ -546,9 +548,18 @@
      <label for="loved_one_name">Loved One's Name (for the tribute):</label> 
      <input type="text" id="loved_one_name" name="loved_one_name" required>
     </div>
+
     <div class="form-group">
-     <label for="tribute_words">Words of Remembrance / Story:</label> 
-     <textarea id="tribute_words" name="tribute_words" placeholder="Enter your custom tribute text or story..." required></textarea>
+     <label for="tribute_words">Words of Remembrance / Story &amp; Audio Track:</label> 
+     <textarea id="tribute_words" name="tribute_words" placeholder="Enter your custom tribute text, special memories, or story..." required></textarea>
+     <p class="field-note">🎵 <strong>Audio Note:</strong> Please include any preferred song title, artist, or music video/audio link (Spotify/YouTube) here that you would like embedded on their tribute page.</p>
+    </div>
+
+    <!-- NEW SECTION: PHOTO FOR TRIBUTE PAGE -->
+    <div class="form-group">
+     <label for="tribute_photo">Tribute Photograph:</label> 
+     <input type="file" id="tribute_photo" name="tribute_photo" accept="image/*">
+     <p class="field-note">📸 Upload a photo of your loved one for their tribute page. If preferred, you can also send it to us directly via WhatsApp or Email after ordering.</p>
     </div>
 
     <div class="consent-box">
@@ -609,12 +620,6 @@
 
     <button id="submitBtn" type="submit" disabled>Complete Order</button>
    </form>
-  </div>
- </div>
-
- <div class="right-column" id="tags">
-  <div class="tag-wrapper">
-   <img class="tag-img" src="https://pub-07ed0b0955a4401f9956c3ca7a33c40e.r2.dev/memtag.png" alt="NFC Memorial Keychain - Black Faux Leather">
   </div>
  </div>
 
@@ -692,9 +697,6 @@
         }
 
         paidConfirm.addEventListener('change', updateSubmitState);
-
-        // FormSubmit handles the submission and email sending natively.
-        // The default preventDefault was removed so the form successfully posts to FormSubmit.
 
         calculateTotal();
         updateSubmitState();
