@@ -507,15 +507,15 @@
     <p class="festive-subtitle">Personalised digital tribute page included</p>
    </div>
 
-   <!-- FormSubmit endpoint configured to handle submissions & email notifications -->
-   <form id="memorialForm" action="https://formsubmit.co/vikeyshop@outlook.com" method="POST" enctype="multipart/form-data">
-    <!-- FormSubmit Configurations -->
-    <input type="hidden" name="_subject" value="New Memorial Keychain Order!">
-    <input type="hidden" name="_captcha" value="false">
-    <input type="hidden" name="_template" value="table">
+   <!-- Web3Forms Integration -->
+   <form id="memorialForm" action="https://api.web3forms.com/submit" method="POST" enctype="multipart/form-data">
+    <!-- Web3Forms Access Key & Settings -->
+    <input type="hidden" name="access_key" value="88b3835f-7086-4a0b-baf7-ce9b9eb11488">
+    <input type="hidden" name="subject" value="New Memorial Keychain Order!">
+    <input type="hidden" name="from_name" value="V I Key Orders">
 
     <div class="honeypot">
-     <label>Leave empty</label><input type="text" name="_gotcha" tabindex="-1" autocomplete="off">
+     <label>Leave empty</label><input type="text" name="botcheck" tabindex="-1" autocomplete="off">
     </div>
 
     <!-- STEP 1: DETAILS -->
@@ -526,7 +526,7 @@
 
     <div class="form-group">
      <label for="customer_name">Your Full Name:</label> 
-     <input type="text" id="customer_name" name="customer_name" required>
+     <input type="text" id="customer_name" name="name" required>
     </div>
     <div class="form-group">
      <label for="email">Your Email:</label> 
@@ -551,14 +551,14 @@
 
     <div class="form-group">
      <label for="tribute_words">Words of Remembrance / Story &amp; Audio Track:</label> 
-     <textarea id="tribute_words" name="tribute_words" placeholder="Enter your custom tribute text, special memories, or story..." required></textarea>
+     <textarea id="tribute_words" name="message" placeholder="Enter your custom tribute text, special memories, or story..." required></textarea>
      <p class="field-note">🎵 <strong>Audio Note:</strong> Please include any preferred song title, artist, or music video/audio link (Spotify/YouTube) here that you would like embedded on their tribute page.</p>
     </div>
 
-    <!-- NEW SECTION: PHOTO FOR TRIBUTE PAGE -->
+    <!-- PHOTO UPLOAD SECTION FOR WEB3FORMS -->
     <div class="form-group">
      <label for="tribute_photo">Tribute Photograph:</label> 
-     <input type="file" id="tribute_photo" name="tribute_photo" accept="image/*">
+     <input type="file" id="tribute_photo" name="attachment" accept="image/*">
      <p class="field-note">📸 Upload a photo of your loved one for their tribute page. If preferred, you can also send it to us directly via WhatsApp or Email after ordering.</p>
     </div>
 
