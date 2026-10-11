@@ -359,9 +359,9 @@
         </section>
         <div class="divider-icon">✨</div>
         <section>
-            <h2>Create a Memorial</h2>
+            <h2>Create Their Personal Memorial</h2>
             <p>Ready to create a digital tribute? We make it simple. Choose a unique ID, add the content that matters, protect it with a password, and share it only with those you trust.</p>
-            <p style="text-align:center; margin-top:24px;"><a href="https://wa.me/qr/S3WV63OUV4CTP1" target="_blank" rel="noopener noreferrer" class="cta-link">Get in Touch</a></p>
+            <p style="text-align:center; margin-top:24px;"><a href="https://vi-key.uk/testpage2" class="cta-link">Order Your Memorial Keychain →</a></p>
         </section>
     </div>
 
@@ -415,10 +415,8 @@
 
         const render = (c) => {
             $('loadingMsg').classList.add('hidden');
-            $('passwordPrompt').classList.add('hidden');
-            $('memorialBody').classList.remove('hidden');
-            $('memorialName').textContent = c.name || 'Memorial';
-            $('memorialDates').textContent = c.dob || '';
+            $('passwordPrompt').classList.add('hidden');$('memorialBody').classList.remove('hidden');
+            $('memorialName').textContent = c.name \vert{}\vert{} 'Memorial';$('memorialDates').textContent = c.dob || '';
             const photo = resolvePhoto(c.photoUrl);
             if (photo) {
                 const img = document.createElement('img');
@@ -427,8 +425,8 @@
                 img.style.objectPosition = c.photoPosition || '50% 50%';
                 $('photoContainer').replaceChildren(img);
             }
-            if (c.text) { $('textContainer').classList.remove('hidden'); $('memorialText').textContent = c.text; }
-            if (c.audioUrl) { $('audioContainer').classList.remove('hidden'); $('audioPlayer').src = c.audioUrl; }
+            if (c.text) { $('textContainer').classList.remove('hidden');$('memorialText').textContent = c.text; }
+            if (c.audioUrl) { $('audioContainer').classList.remove('hidden');$('audioPlayer').src = c.audioUrl; }
         };
 
         const getContent = async () => (await post(API_CONTENT, { action: 'get-content', id: memorialId })).json();
@@ -445,12 +443,11 @@
                     if (cd.success && cd.content) render(cd.content);
                 } else {
                     msg.textContent = 'Incorrect password.'; msg.className = 'error-msg';
-                    $('passwordField').value = ''; $('passwordField').focus();
+                    $('passwordField').value = '';$('passwordField').focus();
                 }
             } catch (e) { msg.textContent = 'Error verifying password.'; msg.className = 'error-msg'; }
         };
-        $('passwordSubmit').addEventListener('click', submitPassword);
-        $('passwordField').addEventListener('keydown', (e) => { if (e.key === 'Enter') submitPassword(); });
+        $('passwordSubmit').addEventListener('click', submitPassword);$('passwordField').addEventListener('keydown', (e) => { if (e.key === 'Enter') submitPassword(); });
 
         (async () => {
             try {
@@ -459,8 +456,7 @@
                 const check = await post(API_PASSWORD, { action: 'verify', id: memorialId, password: '' });
                 if (check.status === 401) {
                     $('loadingMsg').classList.add('hidden');
-                    $('passwordPrompt').classList.remove('hidden');
-                    $('passwordField').focus();
+                    $('passwordPrompt').classList.remove('hidden');$('passwordField').focus();
                 } else {
                     render(data.content);
                 }
