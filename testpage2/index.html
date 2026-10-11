@@ -219,9 +219,19 @@
         .field-note {
             font-size: 0.85rem;
             color: var(--gold);
-            margin-top: 4px;
-            line-height: 1.4;
+            margin-top: 6px;
+            line-height: 1.5;
             font-style: italic;
+        }
+
+        .note-link {
+            color: var(--gold-hover);
+            text-decoration: underline;
+            font-weight: 600;
+        }
+
+        .note-link:hover {
+            color: #ffffff;
         }
 
         input[type="text"],
@@ -547,7 +557,10 @@
     <div class="form-group">
      <label for="tribute_words">Words of Remembrance / Story &amp; Audio Track:</label> 
      <textarea id="tribute_words" name="message" placeholder="Enter your custom tribute text, special memories, or story..." required></textarea>
-     <p class="field-note">🎵 <strong>Audio &amp; Photo Note:</strong> Please include any preferred song title, artist, or music link (Spotify/YouTube). <strong>For photos:</strong> You can email or WhatsApp your photograph to us after placing your order quoting your name.</p>
+     <p class="field-note">
+      🎵 <strong>Audio &amp; Photo Note:</strong> Please include any preferred song title, artist, or music link (Spotify/YouTube). 
+      <strong>For photos:</strong> You can send your photograph via <a href="mailto:vikeyshop@outlook.com" class="note-link">Email</a> or <a href="https://wa.me/qr/S3WV63OUV4CTP1" target="_blank" rel="noopener noreferrer" class="note-link">WhatsApp</a> to us after placing your order quoting your name.
+     </p>
     </div>
 
     <div class="consent-box">
