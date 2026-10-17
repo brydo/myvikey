@@ -246,6 +246,54 @@
             color: var(--gold);
         }
 
+        /* Sample Cards */
+        .samples-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 25px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .sample-card {
+            background-color: transparent;
+            border: 1px solid transparent;
+            border-radius: 8px;
+            padding: 30px;
+            text-align: center;
+            flex: 1 1 280px;
+            max-width: 320px;
+            transition: border-color 0.3s, transform 0.3s, box-shadow 0.3s;
+            text-decoration: none;
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .sample-card:hover {
+            border-color: var(--gold);
+            transform: translateY(-4px);
+            box-shadow: 0 0 20px var(--gold-glow);
+        }
+
+        .sample-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+
+        .sample-card h3 {
+            color: var(--gold);
+            margin-bottom: 10px;
+        }
+
+        .sample-card p {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            margin-bottom: 0;
+        }
+
         @media (max-width: 480px) {
             section {
                 padding: 20px;
@@ -262,6 +310,13 @@
             }
             .services-grid {
                 grid-template-columns: 1fr;
+            }
+            .samples-grid {
+                flex-direction: column;
+                align-items: center;
+            }
+            .sample-card {
+                max-width: 100%;
             }
             footer {
                 gap: 20px;
@@ -288,7 +343,7 @@
         <span style="color:#444">|</span>
         <a href="/our-services/" class="nav-link active">Our Services</a>
         <span style="color:#444">|</span>
-        <a href="/showcase/" class="nav-link">Our Showcase</a>
+        <a href="/foreverpets/" class="nav-link">Forever Pets</a>
     </div>
 
     <!-- Main Content -->
@@ -358,7 +413,47 @@
             </div>
         </section>
 
-        
+        <div class="divider-icon">✨</div>
+
+<section>
+            <h2>A Glimpse Into What We Create</h2>
+            <p>Every <strong>V I Key®</strong> we make tells a story. Whether it is a tribute to a loved one, a smart business card, or a personal keepsake, each piece is crafted with the same care and attention to detail. Below are a few examples of the digital pages we have created for our customers.</p>
+            <p>Tap on any sample to view the full page as it would appear when someone taps the physical key.</p>
+        </section>
+
+        <div class="divider-icon">✨</div>
+
+        <!-- Sample Cards -->
+        <div class="samples-grid">
+            <a href="/memorials" class="sample-card">
+                <div class="sample-icon">🕯️</div>
+                <h3>Memorials</h3>
+                <p>A dignified memorial page honouring and remembering loved ones, keeping their memory alive forever.</p>
+            </a>
+            <a href="/foreverpets/" class="sample-card">
+                <div class="sample-icon">🐾</div>
+                <h3>Forever Pets</h3>
+                <p>Visit our Forever Pets memorial landing page and see how we honour cherished companions.</p>
+            </a>
+            <a href="/xmasletters/?id=example" class="sample-card">
+                <div class="sample-icon">🎄</div>
+                <h3>Christmas Letters</h3>
+                <p>Send a personalised christmas tag with a message from santa.</p>
+            </a>
+            <a href="/petris" class="sample-card">
+                <div class="sample-icon">🍕</div>
+                <h3>Petri's Menu</h3>
+                <p>A digital menu for a local pizzeria & street food takeaway.</p>
+            </a>
+        </div>
+
+        <div class="divider-icon">🌟</div>
+
+        <section>
+            <h2>Your Story, Beautifully Told</h2>
+            <p>These are just a few examples of what is possible with <strong>V I Key®</strong>. Every page we create is unique, personal, and designed to reflect the individual it represents. Whether for a memory, a business, or a special occasion, we shape each digital experience with care.</p>
+        </section>
+
     </div>
 
     <!-- Persistent Action Footer -->
