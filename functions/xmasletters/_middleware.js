@@ -1,3 +1,5 @@
+import { verifyPassword } from '../lib/auth.js';
+
 async function hash(str) {
   const data = new TextEncoder().encode(str);
   const buf = await crypto.subtle.digest('SHA-256', data);
@@ -95,7 +97,7 @@ export async function onRequest(context) {
       if (request.method === 'POST') {
         var formData = await request.formData();
         var submittedPassword = formData.get('password');
-        if (submittedPassword === adminPassword) {
+        if (typeof submittedPassword === 'string' && submittedPassword && await verifyPassword(submittedPassword, adminPassword)) {
           return new Response(null, {
             status: 302,
             headers: {
@@ -170,7 +172,7 @@ export async function onRequest(context) {
     if (request.method === 'POST') {
       var formData = await request.formData();
       var submittedPassword = formData.get('password');
-      if (submittedPassword === storedPassword) {
+      if (typeof submittedPassword === 'string' && submittedPassword && await verifyPassword(submittedPassword, storedPassword)) {
         var redirectUrl = url.pathname + url.search;
         return new Response(null, {
           status: 302,
