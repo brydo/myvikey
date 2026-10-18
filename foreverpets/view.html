@@ -206,7 +206,7 @@
             color: var(--text-muted);
         }
 
-        /* Footer & Social Buttons Styling */
+        /* Footer & Social Buttons Styling with Brand Colors */
         footer {
             display: flex;
             justify-content: center;
@@ -230,27 +230,24 @@
             text-decoration: none;
         }
 
-        .footer-btn:hover {
-            background-color: rgba(201, 169, 110, 0.15);
-            border-color: var(--gold);
-            transform: translateY(-2px);
-        }
-
         .footer-btn svg, .footer-btn .email-icon {
             width: 20px;
             height: 20px;
-            fill: var(--text-muted);
-            color: var(--text-muted);
-            transition: fill 0.3s ease, color 0.3s ease;
+            transition: transform 0.3s ease;
         }
 
-        .footer-btn:hover svg {
-            fill: var(--gold);
+        .footer-btn:hover {
+            transform: translateY(-3px);
+            background-color: rgba(255, 255, 255, 0.08);
+            border-color: var(--gold);
         }
 
-        .footer-btn:hover .email-icon {
-            color: var(--gold);
-        }
+        /* Brand Colors */
+        .whatsapp-icon { fill: #25D366; }
+        .email-icon { color: var(--gold); font-size: 1.2rem; line-height: 1; }
+        .facebook-icon { fill: #1877F2; }
+        .instagram-icon { fill: #E4405F; }
+        .tiktok-icon { fill: #ff0050; }
 
         @media (max-width: 480px) {
             .memorial-icon {
@@ -325,7 +322,7 @@
     <footer>
         <a href="https://wa.me/qr/S3WV63OUV4CTP1" class="footer-btn" target="_blank" rel="noopener noreferrer">
             <svg class="whatsapp-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.334 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-1.157 4.228 4.305-1.129z"/>
+                <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-1.157 4.228 4.305-1.129z"/>
             </svg>
         </a>
         <a href="mailto:vikeyshop@outlook.com" class="footer-btn">
