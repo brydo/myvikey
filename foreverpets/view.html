@@ -272,38 +272,31 @@
     </div>
 
     <script>
-        const ALLOWED_SAMPLES = ['charlie', 'robbie'];
         const urlParams = new URLSearchParams(window.location.search);
-        const memorialId = urlParams.get('id');
+        const memorialId = (urlParams.get('id') || '').trim();
 
-        if (!memorialId || !ALLOWED_SAMPLES.includes(memorialId)) {
-            window.location.href = '/foreverpets/';
+        if (!memorialId) {
+            document.getElementById('loading').innerHTML = '<p style="color: #ff6b6b;">Memorial not found.</p>';
         } else {
             loadMemorial();
         }
 
+        async function fetchContent() {
+            const contentResp = await fetch('/api/pet-content', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'get-content', id: memorialId })
+            });
+            if (!contentResp.ok) return { error: true };
+            const data = await contentResp.json();
+            if (!data.success || !data.content) return { notFound: true };
+            return { content: data.content };
+        }
+
         async function loadMemorial() {
+            const loadingEl = document.getElementById('loading');
             try {
-                const contentResp = await fetch('/api/pet-content', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ action: 'get-content', id: memorialId })
-                });
-
-                if (!contentResp.ok) {
-                    document.getElementById('loading').innerHTML = '<p style="color: #ff6b6b;">Error loading memorial.</p>';
-                    return;
-                }
-
-                const contentData = await contentResp.json();
-                if (!contentData.success || !contentData.content) {
-                    document.getElementById('loading').innerHTML = '<p style="color: #ff6b6b;">Memorial not found.</p>';
-                    return;
-                }
-
-                const content = contentData.content;
-
-                // Check if password protected
+                // Check if password protected before fetching any content
                 const passwordResp = await fetch('/api/pet-password', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -311,14 +304,24 @@
                 });
 
                 if (passwordResp.status === 401) {
-                    // Password required
                     showPasswordPrompt();
+                    return;
+                }
+                if (!passwordResp.ok) {
+                    loadingEl.innerHTML = '<p style="color: #ff6b6b;">Error loading memorial.</p>';
+                    return;
+                }
+
+                const result = await fetchContent();
+                if (result.notFound) {
+                    loadingEl.innerHTML = '<p style="color: #ff6b6b;">Memorial not found.</p>';
+                } else if (result.error) {
+                    loadingEl.innerHTML = '<p style="color: #ff6b6b;">Error loading memorial.</p>';
                 } else {
-                    // No password or correct password - display content
-                    displayMemorial(content);
+                    displayMemorial(result.content);
                 }
             } catch (e) {
-                document.getElementById('loading').innerHTML = '<p style="color: #ff6b6b;">Error loading memorial.</p>';
+                loadingEl.innerHTML = '<p style="color: #ff6b6b;">Error loading memorial.</p>';
             }
         }
 
