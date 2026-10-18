@@ -120,6 +120,48 @@
             color: var(--text-muted);
         }
 
+        /* Services Grid */
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin: 25px 0;
+        }
+
+        .service-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            padding: 20px 16px;
+            text-align: center;
+            transition: border-color 0.3s, transform 0.3s, box-shadow 0.3s;
+        }
+
+        .service-card:hover {
+            border-color: var(--card-border-hover);
+            transform: translateY(-4px);
+            box-shadow: 0 0 15px var(--gold-glow);
+        }
+
+        .service-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .service-card h3 {
+            color: var(--gold);
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .service-card p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+            margin-bottom: 0;
+        }
+
         .cta-link {
             display: inline-block;
             margin-top: 20px;
@@ -239,6 +281,9 @@
                 padding: 3px 4px;
                 white-space: nowrap;
             }
+            .services-grid {
+                grid-template-columns: 1fr;
+            }
             .samples-grid {
                 flex-direction: column;
                 align-items: center;
@@ -277,24 +322,24 @@
         <div class="divider-icon">✨</div>
         <section>
             <h2>What You Can Include</h2>
-            <div class="samples-grid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin:25px 0;">
-                <div class="sample-card" style="background-color:var(--card-bg);border:1px solid var(--card-border);max-width:none;">
-                    <div class="sample-icon" style="font-size:2rem;">📷</div>
+            <div class="services-grid">
+                <div class="service-card">
+                    <div class="service-icon">📷</div>
                     <h3>Photo</h3>
                     <p>A cherished portrait of your pet, beautifully displayed in a circular frame.</p>
                 </div>
-                <div class="sample-card" style="background-color:var(--card-bg);border:1px solid var(--card-border);max-width:none;">
-                    <div class="sample-icon" style="font-size:2rem;">📝</div>
+                <div class="service-card">
+                    <div class="service-icon">📝</div>
                     <h3>Story</h3>
                     <p>Your words of remembrance, favourite memories, or love for your companion.</p>
                 </div>
-                <div class="sample-card" style="background-color:var(--card-bg);border:1px solid var(--card-border);max-width:none;">
-                    <div class="sample-icon" style="font-size:2rem;">🎙️</div>
+                <div class="service-card">
+                    <div class="service-icon">🎙️</div>
                     <h3>Audio</h3>
                     <p>A recorded message, favourite pet sounds, or words from the heart.</p>
                 </div>
-                <div class="sample-card" style="background-color:var(--card-bg);border:1px solid var(--card-border);max-width:none;">
-                    <div class="sample-icon" style="font-size:2rem;">📅</div>
+                <div class="service-card">
+                    <div class="service-icon">📅</div>
                     <h3>Dates</h3>
                     <p>Born and passed — capturing your pet's life span.</p>
                 </div>
