@@ -4,8 +4,17 @@ export async function onRequest(context) {
     const url = new URL(request.url);
     const isLanding = url.pathname === '/foreverpets' || url.pathname === '/foreverpets/' || url.pathname === '/foreverpets/index.html';
     if (request.method === 'GET' && isLanding && (url.searchParams.get('id') || '').trim()) {
-      const viewResp = await env.ASSETS.fetch(new URL('/foreverpets/view', url.origin));
-      if (viewResp.ok) return viewResp;
+      // Serve the view page in place (follow any Pages pretty-URL redirects) so the URL stays /foreverpets/?id=<id>
+      let target = new URL('/foreverpets/view', url.origin);
+      for (let i = 0; i < 3; i++) {
+        const viewResp = await env.ASSETS.fetch(new Request(target, { method: 'GET' }));
+        if (viewResp.status >= 300 && viewResp.status < 400 && viewResp.headers.get('Location')) {
+          target = new URL(viewResp.headers.get('Location'), target);
+          continue;
+        }
+        if (viewResp.ok) return viewResp;
+        break;
+      }
     }
   } catch (e) {}
   return next();
