@@ -8,7 +8,7 @@
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://vi-key.uk/our-services/">
     <meta property="og:image" content="https://pub-07ed0b0955a4401f9956c3ca7a33c40e.r2.dev/joinsanta.png">
-    <title>Our Services</title>
+    <title>Our Services · V I Key®</title>
     <style>
         :root {
             --bg-base: #12110F;
@@ -85,25 +85,27 @@
             letter-spacing: 0.5px;
         }
 
-        h1 {
-            font-size: 2rem;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            margin-bottom: 30px;
-        }
-
         section {
             background-color: var(--card-bg);
             padding: 30px;
             border-radius: 8px;
             margin-bottom: 25px;
             border: 1px solid var(--card-border);
+            transition: border-color 0.3s, transform 0.3s, box-shadow 0.3s;
+        }
+
+        section:hover {
+            border-color: var(--card-border-hover);
         }
 
         p {
             margin-bottom: 15px;
             color: var(--text-color);
             font-size: 1.05rem;
+        }
+
+        strong {
+            color: var(--gold);
         }
 
         .divider-icon {
@@ -205,8 +207,8 @@
         }
 
         .sample-card {
-            background-color: transparent;
-            border: 1px solid transparent;
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
             border-radius: 8px;
             padding: 30px;
             text-align: center;
@@ -222,7 +224,7 @@
         }
 
         .sample-card:hover {
-            border-color: var(--gold);
+            border-color: var(--card-border-hover);
             transform: translateY(-4px);
             box-shadow: 0 0 20px var(--gold-glow);
         }
