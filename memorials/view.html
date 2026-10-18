@@ -272,38 +272,40 @@
     </div>
 
     <script>
-        const ALLOWED_SAMPLES = ['margaret', 'james'];
         const urlParams = new URLSearchParams(window.location.search);
-        const memorialId = urlParams.get('id');
+        const memorialId = (urlParams.get('id') || '').trim();
 
-        if (!memorialId || !ALLOWED_SAMPLES.includes(memorialId)) {
+        if (!memorialId) {
             window.location.href = '/memorials/';
         } else {
             loadMemorial();
         }
 
+        function showMessage(html) {
+            document.getElementById('loading').innerHTML = html;
+        }
+
+        async function fetchContent() {
+            const contentResp = await fetch('/api/content', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'get-content', id: memorialId })
+            });
+            if (!contentResp.ok) {
+                showMessage('<p style="color: #ff6b6b;">Error loading memorial.</p>');
+                return;
+            }
+            const contentData = await contentResp.json();
+            if (!contentData.success || !contentData.content) {
+                showMessage('<p style="color: #ff6b6b;">Memorial not found.</p><p><a href="/memorials/" style="color: var(--gold);">&larr; Back to Memorials</a></p>');
+                return;
+            }
+            displayMemorial(contentData.content);
+        }
+
         async function loadMemorial() {
             try {
-                const contentResp = await fetch('/api/content', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ action: 'get-content', id: memorialId })
-                });
-
-                if (!contentResp.ok) {
-                    document.getElementById('loading').innerHTML = '<p style="color: #ff6b6b;">Error loading memorial.</p>';
-                    return;
-                }
-
-                const contentData = await contentResp.json();
-                if (!contentData.success || !contentData.content) {
-                    document.getElementById('loading').innerHTML = '<p style="color: #ff6b6b;">Memorial not found.</p>';
-                    return;
-                }
-
-                const content = contentData.content;
-
-                // Check if password protected
+                // Check password first; never fetch content for protected memorials until verified
                 const passwordResp = await fetch('/api/password', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -311,14 +313,12 @@
                 });
 
                 if (passwordResp.status === 401) {
-                    // Password required
                     showPasswordPrompt();
-                } else {
-                    // No password or correct password - display content
-                    displayMemorial(content);
+                    return;
                 }
+                await fetchContent();
             } catch (e) {
-                document.getElementById('loading').innerHTML = '<p style="color: #ff6b6b;">Error loading memorial.</p>';
+                showMessage('<p style="color: #ff6b6b;">Error loading memorial.</p>');
             }
         }
 
@@ -332,7 +332,13 @@
 
             if (content.photoUrl) {
                 const pos = content.photoPosition || '50% 50%';
-                document.getElementById('photoContainer').innerHTML = `<img src="${content.photoUrl}" alt="${content.name}" style="object-position: ${pos};">`;
+                const img = document.createElement('img');
+                img.src = content.photoUrl;
+                img.alt = content.name || '';
+                img.style.objectPosition = pos;
+                const photoContainer = document.getElementById('photoContainer');
+                photoContainer.textContent = '';
+                photoContainer.appendChild(img);
             }
 
             if (content.text) {
