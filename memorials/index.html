@@ -324,8 +324,6 @@
         <a href="/" class="nav-link">Our Story</a>
         <span style="color:#444">|</span>
         <a href="/our-services/" class="nav-link">Our Services</a>
-        <span style="color:#444">|</span>
-        <a href="/memorials/" class="nav-link active">Memorials</a>
     </div>
 
     <div class="content-container" id="landingContent">
@@ -416,8 +414,7 @@
         const render = (c) => {
             $('loadingMsg').classList.add('hidden');
             $('passwordPrompt').classList.add('hidden');$('memorialBody').classList.remove('hidden');
-            $('memorialName').textContent = c.name || 'Memorial';
-            $('memorialDates').textContent = c.dob || '';
+            $('memorialName').textContent = c.name \vert{}\vert{} 'Memorial';$('memorialDates').textContent = c.dob || '';
             const photo = resolvePhoto(c.photoUrl);
             if (photo) {
                 const img = document.createElement('img');
