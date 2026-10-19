@@ -1,11 +1,15 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
- <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>NFC Memorial Keyring · V I Key®</title>
-  <meta name="description" content="Hold their memory in the palm of your hand with our NFC Memorial Keyring.">
-  <style>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta property="og:title" content="Our Services">
+    <meta property="og:description" content="Explore VI-Key's personalised NFC products and services.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://vi-key.uk/our-services/">
+    <meta property="og:image" content="https://pub-07ed0b0955a4401f9956c3ca7a33c40e.r2.dev/joinsanta.png">
+    <title>Our Services · V I Key®</title>
+    <style>
         :root {
             --bg-base: #12110F;
             --bg-gradient: radial-gradient(circle at top, #1c1a16 0%, #12110F 70%);
@@ -21,393 +25,228 @@
             --text-muted: #a8a4a0;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             background: var(--bg-gradient);
             background-color: var(--bg-base);
             color: var(--text-color);
-            padding: 32px 16px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-start;
-            position: relative;
-            padding-bottom: 120px;
-            min-height: 100vh;
+            line-height: 1.6;
+            padding-bottom: 100px;
         }
 
+        /* Top Dead Centre Logo */
         .tdc-logo {
             display: block;
-            margin: 0 auto 20px auto;
+            margin: 40px auto 20px auto;
             max-width: 140px;
             height: auto;
         }
 
-        .main-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            width: 100%;
-            max-width: 560px;
-            gap: 24px;
-        }
-
-        .tag-img {
-            width: 100%;
-            height: auto;
-            border-radius: 8px;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-            border: 1px solid var(--card-border);
-            display: block;
-        }
-
-        .tag-wrapper {
+        /* Navigation */
+        .page-nav {
             text-align: center;
-            width: 100%;
+            margin-bottom: 30px;
+            white-space: nowrap;
         }
 
-        .see-tags-link {
-            display: none;
-        }
-
-        .price-summary {
-            background-color: var(--card-bg);
-            border: 1px solid var(--card-border);
-            border-radius: 8px;
-            padding: 18px 24px;
-            text-align: center;
-            width: 100%;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-        }
-
-        .price-summary h2 {
-            font-size: 1.25rem;
-            color: var(--gold);
-            margin: 0 0 8px 0;
-            font-weight: 500;
-        }
-
-        .price-summary .pp-note {
-            font-size: 0.9rem;
+        .nav-link {
             color: var(--text-muted);
-            margin: 0;
-            font-style: italic;
-        }
-
-        .description-card {
-            background-color: var(--card-bg);
-            border: 1px solid var(--card-border);
-            border-radius: 8px;
-            padding: 24px;
-            width: 100%;
-            line-height: 1.7;
-            text-align: center;
-        }
-
-        .description-card h3 {
-            color: var(--gold);
-            font-size: 1.1rem;
-            margin-bottom: 12px;
-            font-weight: 500;
-            border-bottom: 1px solid var(--gold-cta-border);
-            padding-bottom: 6px;
-        }
-
-        .description-card p {
-            color: var(--text-color);
-            font-size: 0.95rem;
-            margin-bottom: 12px;
-        }
-
-        .description-card p:last-child {
-            margin-bottom: 0;
-        }
-
-        .lead-quote {
-            color: var(--gold);
-            font-style: italic;
-            font-size: 1.05rem;
-            text-align: center;
-            margin-bottom: 16px;
-        }
-
-        .form-container {
-            background-color: var(--card-bg);
-            padding: 32px;
-            border-radius: 8px;
-            width: 100%;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
-            border: 1px solid var(--card-border);
-        }
-
-        .festive-header {
-            background: var(--gold-cta-bg);
-            padding: 20px;
-            border-radius: 8px;
-            text-align: center;
-            color: var(--text-color);
-            margin-bottom: 24px;
-            border: 1px solid var(--gold-cta-border);
-        }
-
-        .festive-icon {
-            font-size: 2.2rem;
-            margin-bottom: 6px;
-        }
-
-        .festive-title {
-            font-size: 1.5rem;
-            font-weight: 600;
-            margin: 0;
-            color: var(--gold);
-        }
-
-        .festive-subtitle {
-            font-size: 0.9rem;
-            margin-top: 4px;
-            color: var(--text-muted);
-        }
-
-        .step-header {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            margin-top: 24px;
-            margin-bottom: 16px;
-            padding-bottom: 8px;
-            border-bottom: 1px solid var(--gold-cta-border);
-        }
-
-        .step-number {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 32px;
-            height: 32px;
-            background: var(--gold-cta-bg);
-            color: var(--gold);
-            border: 1px solid var(--gold-cta-border);
-            border-radius: 50%;
-            font-weight: 700;
-            font-size: 1rem;
-            flex-shrink: 0;
-        }
-
-        .step-title {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: var(--gold);
-            margin: 0;
-        }
-
-        .form-group {
-            margin-bottom: 18px;
-            text-align: left;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 6px;
-            font-weight: 500;
-            color: var(--text-color);
-            font-size: 0.95rem;
-        }
-
-        .field-note {
-            font-size: 0.85rem;
-            color: var(--gold);
-            margin-top: 6px;
-            line-height: 1.5;
-            font-style: italic;
-        }
-
-        .note-link {
-            color: var(--gold-hover);
-            text-decoration: underline;
-            font-weight: 600;
-        }
-
-        .note-link:hover {
-            color: #ffffff;
-        }
-
-        input[type="text"],
-        input[type="email"],
-        textarea {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid var(--card-border);
-            border-radius: 8px;
-            font-size: 1rem;
-            font-family: inherit;
-            background-color: var(--bg-base);
-            color: var(--text-color);
-            transition: border-color 0.2s ease, box-shadow 0.2s ease;
-            box-sizing: border-box;
-            outline: none;
-        }
-
-        input[type="text"]:focus,
-        input[type="email"]:focus,
-        textarea:focus {
-            border-color: var(--gold);
-            box-shadow: 0 0 10px var(--gold-glow);
-        }
-
-        textarea {
-            resize: vertical;
-            min-height: 80px;
-        }
-
-        .consent-box {
-            background: rgba(0, 0, 0, 0.2);
-            border: 1px solid var(--card-border);
-            padding: 14px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            font-size: 0.88rem;
-            text-align: left;
-        }
-
-        .consent-box label {
-            display: flex;
-            gap: 10px;
-            align-items: flex-start;
-            cursor: pointer;
-        }
-
-        .consent-box input[type="checkbox"] {
-            margin-top: 3px;
-            accent-color: var(--gold);
-            transform: scale(1.1);
-            flex-shrink: 0;
-        }
-
-        .tag-options {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            margin-bottom: 16px;
-        }
-
-        .tag-option {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 12px;
-            border: 1px solid var(--card-border);
-            border-radius: 8px;
-            background: rgba(255, 255, 255, 0.02);
-            cursor: pointer;
-            transition: border-color 0.2s ease, background 0.2s ease;
-            font-size: 0.95rem;
-            color: var(--text-color);
-        }
-
-        .tag-option:hover {
-            border-color: var(--card-border-hover);
-            background: rgba(255, 255, 255, 0.05);
-        }
-
-        .tag-option input[type="checkbox"] {
-            transform: scale(1.2);
-            accent-color: var(--gold);
-            flex-shrink: 0;
-        }
-
-        .tag-option .tag-price {
-            font-weight: 700;
-            color: var(--gold);
-            margin-left: auto;
-        }
-
-        .payment-box {
-            margin: 18px 0 22px;
-            padding: 18px;
-            border: 1px solid var(--card-border);
-            border-radius: 8px;
-            background: rgba(0, 0, 0, 0.2);
-            text-align: center;
-        }
-
-        .payment-box p {
-            margin: 0 0 10px;
-            font-size: 0.95rem;
-            color: var(--text-color);
-            line-height: 1.5;
-        }
-
-        .security-note {
-            margin-top: 10px;
-            padding: 10px 12px;
-            background: rgba(201, 169, 110, 0.08);
-            border: 1px solid var(--gold-cta-border);
-            border-radius: 6px;
-            color: var(--gold);
-            font-size: 0.9rem;
-            font-weight: 500;
-            text-align: center;
-        }
-
-        .bank-link {
-            display: block;
-            margin-top: 4px;
             text-decoration: none;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 5px 10px;
+            transition: color 0.3s;
         }
 
-        .pay-confirm-box {
-            margin: 18px 0 22px;
-            padding: 16px;
+        .nav-link.active, .nav-link:hover {
+            color: var(--gold);
+            border-bottom: 1px solid var(--gold);
+        }
+
+        /* Main Content Packaging */
+        .content-container {
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        h1, h2, h3 {
+            color: var(--gold);
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+
+        section {
+            background-color: var(--card-bg);
+            padding: 30px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            border: 1px solid var(--card-border);
+            transition: border-color 0.3s, transform 0.3s, box-shadow 0.3s;
+        }
+
+        section:hover {
+            border-color: var(--card-border-hover);
+        }
+
+        p {
+            margin-bottom: 15px;
+            color: var(--text-color);
+            font-size: 1.05rem;
+        }
+
+        strong {
+            color: var(--gold);
+        }
+
+        .divider-icon {
+            text-align: center;
+            font-size: 1.8rem;
+            color: var(--gold);
+            margin: 30px 0;
+        }
+
+        /* Services Grid */
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin: 25px 0;
+        }
+
+        .service-card {
+            background-color: var(--card-bg);
             border: 1px solid var(--card-border);
             border-radius: 8px;
-            background: rgba(0, 0, 0, 0.2);
-            text-align: left;
+            padding: 20px 16px;
+            text-align: center;
+            transition: border-color 0.3s, transform 0.3s, box-shadow 0.3s;
         }
 
-        .pay-confirm-box label {
-            display: flex;
-            gap: 10px;
-            align-items: flex-start;
-            margin-bottom: 0;
-            font-size: 0.95rem;
-            font-weight: 500;
-            color: var(--text-color);
-            cursor: pointer;
+        .service-card:hover {
+            border-color: var(--card-border-hover);
+            transform: translateY(-4px);
+            box-shadow: 0 0 15px var(--gold-glow);
         }
 
-        .pay-confirm-box input[type="checkbox"] {
-            margin-top: 3px;
-            transform: scale(1.1);
-            accent-color: var(--gold);
+        .service-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
         }
 
-        button {
-            width: 100%;
-            background-color: var(--gold-cta-bg);
+        .service-card h3 {
             color: var(--gold);
-            padding: 14px;
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .service-card p {
+            font-size: 0.85rem;
+            color: var(--text-color);
+            line-height: 1.5;
+            margin-bottom: 0;
+        }
+
+        .cta-link {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 14px 32px;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--gold);
+            background-color: var(--gold-cta-bg);
             border: 1px solid var(--gold-cta-border);
             border-radius: 8px;
-            font-size: 1.05rem;
-            font-weight: 600;
-            cursor: pointer;
+            text-decoration: none;
             transition: background-color 0.3s, box-shadow 0.3s;
         }
 
-        button:hover {
+        .cta-link:hover {
             background-color: rgba(201, 169, 110, 0.2);
             box-shadow: 0 0 20px var(--gold-glow);
         }
 
-        button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            box-shadow: none;
+        .cta-wrapper {
+            text-align: center;
         }
 
+        .feature-box {
+            background: linear-gradient(180deg, rgba(201, 169, 110, 0.09), rgba(255, 255, 255, 0.03));
+            border: 1px solid rgba(201, 169, 110, 0.22);
+            border-radius: 12px;
+            padding: 26px 22px;
+            box-shadow: 0 0 18px rgba(201, 169, 110, 0.08);
+        }
+
+        .feature-box h2 {
+            margin-bottom: 14px;
+        }
+
+        /* Updated to match the main description text color */
+        .feature-box p {
+            text-align: center;
+            color: var(--text-color);
+        }
+
+        /* Sample Cards */
+        .samples-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 25px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .sample-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            padding: 30px;
+            text-align: center;
+            flex: 1 1 280px;
+            max-width: 320px;
+            transition: border-color 0.3s, transform 0.3s, box-shadow 0.3s;
+            text-decoration: none;
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .sample-card:hover {
+            border-color: var(--card-border-hover);
+            transform: translateY(-4px);
+            box-shadow: 0 0 20px var(--gold-glow);
+        }
+
+        .sample-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+
+        .sample-card h3 {
+            color: var(--gold);
+            margin-bottom: 10px;
+        }
+
+        .sample-card p {
+            font-size: 0.95rem;
+            color: var(--text-color);
+            margin-bottom: 0;
+        }
+
+        /* Persistent Footer */
         footer {
             position: fixed;
             bottom: 0;
@@ -425,282 +264,251 @@
         .footer-btn {
             display: inline-flex;
             align-items: center;
-            justify-content: center;
-            font-size: 18px;
+            gap: 6px;
+            font-size: 16px;
             line-height: 1;
             text-decoration: none;
             color: var(--text-color);
-            transition: color 0.3s, transform 0.2s ease;
+            transition: color 0.3s;
+        }
+
+        .footer-btn .whatsapp-icon {
+            width: 1em;
+            height: 1em;
+            fill: #25D366;
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        .footer-btn .facebook-icon {
+            width: 1em;
+            height: 1em;
+            fill: #1877F2;
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        .footer-btn .instagram-icon {
+            width: 1em;
+            height: 1em;
+            fill: #E4405F;
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        .footer-btn .tiktok-icon {
+            width: 1em;
+            height: 1em;
+            fill: #e8e6e3;
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        .footer-btn .email-icon {
+            font-size: 1em;
+            display: inline-block;
+            line-height: 1;
         }
 
         .footer-btn:hover {
             color: var(--gold);
-            transform: translateY(-2px);
         }
 
-        .footer-btn .whatsapp-icon { width: 1.2em; height: 1.2em; fill: #25D366; display: inline-block; vertical-align: middle; }
-        .footer-btn .facebook-icon { width: 1.2em; height: 1.2em; fill: #1877F2; display: inline-block; vertical-align: middle; }
-        .footer-btn .instagram-icon { width: 1.2em; height: 1.2em; fill: #E4405F; display: inline-block; vertical-align: middle; }
-        .footer-btn .tiktok-icon { width: 1.2em; height: 1.2em; fill: #e8e6e3; display: inline-block; vertical-align: middle; }
-        .footer-btn .email-icon { font-size: 1.2em; display: inline-block; line-height: 1; }
-
-        .honeypot {
-            position: absolute;
-            left: -9999px;
-            top: -9999px;
-            width: 1px;
-            height: 1px;
-            opacity: 0;
-        }
-
-        @media (max-width: 768px) {
-            body {
-                padding: 16px;
-                padding-bottom: 120px;
+        @media (max-width: 480px) {
+            section {
+                padding: 20px;
             }
-            .main-container {
+            .page-nav {
+                padding: 0 4px;
+                font-size: 0.85rem;
+            }
+            .nav-link {
+                font-size: 0.85rem;
+                letter-spacing: 0.3px;
+                padding: 3px 4px;
+                white-space: nowrap;
+            }
+            .services-grid {
+                grid-template-columns: 1fr;
+            }
+            .samples-grid {
+                flex-direction: column;
+                align-items: center;
+            }
+            .sample-card {
                 max-width: 100%;
             }
-            .see-tags-link {
-                display: block;
-                text-align: center;
-                margin-bottom: 16px;
-                padding: 12px 20px;
-                background-color: var(--gold-cta-bg);
-                color: var(--gold);
-                font-weight: 600;
-                font-size: 1.05rem;
-                text-decoration: none;
-                border-radius: 8px;
-                border: 1px solid var(--gold-cta-border);
-                width: 100%;
+            footer {
+                gap: 20px;
+                flex-direction: row;
+                flex-wrap: nowrap;
+                align-items: center;
+                justify-content: center;
+                padding: 10px;
             }
-            footer { gap: 24px; padding: 12px; }
+            body {
+                padding-bottom: 120px;
+            }
         }
     </style>
- </head>
- <body>
+</head>
+<body>
 
- <div class="main-container">
-  <img src="https://pub-07ed0b0955a4401f9956c3ca7a33c40e.r2.dev/transparentlogo.png" alt="VI Key Logo" class="tdc-logo">
-  <a href="#tags" class="see-tags-link">👇 Tap To View Keyring Photo</a>
-  
-  <div class="price-summary">
-   <h2>🔑 NFC Memorial Keyring</h2>
-   <p class="pp-note">All prices include UK postage</p>
-  </div>
+    <!-- TDC Logo -->
+    <img src="https://pub-07ed0b0955a4401f9956c3ca7a33c40e.r2.dev/transparentlogo.png" alt="VI Key Logo" class="tdc-logo">
 
-  <!-- Product Image Preview -->
-  <div class="tag-wrapper" id="tags">
-   <img class="tag-img" src="https://pub-07ed0b0955a4401f9956c3ca7a33c40e.r2.dev/memtag.png" alt="NFC Memorial Keyring - Black Faux Leather">
-  </div>
-
-  <!-- Full Product Description Blended -->
-  <div class="description-card">
-   <p class="lead-quote">"Hold their memory in the palm of your hand."</p>
-   <h3>About This Tribute Keyring</h3>
-   <p>This NFC memorial keyring opens a personal tribute page with one gentle tap. Hold it to the back of any NFC-enabled smartphone and the page appears instantly, with no app required.</p>
-   <p>Each page is created just for you, featuring your choice of photo, audio and words of remembrance.</p>
-   <p>Made from black faux leather with neat stitching and a polished metal fitting, it's a thoughtful way to keep a loved one close every day. The built-in NTAG chip needs no battery or charging, which makes it a comforting remembrance gift for family and friends.</p>
-  </div>
-
-  <div class="form-container">
-   <div class="festive-header">
-    <div class="festive-icon">🕯️</div>
-    <h1 class="festive-title">Order Your Memorial Keyring</h1>
-    <p class="festive-subtitle">Personalised digital tribute page included</p>
-   </div>
-
-   <!-- Web3Forms Integration -->
-   <form id="memorialForm" action="https://api.web3forms.com/submit" method="POST">
-    <!-- Web3Forms Access Key & Settings -->
-    <input type="hidden" name="access_key" value="88b3835f-7086-4a0b-baf7-ce9b9eb11488">
-    <input type="hidden" name="redirect" value="https://vi-key.uk/thank-you">
-    <input type="hidden" name="subject" value="New Memorial Keyring Order!">
-    <input type="hidden" name="from_name" value="V I Key Memorial Keyring Order">
-
-    <div class="honeypot">
-     <label>Leave empty</label><input type="text" name="botcheck" tabindex="-1" autocomplete="off">
+    <!-- Navigation -->
+    <div class="page-nav">
+        <a href="/" class="nav-link">Our Story</a>
+        <span style="color:#444">|</span>
+        <a href="/our-services/" class="nav-link active">Our Services</a>
+        <span style="color:#444">|</span>
+        <a href="/business-solutions/" class="nav-link">Business Solutions</a>
     </div>
 
-    <!-- STEP 1: DETAILS -->
-    <div class="step-header">
-     <span class="step-number">1</span>
-     <h2 class="step-title">Your Details &amp; Tribute Message</h2>
+    <!-- Main Content -->
+    <div class="content-container">
+
+        <section>
+            <h2>A Glimpse Into What We Create</h2>
+            <p>Every <strong>V I Key®</strong> tells a story. Whether it is a tribute to a loved one, a smart business card, a restaurant menu, or a personal keepsake, each piece is crafted with care and attention to detail.</p>
+            <p><em>Tap on any sample below to view the full page as it appears when someone scans the physical key.</em></p>
+        </section>
+
+        <div class="divider-icon">✨</div>
+
+        <section>
+            <h2>Customized NFC Tags</h2>
+            <p>We program custom NFC tags to suit your exact needs. Just tap with any smartphone—no apps and no fuss. Whether you want a smart contact card for your business or a keepsake for a personal project, we keep it simple, elegant, and reliable.</p>
+        </section>
+
+        <div class="divider-icon">✨</div>
+
+        <section>
+            <h2>Your Story, Beautifully Told</h2>
+            <p>These are just a few examples of what is possible with <strong>V I Key®</strong>. Every page we create is unique, personal, and designed to reflect the individual it represents. Whether for a memory, a business, or a special occasion, we shape each digital experience with care.</p>
+        </section>
+
+        <div class="divider-icon">✨</div>
+
+        <section class="feature-box">
+            <h2>Forever Pets</h2>
+            <p>Our Forever Pets pages celebrate cherished companions. A physical V I Key® that opens a quiet, personal tribute—preserving photos, stories, and favorite memories of the pets who shared your life. No public feeds, no noise—just a loving keepsake that lasts.</p>
+            <div class="cta-wrapper">
+                <a href="/foreverpets/" class="cta-link">View Forever Pets</a>
+            </div>
+        </section>
+
+        <div class="divider-icon">✨</div>
+
+        <section class="feature-box">
+            <h2>Memorial Pages</h2>
+            <p>We also create beautiful, private digital memorial pages for loved ones. A physical V I Key® that opens a quiet, personal space—preserving memories, stories, and photos for the people who shared the love. No public feeds, no noise—just a dignified tribute that lasts.</p>
+            <div class="cta-wrapper">
+                <a href="/memorials/" class="cta-link">View Memorial Pages</a>
+            </div>
+        </section>
+
+        <div class="divider-icon">✨</div>
+
+        <section>
+            <h2>Our Services</h2>
+            <p style="text-align:center; margin-bottom:20px;">Here are just some of the ways we can program your V I Key®:</p>
+            <div class="services-grid">
+                <div class="service-card">
+                    <div class="service-icon">🔗</div>
+                    <h3>Website Links</h3>
+                    <p>Direct visitors straight to your homepage, landing page, or any URL.</p>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">📋</div>
+                    <h3>Menu Links</h3>
+                    <p>Restaurant menus, service lists, or product catalogues — one tap and they're reading.</p>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">📱</div>
+                    <h3>WhatsApp Links</h3>
+                    <p>Open a pre-filled WhatsApp chat with your number and a custom message, ready to send.</p>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">✉️</div>
+                    <h3>Contact Us</h3>
+                    <p>Phone, email, or a full digital contact card so customers can reach you instantly.</p>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">📍</div>
+                    <h3>Location Links</h3>
+                    <p>Open Google Maps directions to your business or event instantly.</p>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">📷</div>
+                    <h3>Social Media</h3>
+                    <p>Instagram, Facebook, TikTok, LinkedIn — send followers straight to your profile.</p>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">📶</div>
+                    <h3>Wi-Fi Sharing</h3>
+                    <p>Guests tap to connect to your Wi-Fi network automatically — no password typing.</p>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">✨</div>
+                    <h3>…and much more</h3>
+                    <p>Payment links, vCards, calendar events, reviews, video links — the list is endless.</p>
+                </div>
+            </div>
+        </section>
+
+        <div class="divider-icon">✨</div>
+
+        <!-- Sample Cards -->
+        <div class="samples-grid">
+            <a href="/xmasletters/?id=example" class="sample-card">
+                <div class="sample-icon">🎄</div>
+                <h3>Christmas Letters</h3>
+                <p>Send a personalised Christmas tag with a message from Santa.</p>
+            </a>
+            <a href="https://vi-key.uk/petris" class="sample-card">
+                <div class="sample-icon">🍕</div>
+                <h3>Petri's Menu</h3>
+                <p>A digital menu for a local pizzeria & street food takeaway.</p>
+            </a>
+        </div>
+
+        <div class="divider-icon">🌟</div>
+
     </div>
 
-    <div class="form-group">
-     <label for="customer_name">Your Full Name:</label> 
-     <input type="text" id="customer_name" name="name" required>
-    </div>
-    <div class="form-group">
-     <label for="email">Your Email:</label> 
-     <input type="email" id="email" name="email" placeholder="example@email.com" required>
-    </div>
-    <div class="form-group">
-     <label for="delivery_address">Delivery Address (Street):</label> 
-     <input type="text" id="delivery_address" name="delivery_address" required>
-    </div>
-    <div class="form-group">
-     <label for="delivery_town">Delivery Town / City:</label> 
-     <input type="text" id="delivery_town" name="delivery_town" required>
-    </div>
-    <div class="form-group">
-     <label for="delivery_postcode">Delivery Postcode:</label> 
-     <input type="text" id="delivery_postcode" name="delivery_postcode" required>
-    </div>
-    <div class="form-group">
-     <label for="loved_one_name">Loved One's Name (for the tribute):</label> 
-     <input type="text" id="loved_one_name" name="loved_one_name" required>
-    </div>
+    <!-- Persistent Action Footer -->
+    <footer>
+        <a href="https://wa.me/qr/S3WV63OUV4CTP1" class="footer-btn" target="_blank" rel="noopener noreferrer">
+            <svg class="whatsapp-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-1.157 4.228 4.305-1.129z"/>
+            </svg>
+            <span></span>
+        </a>
+        <a href="mailto:vikeyshop@outlook.com" class="footer-btn">
+            <span class="email-icon">✉</span>
+            <span></span>
+        </a>
+        <a href="https://www.facebook.com/vi.key.page" class="footer-btn" target="_blank" rel="noopener noreferrer">
+            <svg class="facebook-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+            </svg>
+            <span></span>
+        </a>
+        <a href="https://www.instagram.com/vi_key_shop?stkn=dHpzNHZqemh5dTIy" class="footer-btn" target="_blank" rel="noopener noreferrer">
+            <svg class="instagram-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+            </svg>
+            <span></span>
+        </a>
+        <a href="https://www.tiktok.com/@vi_keyshop" class="footer-btn" target="_blank" rel="noopener noreferrer">
+            <svg class="tiktok-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1.04-.1z"/>
+            </svg>
+            <span></span>
+        </a>
+    </footer>
 
-    <div class="form-group">
-     <label for="tribute_words">Words of Remembrance / Story &amp; Audio Track:</label> 
-     <textarea id="tribute_words" name="message" placeholder="Enter your custom tribute text, special memories, or story..." required></textarea>
-     <p class="field-note">
-      🎵 <strong>Audio &amp; Photo Note:</strong> Please include any preferred song title, artist, or music link (Spotify/YouTube). 
-      <strong>For photos:</strong> You can send your photograph via <a href="mailto:vikeyshop@outlook.com" class="note-link">Email</a> or <a href="https://wa.me/qr/S3WV63OUV4CTP1" target="_blank" rel="noopener noreferrer" class="note-link">WhatsApp</a> to us after placing your order quoting your name.
-     </p>
-    </div>
-
-    <div class="consent-box">
-     <label> 
-      <input type="checkbox" name="gdpr_consent" required> 
-      <span>I consent to providing these details solely to create and post my memorial keyring and personal tribute page.</span> 
-     </label>
-    </div>
-
-    <!-- STEP 1b: SELECTION & QUANTITY -->
-    <div class="step-header">
-     <span class="step-number">★</span>
-     <h2 class="step-title">Select Quantity</h2>
-    </div>
-
-    <div class="tag-options">
-     <label class="tag-option" data-tag="memorial_keyring" data-price="14.99"> 
-      <input type="checkbox" name="tag_choice" value="NFC Memorial Keyring — £14.99" checked> 
-      <span>NFC Memorial Keyring (Black Faux Leather)</span> 
-      <span class="tag-price">£14.99</span> 
-      <input type="number" name="quantity" class="tag-qty" min="1" max="10" value="1" style="width:50px;padding:4px 6px;margin-left:8px;border:1px solid var(--card-border);border-radius:6px;background:var(--bg-base);color:var(--text-color);font-size:0.85rem;" data-tag="memorial_keyring"> 
-     </label>
-    </div>
-
-    <!-- Hidden input to dynamically pass the final calculated order total in the email -->
-    <input type="hidden" id="hiddenTotal" name="order_total" value="£14.99">
-
-    <!-- STEP 2: PAYMENT -->
-    <div class="step-header">
-     <span class="step-number">2</span>
-     <h2 class="step-title">Payment</h2>
-    </div>
-
-    <div class="payment-box">
-     <div style="background:var(--gold-cta-bg);border:1px solid var(--gold-cta-border);border-radius:8px;padding:15px;margin-bottom:15px;text-align:center;">
-      <p style="font-size:0.9rem;color:var(--text-muted);margin-bottom:5px;">Your Order Total</p>
-      <p id="orderTotal" style="font-size:2rem;font-weight:700;color:var(--gold);margin:0;">£14.99</p>
-     </div>
-     <p>Tap the link below to pay. <strong>Enter the exact total shown above as the payment amount.</strong> Use your name and postcode as the reference so we can match it to your order.</p>
-     
-     <a class="bank-link" href="https://paymentrequest.natwestpayit.com/reusable-links/63e0aa5c-adef-4914-9f44-a5c147a1ced6" target="_blank" rel="noopener noreferrer"> 
-      <div class="security-note">Tap Here To Pay Securely</div> 
-     </a>
-    </div>
-
-    <!-- STEP 3: CONFIRM & SUBMIT -->
-    <div class="step-header">
-     <span class="step-number">3</span>
-     <h2 class="step-title">Confirm &amp; Submit</h2>
-    </div>
-
-    <div class="pay-confirm-box">
-     <label for="paid_confirm"> 
-      <input type="checkbox" id="paid_confirm" name="paid_confirm" required> 
-      <span>I confirm I have paid and I'm ready to submit my order.</span> 
-     </label>
-    </div>
-
-    <button id="submitBtn" type="submit" disabled>Complete Order</button>
-   </form>
-  </div>
- </div>
-
- <!-- Persistent Action Footer (Icons Only) -->
- <footer>
-  <a href="https://wa.me/qr/S3WV63OUV4CTP1" class="footer-btn" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp"> 
-   <svg class="whatsapp-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-1.157 4.228 4.305-1.129z"/></svg> 
-  </a> 
-  <a href="mailto:vikeyshop@outlook.com" class="footer-btn" aria-label="Email"> 
-   <span class="email-icon">✉</span> 
-  </a> 
-  <a href="https://www.facebook.com/vi.key.page" class="footer-btn" target="_blank" rel="noopener noreferrer" aria-label="Facebook"> 
-   <svg class="facebook-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg> 
-  </a> 
-  <a href="https://www.instagram.com/vi_key_shop?stkn=dHpzNHZqemh5dTIy" class="footer-btn" target="_blank" rel="noopener noreferrer" aria-label="Instagram"> 
-   <svg class="instagram-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg> 
-  </a> 
-  <a href="https://www.tiktok.com/@vi_keyshop" class="footer-btn" target="_blank" rel="noopener noreferrer" aria-label="TikTok"> 
-   <svg class="tiktok-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1.04-.1z"/></svg> 
-  </a>
- </footer>
-
- <script>
-        const form = document.getElementById('memorialForm');
-        const submitBtn = document.getElementById('submitBtn');
-        const paidConfirm = document.getElementById('paid_confirm');
-        const tagOptionLabels = document.querySelectorAll('.tag-option');
-        const orderTotal = document.getElementById('orderTotal');
-        const hiddenTotal = document.getElementById('hiddenTotal');
-
-        function calculateTotal() {
-            let total = 0;
-            tagOptionLabels.forEach(label => {
-                const checkbox = label.querySelector('input[type="checkbox"]');
-                const qtyInput = label.querySelector('.tag-qty');
-                if (checkbox.checked) {
-                    const price = parseFloat(label.dataset.price);
-                    const qty = parseInt(qtyInput.value) || 1;
-                    total += price * qty;
-                }
-            });
-            const formattedTotal = '£' + total.toFixed(2);
-            if (orderTotal) {
-                orderTotal.textContent = formattedTotal;
-            }
-            if (hiddenTotal) {
-                hiddenTotal.value = formattedTotal;
-            }
-        }
-
-        tagOptionLabels.forEach(label => {
-            const checkbox = label.querySelector('input[type="checkbox"]');
-            const qtyInput = label.querySelector('.tag-qty');
-
-            checkbox.addEventListener('change', function() {
-                if (checkbox.checked) {
-                    qtyInput.style.display = 'inline-block';
-                    if (parseInt(qtyInput.value) < 1) qtyInput.value = 1;
-                } else {
-                    qtyInput.style.display = 'none';
-                }
-                calculateTotal();
-                updateSubmitState();
-            });
-
-            if (qtyInput) {
-                qtyInput.addEventListener('input', calculateTotal);
-                qtyInput.addEventListener('change', calculateTotal);
-            }
-        });
-
-        function updateSubmitState() {
-            const hasTag = Array.from(tagOptionLabels).some(l => l.querySelector('input[type="checkbox"]').checked);
-            submitBtn.disabled = !paidConfirm.checked || !hasTag;
-        }
-
-        paidConfirm.addEventListener('change', updateSubmitState);
-
-        calculateTotal();
-        updateSubmitState();
-    </script>
- </body>
+</body>
 </html>
