@@ -62,8 +62,8 @@
   </div>
 
   <script>
-    // Route requests to vi-key.uk/api/* which targets your mycard Worker directly
-    const API_BASE = '/api';
+    // Updated endpoint path to include /mycard prefix
+    const API_BASE = '/mycard/api';
     let authToken = localStorage.getItem('card_admin_token') || '';
 
     if (authToken) {
