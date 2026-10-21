@@ -1,116 +1,188 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>V I Key® - Admin Panel</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: { extend: { colors: { darkbg: '#0a0a0f', cardbg: '#13131a' } } }
-        }
-    </script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VI Key® Card Manager</title>
+  <!-- Tailwind CSS CDN for styling -->
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-darkbg text-white min-h-screen p-4 sm:p-8 font-sans">
+<body class="bg-gray-100 min-h-screen p-6 text-gray-800">
+  <div class="max-w-lg mx-auto bg-white rounded-xl shadow-md p-6">
+    <h1 class="text-2xl font-bold mb-4 flex items-center gap-2">
+      ⚡ VI Key® Card Manager
+    </h1>
 
-    <div class="max-w-3xl mx-auto">
-        <!-- Login Section -->
-        <div id="login-section" class="max-w-sm mx-auto bg-cardbg border border-white/10 rounded-3xl p-6 shadow-2xl mt-12 text-center">
-            <h2 class="text-xl font-bold mb-2">Admin Login</h2>
-            <p class="text-xs text-gray-400 mb-4">Enter your secure admin password</p>
-            <input type="password" id="admin-pass" placeholder="Password" class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2.5 text-xs text-white mb-3 text-center">
-            <button onclick="adminLogin()" class="w-full bg-purple-600 hover:bg-purple-500 py-2.5 rounded-xl text-xs font-semibold transition">Login</button>
-            <p id="login-err" class="text-xs text-red-400 mt-2 hidden">Incorrect password</p>
-        </div>
-
-        <!-- Dashboard Section (Hidden by default) -->
-        <div id="dashboard-section" class="hidden bg-cardbg border border-white/10 rounded-3xl p-6 shadow-2xl space-y-6">
-            <div class="flex justify-between items-center border-b border-white/10 pb-4">
-                <h1 class="text-xl font-bold">⚡ V I Key® Card Manager</h1>
-                <a href="./" class="text-xs text-purple-400 underline">View Public Card</a>
-            </div>
-
-            <div class="space-y-4">
-                <div>
-                    <label class="text-xs text-gray-400">Card ID / Slug (e.g. alex)</label>
-                    <input type="text" id="cfg-id" class="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-xs text-white" value="alex">
-                </div>
-                <div>
-                    <label class="text-xs text-gray-400">Display Name</label>
-                    <input type="text" id="cfg-name" class="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-xs text-white">
-                </div>
-                <div>
-                    <label class="text-xs text-gray-400">Bio</label>
-                    <textarea id="cfg-bio" class="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-xs text-white" rows="2"></textarea>
-                </div>
-                <div>
-                    <label class="text-xs text-gray-400">Avatar URL</label>
-                    <input type="text" id="cfg-avatar" class="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-xs text-white">
-                </div>
-                <button onclick="saveCardData()" class="w-full bg-purple-600 hover:bg-purple-500 py-2.5 rounded-xl text-xs font-semibold transition">Save to Cloudflare KV</button>
-                <p id="save-status" class="text-xs text-center text-green-400 hidden">Saved successfully!</p>
-            </div>
-        </div>
+    <!-- LOGIN FORM -->
+    <div id="login-section" class="mb-6">
+      <h2 class="text-lg font-semibold mb-2">Admin Login</h2>
+      <p class="text-sm text-gray-600 mb-3">Enter your secure admin password</p>
+      <div class="flex gap-2">
+        <input 
+          type="password" 
+          id="admin-password" 
+          placeholder="Password" 
+          class="border rounded px-3 py-2 flex-grow focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+        <button 
+          onclick="handleLogin()" 
+          class="bg-blue-600 text-white px-4 py-2 rounded font-medium hover:bg-blue-700 transition"
+        >
+          Login
+        </button>
+      </div>
+      <p id="login-msg" class="text-sm mt-2 hidden"></p>
     </div>
 
-    <script>
-        let authToken = "";
+    <!-- EDITOR FORM (Hidden until logged in) -->
+    <div id="editor-section" class="hidden border-t pt-6">
+      <div class="flex justify-between items-center mb-4">
+        <a href="./#alex" target="_blank" class="text-blue-600 text-sm hover:underline">
+          ↗ View Public Card
+        </a>
+        <button onclick="handleLogout()" class="text-xs text-red-500 hover:underline">
+          Logout
+        </button>
+      </div>
 
-        async function adminLogin() {
-            const pass = document.getElementById('admin-pass').value;
-            const res = await fetch('/api/admin/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ password: pass })
-            });
-            if (res.ok) {
-                const data = await res.json();
-                authToken = data.token;
-                document.getElementById('login-section').classList.add('hidden');
-                document.getElementById('dashboard-section').classList.remove('hidden');
-                loadCardForEdit();
-            } else {
-                document.getElementById('login-err').classList.remove('hidden');
-            }
+      <div class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Card ID / Slug</label>
+          <input type="text" id="card-id" value="alex" class="w-full border rounded px-3 py-2 bg-gray-50" readonly />
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Display Name</label>
+          <input type="text" id="card-name" placeholder="Alex Rivers" class="w-full border rounded px-3 py-2" />
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Bio</label>
+          <textarea id="card-bio" rows="3" placeholder="Digital creator..." class="w-full border rounded px-3 py-2"></textarea>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Avatar Image URL</label>
+          <input type="text" id="card-avatar" placeholder="https://..." class="w-full border rounded px-3 py-2" />
+        </div>
+
+        <button 
+          onclick="saveCardData()" 
+          class="w-full bg-green-600 text-white font-semibold py-2 rounded hover:bg-green-700 transition"
+        >
+          Save to Cloudflare KV
+        </button>
+
+        <p id="save-msg" class="text-sm text-center font-medium mt-2 hidden"></p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = '/api'; // Uses Cloudflare Route: vi-key.uk/api/*
+    let authToken = localStorage.getItem('card_admin_token') || '';
+
+    // Auto check if already logged in
+    if (authToken) {
+      showEditor();
+      loadExistingData();
+    }
+
+    async function handleLogin() {
+      const pwd = document.getElementById('admin-password').value;
+      const msg = document.getElementById('login-msg');
+      msg.className = 'text-sm mt-2 text-gray-500';
+      msg.textContent = 'Logging in...';
+      msg.classList.remove('hidden');
+
+      try {
+        const res = await fetch(`${API_BASE}/admin/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password: pwd })
+        });
+        const data = await res.json();
+
+        if (res.ok && data.token) {
+          authToken = data.token;
+          localStorage.setItem('card_admin_token', authToken);
+          msg.className = 'text-sm mt-2 text-green-600';
+          msg.textContent = 'Logged in successfully!';
+          setTimeout(() => {
+            showEditor();
+            loadExistingData();
+          }, 500);
+        } else {
+          msg.className = 'text-sm mt-2 text-red-600';
+          msg.textContent = 'Incorrect password';
         }
+      } catch (err) {
+        msg.className = 'text-sm mt-2 text-red-600';
+        msg.textContent = 'Connection error to Worker API';
+      }
+    }
 
-        async function loadCardForEdit() {
-            const id = document.getElementById('cfg-id').value || 'alex';
-            const res = await fetch(`/api/card?id=${id}`);
-            if (res.ok) {
-                const card = await res.json();
-                document.getElementById('cfg-name').value = card.name || '';
-                document.getElementById('cfg-bio').value = card.bio || '';
-                document.getElementById('cfg-avatar').value = card.avatar || '';
-            }
+    function showEditor() {
+      document.getElementById('login-section').classList.add('hidden');
+      document.getElementById('editor-section').classList.remove('hidden');
+    }
+
+    function handleLogout() {
+      localStorage.removeItem('card_admin_token');
+      authToken = '';
+      location.reload();
+    }
+
+    async function loadExistingData() {
+      try {
+        const res = await fetch(`${API_BASE}/card?id=alex`);
+        if (res.ok) {
+          const data = await res.json();
+          document.getElementById('card-name').value = data.name || '';
+          document.getElementById('card-bio').value = data.bio || '';
+          document.getElementById('card-avatar').value = data.avatar || '';
         }
+      } catch (e) {}
+    }
 
-        async function saveCardData() {
-            const id = document.getElementById('cfg-id').value || 'alex';
-            const payload = {
-                id,
-                name: document.getElementById('cfg-name').value,
-                bio: document.getElementById('cfg-bio').value,
-                avatar: document.getElementById('cfg-avatar').value,
-                links: [{ title: "Website", url: "https://vi-key.uk", icon: "🌐" }]
-            };
+    async function saveCardData() {
+      const msg = document.getElementById('save-msg');
+      msg.className = 'text-sm text-center font-medium mt-2 text-gray-500';
+      msg.textContent = 'Saving...';
+      msg.classList.remove('hidden');
 
-            const res = await fetch('/api/admin/save', {
-                method: 'POST',
-                headers: { 
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${authToken}`
-                },
-                body: JSON.stringify(payload)
-            });
+      const payload = {
+        id: 'alex',
+        name: document.getElementById('card-name').value,
+        bio: document.getElementById('card-bio').value,
+        avatar: document.getElementById('card-avatar').value,
+        links: [
+          { title: 'Website', url: 'https://vi-key.uk', icon: '🌐' }
+        ]
+      };
 
-            if (res.ok) {
-                const st = document.getElementById('save-status');
-                st.classList.remove('hidden');
-                setTimeout(() => st.classList.add('hidden'), 3000);
-            }
+      try {
+        const res = await fetch(`${API_BASE}/admin/save`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${authToken}`
+          },
+          body: JSON.stringify(payload)
+        });
+
+        if (res.ok) {
+          msg.className = 'text-sm text-center font-medium mt-2 text-green-600';
+          msg.textContent = 'Saved successfully to KV!';
+        } else {
+          msg.className = 'text-sm text-center font-medium mt-2 text-red-600';
+          msg.textContent = 'Failed to save. Session may have expired.';
         }
-    </script>
+      } catch (err) {
+        msg.className = 'text-sm text-center font-medium mt-2 text-red-600';
+        msg.textContent = 'Error connecting to server.';
+      }
+    }
+  </script>
 </body>
 </html>
