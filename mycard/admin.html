@@ -62,8 +62,8 @@
   </div>
 
   <script>
-    // Updated endpoint path to include /mycard prefix
-    const API_BASE = '/mycard/api';
+    // Direct connection to your Cloudflare Worker URL to bypass host interception
+    const API_BASE = 'https://mycard.vikey.workers.dev/api';
     let authToken = localStorage.getItem('card_admin_token') || '';
 
     if (authToken) {
