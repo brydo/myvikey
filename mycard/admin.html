@@ -62,7 +62,7 @@
   </div>
 
   <script>
-    // Uses relative path to stay on the same origin domain (prevents CSP blocks)
+    // Route requests to vi-key.uk/api/* which targets your mycard Worker directly
     const API_BASE = '/api';
     let authToken = localStorage.getItem('card_admin_token') || '';
 
