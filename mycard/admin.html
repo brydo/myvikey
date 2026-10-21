@@ -3,8 +3,6 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <!-- CSP Meta tag to allow connection to Cloudflare Worker API -->
-  <meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline' 'unsafe-eval'; connect-src * 'unsafe-inline'; img-src * data: blob:;">
   <title>VI Key® Card Manager</title>
   <style>
     body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: #f3f4f6; margin: 0; padding: 24px; color: #1f2937; }
@@ -64,7 +62,8 @@
   </div>
 
   <script>
-    const API_BASE = 'https://mycard.vikey.workers.dev/api';
+    // Uses relative path to stay on the same origin domain (prevents CSP blocks)
+    const API_BASE = '/api';
     let authToken = localStorage.getItem('card_admin_token') || '';
 
     if (authToken) {
