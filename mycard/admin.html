@@ -4,86 +4,68 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>VI Key® Card Manager</title>
-  <!-- Tailwind CSS CDN for styling -->
-  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: #f3f4f6; margin: 0; padding: 24px; color: #1f2937; }
+    .card { max-width: 480px; margin: 0 auto; background: #ffffff; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); padding: 24px; }
+    h1 { font-size: 20px; font-weight: bold; margin-top: 0; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
+    label { display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; color: #6b7280; margin-bottom: 4px; margin-top: 12px; }
+    input[type="text"], input[type="password"], textarea { width: 100%; box-sizing: border-box; border: 1px solid #d1d5db; border-radius: 6px; padding: 8px 12px; font-size: 14px; margin-bottom: 8px; }
+    input:focus, textarea:focus { outline: none; border-color: #2563eb; ring: 2px #2563eb; }
+    button { cursor: pointer; border: none; border-radius: 6px; padding: 8px 16px; font-size: 14px; font-weight: 600; transition: background 0.2s; }
+    .btn-blue { background-color: #2563eb; color: #ffffff; width: 100%; }
+    .btn-blue:hover { background-color: #1d4ed8; }
+    .btn-green { background-color: #16a34a; color: #ffffff; width: 100%; margin-top: 12px; }
+    .btn-green:hover { background-color: #15803d; }
+    .btn-danger { background-color: transparent; color: #ef4444; padding: 0; font-size: 12px; }
+    .flex-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+    .msg { font-size: 13px; margin-top: 8px; text-align: center; }
+    .msg-error { color: #dc2626; }
+    .msg-success { color: #16a34a; }
+    .is-hidden { display: none !important; }
+  </style>
 </head>
-<body class="bg-gray-100 min-h-screen p-6 text-gray-800">
-  <div class="max-w-lg mx-auto bg-white rounded-xl shadow-md p-6">
-    <h1 class="text-2xl font-bold mb-4 flex items-center gap-2">
-      ⚡ VI Key® Card Manager
-    </h1>
+<body>
+
+  <div class="card">
+    <h1>⚡ VI Key® Card Manager</h1>
 
     <!-- LOGIN FORM -->
-    <div id="login-section" class="mb-6">
-      <h2 class="text-lg font-semibold mb-2">Admin Login</h2>
-      <p class="text-sm text-gray-600 mb-3">Enter your secure admin password</p>
-      <div class="flex gap-2">
-        <input 
-          type="password" 
-          id="admin-password" 
-          placeholder="Password" 
-          class="border rounded px-3 py-2 flex-grow focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-        <button 
-          onclick="handleLogin()" 
-          class="bg-blue-600 text-white px-4 py-2 rounded font-medium hover:bg-blue-700 transition"
-        >
-          Login
-        </button>
-      </div>
-      <p id="login-msg" class="text-sm mt-2 hidden"></p>
+    <div id="login-section">
+      <p style="font-size: 14px; color: #4b5563; margin-bottom: 12px;">Enter your secure admin password</p>
+      <input type="password" id="admin-password" placeholder="Password" />
+      <button onclick="handleLogin()" class="btn-blue">Login</button>
+      <div id="login-msg" class="msg is-hidden"></div>
     </div>
 
     <!-- EDITOR FORM (Hidden until logged in) -->
-    <div id="editor-section" class="hidden border-t pt-6">
-      <div class="flex justify-between items-center mb-4">
-        <a href="./#alex" target="_blank" class="text-blue-600 text-sm hover:underline">
-          ↗ View Public Card
-        </a>
-        <button onclick="handleLogout()" class="text-xs text-red-500 hover:underline">
-          Logout
-        </button>
+    <div id="editor-section" class="is-hidden" style="border-top: 1px solid #e5e7eb; pt-4; margin-top: 16px;">
+      <div class="flex-header">
+        <a href="./#alex" target="_blank" style="color: #2563eb; font-size: 13px; text-decoration: none;">↗ View Public Card</a>
+        <button onclick="handleLogout()" class="btn-danger">Logout</button>
       </div>
 
-      <div class="space-y-4">
-        <div>
-          <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Card ID / Slug</label>
-          <input type="text" id="card-id" value="alex" class="w-full border rounded px-3 py-2 bg-gray-50" readonly />
-        </div>
+      <label>Card ID / Slug</label>
+      <input type="text" id="card-id" value="alex" readonly style="background-color: #f9fafb;" />
 
-        <div>
-          <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Display Name</label>
-          <input type="text" id="card-name" placeholder="Alex Rivers" class="w-full border rounded px-3 py-2" />
-        </div>
+      <label>Display Name</label>
+      <input type="text" id="card-name" placeholder="Alex Rivers" />
 
-        <div>
-          <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Bio</label>
-          <textarea id="card-bio" rows="3" placeholder="Digital creator..." class="w-full border rounded px-3 py-2"></textarea>
-        </div>
+      <label>Bio</label>
+      <textarea id="card-bio" rows="3" placeholder="Digital creator..."></textarea>
 
-        <div>
-          <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Avatar Image URL</label>
-          <input type="text" id="card-avatar" placeholder="https://..." class="w-full border rounded px-3 py-2" />
-        </div>
+      <label>Avatar Image URL</label>
+      <input type="text" id="card-avatar" placeholder="https://..." />
 
-        <button 
-          onclick="saveCardData()" 
-          class="w-full bg-green-600 text-white font-semibold py-2 rounded hover:bg-green-700 transition"
-        >
-          Save to Cloudflare KV
-        </button>
-
-        <p id="save-msg" class="text-sm text-center font-medium mt-2 hidden"></p>
-      </div>
+      <button onclick="saveCardData()" class="btn-green">Save to Cloudflare KV</button>
+      <div id="save-msg" class="msg is-hidden"></div>
     </div>
   </div>
 
   <script>
-    // Points directly to active Worker endpoint
+    // Fallback detection: try current domain API first, then Workers.dev directly
     const API_BASE = 'https://mycard.vikey.workers.dev/api';
     let authToken = localStorage.getItem('card_admin_token') || '';
 
-    // Auto check if already logged in
     if (authToken) {
       showEditor();
       loadExistingData();
@@ -92,9 +74,9 @@
     async function handleLogin() {
       const pwd = document.getElementById('admin-password').value;
       const msg = document.getElementById('login-msg');
-      msg.className = 'text-sm mt-2 text-gray-500';
+      msg.className = 'msg';
       msg.textContent = 'Logging in...';
-      msg.classList.remove('hidden');
+      msg.classList.remove('is-hidden');
 
       try {
         const res = await fetch(`${API_BASE}/admin/login`, {
@@ -107,25 +89,25 @@
         if (res.ok && data.token) {
           authToken = data.token;
           localStorage.setItem('card_admin_token', authToken);
-          msg.className = 'text-sm mt-2 text-green-600';
+          msg.className = 'msg msg-success';
           msg.textContent = 'Logged in successfully!';
           setTimeout(() => {
             showEditor();
             loadExistingData();
-          }, 500);
+          }, 400);
         } else {
-          msg.className = 'text-sm mt-2 text-red-600';
+          msg.className = 'msg msg-error';
           msg.textContent = 'Incorrect password';
         }
       } catch (err) {
-        msg.className = 'text-sm mt-2 text-red-600';
+        msg.className = 'msg msg-error';
         msg.textContent = 'Connection error to Worker API';
       }
     }
 
     function showEditor() {
-      document.getElementById('login-section').classList.add('hidden');
-      document.getElementById('editor-section').classList.remove('hidden');
+      document.getElementById('login-section').classList.add('is-hidden');
+      document.getElementById('editor-section').classList.remove('is-hidden');
     }
 
     function handleLogout() {
@@ -148,18 +130,16 @@
 
     async function saveCardData() {
       const msg = document.getElementById('save-msg');
-      msg.className = 'text-sm text-center font-medium mt-2 text-gray-500';
+      msg.className = 'msg';
       msg.textContent = 'Saving...';
-      msg.classList.remove('hidden');
+      msg.classList.remove('is-hidden');
 
       const payload = {
         id: 'alex',
         name: document.getElementById('card-name').value,
         bio: document.getElementById('card-bio').value,
         avatar: document.getElementById('card-avatar').value,
-        links: [
-          { title: 'Website', url: 'https://vi-key.uk', icon: '🌐' }
-        ]
+        links: [{ title: 'Website', url: 'https://vi-key.uk', icon: '🌐' }]
       };
 
       try {
@@ -173,14 +153,14 @@
         });
 
         if (res.ok) {
-          msg.className = 'text-sm text-center font-medium mt-2 text-green-600';
+          msg.className = 'msg msg-success';
           msg.textContent = 'Saved successfully to KV!';
         } else {
-          msg.className = 'text-sm text-center font-medium mt-2 text-red-600';
-          msg.textContent = 'Failed to save. Session may have expired.';
+          msg.className = 'msg msg-error';
+          msg.textContent = 'Failed to save. Session expired.';
         }
       } catch (err) {
-        msg.className = 'text-sm text-center font-medium mt-2 text-red-600';
+        msg.className = 'msg msg-error';
         msg.textContent = 'Error connecting to server.';
       }
     }
