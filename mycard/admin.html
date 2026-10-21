@@ -79,7 +79,8 @@
   </div>
 
   <script>
-    const API_BASE = '/api'; // Uses Cloudflare Route: vi-key.uk/api/*
+    // Points directly to active Worker endpoint
+    const API_BASE = 'https://mycard.vikey.workers.dev/api';
     let authToken = localStorage.getItem('card_admin_token') || '';
 
     // Auto check if already logged in
