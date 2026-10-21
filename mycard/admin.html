@@ -10,8 +10,8 @@
     h1 { font-size: 20px; font-weight: bold; margin-top: 0; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
     label { display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; color: #6b7280; margin-bottom: 4px; margin-top: 12px; }
     input[type="text"], input[type="password"], textarea { width: 100%; box-sizing: border-box; border: 1px solid #d1d5db; border-radius: 6px; padding: 8px 12px; font-size: 14px; margin-bottom: 8px; }
-    input:focus, textarea:focus { outline: none; border-color: #2563eb; ring: 2px #2563eb; }
-    button { cursor: pointer; border: none; border-radius: 6px; padding: 8px 16px; font-size: 14px; font-weight: 600; transition: background 0.2s; }
+    input:focus, textarea:focus { outline: none; border-color: #2563eb; }
+    button { cursor: pointer; border: none; border-radius: 6px; padding: 10px 16px; font-size: 14px; font-weight: 600; transition: background 0.2s; }
     .btn-blue { background-color: #2563eb; color: #ffffff; width: 100%; }
     .btn-blue:hover { background-color: #1d4ed8; }
     .btn-green { background-color: #16a34a; color: #ffffff; width: 100%; margin-top: 12px; }
@@ -38,7 +38,7 @@
     </div>
 
     <!-- EDITOR FORM (Hidden until logged in) -->
-    <div id="editor-section" class="is-hidden" style="border-top: 1px solid #e5e7eb; pt-4; margin-top: 16px;">
+    <div id="editor-section" class="is-hidden" style="border-top: 1px solid #e5e7eb; padding-top: 16px; margin-top: 16px;">
       <div class="flex-header">
         <a href="./#alex" target="_blank" style="color: #2563eb; font-size: 13px; text-decoration: none;">↗ View Public Card</a>
         <button onclick="handleLogout()" class="btn-danger">Logout</button>
@@ -62,10 +62,11 @@
   </div>
 
   <script>
-    // Fallback detection: try current domain API first, then Workers.dev directly
+    // Direct endpoint connection to Cloudflare Worker
     const API_BASE = 'https://mycard.vikey.workers.dev/api';
     let authToken = localStorage.getItem('card_admin_token') || '';
 
+    // Auto load editor if already logged in
     if (authToken) {
       showEditor();
       loadExistingData();
