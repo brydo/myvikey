@@ -8,12 +8,16 @@
     <link rel="stylesheet" href="/mycard/card.css">
     <style>
         :root {
-            --bg-color: #12110F;
-            --card-bg: rgba(255,255,255,0.04);
-            --gold: #c9a96e;
-            --text-color: #e8e6e3;
-            --text-muted: #a8a4a0;
-            --card-border: rgba(255,255,255,0.08);
+            --bg-color: #0a0a0f;
+            --card-bg: #13131a;
+            --accent: #7c3aed;
+            --heading-link: #a78bfa;
+            --text-color: #ffffff;
+            --text-muted: #d1d5db;
+            --card-border: #2a2a38;
+            --btn-bg: #1f1f2e;
+            --danger: #f87171;
+            --success: #4ade80;
         }
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
@@ -24,7 +28,7 @@
             padding: 20px;
         }
         .container { max-width: 600px; margin: 0 auto; }
-        h1 { color: var(--gold); text-align: center; margin: 30px 0 10px; font-size: 1.5rem; letter-spacing: 1px; }
+        h1 { color: var(--heading-link); text-align: center; margin: 30px 0 10px; font-size: 1.5rem; letter-spacing: 1px; }
         p.sub { text-align: center; color: var(--text-muted); margin-bottom: 30px; font-size: 0.9rem; }
         section {
             background-color: var(--card-bg);
@@ -33,7 +37,7 @@
             padding: 24px;
             margin-bottom: 20px;
         }
-        h2 { color: var(--gold); font-size: 1.1rem; margin-bottom: 16px; font-weight: 500; }
+        h2 { color: var(--heading-link); font-size: 1.1rem; margin-bottom: 16px; font-weight: 500; }
         label { display: block; color: var(--text-muted); font-size: 0.85rem; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
         input[type="text"], input[type="password"], textarea, select {
             width: 100%;
@@ -41,46 +45,46 @@
             font-size: 1rem;
             background-color: var(--bg-color);
             color: var(--text-color);
-            border: 1px solid rgba(255,255,255,0.12);
+            border: 1px solid var(--card-border);
             border-radius: 8px;
             margin-bottom: 14px;
             outline: none;
             transition: border-color 0.3s;
             font-family: inherit;
         }
-        input:focus, textarea:focus, select:focus { border-color: var(--gold); }
+        input:focus, textarea:focus, select:focus { border-color: var(--heading-link); }
         textarea { min-height: 80px; max-height: 80px; resize: none; }
         button {
             padding: 12px 24px;
             font-size: 0.95rem;
             font-weight: 600;
-            color: var(--gold);
-            background-color: rgba(201,169,110,0.1);
-            border: 1px solid rgba(201,169,110,0.3);
+            color: var(--heading-link);
+            background-color: var(--btn-bg);
+            border: 1px solid var(--card-border);
             border-radius: 8px;
             cursor: pointer;
-            transition: background-color 0.3s;
+            transition: background-color 0.3s, border-color 0.3s;
         }
-        button:hover { background-color: rgba(201,169,110,0.2); }
+        button:hover { background-color: #26263a; border-color: var(--heading-link); }
         button.secondary {
             color: var(--text-muted);
-            background-color: transparent;
-            border-color: rgba(255,255,255,0.12);
+            background-color: var(--btn-bg);
+            border-color: var(--card-border);
             margin-left: 8px;
         }
-        button.secondary:hover { background-color: rgba(255,255,255,0.05); }
+        button.secondary:hover { background-color: #26263a; border-color: var(--heading-link); }
         button.danger {
-            color: #ff6b6b;
-            background-color: rgba(255,107,107,0.1);
-            border-color: rgba(255,107,107,0.3);
+            color: var(--danger);
+            background-color: rgba(248,113,113,0.1);
+            border-color: rgba(248,113,113,0.35);
         }
-        button.danger:hover { background-color: rgba(255,107,107,0.2); }
+        button.danger:hover { background-color: rgba(248,113,113,0.18); }
         .msg { font-size: 0.9rem; margin-top: 12px; min-height: 1.2em; }
-        .msg.ok { color: #4caf50; }
-        .msg.err { color: #ff6b6b; }
+        .msg.ok { color: var(--success); }
+        .msg.err { color: var(--danger); }
         .btn-row { display: flex; align-items: center; }
-        .status { font-size: 0.85rem; color: var(--text-muted); text-align: center; margin-top: 20px; }
-        .status a { color: var(--gold); text-decoration: none; }
+        .status { font-size: 0.85rem; color: #6b7280; text-align: center; margin-top: 20px; }
+        .status a { color: var(--heading-link); text-decoration: none; }
         .page-list { margin-top: 12px; }
         .page-list-item {
             display: flex;
@@ -91,8 +95,9 @@
             border-radius: 6px;
             margin-bottom: 8px;
             font-size: 0.9rem;
+            background: #13131a;
         }
-        .page-list-item .id { color: var(--gold); font-weight: 600; }
+        .page-list-item .id { color: var(--heading-link); font-weight: 600; }
         .page-list-item .dob { color: var(--text-muted); font-size: 0.85rem; margin-left: 8px; }
         .page-list-item .badges { font-size: 0.8rem; color: var(--text-muted); }
         .page-list-item .badge { margin-left: 6px; }
@@ -104,7 +109,7 @@
             margin-top: 60px;
             text-align: center;
         }
-        .login-section h2 { color: var(--gold); font-size: 1.2rem; margin-bottom: 8px; }
+        .login-section h2 { color: var(--heading-link); font-size: 1.2rem; margin-bottom: 8px; }
         .login-section p { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 24px; }
         .login-section input { max-width: 300px; text-align: center; }
         .logout-btn {
@@ -125,10 +130,10 @@
             padding: 16px;
             border: 1px solid var(--card-border);
             border-radius: 8px;
-            background: rgba(255,255,255,0.02);
+            background: #13131a;
         }
         .photo-position-section .section-label {
-            color: var(--gold);
+            color: var(--heading-link);
             font-size: 0.85rem;
             text-transform: uppercase;
             letter-spacing: 0.5px;
@@ -145,11 +150,11 @@
             width: 200px;
             height: 200px;
             border-radius: 50%;
-            border: 3px solid var(--gold);
+            border: 3px solid var(--heading-link);
             overflow: hidden;
             position: relative;
             cursor: grab;
-            background: rgba(201,169,110,0.08);
+            background: #1f1f2e;
             flex-shrink: 0;
             touch-action: none;
         }
@@ -181,14 +186,14 @@
             text-transform: none;
             letter-spacing: 0;
         }
-        .slider-group label .val { color: var(--gold); font-weight: 600; }
+        .slider-group label .val { color: var(--heading-link); font-weight: 600; }
         input[type="range"] {
             -webkit-appearance: none;
             appearance: none;
             width: 100%;
             height: 6px;
             border-radius: 3px;
-            background: rgba(255,255,255,0.12);
+            background: #2a2a38;
             outline: none;
             margin-bottom: 14px;
         }
@@ -198,7 +203,7 @@
             width: 18px;
             height: 18px;
             border-radius: 50%;
-            background: var(--gold);
+            background: var(--heading-link);
             cursor: pointer;
             border: none;
         }
@@ -206,7 +211,7 @@
             width: 18px;
             height: 18px;
             border-radius: 50%;
-            background: var(--gold);
+            background: var(--heading-link);
             cursor: pointer;
             border: none;
         }
@@ -229,13 +234,13 @@
         @media (min-width: 560px) { .fields { grid-template-columns: 1fr 1fr; } .field.full { grid-column: 1 / -1; } }
         .fields textarea { min-height: 120px; max-height: 260px; resize: vertical; }
         .color-row { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; flex-wrap: wrap; }
-        .color-row input[type="color"] { width: 56px; height: 40px; padding: 2px; background: var(--bg-color); border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; cursor: pointer; }
+        .color-row input[type="color"] { width: 56px; height: 40px; padding: 2px; background: var(--bg-color); border: 1px solid var(--card-border); border-radius: 8px; cursor: pointer; }
         .color-row label.inline { display: inline-flex; gap: 6px; align-items: center; margin: 0; text-transform: none; }
-        .preview-box { background: #12110F; border-radius: 12px; padding: 12px; border: 1px dashed var(--card-border); }
+        .preview-box { background: #13131a; border-radius: 12px; padding: 12px; border: 1px dashed var(--card-border); }
         button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
         .list-actions { margin-top: 6px; display: flex; gap: 8px; flex-wrap: wrap; }
         .list-actions button, .list-actions a { padding: 6px 12px; font-size: 0.8rem; }
-        .list-actions a { color: var(--gold); border: 1px solid rgba(201,169,110,0.3); border-radius: 8px; text-decoration: none; display: inline-block; }
+        .list-actions a { color: var(--heading-link); border: 1px solid var(--card-border); border-radius: 8px; text-decoration: none; display: inline-block; background: var(--btn-bg); }
     </style>
 </head>
 <body>
