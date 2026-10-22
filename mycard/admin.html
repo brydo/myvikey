@@ -101,6 +101,7 @@
         .page-list-item .dob { color: var(--text-muted); font-size: 0.85rem; margin-left: 8px; }
         .page-list-item .badges { font-size: 0.8rem; color: var(--text-muted); }
         .page-list-item .badge { margin-left: 6px; }
+        .nfc-url { margin-bottom: 14px; }
         .login-section {
             background-color: var(--card-bg);
             border: 1px solid var(--card-border);
@@ -260,7 +261,7 @@
     <div id="adminPanel" class="container wide" style="display:none;">
         <button type="button" class="logout-btn secondary" id="logoutBtn">Logout</button>
         <h1>💳 MyCard Admin</h1>
-        <p class="sub">Create and manage digital business cards</p>
+        <p class="sub">Create and manage tap-to-share digital business cards</p>
 
         <div class="editor-grid">
           <div>
@@ -344,6 +345,15 @@
             </section>
 
             <section>
+                <h2>📲 NFC Tag Setup</h2>
+                <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 14px;">Write the card URL (https://vi-key.uk/mycard/?id=&lt;page-id&gt;) to your V I Key® NFC tag as a URL/NDEF record. Use the generated URL below.</p>
+                <label for="nfcUrl">NFC card URL</label>
+                <input class="nfc-url" type="text" id="nfcUrl" readonly aria-label="NFC card URL">
+                <button type="button" class="secondary" id="copyNfcUrlBtn">Copy NFC URL</button>
+                <div class="msg" id="nfcMsg" role="status"></div>
+            </section>
+
+            <section>
                 <h2>🔑 Card Password (optional)</h2>
                 <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 14px;">Uses the Page ID entered above. Cards without a password are public.</p>
                 <label for="setPass">Password</label>
@@ -378,10 +388,9 @@
           </div>
         </div>
 
-        <p class="status">Admin: <a href="/mycard/admin">/mycard/admin</a> · Sample: <a href="/mycard/?id=demo">/mycard/?id=demo</a></p>
+        <p class="status">Admin: <a href="/mycard/admin">/mycard/admin</a></p>
     </div>
 
-    <script src="/mycard/qrcode.js"></script>
     <script src="/mycard/card-render.js"></script>
     <script src="/mycard/admin.js"></script>
 </body>
