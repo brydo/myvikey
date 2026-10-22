@@ -6,10 +6,10 @@ The backend (Cloudflare Pages Functions in `functions/`) uses bcrypt-hashed pass
 
 | Feature | Behaviour |
 |---|---|
-| Password storage | bcrypt (`bcryptjs`, 12 salt rounds) in `MEMORIAL_PASSWORDS` / `PET_PASSWORDS` |
+| Password storage | bcrypt (`bcryptjs`, 12 salt rounds) in `MEMORIAL_PASSWORDS` / `PET_PASSWORDS` / `CARD_PASSWORDS` |
 | Admin login | `POST /api/password` `{action:"verify", id:"__admin__", password}` returns `sessionToken` + `expiresAt` |
 | Session | Stored in `ADMIN_SESSIONS` with a 30-minute TTL; sent as the `X-Admin-Session` header |
-| Protected actions | `set`/`delete` on `/api/password`, `/api/pet-password`, `/api/content`, `/api/pet-content` return `401` without a valid session |
+| Protected actions | `set`/`delete` on `/api/password`, `/api/pet-password`, `/api/card-password`, `/api/content`, `/api/pet-content`, `/api/card-content` return `401` without a valid session |
 | Rate limiting | 3 failed admin logins within 5 minutes lock the IP for 15 minutes (`429` + `Retry-After`) |
 | HTTPS | Plain HTTP requests are rejected with `403` |
 
@@ -23,13 +23,15 @@ npm install
 
 `bcryptjs` is pure JavaScript and works in the Workers runtime (Pages bundles it from `node_modules`).
 
-## 2. Create the 6 KV namespaces
+## 2. Create the 8 KV namespaces
 
 ```sh
 npx wrangler kv namespace create MEMORIAL_PASSWORDS   # hashed passwords
 npx wrangler kv namespace create PET_PASSWORDS        # hashed passwords
 npx wrangler kv namespace create MEMORIAL_CONTENT     # memorial data
 npx wrangler kv namespace create PET_CONTENT          # pet memorial data
+npx wrangler kv namespace create CARD_PASSWORDS       # hashed passwords (MyCard)
+npx wrangler kv namespace create CARD_CONTENT         # MyCard business card data
 npx wrangler kv namespace create ADMIN_SESSIONS       # session tokens (30-min TTL)
 npx wrangler kv namespace create RATE_LIMIT           # per-IP rate limiting
 ```
@@ -46,9 +48,9 @@ binding = "ADMIN_SESSIONS"
 id = "<id printed by wrangler>"
 ```
 
-Placeholders: `your_memorial_passwords_id`, `your_pet_passwords_id`, `your_memorial_content_id`, `your_pet_content_id`, `your_admin_sessions_id`, `your_rate_limit_id`.
+Placeholders: `your_memorial_passwords_id`, `your_pet_passwords_id`, `your_memorial_content_id`, `your_pet_content_id`, `your_card_passwords_id`, `your_card_content_id`, `your_admin_sessions_id`, `your_rate_limit_id`.
 
-If you deploy through the Cloudflare dashboard, instead add the same 6 bindings under **Pages project → Settings → Functions → KV namespace bindings** (the variable names must match exactly).
+If you deploy through the Cloudflare dashboard, instead add the same 8 bindings under **Pages project → Settings → Functions → KV namespace bindings** (the variable names must match exactly).
 
 ## 4. Deploy
 
@@ -70,7 +72,7 @@ Use `SECURITY_TEST.md` for the full checklist. Quick checks (replace `$HOST`):
 
 | Symptom | Cause / fix |
 |---|---|
-| `Cannot read properties of undefined (reading 'get')` | A KV binding is missing or misnamed; check all 6 bindings. |
+| `Cannot read properties of undefined (reading 'get')` | A KV binding is missing or misnamed; check all 8 bindings. |
 | `Could not resolve "bcryptjs"` at build | Run `npm install` and make sure `package.json` is committed. |
 | Always `401` on admin actions | Frontend isn't sending `X-Admin-Session`, session expired, or `ADMIN_SESSIONS` binding points at the wrong namespace. |
 | Locked out during testing | Delete the key: `npx wrangler kv key delete "rate_limit:<ip>" --namespace-id <RATE_LIMIT id>`. |

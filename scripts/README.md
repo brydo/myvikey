@@ -8,6 +8,7 @@
 | `MEMORIAL_CONTENT` | `margaret`, `james` |
 | `PET_PASSWORDS` | `charlie`, `robbie` (bcrypt hashes) |
 | `MEMORIAL_PASSWORDS` | `margaret`, `james` (bcrypt hashes) |
+| `CARD_CONTENT` | `demo` (sample MyCard; no password) |
 
 Content fields: `name`, `photoUrl`, `text` (story), `born`, `passed`, `dob` (display string used by the viewer pages), `audioUrl` (optional), `photoPosition` (default `50% 50%`).
 
@@ -19,12 +20,12 @@ Content fields: `name`, `photoUrl`, `text` (story), `born`, `passed`, `dob` (dis
 ```bash
 npm install
 export CF_ACCOUNT_ID=...  CF_API_TOKEN=...
-export PET_CONTENT_ID=... MEMORIAL_CONTENT_ID=... PET_PASSWORDS_ID=... MEMORIAL_PASSWORDS_ID=...
+export PET_CONTENT_ID=... MEMORIAL_CONTENT_ID=... PET_PASSWORDS_ID=... MEMORIAL_PASSWORDS_ID=... CARD_CONTENT_ID=...
 npm run seed            # password defaults to "password123"; override with SEED_PASSWORD
 npm run seed -- --dry-run   # preview without calling the API
 ```
 
-Then visit `/foreverpets/view.html?id=charlie` or `/memorials/view.html?id=margaret` (password: `password123`).
+Then visit `/foreverpets/view.html?id=charlie` or `/memorials/view.html?id=margaret` (password: `password123`), and `/mycard/?id=demo` for the sample business card (no password).
 
 The sample photos are placeholders; replace them via the admin pages. The seed overwrites these keys if they already exist, so change the passwords afterwards.
 

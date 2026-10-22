@@ -4,7 +4,8 @@ import bcrypt from 'bcryptjs';
 
 const {
   CF_ACCOUNT_ID, CF_API_TOKEN,
-  PET_CONTENT_ID, MEMORIAL_CONTENT_ID, PET_PASSWORDS_ID, MEMORIAL_PASSWORDS_ID
+  PET_CONTENT_ID, MEMORIAL_CONTENT_ID, PET_PASSWORDS_ID, MEMORIAL_PASSWORDS_ID,
+  CARD_CONTENT_ID
 } = process.env;
 const PASSWORD = process.env.SEED_PASSWORD || 'password123';
 const DRY_RUN = process.argv.includes('--dry-run');
@@ -47,6 +48,33 @@ const memorials = [
     '1938-08-25', '2020-05-30')
 ];
 
+// Sample MyCard data (V I Key business details) - change via /mycard/admin
+const cards = [
+  {
+    id: 'demo',
+    content: {
+      name: 'Sample Card (edit me)',
+      title: 'Owner',
+      company: 'V I Key®',
+      bio: 'This is SAMPLE data for the MyCard demo. The owner can change every field in the MyCard admin page.',
+      photoUrl: PLACEHOLDER_PHOTO + 'V+I+Key',
+      photoPosition: '50% 50%',
+      phone: '',
+      whatsapp: 'https://wa.me/qr/S3WV63OUV4CTP1',
+      email: 'vikeyshop@outlook.com',
+      website: 'https://vi-key.uk/',
+      mapUrl: '',
+      facebook: 'https://www.facebook.com/vi.key.page',
+      instagram: 'https://www.instagram.com/vi_key_shop',
+      tiktok: 'https://www.tiktok.com/@vi_keyshop',
+      linkedin: '', twitter: '', youtube: '', telegram: '',
+      customLabel: '', customUrl: '',
+      accentColor: '#c9a96e',
+      updated: new Date().toISOString()
+    }
+  }
+];
+
 async function bulkWrite(namespaceId, items) {
   if (DRY_RUN) { console.log(namespaceId || '(dry-run)', JSON.stringify(items.map(i => i.key))); return; }
   const url = `https://api.cloudflare.com/client/v4/accounts/${CF_ACCOUNT_ID}/storage/kv/namespaces/${namespaceId}/bulk`;
@@ -62,7 +90,7 @@ async function bulkWrite(namespaceId, items) {
 
 async function main() {
   if (!DRY_RUN) {
-    const required = { CF_ACCOUNT_ID, CF_API_TOKEN, PET_CONTENT_ID, MEMORIAL_CONTENT_ID, PET_PASSWORDS_ID, MEMORIAL_PASSWORDS_ID };
+    const required = { CF_ACCOUNT_ID, CF_API_TOKEN, PET_CONTENT_ID, MEMORIAL_CONTENT_ID, PET_PASSWORDS_ID, MEMORIAL_PASSWORDS_ID, CARD_CONTENT_ID };
     const missing = Object.keys(required).filter(k => !required[k]);
     if (missing.length) throw new Error('Missing environment variables: ' + missing.join(', '));
   }
@@ -73,6 +101,7 @@ async function main() {
 
   await bulkWrite(PET_CONTENT_ID, toContent(pets));
   await bulkWrite(MEMORIAL_CONTENT_ID, toContent(memorials));
+  await bulkWrite(CARD_CONTENT_ID, toContent(cards));
   await bulkWrite(PET_PASSWORDS_ID, await toPasswords(pets));
   await bulkWrite(MEMORIAL_PASSWORDS_ID, await toPasswords(memorials));
   console.log(`Done. Sample password: ${PASSWORD}`);

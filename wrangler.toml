@@ -18,6 +18,14 @@ binding = "PET_CONTENT"
 id = "6e9959eb3bad48139593421da7634b5a"
 
 [[env.production.kv_namespaces]]
+binding = "CARD_PASSWORDS"
+id = "your_card_passwords_id"
+
+[[env.production.kv_namespaces]]
+binding = "CARD_CONTENT"
+id = "your_card_content_id"
+
+[[env.production.kv_namespaces]]
 binding = "ADMIN_SESSIONS"
 id = "your_admin_sessions_id"
 
