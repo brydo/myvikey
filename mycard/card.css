@@ -94,9 +94,14 @@
 }
 .mc-social-link:hover { transform: translateY(-3px); border-color: rgba(168,85,247,0.5); color: #a78bfa; }
 .mc-social-link .mc-icon { width: 22px; height: 22px; }
-.mc-qr { padding: 22px 20px 0; }
-.mc-qr-svg { width: 132px; height: 132px; border-radius: 10px; display: block; margin: 0 auto; }
-.mc-qr-caption { margin-top: 8px; font-size: 0.8rem; color: #6b7280; }
+.mc-nfc {
+    margin: 22px 20px 0;
+    padding: 18px 8px 0;
+    border-top: 1px solid rgba(168, 85, 247, 0.28);
+    color: var(--mc-accent);
+}
+.mc-nfc .mc-icon { width: 32px; height: 32px; }
+.mc-nfc-caption { margin-top: 6px; color: #d1d5db; font-size: 0.9rem; }
 @media (prefers-reduced-motion: reduce) {
     .mc-btn, .mc-link, .mc-social-link { transition: none; }
 }

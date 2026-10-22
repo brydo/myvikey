@@ -115,6 +115,7 @@
     /* ===== Form <-> data ===== */
     function safeId() { return $('cardId').value.trim(); }
     function cardUrl(id) { return window.location.origin + '/mycard/?id=' + encodeURIComponent(id); }
+    function updateNfcUrl() { $('nfcUrl').value = safeId() ? cardUrl(safeId()) : ''; }
 
     function collect() {
         var c = {};
@@ -240,7 +241,10 @@
     async function loadCard(idOverride) {
         var id = idOverride || safeId();
         if (!id) { setMsg('contentMsg', 'Please enter a page ID.', false); return; }
-        if (idOverride) $('cardId').value = idOverride;
+        if (idOverride) {
+            $('cardId').value = idOverride;
+            updateNfcUrl();
+        }
         try {
             var r = await api('/api/card-content', { action: 'get-content', id: id });
             if (!r.ok) { setMsg('contentMsg', '✗ ' + (r.data.error || 'Failed'), false); return; }
@@ -259,6 +263,7 @@
     function clearForm() {
         fill({});
         $('cardId').value = '';
+        updateNfcUrl();
         currentPhotoPosition = '50% 50%';
         positionKnown = false;
         $('photoPositionSection').style.display = 'none';
@@ -314,6 +319,22 @@
         setTimeout(function () { btn.textContent = original; }, 1500);
     }
 
+    async function copyNfcUrl() {
+        var id = safeId();
+        if (!id) { setMsg('nfcMsg', 'Enter a Page ID to create its NFC URL.', false); return; }
+        var btn = $('copyNfcUrlBtn');
+        var original = btn.textContent;
+        try {
+            await navigator.clipboard.writeText(cardUrl(id));
+            setMsg('nfcMsg', 'NFC URL copied to clipboard.', true);
+            btn.textContent = 'Copied!';
+        } catch (e) {
+            setMsg('nfcMsg', 'Copy failed. Select and copy the URL above.', false);
+            btn.textContent = 'Copy failed';
+        }
+        setTimeout(function () { btn.textContent = original; }, 1500);
+    }
+
     async function listCards() {
         var listEl = $('pageList');
         function status(text) {
@@ -357,7 +378,7 @@
                 var copy = document.createElement('button');
                 copy.type = 'button';
                 copy.className = 'secondary';
-                copy.textContent = 'Copy URL';
+                copy.textContent = 'Copy NFC URL';
                 copy.addEventListener('click', function () { copyUrl(p.id, copy); });
                 actions.appendChild(view);
                 actions.appendChild(edit);
@@ -380,6 +401,7 @@
     $('setPassBtn').addEventListener('click', setPassword);
     $('delPassBtn').addEventListener('click', deletePassword);
     $('listBtn').addEventListener('click', listCards);
+    $('copyNfcUrlBtn').addEventListener('click', copyNfcUrl);
     $('resetPosBtn').addEventListener('click', resetPhotoPosition);
 
     ['posXSlider', 'posYSlider'].forEach(function (id) {
@@ -390,6 +412,7 @@
         });
     });
     $('cardId').addEventListener('input', function () {
+        updateNfcUrl();
         currentPhotoPosition = '50% 50%';
         positionKnown = false;
         updatePhotoPreview();
@@ -398,6 +421,7 @@
     TEXT_FIELDS.forEach(function (f) { if (f !== 'photoUrl') $('f_' + f).addEventListener('input', schedulePreview); });
     $('f_accentColor').addEventListener('input', function () { $('useAccent').checked = true; schedulePreview(); });
     $('useAccent').addEventListener('change', schedulePreview);
+    updateNfcUrl();
 
     if (sessionStorage.getItem(ADMIN_AUTH_KEY) === 'yes') {
         if (isAdminSessionValid()) showAdmin(); else logout();

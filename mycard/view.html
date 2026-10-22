@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex">
     <meta property="og:title" id="ogTitle" content="MyCard · V I Key®">
-    <meta property="og:description" id="ogDesc" content="A digital business card by V I Key®.">
+    <meta property="og:description" id="ogDesc" content="A tap-to-share digital business card by V I Key®.">
     <meta property="og:type" content="profile">
     <meta property="og:url" content="https://vi-key.uk/mycard/">
     <meta property="og:image" content="https://pub-07ed0b0955a4401f9956c3ca7a33c40e.r2.dev/transparentlogo.png">
@@ -80,22 +80,23 @@
             position: fixed; bottom: 0; left: 0; width: 100%;
             background-color: #0d0c0a;
             border-top: 1px solid var(--card-border);
-            padding: 12px 20px calc(12px + env(safe-area-inset-bottom, 0px));
-            display: flex; justify-content: center; gap: clamp(12px, 4vw, 24px);
+            padding: 15px 20px calc(15px + env(safe-area-inset-bottom, 0px));
+            display: flex; justify-content: center; gap: 30px;
             z-index: 1000;
         }
-        .footer-btn { width: 44px; height: 44px; display: inline-flex; align-items: center; justify-content: center; font-size: 20px; line-height: 1; text-decoration: none; color: var(--text-color); transition: color 0.3s; }
-        .footer-btn svg { width: 1em; height: 1em; display: inline-block; }
+        .footer-btn { display: inline-flex; align-items: center; gap: 6px; font-size: 16px; line-height: 1; text-decoration: none; color: var(--text-color); transition: color 0.3s; }
+        .footer-btn svg { width: 1em; height: 1em; display: inline-block; vertical-align: middle; }
         .footer-btn .whatsapp-icon { fill: #25D366; }
         .footer-btn .facebook-icon { fill: #1877F2; }
         .footer-btn .instagram-icon { fill: #E4405F; }
         .footer-btn .tiktok-icon { fill: #e8e6e3; }
-        .footer-btn .email-icon { color: var(--gold); }
+        .footer-btn .email-icon { color: var(--gold); font-size: 1em; display: inline-block; line-height: 1; }
         .footer-btn:hover { color: var(--gold); }
         .footer-btn:focus-visible, a:focus-visible, button:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
         @media (max-width: 480px) {
             .wrap { padding-right: 16px; padding-left: 16px; gap: 14px; }
             .state { padding: 34px 20px; }
+            footer { gap: 20px; flex-wrap: nowrap; align-items: center; padding: 10px 10px calc(10px + env(safe-area-inset-bottom, 0px)); }
         }
     </style>
 </head>
@@ -107,8 +108,8 @@
 
         <div id="notFound" class="state" style="display:none;">
             <h2>Card not found</h2>
-            <p>We couldn't find a card with that ID. Please check the link and try again.</p>
-            <a href="/mycard/">About MyCard</a>
+            <p>We couldn't find a card with that ID. Please check the link and try again, or get your own tap-to-share MyCard.</p>
+            <a href="/mycard/">Get your own tap-to-share MyCard →</a>
         </div>
 
         <div id="passwordPrompt" class="state" style="display:none;">
@@ -121,7 +122,7 @@
             <div class="error-msg" id="passwordMsg" role="alert"></div>
         </div>
 
-        <div class="back-link" id="backLink" style="display:none;"><a href="/mycard/">Get your own MyCard →</a></div>
+        <div class="back-link" id="backLink" style="display:none;"><a href="/mycard/">Get your own tap-to-share MyCard →</a></div>
     </main>
 
     <footer>
@@ -138,7 +139,7 @@
                 <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953h-1.529c-1.504 0-1.974.935-1.974 1.893v2.277h3.362l-.537 3.47h-2.825v8.385c5.737-.9 10.125-5.864 10.125-11.854z"/>
             </svg>
         </a>
-        <a href="https://www.instagram.com/vi_key_shop?stkn=dHpzNHZqemh5dDIy" class="footer-btn" target="_blank" rel="noopener noreferrer">
+        <a href="https://www.instagram.com/vi_key_shop?stkn=dHpzNHZqemh5dTIy" class="footer-btn" target="_blank" rel="noopener noreferrer">
             <svg class="instagram-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                 <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.64.069-4.85.069-3.204 0-3.584-.012-4.849-.069-3.225-.148-4.771-1.664-4.919-4.919-.058-1.265-.07-1.64-.07-4.849 0-3.204.013-3.584.07-4.849.148-3.225 1.664-4.771 4.919-4.919 1.265-.057 1.645-.07 4.849-.07zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.058 1.279-.072 1.687-.072 4.947 0 3.26.014 3.668.072 4.947.2 4.358 2.618 6.78 6.98 6.98 1.279.058 1.687.072 4.947.072 3.26 0 3.668-.014 4.947-.072 4.358-.2 6.78-2.618 6.98-6.98.058-1.279.072-1.687.072-4.947 0-3.26-.014-3.668-.072-4.947-.2-4.358-2.618-6.78-6.98-6.98-1.279-.058-1.687-.072-4.947-.072zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zm0 10.162a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-10.845a1.44 1.44 0 1 1-2.88 0 1.44 1.44 0 0 1 2.88 0z"/>
             </svg>
@@ -150,7 +151,6 @@
         </a>
     </footer>
 
-    <script src="/mycard/qrcode.js"></script>
     <script src="/mycard/card-render.js"></script>
     <script>
         var cardId = (new URLSearchParams(window.location.search).get('id') || '').trim();

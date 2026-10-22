@@ -13,6 +13,7 @@
         share:    { stroke: true, d: ['M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8', 'M16 6l-4-4-4 4', 'M12 2v13'] },
         save:     { stroke: true, d: ['M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2', 'M9 3a4 4 0 1 0 0 8a4 4 0 1 0 0-8z', 'M19 8v6', 'M22 11h-6'] },
         user:     { stroke: true, d: ['M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2', 'M12 3a4 4 0 1 0 0 8a4 4 0 1 0 0-8z'] },
+        nfc:      { stroke: true, d: ['M7 2h7a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z', 'M9 18h3', 'M18 8a5 5 0 0 1 0 8', 'M21 5a9 9 0 0 1 0 14'] },
         whatsapp: { d: ['M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-1.157 4.228 4.305-1.129z'] },
         facebook: { d: ['M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953h-1.529c-1.504 0-1.974.935-1.974 1.893v2.277h3.362l-.537 3.47h-2.825v8.385c5.737-.9 10.125-5.864 10.125-11.854z'] },
         instagram:{ d: ['M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.64.069-4.85.069-3.204 0-3.584-.012-4.849-.069-3.225-.148-4.771-1.664-4.919-4.919-.058-1.265-.07-1.64-.07-4.849 0-3.204.013-3.584.07-4.849.148-3.225 1.664-4.771 4.919-4.919 1.265-.057 1.645-.07 4.849-.07zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.058 1.279-.072 1.687-.072 4.947 0 3.26.014 3.668.072 4.947.2 4.358 2.618 6.78 6.98 6.98 1.279.058 1.687.072 4.947.072 3.26 0 3.668-.014 4.947-.072 4.358-.2 6.78-2.618 6.98-6.98.058-1.279.072-1.687.072-4.947 0-3.26-.014-3.668-.072-4.947-.2-4.358-2.618-6.78-6.98-6.98-1.279-.058-1.687-.072-4.947-.072zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zm0 10.162a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-10.845a1.44 1.44 0 1 1-2.88 0 1.44 1.44 0 0 1 2.88 0z'] },
@@ -167,31 +168,6 @@
         setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
     }
 
-    /* ---------- QR (uses vendored qrcode.js) ---------- */
-    function qrSvg(text) {
-        if (typeof window.qrcode !== 'function') return null;
-        var qr;
-        try { qr = window.qrcode(0, 'M'); qr.addData(text); qr.make(); } catch (e) { return null; }
-        var n = qr.getModuleCount(), quiet = 2, size = n + quiet * 2, d = '';
-        for (var r = 0; r < n; r++) {
-            for (var col = 0; col < n; col++) {
-                if (qr.isDark(r, col)) d += 'M' + (col + quiet) + ' ' + (r + quiet) + 'h1v1h-1z';
-            }
-        }
-        var svg = document.createElementNS(SVG_NS, 'svg');
-        svg.setAttribute('viewBox', '0 0 ' + size + ' ' + size);
-        svg.setAttribute('class', 'mc-qr-svg');
-        svg.setAttribute('role', 'img');
-        svg.setAttribute('aria-label', 'QR code for this card');
-        svg.setAttribute('shape-rendering', 'crispEdges');
-        var bg = document.createElementNS(SVG_NS, 'rect');
-        bg.setAttribute('width', size); bg.setAttribute('height', size); bg.setAttribute('fill', '#ffffff');
-        var p = document.createElementNS(SVG_NS, 'path');
-        p.setAttribute('d', d); p.setAttribute('fill', '#12110F');
-        svg.appendChild(bg); svg.appendChild(p);
-        return svg;
-    }
-
     /* ---------- Render ---------- */
     function render(root, c, opts) {
         opts = opts || {};
@@ -314,13 +290,10 @@
             card.appendChild(soc);
         }
 
-        var qrWrap = el('div', 'mc-qr');
-        var svg = cardUrl ? qrSvg(cardUrl) : null;
-        if (svg) {
-            qrWrap.appendChild(svg);
-            qrWrap.appendChild(el('p', 'mc-qr-caption', 'Scan to open this card'));
-            card.appendChild(qrWrap);
-        }
+        var nfc = el('div', 'mc-nfc');
+        nfc.appendChild(icon('nfc'));
+        nfc.appendChild(el('p', 'mc-nfc-caption', 'Tap a V I Key® card to a phone to share'));
+        card.appendChild(nfc);
 
         root.appendChild(card);
         return card;
