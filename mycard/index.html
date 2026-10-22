@@ -4,9 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>MyCard · Digital Business Card</title>
-  <meta name="description" content="MyCard — a digital business card you share with a tap or QR code. Always up to date, optional password protection, works on any phone with no app." />
+  <meta name="description" content="MyCard is an NFC digital business card. Tap your VI Key card to an NFC-compatible phone to share your details, with no app required for recipients." />
   <meta property="og:title" content="MyCard · Digital Business Card" />
-  <meta property="og:description" content="Share your details with a tap or QR code. Always up to date, optionally private, no app needed." />
+  <meta property="og:description" content="Tap your VI Key NFC card to a compatible phone to open your digital business card. Recipients don't need an app." />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://vi-key.uk/mycard/" />
   <meta property="og:image" content="https://vi-key.uk/apple-touch-icon.png" />
@@ -91,10 +91,6 @@
       border-radius: 10px; background: var(--row); border: 1px solid var(--border); font-size: .82rem; color: var(--link);
     }
     .crow span.ic { width: 18px; text-align: center; }
-    .qr { margin: 16px auto 0; width: 110px; padding: 8px; border-radius: 12px; background: #fff; }
-    .qr svg { display: block; width: 100%; height: auto; }
-    .qr-cap { font-size: .72rem; margin-top: 8px; color: var(--footer); }
-
     .steps, .features, .uses { display: grid; gap: 16px; }
     .steps { grid-template-columns: repeat(3, 1fr); }
     .features { grid-template-columns: repeat(3, 1fr); }
@@ -204,13 +200,13 @@
   <main class="wrap">
     <div class="hero">
       <div>
-        <span class="badge">Digital business card</span>
+        <span class="badge">NFC digital business card</span>
         <h1>Your details, <span class="grad">one tap away</span></h1>
-        <p class="lead">MyCard puts your name, role and contact details on a clean, mobile-friendly card you can share with a QR code or a link. No paper, no app.</p>
+        <p class="lead">Tap your VI Key card to an NFC-compatible phone to open your MyCard and share your details. Recipients can view it in their browser with no app required.</p>
         <div class="pills">
-          <span class="pill primary">Share with a QR code</span>
-          <span class="pill">Optional password</span>
-          <span class="pill">No app needed</span>
+          <span class="pill primary">Tap to share with NFC</span>
+          <span class="pill">For NFC-compatible phones</span>
+          <span class="pill">No app for recipients</span>
         </div>
       </div>
       <div class="phone" aria-hidden="true">
@@ -218,43 +214,32 @@
           <div class="avatar">AJ</div>
           <h3>Alex Johnson</h3>
           <p class="role">Creative Director</p>
-          <p class="company">Northlight Studio</p>
+          <p class="company">NFC digital business card</p>
           <div class="crow"><span class="ic">📞</span>+44 7700 900123</div>
           <div class="crow"><span class="ic">✉</span>alex@northlight.example</div>
           <div class="crow"><span class="ic">🌐</span>northlight.example</div>
-          <div class="qr">
-            <svg viewBox="0 0 9 9" shape-rendering="crispEdges" xmlns="http://www.w3.org/2000/svg">
-              <rect width="9" height="9" fill="#fff"/>
-              <g fill="#111">
-                <path d="M0 0h3v3H0z"/><path d="M6 0h3v3H6z"/><path d="M0 6h3v3H0z"/>
-                <path d="M4 0h1v1H4zM4 2h1v1H4zM3 4h1v1H3zM5 4h2v1H5zM8 4h1v1H8zM4 5h1v2H4zM6 6h1v1H6zM7 7h2v1H7zM5 8h2v1H5zM4 8h1v1H4z"/>
-              </g>
-              <g fill="#fff"><path d="M1 1h1v1H1zM7 1h1v1H7zM1 7h1v1H1z"/></g>
-            </svg>
-          </div>
-          <p class="qr-cap">Scan to save my details</p>
         </div>
       </div>
     </div>
 
     <section>
       <h2 class="section-title">How it works</h2>
-      <p class="section-sub">Three simple steps from sign-up to sharing.</p>
+      <p class="section-sub">Set up your card, then share your details with a tap.</p>
       <div class="steps">
-        <div class="box"><div class="num">1</div><h3>Get your card</h3><p>Receive your personal MyCard with its own unique link and QR code.</p></div>
-        <div class="box"><div class="num">2</div><h3>Add your details</h3><p>Fill in your name, title, company and contact info using a simple editor.</p></div>
-        <div class="box"><div class="num">3</div><h3>Share it</h3><p>Let people scan your QR code or open your link. Your card loads in any browser.</p></div>
+        <div class="box"><div class="num">1</div><h3>Get your VI Key card</h3><p>Your NFC card is linked to your MyCard digital business card.</p></div>
+        <div class="box"><div class="num">2</div><h3>Add your details</h3><p>Include the name, role and contact information you want people to see.</p></div>
+        <div class="box"><div class="num">3</div><h3>Tap to share</h3><p>Tap the card to an NFC-compatible phone. Your MyCard opens in the recipient's browser.</p></div>
       </div>
     </section>
 
     <section>
       <h2 class="section-title">Why MyCard</h2>
-      <p class="section-sub">Everything you need from a business card, minus the stack of paper.</p>
+      <p class="section-sub">A practical digital business card, shared through NFC tap-to-share.</p>
       <div class="features">
-        <div class="box"><div class="icon">▦</div><h3>Share via QR code</h3><p>Every card comes with a QR code that opens straight to your details.</p></div>
+        <div class="box"><div class="icon">📲</div><h3>Tap to share</h3><p>Tap your VI Key NFC card to a compatible phone to open your MyCard.</p></div>
         <div class="box"><div class="icon">🔄</div><h3>Always up to date</h3><p>Change a number or job title and everyone using your link sees the latest version.</p></div>
         <div class="box"><div class="icon">🔒</div><h3>Private option</h3><p>Protect your card with a password so only the people you choose can view it.</p></div>
-        <div class="box"><div class="icon">📱</div><h3>Works on any phone</h3><p>Opens in the browser. Nothing to download or install for you or your contacts.</p></div>
+        <div class="box"><div class="icon">📱</div><h3>No app for recipients</h3><p>Recipients with an NFC-compatible phone can view your card in their browser without installing an app.</p></div>
         <div class="box"><div class="icon">🎨</div><h3>Clean, modern design</h3><p>A tidy dark card that looks sharp on every screen size.</p></div>
         <div class="box"><div class="icon">✏️</div><h3>Easy to edit</h3><p>Update your card yourself whenever your details change.</p></div>
       </div>
@@ -262,18 +247,18 @@
 
     <section>
       <h2 class="section-title">Made for people on the move</h2>
-      <p class="section-sub">Handy wherever you meet someone new.</p>
+      <p class="section-sub">Share your details in person wherever you meet someone new.</p>
       <div class="uses">
-        <div class="box"><h3>Networking events</h3><p>Swap details in seconds without hunting for a pen or a spare card.</p></div>
-        <div class="box"><h3>Freelancers &amp; small businesses</h3><p>Keep one link that always shows your current services and contact info.</p></div>
-        <div class="box"><h3>Teams</h3><p>Give everyone a consistent, professional card that is easy to keep current.</p></div>
-        <div class="box"><h3>Private sharing</h3><p>Use a password when your details are meant for a select audience only.</p></div>
+        <div class="box"><h3>Networking events</h3><p>Tap your card to a compatible phone to share your details in person.</p></div>
+        <div class="box"><h3>Freelancers &amp; small businesses</h3><p>Let new contacts open your digital card in their phone browser.</p></div>
+        <div class="box"><h3>Teams</h3><p>Give team members a consistent, professional card to share with a tap.</p></div>
+        <div class="box"><h3>Keep details current</h3><p>Update your card details when your contact information changes.</p></div>
       </div>
     </section>
 
     <section class="box closing">
-      <h2>Share who you are, <span class="grad">instantly.</span></h2>
-      <p>MyCard — the digital business card that never runs out.</p>
+      <h2>Make sharing simple, <span class="grad">one tap at a time.</span></h2>
+      <p>MyCard — your details, ready to share with NFC.</p>
     </section>
   </main>
 
