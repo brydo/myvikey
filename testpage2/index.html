@@ -138,7 +138,7 @@
 
         .crow a { color: var(--primary); text-decoration: none; }
 
-        /* Sections Grid layout */
+        /* Grid Framework Layout */
         section {
             padding: 60px 20px;
             text-align: center;
@@ -153,7 +153,8 @@
             gap: 25px;
         }
 
-        .box {
+        /* Clean cards for grids only */
+        .grid-card {
             background-color: var(--card-bg);
             padding: 30px;
             border-radius: 15px;
@@ -170,15 +171,17 @@
 
         .icon { font-size: 2.5rem; margin-bottom: 15px; }
 
-        .closing {
+        /* Distinctive Footer Closing Area */
+        .closing-banner {
+            text-align: center;
+            padding: 60px 20px;
+            margin: 40px 0;
             background: linear-gradient(135deg, #1e1e1e 0%, #151515 100%);
             border: 1px solid var(--accent);
-            margin: 40px 20px;
             border-radius: 15px;
-            padding: 40px;
         }
 
-        /* Footer */
+        /* Float Action Button */
         footer {
             position: fixed;
             bottom: 20px;
@@ -244,17 +247,17 @@
             <h2 class="section-title">How it works</h2>
             <p class="section-sub">Let us set up your <strong>V I Key® </strong>mycard, then share your details with a tap.</p>
             <div class="steps">
-                <div class="box">
+                <div class="grid-card">
                     <div class="num">1</div>
                     <h3>Get your <strong>V I Key® my</strong>card</h3>
                     <p>Your <strong>V I Key® </strong>is linked to your MyCard digital business card.</p>
                 </div>
-                <div class="box">
+                <div class="grid-card">
                     <div class="num">2</div>
                     <h3>We Add your details</h3>
                     <p>Include the name, role and contact information you want people to see.</p>
                 </div>
-                <div class="box">
+                <div class="grid-card">
                     <div class="num">3</div>
                     <h3>You Tap to share</h3>
                     <p>Tap the card to an NFC-compatible phone. Your MyCard opens in the recipient's browser.</p>
@@ -267,27 +270,27 @@
             <h2 class="section-title">Why <strong>V I Key® </strong>MyCard</h2>
             <p class="section-sub">A practical digital business card, shared through NFC tap-to-share.</p>
             <div class="features">
-                <div class="box">
+                <div class="grid-card">
                     <div class="icon">📲</div>
                     <h3>Tap to share</h3>
                     <p>Tap your VI Key NFC card to a compatible phone to open your MyCard.</p>
                 </div>
-                <div class="box">
+                <div class="grid-card">
                     <div class="icon">🔄</div>
                     <h3>Always up to date</h3>
                     <p>Change a number or job title and everyone using your link sees the latest version. (conditions apply)</p>
                 </div>
-                <div class="box">
+                <div class="grid-card">
                     <div class="icon">🔒</div>
                     <h3>Private option</h3>
                     <p>Protect your card with a password so only the people you choose can view it.</p>
                 </div>
-                <div class="box">
+                <div class="grid-card">
                     <div class="icon">📱</div>
                     <h3>No app for recipients</h3>
                     <p>Recipients with an NFC-compatible phone can view your card in their browser without installing an app.</p>
                 </div>
-                <div class="box">
+                <div class="grid-card">
                     <div class="icon">🎨</div>
                     <h3>Clean, modern design</h3>
                     <p>A tidy dark card that looks sharp on every screen size.</p>
@@ -297,7 +300,3 @@
 
         <!-- Use Cases Section -->
         <section>
-            <h2 class="section-title">Made for people on the move</h2>
-            <p class="section-sub">Share your details in person wherever you meet someone new.</p>
-            <div class="uses">
-                <div class="box">
