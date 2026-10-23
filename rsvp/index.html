@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Send your RSVP with V I Key®.">
+    <title>RSVP · V I Key®</title>
+    <link rel="stylesheet" href="/rsvp/card.css">
+</head>
+<body>
+    <main class="wrap">
+        <section class="rsvp-card" aria-labelledby="heading">
+            <div class="rsvp-banner" aria-hidden="true"></div>
+            <header class="rsvp-head">
+                <p class="brand">V I Key® · RSVP</p>
+                <h1 id="heading">You're invited.</h1>
+                <p>Let us know if you can make it.</p>
+            </header>
+            <form id="rsvpForm" class="rsvp-section">
+                <label for="name">Name</label>
+                <input id="name" name="name" autocomplete="name" maxlength="100" required>
+                <label for="event">Event</label>
+                <input id="event" name="event" maxlength="100" required>
+                <label for="attending">Attending</label>
+                <select id="attending" name="attending" required>
+                    <option value="">Please choose</option>
+                    <option value="yes">Yes</option>
+                    <option value="no">No</option>
+                </select>
+                <label for="guests">Guests</label>
+                <input id="guests" name="guests" type="number" min="0" max="100" step="1" value="0" aria-describedby="guestsHint" required>
+                <small id="guestsHint">Additional guests, not including you. Use 0 if not attending.</small>
+                <label for="notes">Notes <span class="muted">(optional)</span></label>
+                <textarea id="notes" name="notes" rows="3" maxlength="1000"></textarea>
+                <button class="rsvp-btn primary" type="submit">Send RSVP</button>
+                <p id="message" role="status" aria-live="polite"></p>
+            </form>
+        </section>
+        <nav aria-label="RSVP navigation"><a href="/">V I Key®</a> · <a href="/rsvp/admin">RSVP admin</a></nav>
+        <noscript><p>Please enable JavaScript to send your RSVP.</p></noscript>
+    </main>
+    <script src="/rsvp/card-render.js"></script>
+    <script src="/rsvp/rsvp.js"></script>
+</body>
+</html>

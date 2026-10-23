@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex">
+    <title>RSVP Admin · V I Key®</title>
+    <link rel="stylesheet" href="/rsvp/card.css">
+</head>
+<body>
+    <main class="wrap">
+        <section class="rsvp-card">
+            <div class="rsvp-banner" aria-hidden="true"></div>
+            <header class="rsvp-head">
+                <p class="brand">V I Key® · RSVP</p>
+                <h1>RSVP admin</h1>
+                <p>Review responses using your existing site admin password.</p>
+            </header>
+            <form id="loginForm" class="rsvp-section">
+                <label for="password">Admin password</label>
+                <input id="password" type="password" autocomplete="current-password" required>
+                <button class="rsvp-btn primary" type="submit">Sign in</button>
+            </form>
+            <div id="adminActions" class="rsvp-section" hidden>
+                <button id="refresh" class="rsvp-btn" type="button">Refresh</button>
+                <button id="logout" class="rsvp-btn" type="button">Sign out</button>
+            </div>
+            <p id="message" class="rsvp-section" role="status" aria-live="polite"></p>
+        </section>
+        <div id="responses" class="responses"></div>
+        <button id="more" class="rsvp-btn" type="button" hidden>Load more</button>
+        <nav aria-label="RSVP navigation"><a href="/rsvp/">Back to RSVP</a></nav>
+        <noscript><p>Please enable JavaScript to review RSVPs.</p></noscript>
+    </main>
+    <script src="/rsvp/card-render.js"></script>
+    <script src="/rsvp/rsvp.js"></script>
+</body>
+</html>

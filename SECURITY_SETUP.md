@@ -68,6 +68,23 @@ Use `SECURITY_TEST.md` for the full checklist. Quick checks (replace `$HOST`):
 - **HTTPS:** `curl -i http://$HOST/api/password ...` → `403`.
 - **Expiry:** after 30 minutes the token returns `401`.
 
+## RSVP
+
+The standalone RSVP section is served at `/rsvp/`, with confirmation at
+`/rsvp/view` and response review at `/rsvp/admin`. It reuses the existing
+`FORM_SUBMISSIONS` KV binding used by the site's forms, storing only Name,
+Event, Attending, Guests (additional guests), and Notes under `rsvp:` keys.
+Ensure that binding is configured in the Pages project's production and preview
+environments; submissions return an error rather than a success message if storage
+is unavailable. No additional KV namespace is needed.
+
+RSVP admin uses the same `/api/password` login as MyCard: the `__admin__` hash in
+`MEMORIAL_PASSWORDS`, plus `ADMIN_SESSIONS` and `RATE_LIMIT`. Response listing
+requires a valid `X-Admin-Session` token. The confirmation is stored only in the
+submitting browser tab's session storage; there is no public response lookup.
+
+Run the focused tests with `node --test rsvp/rsvp.test.cjs mycard/card-render.test.cjs`.
+
 ## Troubleshooting
 
 | Symptom | Cause / fix |
