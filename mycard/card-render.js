@@ -149,7 +149,7 @@
         var site = safeUrl(c.website) || cardUrl;
         if (site) lines.push('URL:' + site);
         var whatsapp = whatsappHref(c.whatsapp);
-        if (whatsapp) lines.push('item1.URL:' + whatsapp, 'item1.X-ABLabel:WhatsApp');
+        if (whatsapp) lines.push('item1.URL:' + whatsapp, 'item1.X-ABLabel:WhatsApp', 'X-SOCIALPROFILE;type=whatsapp:' + whatsapp);
         if (str(c.bio)) lines.push('NOTE:' + vEsc(str(c.bio)));
         if (safeUrl(c.photoUrl)) lines.push('PHOTO;VALUE=uri:' + safeUrl(c.photoUrl));
         lines.push('END:VCARD');
