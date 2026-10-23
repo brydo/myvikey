@@ -7,7 +7,7 @@
     var ADMIN_EXPIRY_KEY = 'mycard_admin_authed_until';
 
     var TEXT_FIELDS = ['name', 'title', 'company', 'bio', 'photoUrl', 'phone', 'whatsapp', 'email', 'website', 'mapUrl',
-        'facebook', 'instagram', 'tiktok', 'linkedin', 'twitter', 'youtube', 'telegram', 'customLabel', 'customUrl'];
+        'facebook', 'instagram', 'tiktok', 'linkedin', 'twitter', 'customLabel', 'customUrl'];
 
     var currentPhotoPosition = '50% 50%';
     var positionKnown = false;
