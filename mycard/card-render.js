@@ -10,7 +10,6 @@
         website:  { stroke: true, d: ['M12 2a10 10 0 1 0 0 20a10 10 0 1 0 0-20z', 'M2 12h20', 'M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z'] },
         map:      { stroke: true, d: ['M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z', 'M12 7a3 3 0 1 0 0 6a3 3 0 1 0 0-6z'] },
         link:     { stroke: true, d: ['M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71', 'M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71'] },
-        share:    { stroke: true, d: ['M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8', 'M16 6l-4-4-4 4', 'M12 2v13'] },
         save:     { stroke: true, d: ['M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2', 'M9 3a4 4 0 1 0 0 8a4 4 0 1 0 0-8z', 'M19 8v6', 'M22 11h-6'] },
         user:     { stroke: true, d: ['M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2', 'M12 3a4 4 0 1 0 0 8a4 4 0 1 0 0-8z'] },
         whatsapp: { d: ['M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-1.157 4.228 4.305-1.129z'] },
@@ -219,35 +218,8 @@
         saveBtn.appendChild(el('span', null, 'Save Contact'));
         saveBtn.setAttribute('aria-label', 'Save contact as vCard');
         saveBtn.addEventListener('click', function () { downloadVCard(c, cardUrl); });
-        var shareBtn = el('button', 'mc-btn');
-        shareBtn.type = 'button';
-        shareBtn.appendChild(icon('share'));
-        shareBtn.appendChild(el('span', null, 'Share'));
-        shareBtn.setAttribute('aria-label', 'Share this card');
         actions.appendChild(saveBtn);
-        actions.appendChild(shareBtn);
         card.appendChild(actions);
-        var status = el('p', 'mc-status');
-        status.setAttribute('role', 'status');
-        status.setAttribute('aria-live', 'polite');
-        card.appendChild(status);
-        shareBtn.addEventListener('click', function () {
-            var data = { title: str(c.name), text: str(c.name) + (str(c.title) ? ' - ' + str(c.title) : ''), url: cardUrl };
-            function copy() {
-                if (navigator.clipboard && navigator.clipboard.writeText) {
-                    navigator.clipboard.writeText(cardUrl).then(function () {
-                        status.textContent = 'Card link copied to clipboard.';
-                    }, function () { status.textContent = 'Copy this link: ' + cardUrl; });
-                } else {
-                    status.textContent = 'Copy this link: ' + cardUrl;
-                }
-            }
-            if (navigator.share) {
-                navigator.share(data).catch(function (e) { if (!e || e.name !== 'AbortError') copy(); });
-            } else {
-                copy();
-            }
-        });
 
         if (str(c.bio)) {
             var about = el('section', 'mc-section');
