@@ -6,6 +6,7 @@
     <title>MyCard · Digital Business Card</title>
     <style>
         :root {
+            color-scheme: dark;
             --bg-color: #121212;
             --card-bg: #1e1e1e;
             --text-color: #e0e0e0;
@@ -14,76 +15,82 @@
             --accent: #393e46;
             --grad-1: #00adb5;
             --grad-2: #0077b6;
+            --border: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            box-sizing: border-box;
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            min-height: 100vh;
+            padding: 0 0 calc(84px + env(safe-area-inset-bottom, 0px));
             background-color: var(--bg-color);
             color: var(--text-color);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             line-height: 1.6;
-            margin: 0;
-            padding: 0;
         }
 
         .container {
+            width: 100%;
             max-width: 1100px;
             margin: 0 auto;
-            padding: 20px;
+            padding: 20px 20px 0;
+            overflow-wrap: anywhere;
         }
 
         .hero {
-            display: flex;
-            flex-direction: column;
-            gap: 40px;
-            padding: 60px 20px;
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 300px);
             align-items: center;
+            gap: 40px;
+            padding: 60px 0;
         }
 
-        @media (min-width: 768px) {
-            .hero {
-                flex-direction: row;
-                justify-content: space-between;
-            }
-            .hero > div { flex: 1; }
+        .hero-copy {
+            min-width: 0;
         }
 
         .badge {
-            background-color: var(--accent);
+            display: inline-block;
             padding: 6px 12px;
             border-radius: 20px;
+            background-color: var(--accent);
             font-size: 0.85rem;
-            text-transform: uppercase;
             letter-spacing: 1px;
+            text-transform: uppercase;
         }
 
         h1 {
-            font-size: 2.5rem;
-            margin-top: 15px;
+            margin: 15px 0;
+            font-size: clamp(2rem, 5vw, 2.5rem);
             line-height: 1.2;
         }
 
         .grad {
             background: linear-gradient(45deg, var(--grad-1), var(--grad-2));
             -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            color: transparent;
         }
 
         .lead {
-            font-size: 1.15rem;
             color: var(--text-muted);
+            font-size: 1.15rem;
         }
 
         .pills {
             display: flex;
-            gap: 10px;
             flex-wrap: wrap;
+            gap: 10px;
             margin-top: 20px;
         }
 
         .pill {
-            background-color: var(--accent);
             padding: 8px 16px;
             border-radius: 30px;
+            background-color: var(--accent);
             font-size: 0.9rem;
         }
 
@@ -93,38 +100,48 @@
         }
 
         .phone {
-            width: 300px;
-            height: auto;
-            background: #252525;
-            border-radius: 40px;
+            width: 100%;
+            max-width: 300px;
+            margin: 0 auto;
             padding: 15px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
             border: 4px solid #333;
+            border-radius: 40px;
+            background: #252525;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
         }
 
         .screen {
-            background-color: var(--card-bg);
-            border-radius: 30px;
             padding: 30px 20px;
+            border-radius: 30px;
+            background-color: var(--card-bg);
             text-align: center;
         }
 
         .avatar {
+            display: flex;
             width: 70px;
             height: 70px;
-            background: linear-gradient(45deg, var(--grad-1), var(--grad-2));
-            border-radius: 50%;
-            margin: 0 auto 15px;
-            display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: bold;
-            font-size: 1.5rem;
+            margin: 0 auto 15px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, var(--grad-1), var(--grad-2));
             color: #fff;
+            font-size: 1.5rem;
+            font-weight: bold;
         }
 
-        .role { color: var(--primary); margin: 5px 0; font-weight: 500; }
-        .company { color: var(--text-muted); font-size: 0.9rem; margin-top: 0; }
+        .role {
+            margin: 5px 0;
+            color: var(--primary);
+            font-weight: 500;
+        }
+
+        .company {
+            margin-top: 0;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
 
         .crow {
             display: flex;
@@ -133,89 +150,165 @@
             gap: 10px;
             margin: 15px 0;
             font-size: 0.95rem;
+            overflow-wrap: anywhere;
         }
 
-        .crow a { color: var(--primary); text-decoration: none; }
+        .crow a {
+            color: var(--primary);
+            text-decoration: none;
+        }
 
         section {
-            padding: 60px 20px;
+            padding: 50px 0;
             text-align: center;
         }
 
-        .section-title { font-size: 2rem; margin-bottom: 5px; }
-        .section-sub { color: var(--text-muted); margin-bottom: 40px; }
+        .section-title {
+            margin: 0 0 5px;
+            font-size: 2rem;
+        }
 
-        .steps, .features, .uses {
+        .section-sub {
+            margin: 0 0 40px;
+            color: var(--text-muted);
+        }
+
+        .steps,
+        .features,
+        .uses {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
             gap: 25px;
         }
 
         .grid-card {
-            background-color: var(--card-bg);
+            min-width: 0;
             padding: 30px;
-            border-radius: 15px;
-            text-align: center;
             border: 1px solid #2a2a2a;
+            border-radius: 15px;
+            background-color: var(--card-bg);
+            text-align: center;
         }
 
         .num {
+            margin-bottom: 10px;
+            color: var(--primary);
             font-size: 2rem;
             font-weight: bold;
-            color: var(--primary);
-            margin-bottom: 10px;
         }
 
-        .icon { font-size: 2.5rem; margin-bottom: 15px; }
+        .icon {
+            margin-bottom: 15px;
+            font-size: 2.5rem;
+        }
 
-        .closing-banner {
-            text-align: center;
-            padding: 60px 20px;
-            margin: 40px 0;
-            background: linear-gradient(135deg, #1e1e1e 0%, #151515 100%);
-            border: 1px solid var(--accent);
-            border-radius: 15px;
+        .contact-link {
+            display: inline-block;
+            padding: 10px 18px;
+            border: 1px solid var(--primary);
+            border-radius: 8px;
+            color: var(--text-color);
+            text-decoration: none;
+        }
+
+        .contact-link:hover {
+            background-color: rgba(0, 173, 181, 0.12);
         }
 
         footer {
             position: fixed;
-            bottom: 20px;
-            right: 20px;
             z-index: 1000;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            padding: 12px 20px calc(12px + env(safe-area-inset-bottom, 0px));
+            border-top: 1px solid var(--border);
+            background-color: #0d0c0a;
         }
 
         .footer-btn {
-            background-color: var(--primary);
-            color: white;
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            display: flex;
+            display: inline-flex;
+            min-width: 44px;
+            min-height: 44px;
             align-items: center;
             justify-content: center;
+            color: var(--text-color);
             text-decoration: none;
-            box-shadow: 0 4px 15px rgba(0,173,181,0.4);
-            font-size: 1.5rem;
-            transition: transform 0.2s;
+            transition: color 0.2s;
+        }
+
+        .footer-btn svg {
+            display: block;
+            width: 20px;
+            height: 20px;
+        }
+
+        .footer-btn .whatsapp-icon {
+            fill: #25d366;
+        }
+
+        .footer-btn .facebook-icon {
+            fill: #1877f2;
+        }
+
+        .footer-btn .instagram-icon {
+            fill: #e4405f;
+        }
+
+        .footer-btn .tiktok-icon {
+            fill: #e8e6e3;
+        }
+
+        .footer-btn .email-icon {
+            font-size: 20px;
+            line-height: 1;
         }
 
         .footer-btn:hover {
-            transform: scale(1.05);
+            color: var(--primary);
+        }
+
+        .footer-btn:focus-visible,
+        .contact-link:focus-visible {
+            outline: 2px solid var(--primary);
+            outline-offset: 3px;
+        }
+
+        @media (max-width: 767px) {
+            .hero {
+                grid-template-columns: minmax(0, 1fr);
+                gap: 30px;
+                padding: 40px 0;
+                text-align: center;
+            }
+
+            .pills {
+                justify-content: center;
+            }
+
+            section {
+                padding: 35px 0;
+            }
+        }
+
+        @media (max-width: 480px) {
+            footer {
+                gap: clamp(8px, 4vw, 16px);
+                padding: 8px 12px calc(8px + env(safe-area-inset-bottom, 0px));
+            }
         }
     </style>
 </head>
 <body>
-
-    <div class="container">
-
-        <!-- Hero Section -->
+    <main class="container">
         <div class="hero">
-            <div>
-                <span class="badge"><strong>V I Key® </strong>digital business card</span>
+            <div class="hero-copy">
+                <span class="badge"><strong>V I Key®</strong> digital business card</span>
                 <h1>Your details, <span class="grad">one tap away</span></h1>
-                <p class="lead">Tap your card to an NFC-compatible phone to open your</p>
-                <p class="lead"><strong>V I Key®</strong> MyCard and share your details. Recipients can view it in their browser with no app required.</p>
-                
+                <p class="lead">Tap your V I Key® NFC card to an NFC-compatible phone to open your MyCard and share your details. Recipients can view it in their browser with no app required.</p>
                 <div class="pills">
                     <span class="pill primary">Tap to share with NFC</span>
                     <span class="pill">For NFC-compatible phones</span>
@@ -223,8 +316,7 @@
                 </div>
             </div>
 
-            <!-- Phone mockup preview -->
-            <div class="phone">
+            <div class="phone" aria-hidden="true">
                 <div class="screen">
                     <div class="avatar">AJ</div>
                     <h3>Alex Johnson</h3>
@@ -237,43 +329,41 @@
             </div>
         </div>
 
-        <!-- How It Works Section -->
         <section>
             <h2 class="section-title">How it works</h2>
-            <p class="section-sub">Let us set up your <strong>V I Key® </strong>mycard, then share your details with a tap.</p>
+            <p class="section-sub">Let us set up your <strong>V I Key® MyCard</strong>, then share your details with a tap.</p>
             <div class="steps">
                 <div class="grid-card">
                     <div class="num">1</div>
-                    <h3>Get your <strong>V I Key® my</strong>card</h3>
-                    <p>Your <strong>V I Key® </strong>is linked to your MyCard digital business card.</p>
+                    <h3>Get your V I Key® MyCard</h3>
+                    <p>Your V I Key® is linked to your MyCard digital business card.</p>
                 </div>
                 <div class="grid-card">
                     <div class="num">2</div>
-                    <h3>We Add your details</h3>
+                    <h3>We add your details</h3>
                     <p>Include the name, role and contact information you want people to see.</p>
                 </div>
                 <div class="grid-card">
                     <div class="num">3</div>
-                    <h3>You Tap to share</h3>
+                    <h3>You tap to share</h3>
                     <p>Tap the card to an NFC-compatible phone. Your MyCard opens in the recipient's browser.</p>
                 </div>
             </div>
         </section>
 
-        <!-- Features Section -->
         <section>
-            <h2 class="section-title">Why <strong>V I Key® </strong>MyCard</h2>
+            <h2 class="section-title">Why V I Key® MyCard</h2>
             <p class="section-sub">A practical digital business card, shared through NFC tap-to-share.</p>
             <div class="features">
                 <div class="grid-card">
                     <div class="icon">📲</div>
                     <h3>Tap to share</h3>
-                    <p>Tap your VI Key NFC card to a compatible phone to open your MyCard.</p>
+                    <p>Tap your V I Key® NFC card to a compatible phone to open your MyCard.</p>
                 </div>
                 <div class="grid-card">
                     <div class="icon">🔄</div>
                     <h3>Always up to date</h3>
-                    <p>Change a number or job title and everyone using your link sees the latest version. (conditions apply)</p>
+                    <p>Changes to your details are reflected for people using your link (conditions apply).</p>
                 </div>
                 <div class="grid-card">
                     <div class="icon">🔒</div>
@@ -292,8 +382,49 @@
                 </div>
             </div>
         </section>
+
         <section>
-            <h2 class="section-title">The V I Key® MyCard - Made for people on the move</h2>
-            <p class="section-sub">Contact us below for more information</p>
+            <h2 class="section-title">V I Key® MyCard — made for people on the move</h2>
+            <p class="section-sub">Share your details in person wherever you meet someone new.</p>
             <div class="uses">
-                <div>
+                <div class="grid-card">
+                    <h3>Networking</h3>
+                    <p>Tap your card to an NFC-compatible phone to share your details in person.</p>
+                </div>
+                <div class="grid-card">
+                    <h3>Business introductions</h3>
+                    <p>Recipients can open your MyCard in their browser without installing an app.</p>
+                </div>
+            </div>
+            <p class="section-sub">Contact us for more information.</p>
+            <a class="contact-link" href="mailto:vikeyshop@outlook.com">Email V I Key®</a>
+        </section>
+    </main>
+
+    <footer aria-label="Contact and social links">
+        <a href="https://wa.me/qr/S3WV63OUV4CTP1" class="footer-btn" aria-label="Contact us on WhatsApp" target="_blank" rel="noopener noreferrer">
+            <svg class="whatsapp-icon" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-1.157 4.228 4.305-1.129z"/>
+            </svg>
+        </a>
+        <a href="mailto:vikeyshop@outlook.com" class="footer-btn" aria-label="Email V I Key®">
+            <span class="email-icon" aria-hidden="true">✉</span>
+        </a>
+        <a href="https://www.facebook.com/vi.key.page" class="footer-btn" aria-label="Visit V I Key® on Facebook" target="_blank" rel="noopener noreferrer">
+            <svg class="facebook-icon" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+            </svg>
+        </a>
+        <a href="https://www.instagram.com/vi_key_shop?stkn=dHpzNHZqemh5dTIy" class="footer-btn" aria-label="Visit V I Key® on Instagram" target="_blank" rel="noopener noreferrer">
+            <svg class="instagram-icon" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+            </svg>
+        </a>
+        <a href="https://www.tiktok.com/@vi_keyshop" class="footer-btn" aria-label="Visit V I Key® on TikTok" target="_blank" rel="noopener noreferrer">
+            <svg class="tiktok-icon" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1.04-.1z"/>
+            </svg>
+        </a>
+    </footer>
+</body>
+</html>
