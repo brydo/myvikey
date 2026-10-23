@@ -73,6 +73,7 @@
             var u = safeUrl(v);
             return u && /^https:\/\/(wa\.me|api\.whatsapp\.com)\//i.test(u) ? u : '';
         }
+        if (!/^[0-9+()\-\s]+$/.test(v)) return '';
         var d = digits(v);
         return d.length >= 5 ? 'https://wa.me/' + d : '';
     }
@@ -147,6 +148,8 @@
         if (emailHref(c.email)) lines.push('EMAIL;TYPE=INTERNET:' + vEsc(str(c.email)));
         var site = safeUrl(c.website) || cardUrl;
         if (site) lines.push('URL:' + site);
+        var whatsapp = whatsappHref(c.whatsapp);
+        if (whatsapp) lines.push('item1.URL:' + whatsapp, 'item1.X-ABLabel:WhatsApp');
         if (str(c.bio)) lines.push('NOTE:' + vEsc(str(c.bio)));
         if (safeUrl(c.photoUrl)) lines.push('PHOTO;VALUE=uri:' + safeUrl(c.photoUrl));
         lines.push('END:VCARD');
