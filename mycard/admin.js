@@ -30,7 +30,10 @@
     async function safeJson(resp) {
         var text = await resp.text();
         if (!text) return {};
-        try { return JSON.parse(text); }
+        try {
+            var data = JSON.parse(text);
+            return data && typeof data === 'object' ? data : {};
+        }
         catch (e) { return { error: 'Invalid JSON response (status ' + resp.status + ')' }; }
     }
 
@@ -48,6 +51,7 @@
 
     function setMsg(id, text, ok) {
         var m = $(id);
+        if (!m) return;
         m.textContent = text;
         m.className = 'msg ' + (ok ? 'ok' : 'err');
     }
@@ -80,13 +84,15 @@
         try {
             /* Same shared admin (__admin__) login used by the memorial / pet admin pages */
             var r = await api('/api/password', { action: 'verify', id: '__admin__', password: pass });
-            if (r.ok) {
-                if (r.data.sessionToken) sessionStorage.setItem(ADMIN_SESSION_KEY, r.data.sessionToken);
+            if (r.ok && r.data.sessionToken) {
+                sessionStorage.setItem(ADMIN_SESSION_KEY, r.data.sessionToken);
                 sessionStorage.setItem(ADMIN_AUTH_KEY, 'yes');
                 sessionStorage.setItem(ADMIN_EXPIRY_KEY, String(Date.now() + ADMIN_SESSION_TTL_MS));
                 showAdmin();
             } else {
-                setMsg('loginMsg', r.status === 429 ? '✗ ' + (r.data.error || 'Too many attempts.') : '✗ Incorrect password.', false);
+                var message = r.status === 429 ? (r.data.error || 'Too many attempts.')
+                    : r.ok ? 'Admin session could not be started.' : 'Incorrect password.';
+                setMsg('loginMsg', '✗ ' + message, false);
                 $('adminPass').value = '';
                 $('adminPass').focus();
             }
@@ -347,6 +353,11 @@
         try {
             var r = await api('/api/card-content', { action: 'list-content' });
             if (!r.ok) { status(''); setMsg('listMsg', '✗ ' + (r.data.error || 'Failed'), false); return; }
+            if (!Array.isArray(r.data.pages)) {
+                status('');
+                setMsg('listMsg', '✗ Invalid card list response.', false);
+                return;
+            }
             $('listMsg').textContent = '';
             if (!r.data.pages.length) { status('No cards yet.'); return; }
             var items = r.data.pages.map(function (p) {
