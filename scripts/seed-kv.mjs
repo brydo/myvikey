@@ -67,7 +67,7 @@ const cards = [
       facebook: 'https://www.facebook.com/vi.key.page',
       instagram: 'https://www.instagram.com/vi_key_shop',
       tiktok: 'https://www.tiktok.com/@vi_keyshop',
-      linkedin: '', twitter: '', youtube: '', telegram: '',
+      linkedin: '', twitter: '',
       customLabel: '', customUrl: '',
       accentColor: '#c9a96e',
       updated: new Date().toISOString()

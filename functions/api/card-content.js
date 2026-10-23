@@ -16,8 +16,6 @@ const URL_FIELDS = {
   tiktok: ['http:', 'https:'],
   linkedin: ['http:', 'https:'],
   twitter: ['http:', 'https:'],
-  youtube: ['http:', 'https:'],
-  telegram: ['http:', 'https:'],
   customUrl: ['http:', 'https:']
 };
 const MAX_URL = 500;
