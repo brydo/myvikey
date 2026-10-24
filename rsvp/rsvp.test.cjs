@@ -847,6 +847,26 @@ test('landing pages have distinct themes and accessible navigation without publi
     }
 });
 
+for (const eventType of ['weddings', 'parties', 'engagements']) {
+    test(`${eventType} landing header has complete theme navigation and one current page`, () => {
+        const html = readFileSync(`${__dirname}/${eventType}/index.html`, 'utf8');
+        const header = html.match(/<header\b[^>]*>([\s\S]*?)<\/header>/);
+        assert.ok(header, `${eventType} must have a header`);
+        const nav = header[1].match(/<nav\b[^>]*aria-label="Event themes"[^>]*>([\s\S]*?)<\/nav>/);
+        assert.ok(nav, `${eventType} header must have Event themes navigation`);
+        const links = [...nav[1].matchAll(/<a\b([^>]*)>([^<]*)<\/a>/g)];
+        assert.deepEqual(links.map(([, attributes, label]) => ({
+            href: attributes.match(/\bhref="([^"]*)"/)?.[1],
+            label: label.trim(),
+            current: attributes.match(/\baria-current="([^"]*)"/)?.[1]
+        })), ['Events', 'Weddings', 'Parties', 'Engagements'].map(label => ({
+            href: `/rsvp/${label.toLowerCase()}/`,
+            label,
+            current: label.toLowerCase() === eventType ? 'page' : undefined
+        })));
+    });
+}
+
 test('events landing page uses shared assets and is linked from the RSVP index', () => {
     const html = readFileSync(`${__dirname}/events/index.html`, 'utf8');
     const chooser = readFileSync(`${__dirname}/index.html`, 'utf8');
