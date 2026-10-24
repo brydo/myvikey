@@ -1,6 +1,20 @@
 import { validateSession } from '../lib/auth.js';
 
 const PREFIX = 'rsvp:';
+const INVITATIONS = 'rsvp-invitation:';
+const validId = id => typeof id === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(id);
+
+function invitationFields(body) {
+  const result = {};
+  for (const [field, max] of Object.entries({ title: 100, text: 5000, whatsapp: 16, email: 254 })) {
+    if (typeof body[field] !== 'string' || body[field].trim().length > max) return null;
+    result[field] = body[field].trim();
+  }
+  if (!result.title || !result.text) return null;
+  if (result.whatsapp && !/^\+[1-9]\d{7,14}$/.test(result.whatsapp)) return null;
+  if (result.email && !/^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?)+$/.test(result.email)) return null;
+  return result;
+}
 
 export async function onRequestPost({ request, env }) {
   const reply = (data, status = 200) => Response.json(data, {
@@ -17,14 +31,15 @@ export async function onRequestPost({ request, env }) {
     return reply({ success: false, error: 'Invalid JSON' }, 400);
   }
 
-  if (body.action === 'list') {
-    if (!await validateSession(env, request.headers.get('x-admin-session'))) {
+  if (['list', 'save-invitation'].includes(body.action)) {
+    const session = await validateSession(env, request.headers.get('x-admin-session'));
+    if (!session || session.userId !== '__admin__') {
       return reply({ success: false, error: 'Unauthorized' }, 401);
     }
     if (body.cursor !== undefined && (typeof body.cursor !== 'string' || body.cursor.length > 2048)) {
       return reply({ success: false, error: 'Invalid cursor' }, 400);
     }
-  } else if (body.action !== 'submit') {
+  } else if (!['submit', 'get-invitation'].includes(body.action)) {
     return reply({ success: false, error: 'Unknown action' }, 400);
   }
 
@@ -32,6 +47,25 @@ export async function onRequestPost({ request, env }) {
     return reply({ success: false, error: 'RSVP storage is unavailable. Please try again later.' }, 503);
   }
   try {
+    if (body.action === 'save-invitation') {
+      const fields = invitationFields(body);
+      if (!fields || (body.id !== undefined && !validId(body.id))) {
+        return reply({ success: false, error: 'Enter a title, invitation text, and valid contact details (WhatsApp in +countrycode format, email as name@example.com).' }, 400);
+      }
+      const id = body.id || crypto.randomUUID();
+      if (body.id && !await env.FORM_SUBMISSIONS.get(INVITATIONS + id)) {
+        return reply({ success: false, error: 'Invitation not found' }, 404);
+      }
+      const invitation = { id, ...fields };
+      await env.FORM_SUBMISSIONS.put(INVITATIONS + id, JSON.stringify(invitation));
+      return reply({ success: true, invitation });
+    }
+    if (body.action === 'get-invitation') {
+      if (!validId(body.id)) return reply({ success: false, error: 'Invalid invitation ID' }, 400);
+      const raw = await env.FORM_SUBMISSIONS.get(INVITATIONS + body.id);
+      if (!raw) return reply({ success: false, error: 'Invitation not found' }, 404);
+      return reply({ success: true, invitation: JSON.parse(raw) });
+    }
     if (body.action === 'list') {
       const page = await env.FORM_SUBMISSIONS.list({ prefix: PREFIX, limit: 50, cursor: body.cursor || undefined });
       const records = await Promise.all(page.keys.map(key => env.FORM_SUBMISSIONS.get(key.name)));
@@ -42,6 +76,16 @@ export async function onRequestPost({ request, env }) {
       });
     }
 
+    let invitation;
+    if (body.eventId !== undefined) {
+      if (!validId(body.eventId)) return reply({ success: false, error: 'Invalid invitation ID' }, 400);
+      const raw = await env.FORM_SUBMISSIONS.get(INVITATIONS + body.eventId);
+      if (!raw) return reply({ success: false, error: 'Invitation not found' }, 404);
+      invitation = JSON.parse(raw);
+      if (body.event !== invitation.title) {
+        return reply({ success: false, error: 'The event has changed. Reload the invitation before responding.' }, 400);
+      }
+    }
     const response = {};
     for (const [field, max] of Object.entries({ name: 100, event: 100, notes: 1000 })) {
       const value = body[field] === undefined && field === 'notes' ? '' : body[field];
@@ -59,8 +103,12 @@ export async function onRequestPost({ request, env }) {
     }
     response.attending = body.attending;
     response.guests = body.guests;
+    if (invitation) response.eventId = invitation.id;
     await env.FORM_SUBMISSIONS.put(PREFIX + crypto.randomUUID(), JSON.stringify(response));
-    return reply({ success: true });
+    return reply({
+      success: true, response,
+      organiser: invitation ? { whatsapp: invitation.whatsapp, email: invitation.email } : {}
+    });
   } catch {
     return reply({ success: false, error: 'Unable to process RSVP. Please try again.' }, 500);
   }
