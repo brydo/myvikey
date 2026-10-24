@@ -3,56 +3,186 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Invitations for every gathering, with a unique event link and simple online RSVPs. Make your moment with V I Key®.">
-    <title>Event Invitations · V I Key®</title>
-    <link rel="stylesheet" href="/rsvp/card.css">
-    <link rel="stylesheet" href="/rsvp/landing.css">
+    <title>Theme Template</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        /* Fixed Background Wallpaper Setup */
+        body {
+            background-image: url('https://pub-07ed0b0955a4401f9956c3ca7a33c40e.r2.dev/ween.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            background-repeat: no-repeat;
+            background-color: #0d0d11; 
+            color: #e0e0e6;
+            line-height: 1.6;
+            padding-bottom: 80px; 
+        }
+
+        :root {
+            --primary-glow: #9d4edd; 
+            --accent-green: #39ff14; 
+            --dark-card: #1a1a24;
+        }
+
+        /* Navigation Menu Links */
+        nav {
+            background-color: #111116;
+            border-bottom: 2px solid var(--primary-glow);
+            padding: 15px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            font-weight: bold;
+            color: #ffffff;
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .logo span {
+            color: var(--accent-green);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 12px;
+        }
+
+        .nav-links a {
+            color: #aaa;
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: color 0.3s;
+        }
+
+        .nav-links a.active, .nav-links a:hover {
+            color: var(--accent-green);
+        }
+
+        /* Hero Wrapper */
+        .hero-banner {
+            text-align: center;
+            padding: 50px 20px;
+            background: linear-gradient(180deg, #1a0b2e 0%, #0d0d11 100%);
+            border-bottom: 1px solid #222;
+        }
+
+        /* Content Layout Blocks */
+        .main-layout {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .content-panel {
+            background-color: var(--dark-card);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid #2a2a3a;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        }
+
+        .panel-heading {
+            color: var(--primary-glow);
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+            font-weight: bold;
+        }
+
+        /* Action Panel Footer */
+        .action-footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 15px 20px;
+            background-color: #111116;
+            border-top: 1px solid #2a2a3a;
+            display: flex;
+            justify-content: center;
+            z-index: 99;
+        }
+
+        .action-button {
+            background-color: var(--accent-green);
+            color: #000000;
+            text-decoration: none;
+            font-weight: bold;
+            text-transform: uppercase;
+            padding: 12px 30px;
+            border-radius: 30px;
+            font-size: 1rem;
+            letter-spacing: 1px;
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+            box-shadow: 0 0 15px rgba(57, 255, 20, 0.4);
+            border: none;
+            cursor: pointer;
+        }
+    </style>
 </head>
-<body data-event-type="events">
-    <main class="wrap landing-wrap">
-        <header class="landing-nav">
-            <a class="brand" href="/rsvp/">V I Key® · Celebrations</a>
-            <nav aria-label="Event themes">
-                <a href="/rsvp/events/" aria-current="page">Events</a>
-                <a href="/rsvp/weddings/">Weddings</a>
-                <a href="/rsvp/parties/">Parties</a>
-                <a href="/rsvp/engagements/">Engagements</a>
-            </nav>
-        </header>
-        <section class="landing-hero" aria-labelledby="heading">
-            <div class="landing-copy">
-                <p class="brand">Versatile celebration · teal &amp; gold</p>
-                <h1 id="heading">Made for your moment. Made to share.</h1>
-                <p>From community gatherings to special milestones, bring everyone together with an invitation that feels like you.</p>
-                <p>Keep your date, venue and RSVP details together in one welcoming invitation.</p>
-                <p>Already invited? Open the unique event link shared by your host to view the details and RSVP.</p>
+<body>
+
+    <!-- Navigation Menu Layout -->
+    <nav>
+        <div class="nav-container">
+            <div class="logo">Logo<span>Here</span></div>
+            <div class="nav-links">
+                <a href="#weddings">Weddings</a>
+                <a href="#engagements">Engagements</a>
+                <a href="#parties">Parties</a>
+                <a href="#events" class="active">Events</a>
             </div>
-            <div>
-                <p class="preview-label">A little inspiration · example invitation</p>
-                <article class="rsvp-card" aria-labelledby="sampleHeading">
-                    <div class="rsvp-banner" aria-hidden="true"></div>
-                    <header class="rsvp-head">
-                        <p class="brand">You're warmly invited</p>
-                        <h2 id="sampleHeading">An evening together</h2>
-                        <p>Good company and a moment to remember</p>
-                    </header>
-                    <div class="sample-invitation">
-                        <p class="sample-date">Saturday, 19 June 2027 · 6 pm</p>
-                        <p>The Garden Room<br>Food, conversation &amp; shared memories</p>
-                        <p>We'd love to see you there.<br>Please reply by 19 May.</p>
-                    </div>
-                </article>
-            </div>
+        </div>
+    </nav>
+
+    <!-- Header Focus Area -->
+    <header class="hero-banner">
+        <!-- Insert Main Title / Heading Here -->
+    </header>
+
+    <!-- Main Content Grid -->
+    <main class="main-layout">
+
+        <section class="content-panel">
+            <div class="panel-heading"></div>
+            <!-- Insert Primary Details / Paragraphs Here -->
         </section>
-        <section class="landing-details" aria-labelledby="detailsHeading">
-            <h2 id="detailsHeading">Less organising. More time together.</h2>
-            <ol class="landing-steps">
-                <li><h3>Make it yours</h3><p>Your site admin adds your event title, date, venue and reply-by date, with the Events theme selected.</p></li>
-                <li><h3>Share your moment</h3><p>Saving creates an automatic event ID and a unique link to send by WhatsApp or text/SMS.</p></li>
-                <li><h3>Welcome your guests</h3><p>Guests reply online with attendance, additional guests and notes. Replies stay linked to your event.</p></li>
-            </ol>
+
+        <section class="content-panel">
+            <div class="panel-heading"></div>
+            <!-- Insert Secondary Details / Lists Here -->
         </section>
-        <footer class="landing-footer"><p>Already invited? Open the personal event link shared by your host.</p><a href="/rsvp/">Explore all celebrations</a> · <a href="/">V I Key® home</a></footer>
+
     </main>
+
+    <!-- Sticky Mobile Interaction Area -->
+    <div class="action-footer">
+        <button class="action-button"></button>
+    </div>
+
 </body>
 </html>
