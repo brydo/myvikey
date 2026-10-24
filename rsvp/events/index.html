@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stevie's Scary Halloween Show | Events</title>
+    <title>Theme Template</title>
     <style>
-        /* Mobile-First Base Styles */
         * {
             box-sizing: border-box;
             margin: 0;
@@ -17,17 +16,16 @@
             background-color: #0d0d11;
             color: #e0e0e6;
             line-height: 1.6;
-            padding-bottom: 60px; /* Space for sticky mobile button */
+            padding-bottom: 80px; 
         }
 
-        /* Spooky Accent Colors */
         :root {
-            --primary-glow: #9d4edd; /* Deep Magic Purple */
-            --accent-green: #39ff14; /* Slime Green */
+            --primary-glow: #9d4edd; 
+            --accent-green: #39ff14; 
             --dark-card: #1a1a24;
         }
 
-        /* Navigation Menu */
+        /* Navigation Menu Links */
         nav {
             background-color: #111116;
             border-bottom: 2px solid var(--primary-glow);
@@ -74,47 +72,22 @@
             color: var(--accent-green);
         }
 
-        /* Hero Banner Area */
-        .hero {
+        /* Hero Wrapper */
+        .hero-banner {
             text-align: center;
-            padding: 40px 20px;
+            padding: 50px 20px;
             background: linear-gradient(180deg, #1a0b2e 0%, #0d0d11 100%);
             border-bottom: 1px solid #222;
         }
 
-        .warning-tag {
-            color: var(--accent-green);
-            font-size: 0.8rem;
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            margin-bottom: 10px;
-            display: inline-block;
-        }
-
-        h1 {
-            color: #ffffff;
-            font-size: 2rem;
-            line-height: 1.2;
-            margin-bottom: 10px;
-            text-shadow: 0 0 10px rgba(157, 78, 221, 0.5);
-        }
-
-        .subtitle {
-            color: #b3b3cc;
-            font-size: 1.1rem;
-            font-style: italic;
-        }
-
-        /* Main Content Container */
-        .content-container {
+        /* Content Layout Blocks */
+        .main-layout {
             max-width: 500px;
             margin: 0 auto;
             padding: 20px;
         }
 
-        /* Info Display Cards */
-        .card {
+        .content-panel {
             background-color: var(--dark-card);
             border-radius: 12px;
             padding: 20px;
@@ -123,42 +96,22 @@
             box-shadow: 0 4px 15px rgba(0,0,0,0.5);
         }
 
-        .card-title {
+        .panel-heading {
             color: var(--primary-glow);
             font-size: 1.1rem;
             text-transform: uppercase;
             letter-spacing: 1px;
             margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
             font-weight: bold;
         }
 
-        .important-text {
-            color: #ffffff;
-            font-size: 1.1rem;
-            font-weight: bold;
-            margin-bottom: 4px;
-        }
-
-        ul {
-            list-style-position: inside;
-            margin-top: 5px;
-        }
-
-        li {
-            margin-bottom: 8px;
-            color: #cdcdde;
-        }
-
-        /* Call To Action Sticky Button */
-        .cta-sticky {
+        /* Action Panel Footer */
+        .action-footer {
             position: fixed;
             bottom: 0;
             left: 0;
             right: 0;
-            padding: 10px 20px;
+            padding: 15px 20px;
             background-color: #111116;
             border-top: 1px solid #2a2a3a;
             display: flex;
@@ -166,7 +119,7 @@
             z-index: 99;
         }
 
-        .btn {
+        .action-button {
             background-color: var(--accent-green);
             color: #000000;
             text-decoration: none;
@@ -180,20 +133,17 @@
             max-width: 400px;
             text-align: center;
             box-shadow: 0 0 15px rgba(57, 255, 20, 0.4);
-            transition: transform 0.2s;
-        }
-
-        .btn:active {
-            transform: scale(0.98);
+            border: none;
+            cursor: pointer;
         }
     </style>
 </head>
 <body>
 
-    <!-- Top Navigation Menu -->
+    <!-- Navigation Menu Layout -->
     <nav>
         <div class="nav-container">
-            <div class="logo">My<span>Website</span></div>
+            <div class="logo">Logo<span>Here</span></div>
             <div class="nav-links">
                 <a href="#weddings">Weddings</a>
                 <a href="#engagements">Engagements</a>
@@ -203,51 +153,29 @@
         </div>
     </nav>
 
-    <!-- Main Header -->
-    <header class="hero">
-        <span class="warning-tag">⚠️ Are you brave enough to enter?</span>
-        <h1>STEVIES SCARY HALLOWEEN SHOW</h1>
-        <p class="subtitle">The Ultimate Spooky Display</p>
+    <!-- Header Focus Area -->
+    <header class="hero-banner">
+        <!-- Insert Main Title / Heading Here -->
     </header>
 
-    <!-- Content Sections -->
-    <main class="content-container">
+    <!-- Main Content Grid -->
+    <main class="main-layout">
 
-        <!-- Date & Time Card -->
-        <section class="card">
-            <div class="card-title">🕒 When</div>
-            <p class="important-text">Saturday, 31st October 2037</p>
-            <p>Gates open at 6:00 PM</p>
-            <p style="color: var(--accent-green);">Main display begins at 8:00 PM</p>
+        <section class="content-panel">
+            <div class="panel-heading"></div>
+            <!-- Insert Primary Details / Paragraphs Here -->
         </section>
 
-        <!-- Location Card -->
-        <section class="card">
-            <div class="card-title">📍 Where</div>
-            <p class="important-text">The Showgrounds</p>
-            <p>13 Cobblecroft Road</p>
-            <p><strong>Glenmavis</strong></p>
-        </section>
-
-        <!-- Experience Card -->
-        <section class="card">
-            <div class="card-title">👻 What to Expect</div>
-            <ul>
-                <li>Immersive haunted walkthroughs</li>
-                <li>Live atmospheric special effects</li>
-                <li>Terrifying custom illusions</li>
-                <li>The grand finale horror light display</li>
-            </ul>
-            <p style="margin-top: 15px; font-size: 0.9rem; font-style: italic; color: #aaa;">
-                *Warning: This attraction contains strobe lighting, smoke machines, and jump scares. Not recommended for the faint-hearted.
-            </p>
+        <section class="content-panel">
+            <div class="panel-heading"></div>
+            <!-- Insert Secondary Details / Lists Here -->
         </section>
 
     </main>
 
-    <!-- Mobile Sticky Footer Button -->
-    <div class="cta-sticky">
-        <a href="https://yeslovey.com" class="btn">Secure Your Tickets Now</a>
+    <!-- Sticky Mobile Interaction Area -->
+    <div class="action-footer">
+        <button class="action-button"></button>
     </div>
 
 </body>
