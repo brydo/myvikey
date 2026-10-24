@@ -56,7 +56,10 @@
         var help = document.createElement('p');
         help.textContent = links.length ?
             'Your RSVP is saved on this site. Choose an app below, then send the message yourself. Nothing has been sent to your host automatically.' :
-            'Your RSVP is saved on this site. Your host has not configured WhatsApp or text/SMS; no external message has been sent.';
+            'Your RSVP is saved on this site. Your host has no valid WhatsApp or text/SMS number configured; no external message has been sent.';
+        if (links.length && !links.some(function (link) { return link.href.indexOf('sms:') === 0; })) {
+            help.textContent += ' Text/SMS is unavailable because your host has not configured a valid text/SMS number.';
+        }
         root.appendChild(help);
         links.forEach(function (link) {
             var anchor = document.createElement('a');

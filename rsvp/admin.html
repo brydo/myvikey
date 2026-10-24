@@ -28,8 +28,10 @@
             <section id="eventsPanel" class="rsvp-section" hidden>
                 <h2>Your events</h2>
                 <p>Each saved invitation has its own code and replies, even when event themes or titles match.</p>
+                <p>Deleting an event disables its shared invitation link. Choose whether to keep its replies or delete them too. Kept replies remain under All events and in exports. Deletions are permanent; export a backup first if needed.</p>
                 <button id="exportAll" class="rsvp-btn" type="button">Export all events (.xlsx)</button>
                 <div id="events" class="events-list"></div>
+                <div id="deletionJobs" role="status"></div>
                 <label for="replyEvent">Show replies for</label>
                 <select id="replyEvent">
                     <option value="">All events</option>

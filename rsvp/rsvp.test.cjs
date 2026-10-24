@@ -13,6 +13,7 @@ function api() {
         FORM_SUBMISSIONS: {
             put: async (key, value) => records.set(key, value),
             get: async key => records.get(key),
+            delete: async key => records.delete(key),
             list: async options => {
                 calls.push(options);
                 const keys = [...records.keys()].filter(key => key.startsWith(options.prefix));
@@ -170,6 +171,11 @@ test('all three pages use shared RSVP assets without unrelated contact features'
         assert.match(html, /src="\/rsvp\/rsvp\.js"/);
         assert.doesNotMatch(html, /vcard|facebook|instagram|linkedin/i);
     }
+    const admin = readFileSync(`${__dirname}/admin.html`, 'utf8');
+    for (const channel of ['whatsapp', 'sms']) {
+        assert.match(admin, new RegExp(`<input id="${channel}" name="${channel}" type="tel"`));
+    }
+    assert.doesNotMatch(admin, /name="email"/);
 });
 
 const invitation = {
@@ -230,6 +236,19 @@ test('validates invitation fields and destinations, allowing either, both or nei
     }
 });
 
+test('optional contact fields may be omitted, including WhatsApp for SMS-only invitations', async () => {
+    const instance = api();
+    for (const fields of [
+        { whatsapp: undefined, sms: invitation.sms }, { whatsapp: invitation.whatsapp, sms: undefined },
+        { whatsapp: undefined, sms: undefined }
+    ]) {
+        const event = await createEvent(instance, fields);
+        assert.equal(event.whatsapp, fields.whatsapp === undefined ? '' : invitation.whatsapp);
+        assert.equal(event.sms, fields.sms === undefined ? '' : invitation.sms);
+        assert.deepEqual(JSON.parse(instance.records.get('rsvp-invitation:' + event.id)), event);
+    }
+});
+
 test('event-bound submissions reject mismatches and return only that event’s routing with a canonical receipt', async () => {
     const instance = api();
     const first = await createEvent(instance);
@@ -259,6 +278,34 @@ function renderer() {
     runInNewContext(readFileSync(`${__dirname}/card-render.js`, 'utf8'), context);
     return context.window.RSVP;
 }
+
+test('send options show only valid configured channels and explain unavailable text/SMS', () => {
+    const rsvp = renderer();
+    for (const [organiser, labels] of [
+        [{ sms: invitation.sms }, ['Send via text/SMS']],
+        [invitation, ['Send via WhatsApp', 'Send via text/SMS']],
+        [{ whatsapp: invitation.whatsapp }, ['Send via WhatsApp']],
+        ...[undefined, null, '', '+123', '07700900123', '+447700900124?body=bad', 447700900124]
+            .flatMap(sms => [
+                [{ sms }, []],
+                [{ whatsapp: invitation.whatsapp, sms }, ['Send via WhatsApp']]
+            ])
+    ]) {
+        const root = element('section');
+        root.hidden = true;
+        rsvp.sendOptions(root, valid, organiser);
+        assert.equal(root.hidden, false);
+        const buttons = root.children.filter(node => node.tag === 'a');
+        assert.deepEqual(buttons.map(node => node.textContent), labels);
+        assert.ok(buttons.every(node => !node.href.startsWith('mailto:')));
+        if (!labels.includes('Send via text/SMS')) {
+            assert.match(root.children[0].textContent, /(?:no valid WhatsApp or text\/SMS number|Text\/SMS is unavailable)/);
+        }
+        rsvp.sendOptions(root, valid, { sms: invitation.sms });
+        assert.deepEqual(root.children.filter(node => node.tag === 'a').map(node => node.textContent),
+            ['Send via text/SMS']);
+    }
+});
 
 test('channel links validate destinations and encode the event and all five fields exactly', () => {
     const rsvp = renderer();
@@ -292,7 +339,7 @@ test('channel links validate destinations and encode the event and all five fiel
 });
 
 function browser({ page = 'index', storageFails = false, saved, failSave = false, expired = false, eventType, search,
-    savedEvents, replyPages = [[]], exportExpired = false, clipboardFails = false } = {}) {
+    savedEvents, replyPages = [[]], exportExpired = false, clipboardFails = false, apiPost, confirm = () => true } = {}) {
     const nodes = {};
     function node(id) {
         if (!nodes[id]) nodes[id] = {
@@ -339,6 +386,7 @@ function browser({ page = 'index', storageFails = false, saved, failSave = false
             getItem(key) { return stored.get(key); }
         },
         window: {
+            confirm,
             RSVPExport: {
                 csv(replies) { return { replies }; },
                 workbook(events, replies) { return { events, replies }; },
@@ -349,6 +397,7 @@ function browser({ page = 'index', storageFails = false, saved, failSave = false
         fetch: async (path, options) => {
             const payload = JSON.parse(options.body);
             requests.push(payload);
+            if (path === '/api/rsvp' && apiPost) return apiPost(payload, options.headers['X-Admin-Session']);
             if (payload.action === 'get-invitation') return { ok: true, json: async () => ({ success: true, invitation: event }) };
             if (payload.action === 'verify') return { ok: true, json: async () => ({ success: true, sessionToken: 'valid-session' }) };
             if (['list', 'list-invitations'].includes(payload.action)) {
@@ -381,6 +430,300 @@ function browser({ page = 'index', storageFails = false, saved, failSave = false
     runInNewContext(readFileSync(`${__dirname}/rsvp.js`, 'utf8'), context);
     return { nodes, requests, stored, redirects, downloads, copied, event, tick: () => new Promise(resolve => setImmediate(resolve)) };
 }
+
+test('deletion is admin-only, validates identifiers and cannot delete unrelated KV records', async () => {
+    const instance = api();
+    const event = await createEvent(instance);
+    await instance.post(valid);
+    const before = [...instance.records];
+    for (const token of [undefined, 'invalid-session', 'other-user']) {
+        for (const action of ['delete-reply', 'delete-event']) {
+            assert.equal((await instance.post({ action, id: event.id, deleteReplies: true }, token)).status, 401);
+        }
+    }
+    for (const id of [undefined, null, {}, '../private', 'sub_unrelated', 'rsvp:private']) {
+        const action = id === 'sub_unrelated' ? 'delete-event' : 'delete-reply';
+        assert.equal((await instance.post({ action, id, deleteReplies: true }, 'valid-session')).status, 400);
+    }
+    for (const deleteReplies of [undefined, null, 'true', 1]) {
+        assert.equal((await instance.post({ action: 'delete-event', id: event.id, deleteReplies }, 'valid-session')).status, 400);
+    }
+    assert.equal((await instance.post({ action: 'delete-event', id: event.id, deleteReplies: true, cursor: {} }, 'valid-session')).status, 400);
+    assert.deepEqual([...instance.records], before);
+    instance.records.set('sub_unrelated', '{"private":true}');
+    assert.equal((await instance.post({ action: 'delete-reply', id: 'sub_unrelated' }, 'valid-session')).status, 200);
+    assert.ok(instance.records.has('sub_unrelated'));
+});
+
+test('reply IDs come from storage keys, support legacy replies and delete only the selected reply', async () => {
+    const instance = api();
+    await instance.post(valid);
+    await instance.post(valid);
+    instance.records.set('rsvp:legacy', JSON.stringify({ ...valid, id: 'spoofed' }));
+    const listed = await (await instance.post({ action: 'list' }, 'valid-session')).json();
+    assert.equal(listed.responses.at(-1).id, 'legacy');
+    const id = listed.responses[0].id;
+    const response = await instance.post({ action: 'delete-reply', id }, 'valid-session');
+    assert.equal(response.status, 200);
+    assert.equal(response.headers.get('Cache-Control'), 'no-store');
+    assert.equal(instance.records.has('rsvp:' + id), false);
+    assert.equal(instance.records.size, 2);
+    assert.equal((await instance.post({ action: 'delete-reply', id }, 'valid-session')).status, 200);
+    await instance.post({ action: 'delete-reply', id: 'legacy' }, 'valid-session');
+    assert.equal(instance.records.size, 1);
+});
+
+test('deleting events keeps or removes replies explicitly and preserves other events and legacy records', async () => {
+    for (const deleteReplies of [false, true]) {
+        const instance = api();
+        const event = await createEvent(instance);
+        const other = await createEvent(instance, { title: event.title });
+        for (const item of [event, other]) {
+            await instance.post({ ...valid, event: item.title, eventId: item.id });
+        }
+        instance.records.set('rsvp:legacy', JSON.stringify(valid));
+        instance.records.set('sub_unrelated', '{"private":true}');
+        const result = await instance.post({ action: 'delete-event', id: event.id, deleteReplies }, 'valid-session');
+        assert.equal(result.status, 200);
+        assert.equal(instance.records.has('rsvp-invitation:' + event.id), false);
+        assert.ok(instance.records.has('rsvp-invitation:' + other.id));
+        assert.ok(instance.records.has('rsvp:legacy'));
+        assert.ok(instance.records.has('sub_unrelated'));
+        assert.equal((await instance.post({ action: 'get-invitation', id: event.id })).status, 404);
+        assert.equal((await instance.post({ ...valid, event: event.title, eventId: event.id })).status, 404);
+        const replies = await (await instance.post({ action: 'list' }, 'valid-session')).json();
+        assert.equal(replies.responses.filter(reply => reply.eventId === event.id).length, deleteReplies ? 0 : 1);
+        assert.equal(replies.responses.filter(reply => reply.eventId === other.id).length, 1);
+    }
+});
+
+test('event cleanup is bounded, paginated and retryable after deletion failures', async () => {
+    const instance = api();
+    const event = await createEvent(instance);
+    const other = await createEvent(instance);
+    for (let i = 0; i < 120; i++) {
+        instance.records.set('rsvp:' + i, JSON.stringify({ ...valid, eventId: i % 3 ? event.id : other.id }));
+    }
+    // KV cursors remain valid after deletion; use stable positions rather than shifting array offsets.
+    const keys = [...instance.records.keys()].filter(key => key.startsWith('rsvp:'));
+    instance.env.FORM_SUBMISSIONS.list = async options => {
+        assert.equal(options.limit, 50);
+        const offset = Number(options.cursor) || 0;
+        const end = offset + options.limit;
+        return { keys: keys.slice(offset, end).filter(key => instance.records.has(key)).map(name => ({ name })),
+            list_complete: end >= keys.length, cursor: end >= keys.length ? '' : String(end) };
+    };
+    const remove = instance.env.FORM_SUBMISSIONS.delete;
+    instance.env.FORM_SUBMISSIONS.delete = async key => {
+        if (key.startsWith('rsvp:')) throw Error('private failure');
+        return remove(key);
+    };
+    let response = await instance.post({ action: 'delete-event', id: event.id, deleteReplies: true }, 'valid-session');
+    assert.equal(response.status, 500);
+    assert.doesNotMatch(await response.text(), /private failure/);
+    assert.equal(instance.records.has('rsvp-invitation:' + event.id), false);
+    instance.env.FORM_SUBMISSIONS.delete = remove;
+    let cursor = '';
+    let pages = 0;
+    do {
+        response = await instance.post({ action: 'delete-event', id: event.id, deleteReplies: true, cursor }, 'valid-session');
+        assert.equal(response.status, 200);
+        cursor = (await response.json()).cursor;
+        pages++;
+    } while (cursor);
+    assert.equal(pages, 3);
+    assert.equal([...instance.records.keys()].filter(key => key.startsWith('rsvp:')).length, 40);
+    assert.ok(instance.records.has('rsvp-invitation:' + other.id));
+});
+
+test('a submission finishing after event deletion removes its late reply', async () => {
+    const instance = api();
+    const event = await createEvent(instance);
+    const put = instance.env.FORM_SUBMISSIONS.put;
+    instance.env.FORM_SUBMISSIONS.put = async (key, value) => {
+        if (key.startsWith('rsvp:')) {
+            const deleted = await instance.post({ action: 'delete-event', id: event.id, deleteReplies: true }, 'valid-session');
+            assert.equal(deleted.status, 200);
+        }
+        return put(key, value);
+    };
+    const reply = await instance.post({ ...valid, event: event.title, eventId: event.id });
+    assert.equal(reply.status, 404);
+    assert.equal([...instance.records.keys()].filter(key => key.startsWith('rsvp:')).length, 0);
+});
+
+test('admin deletion requires confirmation, offers keep/delete choice and refreshes counts and editor', async () => {
+    for (const choice of ['keep', 'delete']) {
+        const instance = api();
+        const event = await createEvent(instance);
+        await instance.post({ ...valid, event: event.title, eventId: event.id });
+        let approved = false;
+        const warnings = [];
+        const admin = browser({ page: 'admin', apiPost: instance.post,
+            confirm(warning) { warnings.push(warning); return approved; } });
+        await admin.nodes.loginForm.handlers.submit({ preventDefault() {} });
+        let row = admin.nodes.events.children[0];
+        const find = (root, label) => root.children.find(node => node.tag === 'button' && node.textContent === label);
+        const replyCard = admin.nodes.responses.children[0];
+        await find(replyCard, 'Delete reply').click();
+        assert.equal(admin.requests.filter(item => item.action.startsWith('delete-')).length, 0);
+        await find(row, 'Delete event').click();
+        assert.equal(admin.requests.filter(item => item.action.startsWith('delete-')).length, 0);
+        assert.match(warnings.at(-1), /link will stop working/);
+        approved = true;
+        await find(replyCard, 'Delete reply').click();
+        assert.equal(admin.nodes.responses.children.length, 0);
+        assert.match(admin.nodes.events.children[0].children[1].textContent, /Replies: 0/);
+        await instance.post({ ...valid, event: event.title, eventId: event.id });
+        await admin.nodes.refresh.handlers.click();
+        row = admin.nodes.events.children[0];
+        find(row, 'Open/Edit').click();
+        row.children.find(node => node.tag === 'select').value = choice;
+        await find(row, 'Delete event').click();
+        assert.equal(admin.requests.find(item => item.action === 'delete-event').deleteReplies, choice === 'delete');
+        assert.match(warnings.at(-1), choice === 'delete' ? /replies will also be permanently deleted/ : /replies will be kept/);
+        assert.equal(admin.nodes.events.children.length, 0);
+        assert.equal(admin.nodes['editor-id'].value, '');
+        assert.equal(admin.nodes.shareInvitation.children.length, 0);
+        assert.equal(admin.nodes.responses.children.length, choice === 'keep' ? 1 : 0);
+    }
+});
+
+test('admin follows cleanup cursors and prevents duplicate deletion while a request is pending', async () => {
+    const instance = api();
+    const event = await createEvent(instance);
+    let finish;
+    const pending = new Promise(resolve => { finish = resolve; });
+    const pages = [];
+    const admin = browser({ page: 'admin', apiPost: async (payload, token) => {
+        if (payload.action === 'delete-event') {
+            pages.push(payload.cursor);
+            if (!payload.cursor) {
+                await pending;
+                return Response.json({ success: true, cursor: 'next-page' });
+            }
+        }
+        return instance.post(payload, token);
+    } });
+    await admin.nodes.loginForm.handlers.submit({ preventDefault() {} });
+    const row = admin.nodes.events.children[0];
+    row.children.find(node => node.tag === 'select').value = 'delete';
+    const button = row.children.find(node => node.textContent === 'Delete event');
+    const deleting = button.click();
+    await button.click();
+    assert.deepEqual(pages, ['']);
+    finish();
+    await deleting;
+    assert.deepEqual(pages, ['', 'next-page']);
+    assert.equal(instance.records.has('rsvp-invitation:' + event.id), false);
+    assert.equal(admin.nodes.events.children.length, 0);
+});
+
+test('admin deletion reports failures and logs out on an expired session without clearing unsaved editor state on storage failure', async () => {
+    for (const expired of [false, true]) {
+        const instance = api();
+        const event = await createEvent(instance);
+        const admin = browser({ page: 'admin', apiPost: (payload, token) => {
+            if (payload.action === 'delete-event' && expired) {
+                return instance.post(payload, 'invalid-session');
+            }
+            return instance.post(payload, token);
+        } });
+        await admin.nodes.loginForm.handlers.submit({ preventDefault() {} });
+        const row = admin.nodes.events.children[0];
+        row.children.find(node => node.textContent === 'Open/Edit').click();
+        instance.env.FORM_SUBMISSIONS.delete = async () => { throw Error('private failure'); };
+        await row.children.find(node => node.textContent === 'Delete event').click();
+        assert.match(admin.nodes.message.textContent, /Deletion did not complete/);
+        assert.doesNotMatch(admin.nodes.message.textContent, /private failure/);
+        assert.ok(instance.records.has('rsvp-invitation:' + event.id));
+        if (expired) {
+            assert.equal(admin.nodes.loginForm.hidden, false);
+            assert.equal(admin.nodes.invitationForm.hidden, true);
+            assert.equal(admin.nodes.events.children.length, 0);
+        } else {
+            assert.equal(admin.nodes['editor-id'].value, event.id);
+            assert.equal(admin.nodes.events.children.length, 1);
+        }
+    }
+});
+
+test('failed bulk cleanup can be retried after refreshing, reopening admin or signing back in', async () => {
+    const instance = api();
+    const event = await createEvent(instance);
+    await instance.post({ ...valid, event: event.title, eventId: event.id });
+    const admin = browser({ page: 'admin', apiPost: instance.post });
+    await admin.nodes.loginForm.handlers.submit({ preventDefault() {} });
+    const remove = instance.env.FORM_SUBMISSIONS.delete;
+    instance.env.FORM_SUBMISSIONS.delete = async key => {
+        if (key.startsWith('rsvp:')) throw Error('failure');
+        return remove(key);
+    };
+    const row = admin.nodes.events.children[0];
+    row.children.find(node => node.tag === 'select').value = 'delete';
+    await row.children.find(node => node.textContent === 'Delete event').click();
+    assert.equal(instance.records.has('rsvp-invitation:' + event.id), false);
+    assert.equal(admin.nodes.deletionJobs.children.length, 1);
+    await admin.nodes.refresh.handlers.click();
+    assert.equal(admin.nodes.events.children.length, 0);
+    assert.equal(admin.nodes.deletionJobs.children.length, 1);
+    const jobs = admin.stored.get('rsvp_delete_jobs');
+    assert.deepEqual(JSON.parse(jobs), [event.id]);
+    admin.nodes.logout.handlers.click();
+    assert.equal(admin.nodes.deletionJobs.children.length, 0);
+    await admin.nodes.loginForm.handlers.submit({ preventDefault() {} });
+    assert.equal(admin.nodes.deletionJobs.children.length, 1);
+    const reopened = browser({ page: 'admin', apiPost: instance.post });
+    reopened.stored.set('rsvp_delete_jobs', jobs);
+    await reopened.nodes.loginForm.handlers.submit({ preventDefault() {} });
+    assert.equal(reopened.nodes.deletionJobs.children.length, 1);
+    instance.env.FORM_SUBMISSIONS.delete = remove;
+    await reopened.nodes.deletionJobs.children[0].click();
+    assert.equal(reopened.nodes.deletionJobs.children.length, 0);
+    assert.equal(reopened.nodes.responses.children.length, 0);
+    assert.deepEqual(JSON.parse(reopened.stored.get('rsvp_delete_jobs')), []);
+});
+
+test('real API organiser routing preserves SMS from admin save/load through guest submit and confirmation', async () => {
+    for (const whatsapp of ['', invitation.whatsapp]) {
+        const instance = api();
+        const admin = browser({ page: 'admin', apiPost: instance.post });
+        await admin.nodes.loginForm.handlers.submit({ preventDefault() {} });
+        for (const [field, value] of Object.entries({ ...invitation, whatsapp })) {
+            if (field !== 'action') admin.nodes['editor-' + field].value = value;
+        }
+        await admin.nodes.invitationForm.handlers.submit({ preventDefault() {} });
+        const id = admin.nodes['editor-id'].value;
+        assert.ok(id);
+        admin.nodes['editor-sms'].value = '';
+        await admin.nodes.loadInvitation.handlers.click();
+        assert.equal(admin.nodes['editor-sms'].value, invitation.sms);
+        assert.equal(admin.nodes['editor-whatsapp'].value, whatsapp);
+
+        const guest = browser({ search: '?id=' + id, apiPost: instance.post });
+        await guest.tick();
+        guest.nodes.name.value = 'SMS guest';
+        guest.nodes.attending.value = 'yes';
+        guest.nodes.guests.value = '0';
+        guest.nodes.notes.value = 'See you there!';
+        await guest.nodes.rsvpForm.handlers.submit({ preventDefault() {} });
+        assert.deepEqual(guest.redirects, ['/rsvp/view']);
+        const saved = JSON.parse(guest.stored.get('rsvp_receipt'));
+        assert.deepEqual(saved.organiser, { whatsapp, sms: invitation.sms });
+        const receipt = browser({ page: 'view', saved });
+        for (const app of [guest, receipt]) {
+            const buttons = app.nodes.sendOptions.children.filter(node => node.tag === 'a');
+            assert.deepEqual(buttons.map(node => node.textContent),
+                whatsapp ? ['Send via WhatsApp', 'Send via text/SMS'] : ['Send via text/SMS']);
+            const sms = new URL(buttons.at(-1).href);
+            assert.equal(sms.pathname, invitation.sms);
+            assert.match(sms.searchParams.get('body'), /Name: SMS guest/);
+            assert.match(sms.searchParams.get('body'), /Notes: See you there!/);
+        }
+        assert.equal(receipt.nodes.back.href, '/rsvp/?id=' + id);
+        assert.equal([...instance.records.keys()].filter(key => key.startsWith('rsvp:')).length, 1);
+    }
+});
 
 test('guest loads safe multiline invitation, reveals prefilled form, saves event ID and preserves send options through receipt redirect', async () => {
     const app = browser();
@@ -615,6 +958,13 @@ test('legacy email invitations stay readable but email is ignored for routing an
     const updated = await createEvent(instance, { ...event, sms: undefined });
     assert.equal(updated.sms, '');
     assert.equal(updated.email, undefined);
+    const restored = await createEvent(instance, { ...updated, sms: invitation.sms });
+    assert.equal(restored.id, event.id);
+    const routed = await (await instance.post({ ...valid, event: event.title, eventId: event.id })).json();
+    const view = browser({ page: 'view', saved: routed });
+    assert.deepEqual(view.nodes.sendOptions.children.filter(node => node.tag === 'a').map(node => node.textContent),
+        ['Send via WhatsApp', 'Send via text/SMS']);
+    assert.equal(view.nodes.back.href, '/rsvp/?id=' + event.id);
 });
 
 test('event panel recalls codes and links, opens editor, scopes replies and clears on logout', async () => {
