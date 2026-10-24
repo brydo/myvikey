@@ -1113,7 +1113,7 @@ test('malformed and legacy stored settings fall back safely and public reads all
         assert.equal(settings.copy.brand, 'Valid brand');
         assert.equal(settings.copy.inviteText, appearanceModel.defaultCopy(type).inviteText);
         assert.equal(settings.cardStyle.spacing, appearanceModel.styleFields.spacing.max);
-        assert.doesNotMatch(JSON.stringify(settings), /private|javascript:|<script>|url\(https:\/\/evil/);
+        assert.doesNotMatch(JSON.stringify(settings), /private|javascript:|<script>|url\(https:\/\/evil/i);
         assert.ok(contrastRatio(settings.cardStyle.textColor, settings.cardStyle.surface) >= 4.5);
     }
 });
@@ -1297,14 +1297,23 @@ test('mixed admin reply cards resolve category by invitation ID, including legac
 test('receipts load current appearance and invitation category, retain legacy fallback, and never show a different invitation receipt', async () => {
     const instance = api();
     const event = await createEvent(instance, { eventType: 'events' });
-    const saved = { response: { ...valid, eventId: event.id }, eventType: 'events' };
+    const saved = { response: { ...valid, eventId: event.id, eventType: 'events' }, eventType: 'events', organiser: invitation };
     await createEvent(instance, { ...event, eventType: 'engagements' });
-    await instance.post({ action: 'save-appearance', eventType: 'engagements', backgroundImage: 'https://images.example.com/new.jpg' }, 'valid-session');
+    await instance.post({ action: 'save-appearance', eventType: 'engagements', backgroundImage: 'https://images.example.com/new.jpg',
+        copy: { receiptHeading: 'Current category thanks', cardHeading: 'Current category reply',
+            sendHelp: 'Current category send help', whatsappLabel: 'Current WhatsApp', smsLabel: 'Current text' }
+    }, 'valid-session');
     const receipt = browser({ page: 'view', saved, apiPost: instance.post });
     await receipt.tick();
     assert.equal(receipt.nodes.body.attributes['data-event-type'], 'engagements');
     assert.equal(receipt.nodes.receipt.children[0].attributes['data-event-type'], 'engagements');
     assert.equal(receipt.nodes.body.style['--category-image'], 'url("https://images.example.com/new.jpg")');
+    assert.equal(receipt.nodes.receiptHeading.textContent, 'Current category thanks');
+    assert.equal(receipt.nodes.receipt.children[0].children[1].textContent, 'Current category reply');
+    assert.equal(receipt.nodes.sendOptions.getAttribute('data-event-type'), 'engagements');
+    assert.equal(receipt.nodes.sendOptions.children[0].textContent, 'Current category send help');
+    assert.deepEqual(receipt.nodes.sendOptions.children.filter(node => node.tag === 'a').map(node => node.textContent),
+        ['Current WhatsApp', 'Current text']);
     const empty = browser({ page: 'view', search: '?type=events&id=' + event.id, apiPost: instance.post });
     await empty.tick();
     assert.equal(empty.nodes.body.attributes['data-event-type'], 'engagements');
@@ -1350,7 +1359,7 @@ test('client paints only normalized allowlisted copy and style values, including
     assert.equal(app.nodes.body.style['--card-body-scale'], '1');
     assert.equal(app.nodes.body.style['--card-alignment'], 'center');
     for (const key of ['textColor', 'headingColor']) assert.ok(contrastRatio(settings.cardStyle[key], settings.cardStyle.surface) >= 4.5);
-    assert.doesNotMatch(JSON.stringify(settings), /private|onerror|background:url/);
+    assert.doesNotMatch(JSON.stringify(settings), /private|onerror|background:url/i);
 });
 
 test('admin category resets synchronize the background input after deletion and logout', async () => {
@@ -1412,6 +1421,28 @@ test('template copy bindings use known fields and keep invitation-owned preview 
         const tag = admin.match(new RegExp('<[^>]+id="' + id + '"[^>]*>'))[0];
         assert.doesNotMatch(tag, /data-copy=/);
     }
+});
+
+test('chooser links and receipt branding inherit contrast-safe custom card text instead of category accent', () => {
+    const css = readFileSync(`${__dirname}/card.css`, 'utf8');
+    const rules = [...css.matchAll(/([^{}]+)\{([^{}]*)\}/g)];
+    for (const selector of ['.occasion-chooser a', '.page-head .brand']) {
+        const rule = rules.find(([, selectors, declarations]) =>
+            selectors.split(',').map(value => value.trim()).includes(selector) &&
+            /(?:^|;)\s*color:\s*inherit\s*;/.test(declarations));
+        assert.ok(rule, selector + ' must inherit validated foreground color');
+    }
+    for (const selector of ['.occasion-chooser', '.page-head']) {
+        assert.ok(rules.some(([, selectors, declarations]) =>
+            selectors.split(',').map(value => value.trim()).includes(selector) &&
+            declarations.includes('color: var(--card-text, var(--ink))') &&
+            declarations.includes('background: var(--card-surface, var(--paper))')));
+    }
+    const settings = appearanceModel.validateAppearance('celebration', {
+        backgroundImage: '', cardStyle: { surface: '#844456', textColor: '#ffffff', headingColor: '#ffffff' }
+    });
+    assert.ok(settings, 'An accent-colored surface with contrasting white text is valid');
+    assert.ok(contrastRatio(settings.cardStyle.textColor, settings.cardStyle.surface) >= 4.5);
 });
 
 test('admin creates bounded named controls, previews draft changes locally, switches categories and resets before publishing', async () => {
