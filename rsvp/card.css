@@ -1,14 +1,13 @@
-/* RSVP component styles, adapted from MyCard. */
-:root { color-scheme: dark; }
+/* Celebration invitations and shared RSVP components. */
+:root { color-scheme: light; }
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     background:
-        radial-gradient(ellipse at 50% 38%, rgba(147,51,234,0.13), transparent 44%),
-        radial-gradient(ellipse at 50% 45%, rgba(37,99,235,0.11), transparent 54%),
-        radial-gradient(circle at top, #1c1a16 0%, #12110F 70%);
-    background-color: #12110F;
-    color: #e8e6e3;
+        radial-gradient(ellipse at top left, #efd1d3, transparent 55%),
+        radial-gradient(ellipse at bottom right, #f2e1bd, transparent 60%);
+    background-color: #faf5ef;
+    color: #493439;
     line-height: 1.6;
     min-height: 100vh;
     min-height: 100svh;
@@ -23,28 +22,46 @@ body {
 }
 .rsvp-card {
     width: 100%;
-    max-width: 440px;
+    max-width: 500px;
     margin: 0 auto;
-    background: rgba(19, 19, 26, 0.8);
-    border: 1px solid rgba(255,255,255,0.10);
+    background: #fffaf4;
+    border: 1px solid #d8bda2;
     border-radius: 20px;
     overflow: hidden;
     padding-bottom: 24px;
-    box-shadow:
-        0 20px 50px rgba(0,0,0,0.45),
-        0 0 120px rgba(147,51,234,0.18),
-        0 0 140px rgba(37,99,235,0.16),
-        0 0 160px rgba(219,39,119,0.15);
-    color: #fff;
+    box-shadow: 0 20px 60px #8c566521;
+    color: #493439;
 }
 .rsvp-banner {
-    height: 96px;
-    background: linear-gradient(135deg, rgba(147,51,234,0.2), rgba(37,99,235,0.18) 55%, rgba(219,39,119,0.16));
+    height: 110px;
+    position: relative;
+    background:
+        radial-gradient(ellipse at 15% 100%, #a9b2a1 0 9%, transparent 10%),
+        radial-gradient(ellipse at 85% 100%, #b4bca8 0 9%, transparent 10%),
+        radial-gradient(circle at 30% 35%, #b08c48 0 2px, transparent 3px),
+        radial-gradient(circle at 75% 20%, #b08c48 0 2px, transparent 3px),
+        linear-gradient(120deg, #f4dedc, #fff5e5, #f2d9d8);
 }
+.rsvp-banner::before, .rsvp-banner::after {
+    content: "❀";
+    position: absolute;
+    color: #a9576b;
+    font: 90px/1 Georgia, serif;
+    bottom: -16px;
+    left: 4%;
+}
+.rsvp-banner::after { left: auto; right: 4%; transform: rotate(30deg); color: #bb7482; }
 .rsvp-head { padding: 14px 20px 0; text-align: center; }
-h1, h2 { font-size: 1.6rem; line-height: 1.25; overflow-wrap: anywhere; }
-.brand { color: #c084fc; font-weight: 600; margin-bottom: 8px; }
-.rsvp-head > p:last-child, .page-head > p:last-child { color: #d1d5db; margin-top: 8px; }
+h1, h2 { font-family: Georgia, "Times New Roman", serif; font-size: 1.9rem; line-height: 1.25; overflow-wrap: anywhere; }
+h1 { font-size: clamp(2.2rem, 8vw, 3rem); font-weight: 400; }
+.brand { color: #825f2d; font-weight: 600; margin-bottom: 12px; letter-spacing: 2px; font-size: .8rem; text-transform: uppercase; }
+.rsvp-head > p:last-child, .page-head > p:last-child { color: #70565b; margin-top: 12px; }
+.invitation { text-align: center; }
+#invitationText, .invitation-editor { white-space: pre-wrap; overflow-wrap: anywhere; font-family: Georgia, serif; line-height: 1.9; }
+#invitationText { padding: 28px 16px; border: 1px solid #dcc6a5; margin: 8px 0 24px; font-size: 1.15rem; background: #fffdf9; }
+#invitationHelp, #contactHint { margin: 16px 0; }
+#shareInvitation { overflow-wrap: anywhere; margin-top: 16px; }
+#sendOptions .rsvp-btn { margin: 12px 8px 0 0; text-decoration: none; }
 .rsvp-section { padding: 18px 24px 0; }
 label { display: block; margin-bottom: 6px; font-weight: 600; }
 input, select, textarea {
@@ -56,14 +73,14 @@ input, select, textarea {
     margin-bottom: 16px;
     font: inherit;
     font-size: 1rem;
-    color: #e5e7eb;
-    background: #1f1f2e;
-    border: 1px solid rgba(255,255,255,0.15);
+    color: #493439;
+    background: #fffdf9;
+    border: 1px solid #b99e98;
     border-radius: 12px;
 }
 textarea { resize: vertical; }
-small { display: block; margin: -10px 0 16px; color: #d1d5db; }
-.muted { color: #d1d5db; font-weight: 400; }
+small { display: block; margin: -10px 0 16px; color: #70565b; }
+.muted { color: #70565b; font-weight: 400; }
 .rsvp-btn {
     display: inline-flex;
     align-items: center;
@@ -73,27 +90,27 @@ small { display: block; margin: -10px 0 16px; color: #d1d5db; }
     padding: 10px 14px;
     font: inherit;
     font-weight: 600;
-    color: #e5e7eb;
-    background: rgba(255,255,255,0.05);
-    border: 1px solid rgba(255,255,255,0.10);
+    color: #633c48;
+    background: #f8e9e5;
+    border: 1px solid #b99e98;
     border-radius: 12px;
     cursor: pointer;
 }
-.rsvp-btn:hover { background: rgba(255,255,255,0.08); border-color: #a855f7; }
-.primary { background: #9333ea; color: #fff; border-color: #9333ea; }
-.primary:hover { background: #a855f7; }
+.rsvp-btn:hover { background: #f1d9d5; border-color: #844456; }
+.primary { background: #844456; color: #fff; border-color: #844456; }
+.primary:hover { background: #6c3444; }
 .rsvp-btn:disabled { opacity: 0.6; cursor: wait; }
-:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
+:focus-visible { outline: 3px solid #844456; outline-offset: 3px; }
 [hidden] { display: none !important; }
 #message { overflow-wrap: anywhere; }
 #message:not(:empty) { margin-top: 12px; }
-.error { color: #ff8a8a; }
+.error { color: #a51f32; }
 nav, .page-head { text-align: center; }
-a { color: #c9a96e; }
+a { color: #774b25; }
 nav a { display: inline-block; padding: 10px 4px; }
 .responses { display: grid; gap: 24px; }
-dt { color: #a78bfa; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1.5px; }
-dd { color: #d1d5db; white-space: pre-wrap; overflow-wrap: anywhere; margin-bottom: 12px; }
+dt { color: #844456; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1.5px; }
+dd { color: #493439; white-space: pre-wrap; overflow-wrap: anywhere; margin-bottom: 12px; }
 @media (max-width: 480px) {
     .wrap { padding-right: 16px; padding-left: 16px; gap: 14px; }
 }

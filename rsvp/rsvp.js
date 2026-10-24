@@ -25,6 +25,27 @@
 
     var form = document.getElementById('rsvpForm');
     if (form) {
+        var invitation = null;
+        var eventId = new URLSearchParams(window.location.search).get('id');
+        var openRsvp = document.getElementById('openRsvp');
+        openRsvp.addEventListener('click', function () {
+            form.hidden = false;
+            openRsvp.hidden = true;
+            form.elements.name.focus();
+        });
+        if (eventId) {
+            status('Opening your invitation…');
+            post('/api/rsvp', { action: 'get-invitation', id: eventId }).then(function (data) {
+                invitation = data.invitation;
+                document.getElementById('heading').textContent = invitation.title;
+                document.getElementById('invitationText').textContent = invitation.text;
+                document.getElementById('invitationHelp').hidden = true;
+                form.elements.event.value = invitation.title;
+                form.querySelector('button').disabled = false;
+                openRsvp.hidden = false;
+                status('');
+            }).catch(function (error) { status(error.message, true); });
+        }
         var attending = form.elements.attending;
         var guests = form.elements.guests;
         attending.addEventListener('change', function () {
@@ -33,10 +54,13 @@
         });
         form.addEventListener('submit', async function (event) {
             event.preventDefault();
+            if (!invitation) return;
             var button = form.querySelector('button');
             button.disabled = true;
-            status('Sending…');
+            document.getElementById('sendOptions').hidden = true;
+            status('Saving your RSVP…');
             var response = {
+                eventId: invitation.id,
                 name: form.elements.name.value.trim(),
                 event: form.elements.event.value.trim(),
                 attending: attending.value,
@@ -44,15 +68,16 @@
                 notes: form.elements.notes.value.trim()
             };
             try {
-                await post('/api/rsvp', Object.assign({ action: 'submit' }, response));
-                status('Thanks, your RSVP is recorded.');
-                form.reset();
-                guests.disabled = false;
+                var data = await post('/api/rsvp', Object.assign({ action: 'submit' }, response));
+                status('Thanks, your RSVP is saved. No external message has been sent.');
+                window.RSVP.sendOptions(document.getElementById('sendOptions'), data.response, data.organiser);
                 try {
-                    sessionStorage.setItem(receiptKey, JSON.stringify(response));
+                    sessionStorage.setItem(receiptKey, JSON.stringify({
+                        response: data.response, organiser: data.organiser
+                    }));
                     window.location.assign('/rsvp/view');
                 } catch (storageError) {
-                    // The response is saved even when browser storage is unavailable.
+                    // Keep the reply and send options here if browser storage is unavailable.
                 }
             } catch (error) {
                 status(error.message || 'Unable to send your RSVP. Please try again.', true);
@@ -67,9 +92,14 @@
         try {
             var saved = JSON.parse(sessionStorage.getItem(receiptKey));
             if (saved) {
-                window.RSVP.render(receipt, saved);
+                var reply = saved.response || saved;
+                window.RSVP.render(receipt, reply);
+                window.RSVP.sendOptions(document.getElementById('sendOptions'), reply, saved.organiser);
                 document.getElementById('receiptHeading').textContent = 'Thank you!';
-                status('Thanks, your RSVP is recorded.');
+                status('Thanks, your RSVP is saved on this site.');
+                if (reply.eventId) {
+                    document.querySelector('nav a').href = '/rsvp/?id=' + encodeURIComponent(reply.eventId);
+                }
             }
         } catch (error) {
             status('Your confirmation is unavailable in this tab. If you already submitted, your RSVP is still recorded.');
@@ -83,6 +113,54 @@
     var responses = document.getElementById('responses');
     var actions = document.getElementById('adminActions');
     var more = document.getElementById('more');
+    var editor = document.getElementById('invitationForm');
+    var share = document.getElementById('shareInvitation');
+
+    function showInvitation(invitation) {
+        ['id', 'title', 'text', 'whatsapp', 'email'].forEach(function (field) {
+            editor.elements[field].value = invitation[field] || '';
+        });
+        share.replaceChildren();
+        var link = document.createElement('a');
+        link.href = window.location.origin + '/rsvp/?id=' + encodeURIComponent(invitation.id);
+        link.textContent = link.href;
+        share.appendChild(document.createTextNode('Saved invitation — share this link: '));
+        share.appendChild(link);
+    }
+
+    editor.addEventListener('submit', async function (event) {
+        event.preventDefault();
+        var session = token;
+        var button = editor.querySelector('button[type="submit"]');
+        button.disabled = true;
+        var payload = { action: 'save-invitation' };
+        ['title', 'text', 'whatsapp', 'email'].forEach(function (field) {
+            payload[field] = editor.elements[field].value.trim();
+        });
+        if (editor.elements.id.value.trim()) payload.id = editor.elements.id.value.trim();
+        try {
+            var data = await post('/api/rsvp', payload, session);
+            if (token !== session) return;
+            showInvitation(data.invitation);
+            status('Invitation saved. Share its link with your guests.');
+        } catch (error) {
+            if (token !== session) return;
+            if (error.status === 401) logout();
+            status(error.message, true);
+        } finally { button.disabled = false; }
+    });
+    document.getElementById('loadInvitation').addEventListener('click', async function () {
+        var session = token;
+        try {
+            var data = await post('/api/rsvp', { action: 'get-invitation', id: editor.elements.id.value.trim() });
+            if (token === session) showInvitation(data.invitation);
+        } catch (error) { if (token === session) status(error.message, true); }
+    });
+    document.getElementById('newInvitation').addEventListener('click', function () {
+        editor.reset();
+        share.replaceChildren();
+        status('New invitation. Save to create a separate share link.');
+    });
 
     function logout() {
         token = '';
@@ -91,6 +169,9 @@
         login.hidden = false;
         actions.hidden = true;
         more.hidden = true;
+        editor.hidden = true;
+        editor.reset();
+        share.replaceChildren();
         status('');
     }
 
@@ -135,6 +216,7 @@
             login.reset();
             login.hidden = true;
             actions.hidden = false;
+            editor.hidden = false;
             await load(false);
         } catch (error) {
             status(error.message || 'Unable to sign in. Please try again.', true);

@@ -32,5 +32,43 @@
         root.appendChild(card);
     }
 
-    window.RSVP = { render: render };
+    function channels(response, organiser) {
+        organiser = organiser || {};
+        var message = 'RSVP\nName: ' + response.name + '\nEvent: ' + response.event +
+            '\nAttending: ' + (response.attending === 'yes' ? 'Yes' : 'No') +
+            '\nGuests (additional): ' + response.guests + '\nNotes: ' + (response.notes || '—');
+        var links = [];
+        if (typeof organiser.whatsapp === 'string' && /^\+[1-9]\d{7,14}$/.test(organiser.whatsapp)) {
+            links.push({ label: 'Send via WhatsApp', href: 'https://wa.me/' +
+                organiser.whatsapp.slice(1) + '?text=' + encodeURIComponent(message) });
+        }
+        if (typeof organiser.email === 'string' && organiser.email.length <= 254 &&
+            /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?)+$/.test(organiser.email)) {
+            links.push({ label: 'Send via email', href: 'mailto:' + encodeURIComponent(organiser.email) +
+                '?subject=' + encodeURIComponent('RSVP: ' + response.event) + '&body=' + encodeURIComponent(message) });
+        }
+        return links;
+    }
+
+    function sendOptions(root, response, organiser) {
+        root.replaceChildren();
+        root.hidden = false;
+        var links = channels(response, organiser);
+        var help = document.createElement('p');
+        help.textContent = links.length ?
+            'Your RSVP is saved on this site. Choose an app below, then send the message yourself. Nothing has been sent to your host automatically.' :
+            'Your RSVP is saved on this site. Your host has not configured WhatsApp or email; no external message has been sent.';
+        root.appendChild(help);
+        links.forEach(function (link) {
+            var anchor = document.createElement('a');
+            anchor.className = 'rsvp-btn';
+            anchor.textContent = link.label;
+            anchor.href = link.href;
+            anchor.target = '_blank';
+            anchor.rel = 'noopener noreferrer';
+            root.appendChild(anchor);
+        });
+    }
+
+    window.RSVP = { render: render, channels: channels, sendOptions: sendOptions };
 })();

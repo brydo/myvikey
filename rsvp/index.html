@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Send your RSVP with V I Key®.">
+    <meta name="description" content="A little invitation to a lovely celebration. RSVP with V I Key®.">
     <title>RSVP · V I Key®</title>
     <link rel="stylesheet" href="/rsvp/card.css">
 </head>
@@ -14,13 +14,22 @@
             <header class="rsvp-head">
                 <p class="brand">V I Key® · RSVP</p>
                 <h1 id="heading">You're invited.</h1>
-                <p>Let us know if you can make it.</p>
+                <p class="eyebrow">Together is a beautiful place to be</p>
             </header>
-            <form id="rsvpForm" class="rsvp-section">
+            <div class="rsvp-section invitation">
+                <p id="invitationText">Make room for a little celebration.
+
+A beautiful invitation, a special gathering, and the people who make it yours.</p>
+                <p id="invitationHelp">Have an invitation? Open the link shared by your host. Organisers can sign in below to create and share one.</p>
+                <button id="openRsvp" class="rsvp-btn primary" type="button" hidden>RSVP to this celebration</button>
+            </div>
+            <p id="message" class="rsvp-section" role="status" aria-live="polite"></p>
+            <form id="rsvpForm" class="rsvp-section" hidden>
+                <h2>Your reply</h2>
                 <label for="name">Name</label>
                 <input id="name" name="name" autocomplete="name" maxlength="100" required>
                 <label for="event">Event</label>
-                <input id="event" name="event" maxlength="100" required>
+                <input id="event" name="event" maxlength="100" readonly required>
                 <label for="attending">Attending</label>
                 <select id="attending" name="attending" required>
                     <option value="">Please choose</option>
@@ -32,11 +41,12 @@
                 <small id="guestsHint">Additional guests, not including you. Use 0 if not attending.</small>
                 <label for="notes">Notes <span class="muted">(optional)</span></label>
                 <textarea id="notes" name="notes" rows="3" maxlength="1000"></textarea>
-                <button class="rsvp-btn primary" type="submit">Send RSVP</button>
-                <p id="message" role="status" aria-live="polite"></p>
+                <button class="rsvp-btn primary" type="submit" disabled>Save RSVP &amp; choose how to send</button>
+                <p>Your reply will be saved here. You can then open WhatsApp or email to send it to your host yourself.</p>
+                <div id="sendOptions" hidden></div>
             </form>
         </section>
-        <nav aria-label="RSVP navigation"><a href="/">V I Key®</a> · <a href="/rsvp/admin">RSVP admin</a></nav>
+        <nav aria-label="RSVP navigation"><a href="/">V I Key®</a> · <a href="/rsvp/admin">Organiser setup</a></nav>
         <noscript><p>Please enable JavaScript to send your RSVP.</p></noscript>
     </main>
     <script src="/rsvp/card-render.js"></script>
