@@ -152,7 +152,7 @@ async function open(url) {
 
 function styles(selector, properties = ['backgroundColor', 'color', 'borderTopColor']) {
     return evaluate('const node = document.querySelector(' + JSON.stringify(selector) + ');' +
-        'if (!node) throw new Error("Missing ' + selector.replace(/"/g, '\\"') + '");' +
+        'if (!node) throw new Error(' + JSON.stringify('Missing ' + selector) + ');' +
         'const style = getComputedStyle(node); return Object.fromEntries(' + JSON.stringify(properties) +
         '.map(key => [key, style[key]]));');
 }
