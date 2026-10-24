@@ -847,6 +847,19 @@ test('landing pages have distinct themes and accessible navigation without publi
     }
 });
 
+test('events landing page uses shared assets and is linked from the RSVP index', () => {
+    const html = readFileSync(`${__dirname}/events/index.html`, 'utf8');
+    const chooser = readFileSync(`${__dirname}/index.html`, 'utf8');
+    assert.match(html, /href="\/rsvp\/card\.css"/);
+    assert.match(html, /href="\/rsvp\/landing\.css"/);
+    assert.match(html, /href="\/rsvp\/events\/" aria-current="page"/);
+    assert.match(html, /href="\/rsvp\/weddings\/"/);
+    assert.match(html, /href="\/rsvp\/parties\/"/);
+    assert.match(html, /href="\/rsvp\/engagements\/"/);
+    assert.match(chooser, /href="\/rsvp\/events\/"/);
+    assert.doesNotMatch(html, /data-event-type=|<form|<script|href=["'][^"']*admin/i);
+});
+
 test('direct admin links preselect the theme, which is saved and restored when loading invitations', async () => {
     for (const eventType of ['weddings', 'parties', 'engagements']) {
         const app = browser({ page: 'admin', search: '?type=' + eventType });
