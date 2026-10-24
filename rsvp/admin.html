@@ -67,12 +67,42 @@
                 <p id="shareInvitation" role="status"></p>
             </form>
             <form id="appearanceForm" class="rsvp-section" hidden>
-                <h2>Category background</h2>
-                <p>Uses the event theme selected above. Save once to update every landing page, invitation and confirmation in that category, including existing invitations. This page previews the shared appearance.</p>
+                <h2>Category copy &amp; card style</h2>
+                <p>Uses the event theme selected above. Save once to update every landing page, invitation and confirmation in that category, including existing invitations. Invitation titles, messages and replies stay separate.</p>
                 <label for="backgroundImage">Background image URL (HTTPS)</label>
                 <input id="backgroundImage" type="url" maxlength="2048" placeholder="https://example.com/background.jpg" aria-describedby="backgroundHint">
                 <p id="backgroundHint">Use a trusted, publicly accessible image, without passwords or private access tokens. Leave blank for the category’s colour background.</p>
-                <button class="rsvp-btn primary" type="submit">Save category background</button>
+                <details>
+                    <summary>Edit page wording</summary>
+                    <p>Plain text only. Blank text hides optional wording. Keep labels meaningful so guests can understand the form. These display settings are public; do not include private information.</p>
+                    <div id="copyEditor"></div>
+                </details>
+                <details open>
+                    <summary>Card text &amp; surface</summary>
+                    <p>Solid card surfaces keep text readable over any background. Heading and body colours must each meet 4.5:1 contrast against the surface. Invalid colour combinations preview with safe defaults and cannot be saved. Sizes and spacing are bounded.</p>
+                    <div id="styleEditor"></div>
+                </details>
+                <button class="rsvp-btn primary" type="submit">Save category settings</button>
+                <button id="resetAppearance" class="rsvp-btn" type="button">Reset copy &amp; card style to defaults</button>
+                <section id="appearancePreview" class="appearance-preview" aria-label="Live category preview">
+                    <p data-copy="landingHeading"></p>
+                    <p data-copy="landingDescription"></p>
+                    <article class="rsvp-card">
+                        <div class="rsvp-banner" aria-hidden="true"></div>
+                        <header class="rsvp-head">
+                            <p class="brand" data-copy="brand"></p>
+                            <h2 id="previewInvitationTitle">Your invitation title</h2>
+                            <p data-copy="tagline"></p>
+                        </header>
+                        <div class="rsvp-section invitation">
+                            <p id="previewInvitationText">Your invitation message appears here.</p>
+                            <p data-copy="guestsHint"></p>
+                            <span class="rsvp-btn" data-copy="openRsvp"></span>
+                            <h2 data-copy="receiptHeading"></h2>
+                            <p data-copy="receiptMessage"></p>
+                        </div>
+                    </article>
+                </section>
             </form>
             <p id="message" class="rsvp-section" role="status" aria-live="polite"></p>
         </section>

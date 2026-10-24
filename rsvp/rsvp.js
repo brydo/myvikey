@@ -11,19 +11,17 @@ import './theme-client.js';
     function applyTheme(type) {
         type = theme(type);
         window.RSVPThemes.apply(document.body, type);
-        var eyebrow = document.querySelector('.eyebrow');
-        if (eyebrow) eyebrow.textContent = {
-            celebration: 'Together is a beautiful place to be',
-            events: 'Made for your moment · made to share',
-            weddings: 'A beautiful beginning, shared with our favourite people',
-            parties: 'Good company. Great memories. Let’s celebrate!',
-            engagements: 'Here’s to forever, and the people who make it sparkle'
-        }[type];
     }
 
     function status(text, error) {
+        message.removeAttribute('data-copy');
         message.textContent = text;
         message.classList.toggle('error', !!error);
+    }
+
+    function copyStatus(key, type) {
+        status(window.RSVPThemes.copy(type, key));
+        message.setAttribute('data-copy', key);
     }
 
     async function post(path, payload, token) {
@@ -56,6 +54,9 @@ import './theme-client.js';
             status('Opening your invitation…');
             post('/api/rsvp', { action: 'get-invitation', id: eventId }).then(function (data) {
                 invitation = data.invitation;
+                // These two fields belong to this invitation, never the category.
+                document.getElementById('heading').removeAttribute('data-copy');
+                document.getElementById('invitationText').removeAttribute('data-copy');
                 applyTheme(invitation.eventType);
                 document.getElementById('heading').textContent = invitation.title;
                 document.getElementById('invitationText').textContent = invitation.text;
@@ -89,7 +90,7 @@ import './theme-client.js';
             };
             try {
                 var data = await post('/api/rsvp', Object.assign({ action: 'submit' }, response));
-                status('Thanks, your RSVP is saved. No external message has been sent.');
+                copyStatus('savedMessage', invitation.eventType);
                 window.RSVP.sendOptions(document.getElementById('sendOptions'), data.response, data.organiser);
                 try {
                     sessionStorage.setItem(receiptKey, JSON.stringify({
@@ -121,6 +122,7 @@ import './theme-client.js';
         function receiptTheme(type) {
             applyTheme(type);
             if (receipt.children.length) window.RSVPThemes.apply(receipt.children[0], type);
+            window.RSVPThemes.apply(document.getElementById('sendOptions'), type);
         }
         function resolveReceiptTheme(id) {
             if (!id) return;
@@ -136,8 +138,9 @@ import './theme-client.js';
                 applyTheme(savedType);
                 window.RSVP.render(receipt, Object.assign({}, reply, { eventType: savedType }));
                 window.RSVP.sendOptions(document.getElementById('sendOptions'), reply, saved.organiser);
-                document.getElementById('receiptHeading').textContent = 'Thank you!';
-                status('Thanks, your RSVP is saved on this site.');
+                document.getElementById('receiptHeading').setAttribute('data-copy', 'receiptHeading');
+                document.getElementById('receiptHeading').textContent = window.RSVPThemes.copy(savedType, 'receiptHeading');
+                copyStatus('receiptMessage', savedType);
                 if (reply.eventId) {
                     document.querySelector('nav a').href = '/rsvp/?id=' + encodeURIComponent(reply.eventId);
                 }
@@ -168,10 +171,87 @@ import './theme-client.js';
     var initialTheme = theme(new URLSearchParams(window.location.search).get('type'));
     var appearanceForm = document.getElementById('appearanceForm');
     var backgroundInput = document.getElementById('backgroundImage');
+    var copyEditor = document.getElementById('copyEditor');
+    var styleEditor = document.getElementById('styleEditor');
+    var appearancePreview = document.getElementById('appearancePreview');
+    function draftAppearance() {
+        var draft = { backgroundImage: backgroundInput.value.trim(), copy: {}, cardStyle: {} };
+        Object.keys(window.RSVPThemes.copyFields).forEach(function (key) {
+            draft.copy[key] = appearanceForm.elements['copy-' + key].value;
+        });
+        Object.keys(window.RSVPThemes.styleFields).forEach(function (key) {
+            var input = appearanceForm.elements['style-' + key];
+            draft.cardStyle[key] = input.type === 'number' ? Number(input.value) : input.value;
+        });
+        return draft;
+    }
+    function previewAppearance() {
+        if (!appearancePreview) return;
+        window.RSVPThemes.preview(appearancePreview, editor.elements.eventType.value, draftAppearance());
+        document.getElementById('previewInvitationTitle').textContent = editor.elements.title.value || 'Your invitation title';
+        document.getElementById('previewInvitationText').textContent = editor.elements.text.value || 'Your invitation message appears here.';
+    }
+    function fillAppearance(settings) {
+        backgroundInput.value = settings.backgroundImage;
+        Object.keys(window.RSVPThemes.copyFields).forEach(function (key) {
+            appearanceForm.elements['copy-' + key].value = settings.copy[key];
+        });
+        Object.keys(window.RSVPThemes.styleFields).forEach(function (key) {
+            appearanceForm.elements['style-' + key].value = settings.cardStyle[key];
+        });
+        previewAppearance();
+    }
     function showBackground() {
-        if (backgroundInput) backgroundInput.value = window.RSVPThemes.background(editor.elements.eventType.value);
+        if (backgroundInput) fillAppearance(window.RSVPThemes.settings(editor.elements.eventType.value));
     }
     if (appearanceForm) {
+        Object.entries(window.RSVPThemes.copyFields).forEach(function (entry) {
+            var key = entry[0], field = entry[1];
+            var label = document.createElement('label');
+            label.htmlFor = 'copy-' + key;
+            label.textContent = field.label;
+            var input = document.createElement('textarea');
+            input.id = input.name = 'copy-' + key;
+            input.maxLength = field.max;
+            input.required = !!field.required;
+            input.rows = field.max > 200 ? 3 : 2;
+            copyEditor.appendChild(label);
+            copyEditor.appendChild(input);
+        });
+        Object.entries(window.RSVPThemes.styleFields).forEach(function (entry) {
+            var key = entry[0], field = entry[1];
+            var label = document.createElement('label');
+            label.htmlFor = 'style-' + key;
+            label.textContent = field.label;
+            var input = document.createElement(field.type === 'select' ? 'select' : 'input');
+            input.id = input.name = 'style-' + key;
+            if (field.type === 'select') {
+                ['center', 'left'].forEach(function (value) {
+                    var option = document.createElement('option');
+                    option.value = value;
+                    option.textContent = value;
+                    input.appendChild(option);
+                });
+            } else {
+                input.type = field.type;
+                if (field.type === 'number') {
+                    input.min = field.min;
+                    input.max = field.max;
+                    input.step = field.step;
+                    input.required = true;
+                }
+            }
+            styleEditor.appendChild(label);
+            styleEditor.appendChild(input);
+        });
+        appearanceForm.addEventListener('input', previewAppearance);
+        editor.addEventListener('input', previewAppearance);
+        document.getElementById('resetAppearance').addEventListener('click', function () {
+            var settings = window.RSVPThemes.defaults(editor.elements.eventType.value);
+            settings.backgroundImage = backgroundInput.value.trim();
+            fillAppearance(settings);
+            status('Default copy and card styles restored in preview. Save category settings to publish.');
+        });
         window.RSVPThemes.ready.then(showBackground);
         appearanceForm.addEventListener('submit', async function (event) {
             event.preventDefault();
@@ -181,12 +261,12 @@ import './theme-client.js';
             try {
                 var data = await post('/api/rsvp', {
                     action: 'save-appearance', eventType: theme(editor.elements.eventType.value),
-                    backgroundImage: backgroundInput.value.trim()
+                    ...draftAppearance()
                 }, session);
                 if (token !== session) return;
                 window.RSVPThemes.update(data.appearance);
                 showBackground();
-                status('Category background saved for all invitations, landing pages and confirmations.');
+                status('Category copy, card styles and background saved for all landing pages, invitations and confirmations.');
             } catch (error) {
                 if (token !== session) return;
                 if (error.status === 401) logout();

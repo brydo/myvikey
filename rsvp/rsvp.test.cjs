@@ -6,6 +6,9 @@ const { webcrypto } = require('node:crypto');
 const themesSource = readFileSync(`${__dirname}/themes.js`, 'utf8').replace(/^export /gm, '');
 const apiSource = themesSource + '\n' + readFileSync(`${__dirname}/../functions/api/rsvp.js`, 'utf8')
     .replace(/^import .*;\n/gm, '').replace('export async function', 'async function');
+const appearanceModel = runInNewContext(themesSource +
+    '\n({ copyFields, styleFields, defaultCopy, defaultCardStyle, normalizeAppearance, validateAppearance })', { URL });
+const plain = value => JSON.parse(JSON.stringify(value));
 
 const valid = { action: 'submit', name: ' Alex ', event: ' Celebration ', attending: 'yes', guests: 2, notes: ' Hello\nthere ' };
 
@@ -130,15 +133,47 @@ test('listing is admin-only, scoped to RSVP keys, paginated and never cached', a
 
 function element(tag) {
     return {
-        tag, children: [], attributes: {}, textContent: '', handlers: {},
+        tag, children: [], attributes: {}, textContent: '', handlers: {}, parentNode: null,
         style: { setProperty(key, value) { this[key] = value; } },
-        appendChild(child) { this.children.push(child); },
-        replaceChildren() { this.children = []; },
-        setAttribute(key, value) { this.attributes[key] = value; },
-        getAttribute(key) { return this.attributes[key]; },
+        appendChild(child) {
+            if (child.parentNode) child.remove();
+            child.parentNode = this;
+            this.children.push(child);
+            return child;
+        },
+        replaceChildren(...children) {
+            this.children.forEach(child => { child.parentNode = null; });
+            this.children = [];
+            children.forEach(child => this.appendChild(child));
+        },
+        setAttribute(key, value) { this.attributes[key] = String(value); },
+        getAttribute(key) { return this.attributes[key] ?? null; },
+        removeAttribute(key) { delete this.attributes[key]; },
+        matches(selector) {
+            const attribute = selector.match(/^\[([^=\]]+)(?:="([^"]*)")?\]$/);
+            const value = attribute && (this.attributes[attribute[1]] ?? this[attribute[1]]);
+            return attribute ? value !== undefined &&
+                (attribute[2] === undefined || value === attribute[2]) : this.tag === selector;
+        },
+        closest(selector) {
+            for (let current = this; current; current = current.parentNode) {
+                if (current.matches && current.matches(selector)) return current;
+            }
+            return null;
+        },
+        querySelectorAll(selector) {
+            return this.children.flatMap(child => [
+                ...(child.matches && child.matches(selector) ? [child] : []),
+                ...(child.querySelectorAll ? child.querySelectorAll(selector) : [])
+            ]);
+        },
+        querySelector(selector) { return this.querySelectorAll(selector)[0] || null; },
         addEventListener(name, handler) { this.handlers[name] = handler; },
         click() { if (this.handlers.click) return this.handlers.click(); },
-        remove() {}
+        remove() {
+            if (this.parentNode) this.parentNode.children = this.parentNode.children.filter(child => child !== this);
+            this.parentNode = null;
+        }
     };
 }
 
@@ -300,7 +335,8 @@ test('send options show only valid configured channels and explain unavailable t
         assert.deepEqual(buttons.map(node => node.textContent), labels);
         assert.ok(buttons.every(node => !node.href.startsWith('mailto:')));
         if (!labels.includes('Send via text/SMS')) {
-            assert.match(root.children[0].textContent, /(?:no valid WhatsApp or text\/SMS number|Text\/SMS is unavailable)/);
+            assert.ok(root.children.some(node =>
+                /(?:no valid WhatsApp or text\/SMS number|Text\/SMS is unavailable)/.test(node.textContent)));
         }
         rsvp.sendOptions(root, valid, { sms: invitation.sms });
         assert.deepEqual(root.children.filter(node => node.tag === 'a').map(node => node.textContent),
@@ -313,6 +349,7 @@ test('channel links validate destinations and encode the event and all five fiel
     const response = { name: 'Zoë & Alex', event: 'Tea & cake #1?', attending: 'yes', guests: 2, notes: 'A&B\n+ <hello> ?#' };
     const links = rsvp.channels(response, invitation);
     assert.equal(links.length, 2);
+    assert.deepEqual(Array.from(links, link => link.copyKey), ['whatsappLabel', 'smsLabel']);
     const whatsapp = new URL(links[0].href);
     assert.equal(whatsapp.origin + whatsapp.pathname, 'https://wa.me/447700900123');
     const message = 'RSVP\nName: Zoë & Alex\nEvent: Tea & cake #1?\nAttending: Yes\nGuests (additional): 2\nNotes: A&B\n+ <hello> ?#';
@@ -351,9 +388,36 @@ function browser({ page = 'index', storageFails = false, saved, failSave = false
             reset() {
                 if (this.elements) Object.values(this.elements).forEach(field => { field.value = ''; });
             },
-            querySelector() { return node(id + 'Button'); }
+            querySelector(selector) { return element('div').querySelector.call(this, selector) || node(id + 'Button'); }
         };
         return nodes[id];
+    }
+    const html = readFileSync(`${__dirname}/${page === 'landing' ? (eventType === 'celebration' ? 'index' : eventType + '/index') : page}.html`, 'utf8');
+    const stack = [];
+    for (const match of html.matchAll(/<!--[\s\S]*?-->|<\/?([a-z][\w-]*)\b([^>]*?)>/gi)) {
+        if (!match[1]) continue;
+        const tag = match[1].toLowerCase();
+        if (match[0].startsWith('</')) {
+            const index = stack.findLastIndex(parent => parent.tag === tag);
+            if (index !== -1) stack.length = index;
+            continue;
+        }
+        const attributes = [...match[2].matchAll(/([\w-]+)(?:="([^"]*)")?/g)];
+        const id = attributes.find(attribute => attribute[1] === 'id')?.[2];
+        const current = tag === 'body' ? node('body') : id ? node(id) : element(tag);
+        current.tag = tag;
+        attributes.forEach(([, key, value = '']) => {
+            current.setAttribute(key, value);
+            if (['name', 'type', 'value'].includes(key)) current[key] = value;
+        });
+        if (stack.length) stack.at(-1).appendChild(current);
+        if (current.attributes.class === 'eyebrow') nodes.eyebrow = current;
+        if (!['area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input', 'link', 'meta', 'source', 'wbr'].includes(tag)) stack.push(current);
+    }
+    if (page === 'admin') {
+        Object.defineProperty(node('appearanceForm'), 'elements', {
+            get() { return Object.fromEntries(this.querySelectorAll('[name]').map(field => [field.name, field])); }
+        });
     }
     const form = node('rsvpForm');
     form.elements = Object.fromEntries(['name', 'event', 'attending', 'guests', 'notes'].map(id => [id, node(id)]));
@@ -381,7 +445,13 @@ function browser({ page = 'index', storageFails = false, saved, failSave = false
                     (id === 'rsvpForm' && page !== 'index') || (id === 'receipt' && page !== 'view')) return null;
                 return node(id);
             },
-            querySelector(selector) { return node(selector === '.eyebrow' ? 'eyebrow' : 'back'); }
+            querySelector(selector) {
+                if (selector === 'nav a') {
+                    const link = node('body').querySelector('nav')?.querySelector('a');
+                    if (link) return (nodes.back = link);
+                }
+                return node(selector === '.eyebrow' ? 'eyebrow' : 'back');
+            }
         },
         sessionStorage: {
             setItem(key, value) { if (storageFails) throw Error('disabled'); stored.set(key, value); },
@@ -893,7 +963,162 @@ test('events landing page uses shared assets and is linked from the RSVP index',
 const halloween = 'https://pub-07ed0b0955a4401f9956c3ca7a33c40e.r2.dev/ween.jpg';
 const categories = ['celebration', 'events', 'weddings', 'parties', 'engagements'];
 
-test('public appearance reads expose only whitelisted backgrounds and preserve category defaults', async () => {
+function contrastRatio(first, second) {
+    const luminance = color => {
+        const components = color.slice(1).match(/../g).map(hex => parseInt(hex, 16) / 255)
+            .map(value => value <= 0.04045 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4);
+        return components.reduce((sum, value, index) => sum + value * [0.2126, 0.7152, 0.0722][index], 0);
+    };
+    const a = luminance(first), b = luminance(second);
+    return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
+}
+
+test('all five category settings authenticate writes, round-trip independently and retain legacy background-only updates', async () => {
+    const instance = api();
+    for (const eventType of categories) {
+        const settings = {
+            action: 'save-appearance', eventType, backgroundImage: '',
+            copy: { brand: eventType + ' studio', receiptMessage: '  Cafe\u0301\r\nWelcome  ' },
+            cardStyle: { surface: '#FFF', textColor: '#123', headingColor: '#234', bodyScale: 1.2, alignment: 'left' }
+        };
+        for (const token of [undefined, 'invalid-session', 'other-user']) {
+            assert.equal((await instance.post(settings, token)).status, 401);
+        }
+        const saved = await instance.post(settings, 'valid-session');
+        assert.equal(saved.status, 200);
+        assert.equal(saved.headers.get('Cache-Control'), 'no-store');
+        const normalized = plain(appearanceModel.normalizeAppearance(eventType, settings));
+        assert.deepEqual((await saved.json()).appearance[eventType], normalized);
+        assert.equal(normalized.copy.receiptMessage, 'Café\nWelcome');
+        assert.equal(normalized.cardStyle.surface, '#ffffff');
+        assert.deepEqual(JSON.parse(instance.records.get('rsvp-appearance:' + eventType)), normalized);
+        const legacy = await instance.post({
+            action: 'save-appearance', eventType, backgroundImage: 'https://images.example.com/' + eventType
+        }, 'valid-session');
+        const updated = (await legacy.json()).appearance[eventType];
+        assert.deepEqual(updated.copy, normalized.copy);
+        assert.deepEqual(updated.cardStyle, normalized.cardStyle);
+    }
+    const publicSettings = (await (await instance.post({ action: 'get-appearance' })).json()).appearance;
+    for (const eventType of categories) {
+        assert.equal(publicSettings[eventType].copy.brand, eventType + ' studio');
+    }
+});
+
+test('copy fields normalize trim NFC and CRLF, honor each bound, and reject markup controls and non-text without writes', async () => {
+    const instance = api();
+    const base = { action: 'save-appearance', eventType: 'events', backgroundImage: '' };
+    for (const [key, field] of Object.entries(appearanceModel.copyFields)) {
+        const maximum = 'x'.repeat(field.max);
+        assert.equal(appearanceModel.validateAppearance('events', { backgroundImage: '', copy: { [key]: maximum } }).copy[key], maximum);
+        for (const value of ['x'.repeat(field.max + 1), '<b>text</b>', 'a>b', 'a\u0000b', 'a\u0007b', 'a\u007fb', 'a\u0085b', null, 4, {}, []]) {
+            const candidate = { backgroundImage: '', copy: { [key]: value } };
+            assert.equal(appearanceModel.validateAppearance('events', candidate), null, key + ': ' + JSON.stringify(value));
+            assert.equal((await instance.post({ ...base, copy: candidate.copy }, 'valid-session')).status, 400);
+        }
+        const normalized = appearanceModel.normalizeAppearance('events', { copy: { [key]: '  Cafe\u0301\r\nagain\rline  ' } });
+        assert.equal(normalized.copy[key], 'Café\nagain\nline', key);
+    }
+    for (const copy of [null, [], 'text', 1, { unknownField: 'private' }]) {
+        assert.equal((await instance.post({ ...base, copy }, 'valid-session')).status, 400);
+    }
+    for (const extra of [{ css: 'body{display:none}' }, { secret: 'private' }, { title: 'Host content' }]) {
+        assert.equal((await instance.post({ ...base, ...extra }, 'valid-session')).status, 400);
+    }
+    assert.equal(instance.records.size, 0);
+});
+
+test('required public labels reject blank values while optional decorative copy may be cleared', async () => {
+    const required = ['inviteHeading', 'openRsvp', 'replyHeading', 'nameLabel', 'eventLabel',
+        'attendingLabel', 'chooseLabel', 'yesLabel', 'noLabel', 'guestsLabel', 'notesLabel',
+        'receiptNotesLabel', 'saveReply', 'receiptHeading', 'receiptEmptyHeading', 'backLink', 'cardHeading',
+        'whatsappLabel', 'smsLabel', 'landingHeading', 'sampleHeading', 'detailsHeading', 'step1Heading',
+        'step2Heading', 'step3Heading', 'exploreLink', 'homeLink', 'occasionHeading'];
+    const instance = api();
+    for (const key of required) {
+        assert.equal(appearanceModel.copyFields[key].required, true, key);
+        for (const value of ['', ' \r\n\t ']) {
+            assert.equal(appearanceModel.validateAppearance('events', { backgroundImage: '', copy: { [key]: value } }), null, key);
+            assert.equal(appearanceModel.normalizeAppearance('events', { copy: { [key]: value } }).copy[key],
+                appearanceModel.defaultCopy('events')[key]);
+            assert.equal((await instance.post({ action: 'save-appearance', eventType: 'events', backgroundImage: '', copy: { [key]: value } }, 'valid-session')).status, 400);
+        }
+    }
+    assert.equal(appearanceModel.validateAppearance('events', { backgroundImage: '', copy: { landingExtra: '' } }).copy.landingExtra, '');
+});
+
+test('card styles allow only hex colors and known alignment, enforce finite numbers and clamp supported ranges', async () => {
+    const instance = api();
+    const base = { action: 'save-appearance', eventType: 'weddings', backgroundImage: '' };
+    for (const key of ['surface', 'textColor', 'headingColor']) {
+        for (const value of ['red', 'transparent', 'rgb(0,0,0)', '#ffff', '#000000ff', '#123456; color:red', 'var(--ink)', 'url(https://example.com)', null, {}, 1]) {
+            assert.equal((await instance.post({ ...base, cardStyle: { [key]: value } }, 'valid-session')).status, 400, key + ': ' + value);
+        }
+    }
+    for (const [key, field] of Object.entries(appearanceModel.styleFields).filter(([, field]) => field.type === 'number')) {
+        for (const value of [NaN, Infinity, -Infinity, '1', null, {}, []]) {
+            assert.equal(appearanceModel.validateAppearance('weddings', { backgroundImage: '', cardStyle: { [key]: value } }), null);
+            assert.equal((await instance.post({ ...base, cardStyle: { [key]: value } }, 'valid-session')).status, 400);
+        }
+        for (const [value, expected] of [[-100, field.min], [1000, field.max]]) {
+            const response = await instance.post({ ...base, cardStyle: { [key]: value } }, 'valid-session');
+            assert.equal(response.status, 200);
+            assert.equal((await response.json()).appearance.weddings.cardStyle[key], expected);
+        }
+    }
+    for (const cardStyle of [null, [], 'text', { unknown: 1 }, { alignment: 'right' }, { alignment: 'left; color:red' }]) {
+        assert.equal((await instance.post({ ...base, cardStyle }, 'valid-session')).status, 400);
+    }
+});
+
+test('heading and body colors require at least 4.5 contrast and normalization repairs unreadable combinations', async () => {
+    const instance = api();
+    for (const type of categories) {
+        for (const key of ['textColor', 'headingColor']) {
+            for (const surface of ['#ffffff', '#000000', '#777777']) {
+                const cardStyle = { surface, [key]: surface };
+                assert.equal(appearanceModel.validateAppearance(type, { backgroundImage: '', cardStyle }), null);
+                assert.equal((await instance.post({ action: 'save-appearance', eventType: type, backgroundImage: '', cardStyle }, 'valid-session')).status, 400);
+                const normalized = appearanceModel.normalizeAppearance(type, { cardStyle }).cardStyle;
+                for (const color of ['textColor', 'headingColor']) assert.ok(contrastRatio(normalized[color], normalized.surface) >= 4.5);
+            }
+        }
+        const response = await instance.post({ action: 'save-appearance', eventType: type, backgroundImage: '',
+            cardStyle: { surface: '#000', textColor: '#fff', headingColor: '#fff' } }, 'valid-session');
+        assert.equal(response.status, 200);
+    }
+});
+
+test('malformed and legacy stored settings fall back safely and public reads allowlist every nested field', async () => {
+    const instance = api();
+    for (const type of categories) {
+        for (const raw of ['{', 'null', '[]', '"text"', '7']) {
+            instance.records.set('rsvp-appearance:' + type, raw);
+            const data = (await (await instance.post({ action: 'get-appearance' })).json()).appearance[type];
+            assert.deepEqual(data, plain(appearanceModel.normalizeAppearance(type, {})));
+        }
+        const backgroundImage = 'https://images.example.com/legacy.jpg';
+        instance.records.set('rsvp-appearance:' + type, JSON.stringify({ backgroundImage }));
+        let settings = (await (await instance.post({ action: 'get-appearance' })).json()).appearance[type];
+        assert.deepEqual(settings, plain(appearanceModel.normalizeAppearance(type, { backgroundImage })));
+        instance.records.set('rsvp-appearance:' + type, JSON.stringify({
+            backgroundImage: 'javascript:alert(1)', secret: 'private',
+            copy: { brand: 'Valid brand', unknown: 'private', inviteText: '<script>bad</script>' },
+            cardStyle: { textColor: 'url(https://evil)', surface: '#000000', secret: 'private', alignment: 'bad', spacing: 1000 }
+        }));
+        settings = (await (await instance.post({ action: 'get-appearance' })).json()).appearance[type];
+        assert.deepEqual(Object.keys(settings).sort(), ['backgroundImage', 'cardStyle', 'copy']);
+        assert.deepEqual(Object.keys(settings.copy).sort(), Object.keys(appearanceModel.copyFields).sort());
+        assert.deepEqual(Object.keys(settings.cardStyle).sort(), Object.keys(appearanceModel.styleFields).sort());
+        assert.equal(settings.copy.brand, 'Valid brand');
+        assert.equal(settings.copy.inviteText, appearanceModel.defaultCopy(type).inviteText);
+        assert.equal(settings.cardStyle.spacing, appearanceModel.styleFields.spacing.max);
+        assert.doesNotMatch(JSON.stringify(settings), /private|javascript:|<script>|url\(https:\/\/evil/);
+        assert.ok(contrastRatio(settings.cardStyle.textColor, settings.cardStyle.surface) >= 4.5);
+    }
+});
+
+test('public appearance reads expose only whitelisted category settings and preserve defaults', async () => {
     const instance = api();
     const event = await createEvent(instance, { eventType: 'events' });
     await instance.post({ ...valid, event: event.title, eventId: event.id });
@@ -905,7 +1130,7 @@ test('public appearance reads expose only whitelisted backgrounds and preserve c
     assert.deepEqual(Object.keys(data).sort(), ['appearance', 'success']);
     assert.deepEqual(Object.keys(data.appearance).sort(), [...categories].sort());
     for (const type of categories) {
-        assert.deepEqual(data.appearance[type], { backgroundImage: type === 'events' ? halloween : '' });
+        assert.deepEqual(data.appearance[type], plain(appearanceModel.normalizeAppearance(type, {})));
     }
     assert.equal(instance.calls.length, 0, 'Public settings never list invitations or replies');
     assert.doesNotMatch(JSON.stringify(data), new RegExp(event.id + '|private|' + event.title));
@@ -931,7 +1156,8 @@ test('only trusted admins can persist bounded safe HTTPS category backgrounds', 
     }
     assert.equal(instance.records.size, 0);
     assert.equal((await instance.post(settings, 'valid-session')).status, 200);
-    assert.deepEqual(JSON.parse(instance.records.get('rsvp-appearance:events')), { backgroundImage: settings.backgroundImage });
+    assert.deepEqual(JSON.parse(instance.records.get('rsvp-appearance:events')),
+        plain(appearanceModel.normalizeAppearance('events', settings)));
     const data = await (await instance.post({ action: 'get-appearance' })).json();
     assert.equal(data.appearance.events.backgroundImage, settings.backgroundImage);
     assert.equal(data.appearance.weddings.backgroundImage, '');
@@ -950,6 +1176,18 @@ test('every category uses its current saved background across landing, existing 
         await admin.tick();
         assert.equal(admin.nodes.appearanceForm.hidden, false);
         admin.nodes.backgroundImage.value = backgroundImage;
+        const copy = {
+            brand: eventType + ' brand', tagline: eventType + ' tagline',
+            landingHeading: eventType + ' landing', landingTagline: eventType + ' landing tagline',
+            inviteHeading: 'Category heading must not replace invitation',
+            inviteText: 'Category message must not replace invitation', openRsvp: eventType + ' respond',
+            nameLabel: eventType + ' name', cardHeading: eventType + ' reply',
+            yesLabel: eventType + ' yes', receiptHeading: eventType + ' thank you',
+            receiptMessage: eventType + ' saved', smsLabel: eventType + ' text'
+        };
+        const cardStyle = { surface: '#ffffff', textColor: '#222222', headingColor: '#111111', alignment: 'left', spacing: 24 };
+        for (const [key, value] of Object.entries(copy)) admin.nodes.appearanceForm.elements['copy-' + key].value = value;
+        for (const [key, value] of Object.entries(cardStyle)) admin.nodes.appearanceForm.elements['style-' + key].value = value;
         await admin.nodes.appearanceForm.handlers.submit({ preventDefault() {} });
         assert.equal(instance.records.get('rsvp-invitation:' + event.id), original, 'Settings must not rewrite invitations');
         const landing = browser({ page: 'landing', eventType, search: '', apiPost: instance.post });
@@ -960,6 +1198,17 @@ test('every category uses its current saved background across landing, existing 
         for (const app of [admin, landing, guest]) {
             assert.equal(app.nodes.body.style['--category-image'], expected);
             assert.equal(app.nodes.body.attributes['data-event-type'], eventType);
+            assert.equal(app.nodes.body.style['--card-surface'], '#ffffff');
+            assert.equal(app.nodes.body.style['--card-text'], '#222222');
+            assert.equal(app.nodes.body.style['--card-heading'], '#111111');
+            assert.equal(app.nodes.body.style['--card-alignment'], 'left');
+            assert.equal(app.nodes.body.style['--card-spacing'], '24px');
+        }
+        for (const app of [landing, guest]) {
+            for (const bound of app.nodes.body.querySelectorAll('[data-copy]')) {
+                const key = bound.getAttribute('data-copy');
+                if (Object.hasOwn(copy, key)) assert.equal(bound.textContent, copy[key], eventType + ': ' + key);
+            }
         }
         assert.equal(guest.nodes.heading.textContent, event.title);
         assert.equal(guest.nodes.invitationText.textContent, event.text);
@@ -977,9 +1226,14 @@ test('every category uses its current saved background across landing, existing 
         await receipt.tick();
         assert.equal(receipt.nodes.body.style['--category-image'], expected);
         assert.equal(receipt.nodes.receipt.children[0].style['--category-image'], expected);
+        assert.equal(receipt.nodes.receiptHeading.textContent, copy.receiptHeading);
+        assert.equal(receipt.nodes.message.textContent, copy.receiptMessage);
+        assert.equal(receipt.nodes.receipt.children[0].children[1].textContent, copy.cardHeading);
+        assert.equal(receipt.nodes.sendOptions.children.at(-1).textContent, copy.smsLabel);
         assert.equal(receipt.nodes.back.href, '/rsvp/?id=' + event.id);
         await admin.nodes.refresh.handlers.click();
         assert.equal(admin.nodes.responses.children[0].style['--category-image'], expected);
+        assert.equal(admin.nodes.responses.children[0].querySelectorAll('[data-copy="cardHeading"]')[0].textContent, copy.cardHeading);
         await admin.nodes.logout.handlers.click();
         assert.equal(admin.nodes.appearanceForm.hidden, true);
     }
@@ -1005,6 +1259,13 @@ test('mixed admin reply cards resolve category by invitation ID, including legac
     const instance = api();
     const first = await createEvent(instance, { title: 'Same title', eventType: 'events' });
     const second = await createEvent(instance, { title: 'Same title', eventType: 'weddings' });
+    for (const eventType of categories) {
+        assert.equal((await instance.post({ action: 'save-appearance', eventType,
+            backgroundImage: eventType === 'events' ? halloween : '',
+            copy: { cardHeading: eventType + ' custom card', nameLabel: eventType + ' custom name' },
+            cardStyle: { spacing: eventType === 'events' ? 23 : 25 }
+        }, 'valid-session')).status, 200);
+    }
     for (const event of [first, second]) {
         await instance.post({ ...valid, event: event.title, eventId: event.id, eventType: 'parties' });
     }
@@ -1017,6 +1278,13 @@ test('mixed admin reply cards resolve category by invitation ID, including legac
         ['events', 'weddings', 'weddings', 'celebration']);
     assert.equal(admin.nodes.responses.children[0].style['--category-image'], 'url("' + halloween + '")');
     assert.equal(admin.nodes.responses.children[1].style['--category-image'], 'var(--backdrop)');
+    for (const [index, eventType] of ['events', 'weddings', 'weddings', 'celebration'].entries()) {
+        const card = admin.nodes.responses.children[index];
+        assert.equal(card.querySelectorAll('[data-copy="cardHeading"]')[0].textContent, eventType + ' custom card');
+        assert.equal(card.querySelectorAll('[data-copy="nameLabel"]')[0].textContent, eventType + ' custom name');
+    }
+    assert.equal(admin.nodes.responses.children[0].style['--card-spacing'], '23px');
+    assert.equal(admin.nodes.responses.children[1].style['--card-spacing'], '25px');
     assert.equal(admin.nodes.body.attributes['data-event-type'], 'parties');
     const replies = await (await instance.post({ action: 'list', eventId: first.id }, 'valid-session')).json();
     assert.equal(replies.responses.length, 1);
@@ -1060,6 +1328,31 @@ test('client rejects unsafe appearance responses and keeps defaults on failed se
     assert.equal(app.nodes.body.style['--category-image'], 'var(--backdrop)');
 });
 
+test('client paints only normalized allowlisted copy and style values, including malformed settings responses', async () => {
+    const app = browser({ page: 'landing', eventType: 'weddings', appearanceFails: true, search: '' });
+    await app.tick();
+    for (const settings of [null, [], 'text', { weddings: null }, { weddings: [] }]) {
+        app.themes.update(settings);
+        assert.deepEqual(plain(app.themes.settings('weddings')), plain(appearanceModel.normalizeAppearance('weddings', {})));
+    }
+    app.themes.update({ weddings: {
+        copy: { landingHeading: '  Cafe\u0301\r\nWedding  ', brand: '<img src=x onerror=alert(1)>', nameLabel: '',
+            secret: 'private' },
+        cardStyle: { surface: '#fff', textColor: '#fff', headingColor: 'red; background:url(https://evil)',
+            bodyScale: Infinity, spacing: 100, alignment: 'left; color:red', unknown: 'private' }
+    } });
+    const settings = app.themes.settings('weddings');
+    assert.equal(app.nodes.body.querySelectorAll('[data-copy="landingHeading"]')[0].textContent, 'Café\nWedding');
+    assert.equal(settings.copy.brand, appearanceModel.defaultCopy('weddings').brand);
+    assert.equal(settings.copy.nameLabel, appearanceModel.defaultCopy('weddings').nameLabel);
+    assert.equal(settings.cardStyle.spacing, 32);
+    assert.equal(app.nodes.body.style['--card-spacing'], '32px');
+    assert.equal(app.nodes.body.style['--card-body-scale'], '1');
+    assert.equal(app.nodes.body.style['--card-alignment'], 'center');
+    for (const key of ['textColor', 'headingColor']) assert.ok(contrastRatio(settings.cardStyle[key], settings.cardStyle.surface) >= 4.5);
+    assert.doesNotMatch(JSON.stringify(settings), /private|onerror|background:url/);
+});
+
 test('admin category resets synchronize the background input after deletion and logout', async () => {
     const instance = api();
     const event = await createEvent(instance, { eventType: 'weddings' });
@@ -1094,11 +1387,157 @@ test('a slow initial appearance read cannot overwrite a newer authenticated sett
     } });
     await admin.nodes.loginForm.handlers.submit({ preventDefault() {} });
     admin.nodes.backgroundImage.value = 'https://images.example.com/new.jpg';
+    admin.nodes.appearanceForm.elements['copy-brand'].value = 'Newer saved brand';
+    admin.nodes.appearanceForm.elements['style-spacing'].value = 27;
     await admin.nodes.appearanceForm.handlers.submit({ preventDefault() {} });
     finish();
     await admin.tick();
     assert.equal(admin.nodes.body.style['--category-image'], 'url("https://images.example.com/new.jpg")');
     assert.equal(admin.nodes.backgroundImage.value, 'https://images.example.com/new.jpg');
+    assert.equal(admin.themes.copy('events', 'brand'), 'Newer saved brand');
+    assert.equal(admin.themes.settings('events').cardStyle.spacing, 27);
+});
+
+test('template copy bindings use known fields and keep invitation-owned preview content outside category bindings', () => {
+    const pages = ['index', 'view', 'admin', ...categories.filter(type => type !== 'celebration').map(type => type + '/index')];
+    for (const page of pages) {
+        const html = readFileSync(`${__dirname}/${page}.html`, 'utf8');
+        const bindings = [...html.matchAll(/\bdata-copy="([^"]+)"/g)].map(match => match[1]);
+        assert.ok(bindings.length >= (page === 'view' ? 4 : page === 'admin' ? 8 : 10), page);
+        for (const key of bindings) assert.ok(Object.hasOwn(appearanceModel.copyFields, key), page + ': ' + key);
+    }
+    const admin = readFileSync(`${__dirname}/admin.html`, 'utf8');
+    for (const id of ['copyEditor', 'styleEditor', 'appearancePreview', 'resetAppearance']) assert.ok(admin.includes('id="' + id + '"'));
+    for (const id of ['previewInvitationTitle', 'previewInvitationText']) {
+        const tag = admin.match(new RegExp('<[^>]+id="' + id + '"[^>]*>'))[0];
+        assert.doesNotMatch(tag, /data-copy=/);
+    }
+});
+
+test('admin creates bounded named controls, previews draft changes locally, switches categories and resets before publishing', async () => {
+    const instance = api();
+    const admin = browser({ page: 'admin', search: '?type=weddings', apiPost: instance.post });
+    await admin.nodes.loginForm.handlers.submit({ preventDefault() {} });
+    await admin.tick();
+    const fields = admin.nodes.appearanceForm.elements;
+    for (const [key, metadata] of Object.entries(appearanceModel.copyFields)) {
+        const input = fields['copy-' + key];
+        assert.equal(input.tag, 'textarea', key);
+        assert.equal(input.maxLength, metadata.max);
+        assert.equal(input.required, metadata.required, key);
+        assert.equal(input.value, appearanceModel.defaultCopy('weddings')[key]);
+    }
+    for (const [key, metadata] of Object.entries(appearanceModel.styleFields)) {
+        const input = fields['style-' + key];
+        assert.equal(metadata.type === 'select' ? input.tag : input.type, metadata.type);
+        if (metadata.type === 'number') {
+            assert.equal(input.min, metadata.min);
+            assert.equal(input.max, metadata.max);
+            assert.equal(input.step, metadata.step);
+        }
+    }
+    const before = plain(admin.themes.settings('weddings'));
+    fields['copy-brand'].value = 'Draft studio';
+    fields['style-spacing'].value = 30;
+    fields['style-alignment'].value = 'left';
+    admin.nodes['editor-title'].value = 'Only this invitation';
+    admin.nodes['editor-text'].value = 'Host-owned text';
+    admin.nodes.appearanceForm.handlers.input();
+    assert.equal(admin.nodes.appearancePreview.querySelectorAll('[data-copy="brand"]')[0].textContent, 'Draft studio');
+    assert.equal(admin.nodes.appearancePreview.style['--card-spacing'], '30px');
+    assert.equal(admin.nodes.appearancePreview.style['--card-alignment'], 'left');
+    assert.equal(admin.nodes.previewInvitationTitle.textContent, 'Only this invitation');
+    assert.equal(admin.nodes.previewInvitationText.textContent, 'Host-owned text');
+    assert.deepEqual(plain(admin.themes.settings('weddings')), before);
+    assert.equal(admin.nodes.body.style['--card-spacing'], before.cardStyle.spacing + 'px');
+    assert.equal(instance.records.has('rsvp-appearance:weddings'), false);
+    admin.nodes.backgroundImage.value = 'https://images.example.com/keep.jpg';
+    admin.nodes.resetAppearance.click();
+    assert.equal(fields['copy-brand'].value, appearanceModel.defaultCopy('weddings').brand);
+    assert.equal(fields['style-spacing'].value, appearanceModel.defaultCardStyle('weddings').spacing);
+    assert.equal(admin.nodes.backgroundImage.value, 'https://images.example.com/keep.jpg');
+    assert.equal(instance.records.has('rsvp-appearance:weddings'), false);
+    await admin.nodes.appearanceForm.handlers.submit({ preventDefault() {} });
+    assert.ok(instance.records.has('rsvp-appearance:weddings'));
+    admin.nodes['editor-eventType'].value = 'events';
+    admin.nodes['editor-eventType'].handlers.change();
+    assert.equal(fields['copy-tagline'].value, appearanceModel.defaultCopy('events').tagline);
+    assert.equal(admin.nodes.backgroundImage.value, halloween);
+    assert.equal(admin.nodes.appearancePreview.getAttribute('data-event-type'), 'events');
+});
+
+test('admin appearance save errors retain drafts and saved settings, while expired auth hides protected controls', async () => {
+    for (const failure of ['storage', 'validation', 'auth']) {
+        const instance = api();
+        const admin = browser({ page: 'admin', search: '?type=parties', apiPost: (payload, token) =>
+            instance.post(payload, failure === 'auth' && payload.action === 'save-appearance' ? 'invalid-session' : token) });
+        await admin.nodes.loginForm.handlers.submit({ preventDefault() {} });
+        await admin.tick();
+        const field = admin.nodes.appearanceForm.elements['copy-brand'];
+        field.value = failure === 'validation' ? '<script>bad</script>' : 'Keep my draft';
+        if (failure === 'storage') instance.env.FORM_SUBMISSIONS.put = async () => { throw Error('private storage detail'); };
+        const before = plain(admin.themes.settings('parties'));
+        await admin.nodes.appearanceForm.handlers.submit({ preventDefault() {} });
+        assert.deepEqual(plain(admin.themes.settings('parties')), before);
+        assert.equal(instance.records.has('rsvp-appearance:parties'), false);
+        assert.doesNotMatch(admin.nodes.message.textContent, /private storage detail/);
+        assert.equal(admin.nodes.appearanceForm.querySelector('button').disabled, false);
+        if (failure === 'auth') {
+            assert.equal(admin.nodes.appearanceForm.hidden, true);
+            assert.equal(admin.nodes.loginForm.hidden, false);
+        } else {
+            assert.equal(admin.nodes.appearanceForm.hidden, false);
+            assert.equal(field.value, failure === 'validation' ? '<script>bad</script>' : 'Keep my draft');
+            assert.match(admin.nodes.message.textContent, failure === 'validation' ? /plain text|valid card settings/ : /unavailable|failed|unable/i);
+        }
+    }
+});
+
+test('late category loading repaints existing invitation receipt and reply labels without changing host content or nested categories', async () => {
+    const instance = api();
+    const event = await createEvent(instance, { eventType: 'events' });
+    const appearance = {
+        events: { backgroundImage: '', copy: { tagline: 'Late event tagline', inviteHeading: 'Never overwrite host',
+            inviteText: 'Never overwrite host text', cardHeading: 'Late event card', receiptHeading: 'Late thanks',
+            receiptMessage: 'Late saved', nameLabel: 'Late guest', smsLabel: 'Late text' },
+        cardStyle: { surface: '#ffffff', textColor: '#222222', headingColor: '#111111', spacing: 26 } },
+        weddings: { copy: { cardHeading: 'Wedding only', nameLabel: 'Wedding guest' } }
+    };
+    let finish;
+    const pending = new Promise(resolve => { finish = resolve; });
+    const apiPost = async (payload, token) => {
+        if (payload.action === 'get-appearance') {
+            await pending;
+            return Response.json({ success: true, appearance });
+        }
+        return instance.post(payload, token);
+    };
+    const guest = browser({ search: '?id=' + event.id, apiPost });
+    const saved = { response: { ...valid, eventId: event.id, eventType: 'events' }, eventType: 'events', organiser: invitation };
+    const receipt = browser({ page: 'view', search: '?id=' + event.id, saved, apiPost });
+    await Promise.all([guest.tick(), receipt.tick()]);
+    const weddingRoot = element('section');
+    const weddingHeading = element('h2');
+    weddingHeading.setAttribute('data-copy', 'cardHeading');
+    weddingRoot.appendChild(weddingHeading);
+    guest.nodes.body.appendChild(weddingRoot);
+    guest.themes.apply(weddingRoot, 'weddings');
+    finish();
+    await Promise.all([guest.themes.ready, receipt.themes.ready]);
+    assert.equal(guest.nodes.heading.textContent, event.title);
+    assert.equal(guest.nodes.heading.getAttribute('data-copy'), null);
+    assert.equal(guest.nodes.invitationText.textContent, event.text);
+    assert.equal(guest.nodes.invitationText.getAttribute('data-copy'), null);
+    assert.equal(guest.nodes.eyebrow.textContent, 'Late event tagline');
+    assert.equal(weddingHeading.textContent, 'Wedding only');
+    assert.equal(receipt.nodes.receiptHeading.textContent, 'Late thanks');
+    assert.equal(receipt.nodes.message.textContent, 'Late saved');
+    const card = receipt.nodes.receipt.children[0];
+    assert.equal(card.children[1].textContent, 'Late event card');
+    assert.equal(card.querySelectorAll('[data-copy="nameLabel"]')[0].textContent, 'Late guest');
+    assert.equal(card.style['--card-spacing'], '26px');
+    assert.equal(receipt.nodes.sendOptions.children.at(-1).textContent, 'Late text');
+    assert.equal(receipt.nodes.back.href, '/rsvp/?id=' + event.id);
 });
 
 test('admin theme options match the shared card themes, including Events tokens and banner', () => {
@@ -1190,7 +1629,7 @@ test('guest and receipt retain saved event theme with safe fallback for old or u
         assert.equal(saved.eventType, expected);
         const view = browser({ page: 'view', saved: { ...saved, eventType } });
         assert.equal(view.nodes.body.attributes['data-event-type'], expected);
-        assert.equal(view.nodes.eyebrow.textContent, labels[expected]);
+        assert.equal(view.nodes.receiptHeading.textContent, appearanceModel.defaultCopy(expected).receiptHeading);
         assert.equal(view.nodes.back.href, '/rsvp/?id=' + app.event.id);
     }
 });

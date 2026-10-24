@@ -10,13 +10,13 @@
 <body>
     <main class="wrap">
         <header class="page-head">
-            <p class="brand">V I Key® · RSVP</p>
-            <h1 id="receiptHeading">Your RSVP</h1>
-            <p id="message" role="status">No RSVP to display in this tab. Send a response to see your confirmation here.</p>
+            <p class="brand" data-copy="brand">V I Key® · RSVP</p>
+            <h1 id="receiptHeading" data-copy="receiptEmptyHeading">Your RSVP</h1>
+            <p id="message" data-copy="receiptEmpty" role="status">No RSVP to display in this tab. Send a response to see your confirmation here.</p>
         </header>
         <div id="receipt"></div>
         <section id="sendOptions" class="rsvp-section" aria-label="Send your reply to the host" hidden></section>
-        <nav aria-label="RSVP navigation"><a href="/rsvp/">Back to RSVP</a></nav>
+        <nav aria-label="RSVP navigation"><a href="/rsvp/" data-copy="backLink">Back to RSVP</a></nav>
     </main>
     <script src="/rsvp/card-render.js"></script>
     <script type="module" src="/rsvp/rsvp.js"></script>
