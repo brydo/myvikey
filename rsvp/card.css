@@ -273,3 +273,8 @@ summary { cursor: pointer; font-weight: 600; margin-bottom: 16px; }
 @media (max-width: 480px) {
     .wrap { padding-right: 16px; padding-left: 16px; gap: 14px; }
 }
+/* Prevent old background image flash while RSVP theme settings load */
+body.rsvp-theme-loading::before,
+body.rsvp-theme-loading::after {
+  opacity: 0 !important;
+}
