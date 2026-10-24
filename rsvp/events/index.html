@@ -3,29 +3,54 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Scary Background</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            background-image: url('https://pub-07ed0b0955a4401f9956c3ca7a33c40e.r2.dev/ween.jpg');
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
-            background-repeat: no-repeat;
-            background-color: #0d0d11; /* fallback color */
-            min-height: 100vh;
-            width: 100%;
-        }
-    </style>
+    <meta name="description" content="Invitations and online RSVPs for your next event with V I Key®.">
+    <title>Event Invitations · V I Key®</title>
+    <link rel="stylesheet" href="/rsvp/card.css">
+    <link rel="stylesheet" href="/rsvp/landing.css">
 </head>
-<body>
-
-    <!-- Everything else is removed. Insert your text or content here -->
-
+<body data-event-type="events">
+    <main class="wrap landing-wrap">
+        <header class="landing-nav">
+            <a class="brand" href="/rsvp/">V I Key® · Celebrations</a>
+            <nav aria-label="Event themes">
+                <a href="/rsvp/events/" aria-current="page">Events</a>
+                <a href="/rsvp/weddings/">Weddings</a>
+                <a href="/rsvp/parties/">Parties</a>
+                <a href="/rsvp/engagements/">Engagements</a>
+            </nav>
+        </header>
+        <section class="landing-hero" aria-labelledby="heading">
+            <div class="landing-copy">
+                <p class="brand">Made for your moment · made to share</p>
+                <h1 id="heading">Bring everyone together.</h1>
+                <p>A special gathering, your own atmosphere, and the people who make it yours.</p>
+                <p>Already invited? Open the unique event link shared by your host to view the details and RSVP.</p>
+            </div>
+            <div>
+                <p class="preview-label">A little inspiration · example invitation</p>
+                <article class="rsvp-card" aria-labelledby="sampleHeading">
+                    <div class="rsvp-banner" aria-hidden="true"></div>
+                    <header class="rsvp-head">
+                        <p class="brand">You're invited</p>
+                        <h2 id="sampleHeading">A night to remember</h2>
+                        <p>Good company and a little celebration</p>
+                    </header>
+                    <div class="sample-invitation">
+                        <p>Your host's personal invitation link has the date, venue and RSVP details.</p>
+                    </div>
+                </article>
+            </div>
+        </section>
+        <section class="landing-details" aria-labelledby="detailsHeading">
+            <h2>Your event, beautifully connected.</h2>
+            <ol class="landing-steps">
+                <li><h3>Make it yours</h3><p>Your site admin adds the invitation details and chooses the shared category background.</p></li>
+                <li><h3>Share your moment</h3><p>Each saved invitation has its own unique link.</p></li>
+                <li><h3>Welcome your guests</h3><p>Guests reply online. Each reply stays linked to its invitation.</p></li>
+            </ol>
+        </section>
+        <footer class="landing-footer"><a href="/rsvp/">Explore all celebrations</a> · <a href="/">V I Key® home</a></footer>
+    </main>
+    <script type="module" src="/rsvp/theme-client.js"></script>
 </body>
 </html>

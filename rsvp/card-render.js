@@ -4,6 +4,7 @@
     function render(root, response) {
         var card = document.createElement('article');
         card.className = 'rsvp-card';
+        if (window.RSVPThemes) window.RSVPThemes.apply(card, response.eventType);
         var banner = document.createElement('div');
         banner.className = 'rsvp-banner';
         banner.setAttribute('aria-hidden', 'true');

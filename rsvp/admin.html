@@ -66,6 +66,14 @@
                 <button class="rsvp-btn primary" type="submit">Save invitation</button>
                 <p id="shareInvitation" role="status"></p>
             </form>
+            <form id="appearanceForm" class="rsvp-section" hidden>
+                <h2>Category background</h2>
+                <p>Uses the event theme selected above. Save once to update every landing page, invitation and confirmation in that category, including existing invitations. This page previews the shared appearance.</p>
+                <label for="backgroundImage">Background image URL (HTTPS)</label>
+                <input id="backgroundImage" type="url" maxlength="2048" placeholder="https://example.com/background.jpg" aria-describedby="backgroundHint">
+                <p id="backgroundHint">Use a trusted, publicly accessible image, without passwords or private access tokens. Leave blank for the category’s colour background.</p>
+                <button class="rsvp-btn primary" type="submit">Save category background</button>
+            </form>
             <p id="message" class="rsvp-section" role="status" aria-live="polite"></p>
         </section>
         <div id="responses" class="responses"></div>
@@ -75,6 +83,6 @@
     </main>
     <script src="/rsvp/card-render.js"></script>
     <script src="/rsvp/export.js"></script>
-    <script src="/rsvp/rsvp.js"></script>
+    <script type="module" src="/rsvp/rsvp.js"></script>
 </body>
 </html>
