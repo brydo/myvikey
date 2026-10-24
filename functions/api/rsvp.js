@@ -10,7 +10,7 @@ function invitationFields(body) {
   if (!['celebration', 'weddings', 'parties', 'engagements'].includes(eventType)) return null;
   result.eventType = eventType;
   for (const [field, max] of Object.entries({ title: 100, text: 5000, whatsapp: 16, sms: 16 })) {
-    const value = field === 'sms' && body[field] === undefined ? '' : body[field];
+    const value = ['whatsapp', 'sms'].includes(field) && body[field] === undefined ? '' : body[field];
     if (typeof value !== 'string' || value.trim().length > max) return null;
     result[field] = value.trim();
   }

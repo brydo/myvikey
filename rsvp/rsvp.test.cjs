@@ -170,6 +170,11 @@ test('all three pages use shared RSVP assets without unrelated contact features'
         assert.match(html, /src="\/rsvp\/rsvp\.js"/);
         assert.doesNotMatch(html, /vcard|facebook|instagram|linkedin/i);
     }
+    const admin = readFileSync(`${__dirname}/admin.html`, 'utf8');
+    for (const channel of ['whatsapp', 'sms']) {
+        assert.match(admin, new RegExp(`<input id="${channel}" name="${channel}" type="tel"`));
+    }
+    assert.doesNotMatch(admin, /name="email"/);
 });
 
 const invitation = {
@@ -230,6 +235,19 @@ test('validates invitation fields and destinations, allowing either, both or nei
     }
 });
 
+test('optional contact fields may be omitted, including WhatsApp for SMS-only invitations', async () => {
+    const instance = api();
+    for (const fields of [
+        { whatsapp: undefined, sms: invitation.sms }, { whatsapp: invitation.whatsapp, sms: undefined },
+        { whatsapp: undefined, sms: undefined }
+    ]) {
+        const event = await createEvent(instance, fields);
+        assert.equal(event.whatsapp, fields.whatsapp === undefined ? '' : invitation.whatsapp);
+        assert.equal(event.sms, fields.sms === undefined ? '' : invitation.sms);
+        assert.deepEqual(JSON.parse(instance.records.get('rsvp-invitation:' + event.id)), event);
+    }
+});
+
 test('event-bound submissions reject mismatches and return only that event’s routing with a canonical receipt', async () => {
     const instance = api();
     const first = await createEvent(instance);
@@ -259,6 +277,34 @@ function renderer() {
     runInNewContext(readFileSync(`${__dirname}/card-render.js`, 'utf8'), context);
     return context.window.RSVP;
 }
+
+test('send options show only valid configured channels and explain unavailable text/SMS', () => {
+    const rsvp = renderer();
+    for (const [organiser, labels] of [
+        [{ sms: invitation.sms }, ['Send via text/SMS']],
+        [invitation, ['Send via WhatsApp', 'Send via text/SMS']],
+        [{ whatsapp: invitation.whatsapp }, ['Send via WhatsApp']],
+        ...[undefined, null, '', '+123', '07700900123', '+447700900124?body=bad', 447700900124]
+            .flatMap(sms => [
+                [{ sms }, []],
+                [{ whatsapp: invitation.whatsapp, sms }, ['Send via WhatsApp']]
+            ])
+    ]) {
+        const root = element('section');
+        root.hidden = true;
+        rsvp.sendOptions(root, valid, organiser);
+        assert.equal(root.hidden, false);
+        const buttons = root.children.filter(node => node.tag === 'a');
+        assert.deepEqual(buttons.map(node => node.textContent), labels);
+        assert.ok(buttons.every(node => !node.href.startsWith('mailto:')));
+        if (!labels.includes('Send via text/SMS')) {
+            assert.match(root.children[0].textContent, /(?:no valid WhatsApp or text\/SMS number|Text\/SMS is unavailable)/);
+        }
+        rsvp.sendOptions(root, valid, { sms: invitation.sms });
+        assert.deepEqual(root.children.filter(node => node.tag === 'a').map(node => node.textContent),
+            ['Send via text/SMS']);
+    }
+});
 
 test('channel links validate destinations and encode the event and all five fields exactly', () => {
     const rsvp = renderer();
@@ -292,7 +338,7 @@ test('channel links validate destinations and encode the event and all five fiel
 });
 
 function browser({ page = 'index', storageFails = false, saved, failSave = false, expired = false, eventType, search,
-    savedEvents, replyPages = [[]], exportExpired = false, clipboardFails = false } = {}) {
+    savedEvents, replyPages = [[]], exportExpired = false, clipboardFails = false, apiPost } = {}) {
     const nodes = {};
     function node(id) {
         if (!nodes[id]) nodes[id] = {
@@ -349,6 +395,7 @@ function browser({ page = 'index', storageFails = false, saved, failSave = false
         fetch: async (path, options) => {
             const payload = JSON.parse(options.body);
             requests.push(payload);
+            if (path === '/api/rsvp' && apiPost) return apiPost(payload, options.headers['X-Admin-Session']);
             if (payload.action === 'get-invitation') return { ok: true, json: async () => ({ success: true, invitation: event }) };
             if (payload.action === 'verify') return { ok: true, json: async () => ({ success: true, sessionToken: 'valid-session' }) };
             if (['list', 'list-invitations'].includes(payload.action)) {
@@ -381,6 +428,47 @@ function browser({ page = 'index', storageFails = false, saved, failSave = false
     runInNewContext(readFileSync(`${__dirname}/rsvp.js`, 'utf8'), context);
     return { nodes, requests, stored, redirects, downloads, copied, event, tick: () => new Promise(resolve => setImmediate(resolve)) };
 }
+
+test('real API organiser routing preserves SMS from admin save/load through guest submit and confirmation', async () => {
+    for (const whatsapp of ['', invitation.whatsapp]) {
+        const instance = api();
+        const admin = browser({ page: 'admin', apiPost: instance.post });
+        await admin.nodes.loginForm.handlers.submit({ preventDefault() {} });
+        for (const [field, value] of Object.entries({ ...invitation, whatsapp })) {
+            if (field !== 'action') admin.nodes['editor-' + field].value = value;
+        }
+        await admin.nodes.invitationForm.handlers.submit({ preventDefault() {} });
+        const id = admin.nodes['editor-id'].value;
+        assert.ok(id);
+        admin.nodes['editor-sms'].value = '';
+        await admin.nodes.loadInvitation.handlers.click();
+        assert.equal(admin.nodes['editor-sms'].value, invitation.sms);
+        assert.equal(admin.nodes['editor-whatsapp'].value, whatsapp);
+
+        const guest = browser({ search: '?id=' + id, apiPost: instance.post });
+        await guest.tick();
+        guest.nodes.name.value = 'SMS guest';
+        guest.nodes.attending.value = 'yes';
+        guest.nodes.guests.value = '0';
+        guest.nodes.notes.value = 'See you there!';
+        await guest.nodes.rsvpForm.handlers.submit({ preventDefault() {} });
+        assert.deepEqual(guest.redirects, ['/rsvp/view']);
+        const saved = JSON.parse(guest.stored.get('rsvp_receipt'));
+        assert.deepEqual(saved.organiser, { whatsapp, sms: invitation.sms });
+        const receipt = browser({ page: 'view', saved });
+        for (const app of [guest, receipt]) {
+            const buttons = app.nodes.sendOptions.children.filter(node => node.tag === 'a');
+            assert.deepEqual(buttons.map(node => node.textContent),
+                whatsapp ? ['Send via WhatsApp', 'Send via text/SMS'] : ['Send via text/SMS']);
+            const sms = new URL(buttons.at(-1).href);
+            assert.equal(sms.pathname, invitation.sms);
+            assert.match(sms.searchParams.get('body'), /Name: SMS guest/);
+            assert.match(sms.searchParams.get('body'), /Notes: See you there!/);
+        }
+        assert.equal(receipt.nodes.back.href, '/rsvp/?id=' + id);
+        assert.equal([...instance.records.keys()].filter(key => key.startsWith('rsvp:')).length, 1);
+    }
+});
 
 test('guest loads safe multiline invitation, reveals prefilled form, saves event ID and preserves send options through receipt redirect', async () => {
     const app = browser();
@@ -615,6 +703,13 @@ test('legacy email invitations stay readable but email is ignored for routing an
     const updated = await createEvent(instance, { ...event, sms: undefined });
     assert.equal(updated.sms, '');
     assert.equal(updated.email, undefined);
+    const restored = await createEvent(instance, { ...updated, sms: invitation.sms });
+    assert.equal(restored.id, event.id);
+    const routed = await (await instance.post({ ...valid, event: event.title, eventId: event.id })).json();
+    const view = browser({ page: 'view', saved: routed });
+    assert.deepEqual(view.nodes.sendOptions.children.filter(node => node.tag === 'a').map(node => node.textContent),
+        ['Send via WhatsApp', 'Send via text/SMS']);
+    assert.equal(view.nodes.back.href, '/rsvp/?id=' + event.id);
 });
 
 test('event panel recalls codes and links, opens editor, scopes replies and clears on logout', async () => {
