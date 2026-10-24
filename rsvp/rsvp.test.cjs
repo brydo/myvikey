@@ -453,22 +453,23 @@ test('event themes persist on invitations while legacy invitations default to cl
     assert.deepEqual(loaded.invitation, legacy);
 });
 
-test('landing pages have distinct themes, accessible navigation and preselected setup links', () => {
+test('landing pages have distinct themes and accessible navigation without public admin links', () => {
     for (const eventType of ['weddings', 'parties', 'engagements']) {
         const html = readFileSync(`${__dirname}/${eventType}/index.html`, 'utf8');
         assert.match(html, new RegExp(`data-event-type="${eventType}"`));
-        assert.match(html, new RegExp(`href="/rsvp/admin\\?type=${eventType}"`));
+        assert.doesNotMatch(html, /href=["'][^"']*admin/i);
         assert.match(html, new RegExp(`href="/rsvp/${eventType}/" aria-current="page"`));
         assert.match(html, /example invitation/);
-        assert.match(html, /site-admin sign-in/);
+        assert.match(html, /unique .* link shared by your host/);
         assert.match(html, /href="\/rsvp\/landing.css"/);
         assert.doesNotMatch(html, /<form|<script/);
         const chooser = readFileSync(`${__dirname}/index.html`, 'utf8');
         assert.ok(chooser.includes(`href="/rsvp/${eventType}/"`));
+        assert.doesNotMatch(chooser, /href=["'][^"']*admin|Organiser setup|sign in below/i);
     }
 });
 
-test('organiser theme comes from landing page, is saved and restored when loading invitations', async () => {
+test('direct admin links preselect the theme, which is saved and restored when loading invitations', async () => {
     for (const eventType of ['weddings', 'parties', 'engagements']) {
         const app = browser({ page: 'admin', search: '?type=' + eventType });
         assert.equal(app.nodes['editor-eventType'].value, eventType);
