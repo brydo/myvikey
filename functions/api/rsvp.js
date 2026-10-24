@@ -7,7 +7,7 @@ const validId = id => typeof id === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-
 function invitationFields(body) {
   const result = {};
   const eventType = body.eventType === undefined ? 'celebration' : body.eventType;
-  if (!['celebration', 'weddings', 'parties', 'engagements'].includes(eventType)) return null;
+  if (!['celebration', 'events', 'weddings', 'parties', 'engagements'].includes(eventType)) return null;
   result.eventType = eventType;
   for (const [field, max] of Object.entries({ title: 100, text: 5000, whatsapp: 16, sms: 16 })) {
     const value = ['whatsapp', 'sms'].includes(field) && body[field] === undefined ? '' : body[field];

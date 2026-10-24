@@ -812,7 +812,7 @@ test('expired organiser session hides and clears invitation editor', async () =>
 
 test('event themes persist on invitations while legacy invitations default to classic', async () => {
     const instance = api();
-    for (const eventType of ['celebration', 'weddings', 'parties', 'engagements']) {
+    for (const eventType of ['celebration', 'events', 'weddings', 'parties', 'engagements']) {
         const event = await createEvent(instance, { eventType });
         const loaded = await (await instance.post({ action: 'get-invitation', id: event.id })).json();
         assert.equal(loaded.invitation.eventType, eventType);
@@ -832,7 +832,7 @@ test('event themes persist on invitations while legacy invitations default to cl
 });
 
 test('landing pages have distinct themes and accessible navigation without public admin links', () => {
-    for (const eventType of ['weddings', 'parties', 'engagements']) {
+    for (const eventType of ['events', 'weddings', 'parties', 'engagements']) {
         const html = readFileSync(`${__dirname}/${eventType}/index.html`, 'utf8');
         assert.match(html, new RegExp(`data-event-type="${eventType}"`));
         assert.doesNotMatch(html, /href=["'][^"']*admin/i);
@@ -857,11 +857,28 @@ test('events landing page uses shared assets and is linked from the RSVP index',
     assert.match(html, /href="\/rsvp\/parties\/"/);
     assert.match(html, /href="\/rsvp\/engagements\/"/);
     assert.match(chooser, /href="\/rsvp\/events\/"/);
-    assert.doesNotMatch(html, /data-event-type=|<form|<script|href=["'][^"']*admin/i);
+    assert.match(html, /data-event-type="events"/);
+    assert.doesNotMatch(html, /<form|<script|href=["'][^"']*admin/i);
+});
+
+test('admin theme options match the shared card themes, including Events tokens and banner', () => {
+    const html = readFileSync(`${__dirname}/admin.html`, 'utf8');
+    const selector = html.match(/<select id="eventType" name="eventType">([\s\S]*?)<\/select>/)[1];
+    assert.deepEqual([...selector.matchAll(/<option value="([^"]+)">/g)].map(match => match[1]),
+        ['celebration', 'events', 'weddings', 'parties', 'engagements']);
+    assert.match(selector, /<option value="events">Events · versatile celebration<\/option>/);
+    const css = readFileSync(`${__dirname}/card.css`, 'utf8');
+    const tokens = css.match(/body\[data-event-type="events"\] \{([^}]+)\}/)[1];
+    for (const token of ['accent', 'accent-hover', 'ink', 'paper', 'border']) {
+        assert.ok(tokens.includes(`--${token}:`));
+    }
+    assert.match(css, /body\[data-event-type="events"\] \.rsvp-banner \{/);
+    assert.match(css, /body\[data-event-type="events"\] \.rsvp-banner::before,/);
+    assert.match(css, /body\[data-event-type="events"\] \.rsvp-banner::after \{/);
 });
 
 test('direct admin links preselect the theme, which is saved and restored when loading invitations', async () => {
-    for (const eventType of ['weddings', 'parties', 'engagements']) {
+    for (const eventType of ['events', 'weddings', 'parties', 'engagements']) {
         const app = browser({ page: 'admin', search: '?type=' + eventType });
         assert.equal(app.nodes['editor-eventType'].value, eventType);
         assert.equal(app.nodes.body.attributes['data-event-type'], eventType);
@@ -883,12 +900,48 @@ test('direct admin links preselect the theme, which is saved and restored when l
     assert.equal(invalid.nodes['editor-eventType'].value, 'celebration');
 });
 
+test('Events invitation round-trips from admin through API storage to guest and receipt', async () => {
+    const instance = api();
+    const admin = browser({ page: 'admin', search: '?type=events', apiPost: instance.post });
+    await admin.nodes.loginForm.handlers.submit({ preventDefault() {} });
+    for (const field of ['title', 'text', 'whatsapp', 'sms']) {
+        admin.nodes['editor-' + field].value = invitation[field];
+    }
+    await admin.nodes.invitationForm.handlers.submit({ preventDefault() {} });
+    const id = admin.nodes['editor-id'].value;
+    assert.equal(JSON.parse(instance.records.get('rsvp-invitation:' + id)).eventType, 'events');
+    admin.nodes['editor-eventType'].value = 'weddings';
+    await admin.nodes.loadInvitation.handlers.click();
+    assert.equal(admin.nodes['editor-eventType'].value, 'events');
+    assert.equal(admin.nodes.body.attributes['data-event-type'], 'events');
+    const guest = browser({ search: '?id=' + id, apiPost: instance.post });
+    await guest.tick();
+    assert.equal(guest.nodes.body.attributes['data-event-type'], 'events');
+    guest.nodes.name.value = 'Guest';
+    guest.nodes.attending.value = 'yes';
+    guest.nodes.guests.value = '0';
+    await guest.nodes.rsvpForm.handlers.submit({ preventDefault() {} });
+    const saved = JSON.parse(guest.stored.get('rsvp_receipt'));
+    assert.equal(saved.eventType, 'events');
+    const receipt = browser({ page: 'view', saved });
+    assert.equal(receipt.nodes.body.attributes['data-event-type'], 'events');
+    assert.equal(receipt.nodes.back.href, '/rsvp/?id=' + id);
+});
+
 test('guest and receipt retain saved event theme with safe fallback for old or unknown themes', async () => {
-    for (const eventType of [undefined, 'unknown', 'weddings', 'parties', 'engagements']) {
+    const labels = {
+        celebration: 'Together is a beautiful place to be',
+        events: 'Made for your moment · made to share',
+        weddings: 'A beautiful beginning, shared with our favourite people',
+        parties: 'Good company. Great memories. Let’s celebrate!',
+        engagements: 'Here’s to forever, and the people who make it sparkle'
+    };
+    for (const eventType of [undefined, null, 'unknown', '__proto__', {}, ['events'], ...Object.keys(labels)]) {
         const app = browser({ eventType });
         await app.tick();
-        const expected = !eventType || eventType === 'unknown' ? 'celebration' : eventType;
+        const expected = Object.keys(labels).includes(eventType) ? eventType : 'celebration';
         assert.equal(app.nodes.body.attributes['data-event-type'], expected);
+        assert.equal(app.nodes.eyebrow.textContent, labels[expected]);
         assert.equal(app.nodes.occasionChooser.hidden, true);
         app.nodes.name.value = 'Guest';
         app.nodes.attending.value = 'yes';
@@ -896,8 +949,9 @@ test('guest and receipt retain saved event theme with safe fallback for old or u
         await app.nodes.rsvpForm.handlers.submit({ preventDefault() {} });
         const saved = JSON.parse(app.stored.get('rsvp_receipt'));
         assert.equal(saved.eventType, expected);
-        const view = browser({ page: 'view', saved });
+        const view = browser({ page: 'view', saved: { ...saved, eventType } });
         assert.equal(view.nodes.body.attributes['data-event-type'], expected);
+        assert.equal(view.nodes.eyebrow.textContent, labels[expected]);
         assert.equal(view.nodes.back.href, '/rsvp/?id=' + app.event.id);
     }
 });
