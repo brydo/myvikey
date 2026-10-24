@@ -5,6 +5,8 @@ eventTypes.forEach(function (type) { appearances[type] = normalizeAppearance(typ
 var targets = new Map();
 var revision = 0;
 var savedKey = 'rsvp_appearance_saved';
+var readyClass = 'rsvp-theme-ready';
+var loadingClass = 'rsvp-theme-loading';
 
 function paint(root, type, settings) {
     type = theme(type);
@@ -51,6 +53,20 @@ function writeLocal(value) {
     try { localStorage.setItem(savedKey, JSON.stringify(value)); } catch { /* Storage is optional. */ }
 }
 
+function hydrateFromLocal() {
+    var local = savedLocally();
+    eventTypes.forEach(function (type) {
+        if (!Object.hasOwn(local, type)) return;
+        appearances[type] = normalizeAppearance(type, local[type]);
+    });
+}
+
+function markReady(root) {
+    if (!root) return;
+    root.classList.remove(loadingClass);
+    root.classList.add(readyClass);
+}
+
 function update(settings, savedType) {
     revision++;
     var local = savedLocally();
@@ -93,8 +109,11 @@ async function load() {
         var data = await response.json();
         if (!response.ok || !data.success) throw new Error('Appearance unavailable');
         if (revision === started) update(data.appearance);
+        markReady(document.body);
         return true;
     } catch {
+        // If server fetch fails, keep UI usable with local/default theme and still reveal page.
+        markReady(document.body);
         return false;
     }
 }
@@ -117,5 +136,11 @@ window.RSVPThemes = {
     },
     copyFields: copyFields, styleFields: styleFields
 };
+
+document.body.classList.add(loadingClass);
+hydrateFromLocal(); // Prefer last saved local appearance immediately; avoids wrong-image flash.
 apply(document.body, document.body.getAttribute('data-event-type'));
 window.RSVPThemes.ready = load();
+
+// Safety valve: never leave page in loading state if fetch stalls.
+setTimeout(function () { markReady(document.body); }, 2500);
