@@ -141,6 +141,8 @@
     var replyEvent = document.getElementById('replyEvent');
     var invitations = [];
     var loadVersion = 0;
+    var deleting = false;
+    var cleanupJobs = [];
     var initialTheme = theme(new URLSearchParams(window.location.search).get('type'));
     editor.elements.eventType.value = initialTheme;
     applyTheme(initialTheme);
@@ -247,9 +249,93 @@
             button('Open/Edit', function () { showInvitation(item); editor.elements.title.focus(); });
             button('View replies', function () { replyEvent.value = item.id; filterReplies(); });
             button('Export replies (.csv)', function () { exportReplies(item.id); });
+            var deleteMode = document.createElement('select');
+            deleteMode.setAttribute('aria-label', 'Replies when deleting ' + item.title);
+            [['keep', 'Keep replies'], ['delete', 'Delete replies too']].forEach(function (option) {
+                var node = document.createElement('option');
+                node.value = option[0];
+                node.textContent = option[1];
+                deleteMode.appendChild(node);
+            });
+            deleteMode.value = 'keep';
+            row.appendChild(deleteMode);
+            button('Delete event', function () {
+                var deleteReplies = deleteMode.value === 'delete';
+                return remove('delete-event', item.id,
+                    'Permanently delete "' + item.title + '"? Its shared invitation link will stop working. ' +
+                    (deleteReplies ? 'All its replies will also be permanently deleted.' : 'Its replies will be kept.') +
+                    ' Export a backup first if needed.',
+                    deleteReplies);
+            });
             events.appendChild(row);
         });
         if (!invitations.length) events.textContent = 'No saved invitations yet.';
+    }
+
+    async function remove(action, id, warning, deleteReplies) {
+        if (deleting || !token || !window.confirm(warning)) return;
+        var session = token;
+        deleting = true;
+        if (action === 'delete-event' && deleteReplies && cleanupJobs.indexOf(id) === -1) {
+            cleanupJobs.push(id);
+            saveCleanupJobs();
+        }
+        status('Deleting…');
+        try {
+            var next = '';
+            do {
+                var payload = { action: action, id: id, cursor: next };
+                if (action === 'delete-event') payload.deleteReplies = deleteReplies;
+                var data = await post('/api/rsvp', payload, session);
+                if (token !== session) return;
+                next = data.cursor || '';
+            } while (next);
+            if (action === 'delete-event' && deleteReplies) {
+                cleanupJobs = cleanupJobs.filter(function (job) { return job !== id; });
+                saveCleanupJobs();
+            }
+            if (action === 'delete-event') {
+                if (editor.elements.id.value === id) {
+                    editor.reset();
+                    editor.elements.eventType.value = initialTheme;
+                    applyTheme(initialTheme);
+                    share.replaceChildren();
+                }
+                if (replyEvent.value === id) replyEvent.value = '';
+            }
+            await refresh();
+        } catch (error) {
+            if (token !== session) return;
+            if (error.status === 401) logout();
+            status('Deletion did not complete. Some records may already have been deleted. ' +
+                'Refresh to check before retrying. ' + error.message, true);
+        } finally {
+            deleting = false;
+            renderCleanupJobs();
+        }
+    }
+
+    function saveCleanupJobs() {
+        try { sessionStorage.setItem('rsvp_delete_jobs', JSON.stringify(cleanupJobs)); } catch (error) {
+            // Keep retry controls available in this page if browser storage is unavailable.
+        }
+    }
+
+    function renderCleanupJobs() {
+        var root = document.getElementById('deletionJobs');
+        root.replaceChildren();
+        if (!token) return;
+        cleanupJobs.forEach(function (id) {
+            var button = document.createElement('button');
+            button.type = 'button';
+            button.className = 'rsvp-btn';
+            button.textContent = 'Retry reply cleanup for event ' + id;
+            button.addEventListener('click', function () {
+                return remove('delete-event', id, 'Permanently delete all remaining replies for event ' +
+                    id + '? Its invitation link will be disabled. This cannot be undone.', true);
+            });
+            root.appendChild(button);
+        });
     }
 
     async function copy(value) {
@@ -323,6 +409,7 @@
                 return Object.assign({}, item, { replyCount: counts.get(item.id) || 0 });
             });
             renderEvents();
+            renderCleanupJobs();
             await load(false);
         } catch (error) {
             if (token !== session) return;
@@ -336,6 +423,8 @@
         cursor = '';
         loadVersion++;
         invitations = [];
+        cleanupJobs = [];
+        document.getElementById('deletionJobs').replaceChildren();
         events.replaceChildren();
         replyEvent.replaceChildren();
         eventsPanel.hidden = true;
@@ -371,7 +460,18 @@
                 if (token !== session || version !== loadVersion) return;
                 payload.cursor = data.cursor || '';
             } while (!data.responses.length && payload.cursor);
-            data.responses.forEach(function (response) { window.RSVP.render(responses, response); });
+            data.responses.forEach(function (response) {
+                window.RSVP.render(responses, response);
+                var button = document.createElement('button');
+                button.type = 'button';
+                button.className = 'rsvp-btn';
+                button.textContent = 'Delete reply';
+                button.addEventListener('click', function () {
+                    return remove('delete-reply', response.id,
+                        'Permanently delete the reply from "' + response.name + '" for "' + response.event + '"? This cannot be undone.');
+                });
+                responses.children[responses.children.length - 1].appendChild(button);
+            });
             cursor = data.cursor || '';
             more.hidden = !cursor;
             status(responses.children.length ? 'Responses loaded.' : 'No RSVPs yet.');
@@ -398,6 +498,12 @@
             });
             if (!data.sessionToken) throw new Error('Admin session could not be started.');
             token = data.sessionToken;
+            try {
+                var jobs = JSON.parse(sessionStorage.getItem('rsvp_delete_jobs'));
+                cleanupJobs = Array.isArray(jobs) ? jobs.filter(function (id) {
+                    return typeof id === 'string' && /^[0-9a-f-]{36}$/.test(id);
+                }) : [];
+            } catch (error) { cleanupJobs = []; }
             login.reset();
             login.hidden = true;
             actions.hidden = false;

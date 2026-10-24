@@ -35,7 +35,7 @@ export async function onRequestPost({ request, env }) {
     return reply({ success: false, error: 'Invalid JSON' }, 400);
   }
 
-  if (['list', 'list-invitations', 'save-invitation'].includes(body.action)) {
+  if (['list', 'list-invitations', 'save-invitation', 'delete-reply', 'delete-event'].includes(body.action)) {
     const session = await validateSession(env, request.headers.get('x-admin-session'));
     if (!session || session.userId !== '__admin__') {
       return reply({ success: false, error: 'Unauthorized' }, 401);
@@ -51,6 +51,32 @@ export async function onRequestPost({ request, env }) {
     return reply({ success: false, error: 'RSVP storage is unavailable. Please try again later.' }, 503);
   }
   try {
+    if (body.action === 'delete-reply') {
+      if (typeof body.id !== 'string' || !/^[a-zA-Z0-9_-]{1,100}$/.test(body.id)) {
+        return reply({ success: false, error: 'Invalid reply ID' }, 400);
+      }
+      await env.FORM_SUBMISSIONS.delete(PREFIX + body.id);
+      return reply({ success: true });
+    }
+    if (body.action === 'delete-event') {
+      if (!validId(body.id) || typeof body.deleteReplies !== 'boolean') {
+        return reply({ success: false, error: 'Choose an event and whether to delete its replies' }, 400);
+      }
+      // Remove the invitation first so guests cannot submit more replies during cleanup.
+      await env.FORM_SUBMISSIONS.delete(INVITATIONS + body.id);
+      let cursor = '';
+      if (body.deleteReplies) {
+        const page = await env.FORM_SUBMISSIONS.list({
+          prefix: PREFIX, limit: 50, cursor: body.cursor || undefined
+        });
+        const records = await Promise.all(page.keys.map(key => env.FORM_SUBMISSIONS.get(key.name)));
+        await Promise.all(page.keys.filter((key, index) =>
+          records[index] && JSON.parse(records[index]).eventId === body.id
+        ).map(key => env.FORM_SUBMISSIONS.delete(key.name)));
+        cursor = page.list_complete ? '' : page.cursor;
+      }
+      return reply({ success: true, cursor });
+    }
     if (body.action === 'save-invitation') {
       const fields = invitationFields(body);
       if (!fields || (body.id !== undefined && !validId(body.id))) {
@@ -79,7 +105,9 @@ export async function onRequestPost({ request, env }) {
         prefix: invitations ? INVITATIONS : PREFIX, limit: 50, cursor: body.cursor || undefined
       });
       const records = await Promise.all(page.keys.map(key => env.FORM_SUBMISSIONS.get(key.name)));
-      let items = records.filter(Boolean).map(raw => JSON.parse(raw));
+      let items = records.map((raw, index) => raw ?
+        { ...JSON.parse(raw), ...(!invitations ? { id: page.keys[index].name.slice(PREFIX.length) } : {}) } : null
+      ).filter(Boolean);
       if (!invitations && body.eventId !== undefined) {
         items = items.filter(item => body.eventId === 'unassigned' ? !item.eventId : item.eventId === body.eventId);
       }
@@ -119,7 +147,12 @@ export async function onRequestPost({ request, env }) {
     response.guests = body.guests;
     response.createdAt = new Date().toISOString();
     if (invitation) response.eventId = invitation.id;
-    await env.FORM_SUBMISSIONS.put(PREFIX + crypto.randomUUID(), JSON.stringify(response));
+    const key = PREFIX + crypto.randomUUID();
+    await env.FORM_SUBMISSIONS.put(key, JSON.stringify(response));
+    if (invitation && !await env.FORM_SUBMISSIONS.get(INVITATIONS + invitation.id)) {
+      await env.FORM_SUBMISSIONS.delete(key);
+      return reply({ success: false, error: 'Invitation not found' }, 404);
+    }
     return reply({
       success: true, response,
       organiser: invitation ? { whatsapp: invitation.whatsapp || '', sms: invitation.sms || '' } : {}
