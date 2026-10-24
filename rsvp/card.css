@@ -95,11 +95,13 @@ input, select, textarea {
     margin-bottom: 16px;
     font: inherit;
     font-size: 1rem;
-    color: #493439;
-    background: #fffdf9;
-    border: 1px solid #b99e98;
+    color: var(--card-text, #493439);
+    background: var(--card-surface, #fffdf9);
+    border: 1px solid var(--btn-border, #b99e98);
     border-radius: 12px;
 }
+input::placeholder, textarea::placeholder { color: currentColor; opacity: .7; }
+input:disabled, select:disabled, textarea:disabled { opacity: .6; cursor: not-allowed; }
 textarea { resize: vertical; }
 small { display: block; margin: -10px 0 16px; color: #70565b; }
 .muted { color: #70565b; font-weight: 400; }
@@ -112,27 +114,31 @@ small { display: block; margin: -10px 0 16px; color: #70565b; }
     padding: 10px 14px;
     font: inherit;
     font-weight: 600;
-    color: #633c48;
-    background: #f8e9e5;
-    border: 1px solid #b99e98;
+    /* Secondary buttons sit on the card surface; every colour comes from the category's saved tokens. */
+    color: var(--card-text, var(--ink));
+    background: var(--card-surface, var(--paper));
+    border: 2px solid var(--btn-border, var(--accent));
     border-radius: 12px;
     cursor: pointer;
 }
-.rsvp-btn:hover { background: #f1d9d5; border-color: #844456; }
-.primary { background: var(--accent, #844456); color: #fff; border-color: var(--accent, #844456); }
-.primary:hover { background: var(--accent-hover, #6c3444); }
-.rsvp-btn:disabled { opacity: 0.6; cursor: wait; }
+.rsvp-btn:hover:not(:disabled) { background: var(--btn-bg, var(--accent)); color: var(--btn-text, #fff); }
+.rsvp-btn.primary { background: var(--btn-bg, var(--accent)); color: var(--btn-text, #fff); border-color: var(--btn-border, var(--accent)); }
+.rsvp-btn.primary:hover:not(:disabled) {
+    background: var(--btn-hover-bg, var(--accent-hover)); color: var(--btn-text, #fff);
+    text-decoration: underline; text-underline-offset: 3px;
+}
+.rsvp-btn:disabled { opacity: 0.55; cursor: not-allowed; }
 :focus-visible { outline: 3px solid var(--accent, #844456); outline-offset: 3px; }
 [hidden] { display: none !important; }
 #message { overflow-wrap: anywhere; }
 #message:not(:empty) { margin-top: 12px; }
-.error { color: #a51f32; }
+.error { color: inherit; font-weight: 700; border-left: 4px solid currentColor; padding-left: 12px; }
 nav, .page-head { text-align: center; }
 a { color: var(--accent, #774b25); }
 nav a { display: inline-block; padding: 10px 4px; }
 .responses { display: grid; gap: 24px; }
 .events-list { display: grid; gap: 16px; margin: 18px 0; }
-.event-item { border: 1px solid var(--border, #d8bda2); border-radius: 12px; padding: 12px; overflow-wrap: anywhere; }
+.event-item { border: 1px solid var(--btn-border, var(--border, #d8bda2)); border-radius: 12px; padding: 12px; overflow-wrap: anywhere; }
 .event-item h3 { font-family: Georgia, serif; }
 .event-item .rsvp-btn { margin: 8px 4px 0 0; }
 dt { color: var(--accent); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1.5px; }
@@ -215,6 +221,9 @@ dd { color: var(--ink); white-space: pre-wrap; overflow-wrap: anywhere; margin-b
     line-height: var(--card-line-height, 1.6);
 }
 .rsvp-card h1 { font-size: calc(2.5rem * var(--card-heading-scale, 1)); }
+.page-head h1, .occasion-chooser h2, .landing-copy h1, .landing-details h2, .landing-details h3 {
+    color: var(--card-heading, var(--ink));
+}
 .rsvp-head, .invitation { text-align: var(--card-alignment, center); }
 .rsvp-head, .rsvp-section, .sample-invitation {
     padding-left: var(--card-spacing, 24px);
@@ -244,6 +253,13 @@ dd { color: var(--ink); white-space: pre-wrap; overflow-wrap: anywhere; margin-b
     box-shadow: 0 0 0 5px #111;
 }
 .rsvp-card .error { color: inherit; font-weight: 700; }
+.field-error:empty { display: none; }
+.field-error { margin: -8px 0 16px; font-weight: 700; border-left: 4px solid currentColor; padding-left: 12px; }
+.appearance-status:not(:empty) { margin-top: 12px; }
+.appearance-status[data-state="error"] { font-weight: 700; border-left: 4px solid currentColor; padding-left: 12px; }
+.appearance-status[data-state="success"] { font-weight: 700; }
+.preview-note { margin-top: 12px; font-size: .9rem; }
+.appearance-preview .rsvp-btn { margin: 8px 4px; }
 .rsvp-card input, .rsvp-card select, .rsvp-card textarea { font-size: inherit; }
 .appearance-preview {
     margin-top: 20px;

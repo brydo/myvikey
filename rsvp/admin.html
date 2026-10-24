@@ -79,11 +79,13 @@
                 </details>
                 <details open>
                     <summary>Card text &amp; surface</summary>
-                    <p>Solid card surfaces keep text readable over any background. Heading and body colours must each meet 4.5:1 contrast against the surface. Invalid colour combinations preview with safe defaults and cannot be saved. Sizes and spacing are bounded.</p>
+                    <p>Solid card surfaces keep text readable over any background. Heading and body colours must each meet 4.5:1 contrast against the surface, button labels 4.5:1 against the button background, and the button &amp; field border 3:1 against the surface. Button hover and focus states are derived automatically so they stay readable. The preview shows your exact colours; combinations that are too hard to read are explained next to the colour and cannot be saved. Sizes and spacing are bounded.</p>
                     <div id="styleEditor"></div>
                 </details>
                 <button class="rsvp-btn primary" type="submit">Save category settings</button>
                 <button id="resetAppearance" class="rsvp-btn" type="button">Reset copy &amp; card style to defaults</button>
+                <p id="appearanceStatus" class="appearance-status" role="status" aria-live="polite"></p>
+                <p class="preview-note">Preview below — changes appear here instantly but are only published when saved.</p>
                 <section id="appearancePreview" class="appearance-preview" aria-label="Live category preview">
                     <p data-copy="landingHeading"></p>
                     <p data-copy="landingDescription"></p>
@@ -97,9 +99,13 @@
                         <div class="rsvp-section invitation">
                             <p id="previewInvitationText">Your invitation message appears here.</p>
                             <p data-copy="guestsHint"></p>
-                            <span class="rsvp-btn" data-copy="openRsvp"></span>
+                            <span class="rsvp-btn primary" data-copy="openRsvp"></span>
+                            <p class="preview-label-field" data-copy="nameLabel"></p>
+                            <input class="preview-field" aria-label="Preview of a guest form field" placeholder="Guest name" readonly tabindex="-1">
+                            <span class="rsvp-btn primary" data-copy="saveReply"></span>
                             <h2 data-copy="receiptHeading"></h2>
                             <p data-copy="receiptMessage"></p>
+                            <span class="rsvp-btn" data-copy="whatsappLabel"></span>
                         </div>
                     </article>
                 </section>

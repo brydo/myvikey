@@ -182,6 +182,9 @@ export const styleFields = {
     surface: { label: 'Card surface', min: null, max: null, step: null, type: 'color' },
     textColor: { label: 'Text colour', min: null, max: null, step: null, type: 'color' },
     headingColor: { label: 'Heading colour', min: null, max: null, step: null, type: 'color' },
+    buttonBackground: { label: 'Button background', min: null, max: null, step: null, type: 'color' },
+    buttonText: { label: 'Button label colour', min: null, max: null, step: null, type: 'color' },
+    buttonBorder: { label: 'Button & field border', min: null, max: null, step: null, type: 'color' },
     bodyScale: { label: 'Body text size', min: 1, max: 1.4, step: 0.05, type: 'number' },
     headingScale: { label: 'Heading size', min: 0.8, max: 1.5, step: 0.05, type: 'number' },
     lineHeight: { label: 'Line height', min: 1.4, max: 2.2, step: 0.1, type: 'number' },
@@ -190,15 +193,17 @@ export const styleFields = {
 };
 
 export function defaultCardStyle(type) {
-    const [surface, textColor] = {
-        celebration: ['#fffaf4', '#493439'],
-        events: ['#faffff', '#2e4650'],
-        weddings: ['#fffdf7', '#34463a'],
-        parties: ['#fffaff', '#422751'],
-        engagements: ['#fffcf8', '#563b35']
+    // The accent matches card.css so older settings keep their original primary buttons.
+    const [surface, textColor, accent] = {
+        celebration: ['#fffaf4', '#493439', '#844456'],
+        events: ['#faffff', '#2e4650', '#326477'],
+        weddings: ['#fffdf7', '#34463a', '#47634d'],
+        parties: ['#fffaff', '#422751', '#743b8f'],
+        engagements: ['#fffcf8', '#563b35', '#84502c']
     }[theme(type)];
-    return { surface, textColor, headingColor: textColor, bodyScale: 1, headingScale: 1,
-        lineHeight: 1.6, alignment: 'center', spacing: 24 };
+    return { surface, textColor, headingColor: textColor,
+        buttonBackground: accent, buttonText: '#ffffff', buttonBorder: accent,
+        bodyScale: 1, headingScale: 1, lineHeight: 1.6, alignment: 'center', spacing: 24 };
 }
 
 const appearanceObject = value => value !== null && typeof value === 'object' && !Array.isArray(value);
@@ -230,12 +235,66 @@ function luminance(hex) {
     return rgb[0] * 0.2126 + rgb[1] * 0.7152 + rgb[2] * 0.0722;
 }
 
-function contrast(first, second) {
+export function contrast(first, second) {
     const a = luminance(first), b = luminance(second);
     return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
 }
 
-export function normalizeAppearance(type, value) {
+// Text needs 4.5:1 (WCAG 1.4.3); button and field boundaries need 3:1 (WCAG 1.4.11).
+export const contrastRules = [
+    { field: 'textColor', against: 'surface', minimum: 4.5 },
+    { field: 'headingColor', against: 'surface', minimum: 4.5 },
+    { field: 'buttonText', against: 'buttonBackground', minimum: 4.5 },
+    { field: 'buttonBorder', against: 'surface', minimum: 3 }
+];
+
+export function contrastIssues(cardStyle) {
+    return contrastRules.filter(rule => contrast(cardStyle[rule.field], cardStyle[rule.against]) < rule.minimum)
+        .map(rule => {
+            const ratio = Math.floor(contrast(cardStyle[rule.field], cardStyle[rule.against]) * 100) / 100;
+            const name = styleFields[rule.field].label, other = styleFields[rule.against].label;
+            const direction = luminance(cardStyle[rule.against]) > 0.18 ? 'darker' : 'lighter';
+            return { field: rule.field, against: rule.against, ratio, minimum: rule.minimum,
+                message: `${name} ${cardStyle[rule.field]} has ${ratio}:1 contrast with ${other.toLowerCase()} ` +
+                    `${cardStyle[rule.against]}; it needs at least ${rule.minimum}:1. Choose a ${direction} ` +
+                    `${name.toLowerCase()} or change the ${other.toLowerCase()}.` };
+        });
+}
+
+// Validates each supplied style and fills missing values from category defaults. Text and heading
+// pairs are always strict. Button pairs are strict whenever a button colour is supplied; older
+// clients that send only card colours get readable button colours derived by normalizeAppearance.
+export function styleIssues(type, cardStyle, explicit = cardStyle) {
+    const style = defaultCardStyle(type);
+    if (appearanceObject(cardStyle)) {
+        for (const key of Object.keys(styleFields)) {
+            const value = own(cardStyle, key) ? styleValue(key, cardStyle[key]) : null;
+            if (value !== null) style[key] = value;
+        }
+    }
+    const supplied = key => appearanceObject(explicit) && own(explicit, key);
+    return contrastIssues(style).filter(issue => !issue.field.startsWith('button') ||
+        supplied(issue.field) || (issue.against !== 'surface' && supplied(issue.against)));
+}
+
+function mix(color, target, amount) {
+    const [from, to] = [color, target].map(hex => hex.slice(1).match(/../g).map(value => parseInt(value, 16)));
+    return '#' + from.map((value, index) => Math.round(value + (to[index] - value) * amount)
+        .toString(16).padStart(2, '0')).join('');
+}
+
+// Hover moves the button away from its label colour, so label contrast never drops below the saved pair.
+export function buttonHover(cardStyle) {
+    const background = cardStyle.buttonBackground, text = cardStyle.buttonText;
+    const away = luminance(text) > luminance(background) ? '#000000' : '#ffffff';
+    for (const [target, amount] of [[away, 0.2], [text, 0.15]]) {
+        const candidate = mix(background, target, amount);
+        if (candidate !== background && contrast(text, candidate) >= 4.5) return candidate;
+    }
+    return background;
+}
+
+export function normalizeAppearance(type, value, { repair = true } = {}) {
     type = theme(type);
     value = appearanceObject(value) ? value : {};
     const copy = defaultCopy(type);
@@ -254,21 +313,24 @@ export function normalizeAppearance(type, value) {
             if (setting !== null) cardStyle[key] = setting;
         }
     }
-    for (const key of ['textColor', 'headingColor']) {
-        if (contrast(cardStyle[key], cardStyle.surface) >= 4.5) continue;
-        const fallback = defaultCardStyle(type)[key];
-        // A valid dark surface may also need a lighter fallback than the category ink.
-        cardStyle[key] = contrast(fallback, cardStyle.surface) >= 4.5 ? fallback :
-            contrast('#000000', cardStyle.surface) >= 4.5 ? '#000000' : '#ffffff';
+    // Public pages repair unreadable stored values; admin previews pass repair: false to show exact choices.
+    for (const rule of repair ? contrastRules : []) {
+        const against = cardStyle[rule.against];
+        if (contrast(cardStyle[rule.field], against) >= rule.minimum) continue;
+        // A valid dark surface may also need a lighter fallback than the category default.
+        cardStyle[rule.field] = [defaultCardStyle(type)[rule.field], cardStyle.textColor, '#000000', '#ffffff']
+            .find(color => contrast(color, against) >= rule.minimum);
     }
     return {
         backgroundImage: own(value, 'backgroundImage') && safeBackground(value.backgroundImage) ?
             value.backgroundImage : defaultBackgrounds[type],
-        copy, cardStyle
+        copy, cardStyle,
+        updatedAt: own(value, 'updatedAt') && Number.isSafeInteger(value.updatedAt) && value.updatedAt > 0 ?
+            value.updatedAt : 0
     };
 }
 
-export function validateAppearance(type, value) {
+export function validateAppearance(type, value, explicitStyle = appearanceObject(value) ? value.cardStyle : undefined) {
     if (!appearanceObject(value) || Object.keys(value).some(key => !['backgroundImage', 'copy', 'cardStyle'].includes(key)) ||
         !own(value, 'backgroundImage') || !safeBackground(value.backgroundImage)) return null;
     for (const [group, fields, validate] of [
@@ -278,8 +340,6 @@ export function validateAppearance(type, value) {
         if (!appearanceObject(value[group]) ||
             Object.keys(value[group]).some(key => !own(fields, key) || validate(key, value[group][key]) === null)) return null;
     }
-    const suppliedStyle = { ...defaultCardStyle(type), ...value.cardStyle };
-    for (const key of Object.keys(suppliedStyle)) suppliedStyle[key] = styleValue(key, suppliedStyle[key]);
-    if (['textColor', 'headingColor'].some(key => contrast(suppliedStyle[key], suppliedStyle.surface) < 4.5)) return null;
+    if (styleIssues(type, value.cardStyle, explicitStyle).length) return null;
     return normalizeAppearance(type, value);
 }

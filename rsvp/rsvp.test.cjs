@@ -9,6 +9,8 @@ const apiSource = themesSource + '\n' + readFileSync(`${__dirname}/../functions/
 const appearanceModel = runInNewContext(themesSource +
     '\n({ copyFields, styleFields, defaultCopy, defaultCardStyle, normalizeAppearance, validateAppearance })', { URL });
 const plain = value => JSON.parse(JSON.stringify(value));
+// Saved settings carry a server-owned revision; compare everything else exactly.
+const unrevised = value => { const { updatedAt, ...rest } = plain(value); return rest; };
 
 const valid = { action: 'submit', name: ' Alex ', event: ' Celebration ', attending: 'yes', guests: 2, notes: ' Hello\nthere ' };
 
@@ -987,11 +989,13 @@ test('all five category settings authenticate writes, round-trip independently a
         const saved = await instance.post(settings, 'valid-session');
         assert.equal(saved.status, 200);
         assert.equal(saved.headers.get('Cache-Control'), 'no-store');
-        const normalized = plain(appearanceModel.normalizeAppearance(eventType, settings));
-        assert.deepEqual((await saved.json()).appearance[eventType], normalized);
+        const normalized = unrevised(appearanceModel.normalizeAppearance(eventType, settings));
+        const savedAppearance = (await saved.json()).appearance[eventType];
+        assert.deepEqual(unrevised(savedAppearance), normalized);
+        assert.ok(savedAppearance.updatedAt > 0);
         assert.equal(normalized.copy.receiptMessage, 'Café\nWelcome');
         assert.equal(normalized.cardStyle.surface, '#ffffff');
-        assert.deepEqual(JSON.parse(instance.records.get('rsvp-appearance:' + eventType)), normalized);
+        assert.deepEqual(unrevised(JSON.parse(instance.records.get('rsvp-appearance:' + eventType))), normalized);
         const legacy = await instance.post({
             action: 'save-appearance', eventType, backgroundImage: 'https://images.example.com/' + eventType
         }, 'valid-session');
@@ -1107,7 +1111,7 @@ test('malformed and legacy stored settings fall back safely and public reads all
             cardStyle: { textColor: 'url(https://evil)', surface: '#000000', secret: 'private', alignment: 'bad', spacing: 1000 }
         }));
         settings = (await (await instance.post({ action: 'get-appearance' })).json()).appearance[type];
-        assert.deepEqual(Object.keys(settings).sort(), ['backgroundImage', 'cardStyle', 'copy']);
+        assert.deepEqual(Object.keys(settings).sort(), ['backgroundImage', 'cardStyle', 'copy', 'updatedAt']);
         assert.deepEqual(Object.keys(settings.copy).sort(), Object.keys(appearanceModel.copyFields).sort());
         assert.deepEqual(Object.keys(settings.cardStyle).sort(), Object.keys(appearanceModel.styleFields).sort());
         assert.equal(settings.copy.brand, 'Valid brand');
@@ -1156,8 +1160,8 @@ test('only trusted admins can persist bounded safe HTTPS category backgrounds', 
     }
     assert.equal(instance.records.size, 0);
     assert.equal((await instance.post(settings, 'valid-session')).status, 200);
-    assert.deepEqual(JSON.parse(instance.records.get('rsvp-appearance:events')),
-        plain(appearanceModel.normalizeAppearance('events', settings)));
+    assert.deepEqual(unrevised(JSON.parse(instance.records.get('rsvp-appearance:events'))),
+        unrevised(appearanceModel.normalizeAppearance('events', settings)));
     const data = await (await instance.post({ action: 'get-appearance' })).json();
     assert.equal(data.appearance.events.backgroundImage, settings.backgroundImage);
     assert.equal(data.appearance.weddings.backgroundImage, '');
@@ -1511,7 +1515,7 @@ test('admin appearance save errors retain drafts and saved settings, while expir
         await admin.nodes.appearanceForm.handlers.submit({ preventDefault() {} });
         assert.deepEqual(plain(admin.themes.settings('parties')), before);
         assert.equal(instance.records.has('rsvp-appearance:parties'), false);
-        assert.doesNotMatch(admin.nodes.message.textContent, /private storage detail/);
+        assert.doesNotMatch(admin.nodes.appearanceStatus.textContent, /private storage detail/);
         assert.equal(admin.nodes.appearanceForm.querySelector('button').disabled, false);
         if (failure === 'auth') {
             assert.equal(admin.nodes.appearanceForm.hidden, true);
@@ -1519,7 +1523,9 @@ test('admin appearance save errors retain drafts and saved settings, while expir
         } else {
             assert.equal(admin.nodes.appearanceForm.hidden, false);
             assert.equal(field.value, failure === 'validation' ? '<script>bad</script>' : 'Keep my draft');
-            assert.match(admin.nodes.message.textContent, failure === 'validation' ? /plain text|valid card settings/ : /unavailable|failed|unable/i);
+            assert.match(admin.nodes.appearanceStatus.textContent, failure === 'validation' ? /plain text|valid card settings/ : /unavailable|failed|unable/i);
+            assert.match(admin.nodes.appearanceStatus.textContent, /^Not saved\..*still here\.$/);
+            assert.equal(admin.nodes.appearanceStatus.getAttribute('data-state'), 'error');
         }
     }
 });

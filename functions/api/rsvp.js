@@ -1,5 +1,5 @@
 import { validateSession } from '../lib/auth.js';
-import { eventTypes, theme, normalizeAppearance, validateAppearance } from '../../rsvp/themes.js';
+import { eventTypes, theme, normalizeAppearance, validateAppearance, styleIssues } from '../../rsvp/themes.js';
 
 const PREFIX = 'rsvp:';
 const INVITATIONS = 'rsvp-invitation:';
@@ -59,25 +59,35 @@ export async function onRequestPost({ request, env }) {
         try { value = raw ? JSON.parse(raw) : undefined; } catch { /* Ignore malformed stored settings. */ }
         return normalizeAppearance(type, value);
       };
+      let saved;
       if (body.action === 'save-appearance') {
         const { action, eventType, ...changes } = body;
         if (!eventTypes.includes(eventType) || !Object.prototype.hasOwnProperty.call(changes, 'backgroundImage')) {
           return reply({ success: false, error: 'Choose a category, a safe HTTPS image URL (maximum 2048 characters) or blank, plain text, and readable card colours (contrast at least 4.5:1).' }, 400);
         }
-        const current = await readAppearance(eventType);
+        // updatedAt is server-owned; never accept or carry it into validation.
+        const { updatedAt, ...current } = await readAppearance(eventType);
         const candidate = { ...current, ...changes };
         for (const group of ['copy', 'cardStyle']) {
           if (changes[group] && typeof changes[group] === 'object' && !Array.isArray(changes[group])) {
             candidate[group] = { ...current[group], ...changes[group] };
           }
         }
-        const merged = validateAppearance(eventType, candidate);
-        if (!merged) return reply({ success: false, error: 'Use a safe HTTPS image URL (maximum 2048 characters) or blank, plain text, and valid card settings with text and heading contrast of at least 4.5:1.' }, 400);
-        await env.FORM_SUBMISSIONS.put('rsvp-appearance:' + eventType, JSON.stringify(merged));
+        const merged = validateAppearance(eventType, candidate, changes.cardStyle);
+        if (!merged) {
+          const fields = candidate.cardStyle && typeof candidate.cardStyle === 'object' && !Array.isArray(candidate.cardStyle) ?
+            styleIssues(eventType, candidate.cardStyle, changes.cardStyle) : [];
+          return reply({ success: false, fields, error: fields.length ?
+            'Not saved: ' + fields.map(issue => issue.message).join(' ') :
+            'Use a safe HTTPS image URL (maximum 2048 characters) or blank, plain text, and valid card settings with text, heading and button label contrast of at least 4.5:1 and borders of at least 3:1.' }, 400);
+        }
+        saved = { ...merged, updatedAt: Math.max(Date.now(), updatedAt + 1) };
+        await env.FORM_SUBMISSIONS.put('rsvp-appearance:' + eventType, JSON.stringify(saved));
       }
       const appearance = {};
       await Promise.all(eventTypes.map(async type => {
-        appearance[type] = await readAppearance(type);
+        // KV is eventually consistent, so return the value just written instead of re-reading it.
+        appearance[type] = saved && type === body.eventType ? saved : await readAppearance(type);
       }));
       return reply({ success: true, appearance });
     }
