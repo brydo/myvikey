@@ -2,7 +2,7 @@
     'use strict';
     var message = document.getElementById('message');
     var receiptKey = 'rsvp_receipt';
-    var eventTypes = ['celebration', 'weddings', 'parties', 'engagements'];
+    var eventTypes = ['celebration', 'events', 'weddings', 'parties', 'engagements'];
 
     function theme(type) {
         return eventTypes.indexOf(type) !== -1 ? type : 'celebration';
@@ -14,6 +14,7 @@
         var eyebrow = document.querySelector('.eyebrow');
         if (eyebrow) eyebrow.textContent = {
             celebration: 'Together is a beautiful place to be',
+            events: 'Made for your moment · made to share',
             weddings: 'A beautiful beginning, shared with our favourite people',
             parties: 'Good company. Great memories. Let’s celebrate!',
             engagements: 'Here’s to forever, and the people who make it sparkle'

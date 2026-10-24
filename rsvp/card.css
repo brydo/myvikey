@@ -118,6 +118,22 @@ dd { color: #493439; white-space: pre-wrap; overflow-wrap: anywhere; margin-bott
 .occasion-chooser { text-align: center; padding: 24px 0; }
 .occasion-chooser h2 { font-size: 1.6rem; margin-bottom: 12px; }
 .occasion-chooser nav { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 16px; }
+body[data-event-type="events"] {
+    --accent: #326477; --accent-hover: #244c5b; --ink: #2e4650;
+    --paper: #faffff; --border: #b5cdd1;
+    background: radial-gradient(ellipse at top left, #d3e9ed, transparent 60%),
+        radial-gradient(ellipse at bottom right, #f2e1bd, transparent 60%), #f5fafb;
+}
+body[data-event-type="events"] .rsvp-banner {
+    background:
+        radial-gradient(circle at 20% 25%, #a18243 0 2px, transparent 3px),
+        radial-gradient(circle at 80% 70%, #a18243 0 2px, transparent 3px),
+        linear-gradient(120deg, #d3e9ed, #fff5de, #d3e9ed);
+}
+body[data-event-type="events"] .rsvp-banner::before,
+body[data-event-type="events"] .rsvp-banner::after {
+    content: "✧"; color: #326477; font-size: 64px; bottom: 12px;
+}
 body[data-event-type="weddings"] {
     --accent: #47634d; --accent-hover: #354b3a; --ink: #34463a;
     --paper: #fffdf7; --border: #c6cbb4;
