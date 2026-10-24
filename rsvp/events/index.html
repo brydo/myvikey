@@ -3,56 +3,252 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Beautiful online invitations for every event, with a unique link and easy RSVPs from V I Key®.">
-    <title>Event Invitations · V I Key®</title>
-    <link rel="stylesheet" href="/rsvp/card.css">
-    <link rel="stylesheet" href="/rsvp/landing.css">
+    <title>Stevie's Scary Halloween Show | Events</title>
+    <style>
+        /* Mobile-First Base Styles */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #0d0d11;
+            color: #e0e0e6;
+            line-height: 1.6;
+            padding-bottom: 60px; /* Space for sticky mobile button */
+        }
+
+        /* Spooky Accent Colors */
+        :root {
+            --primary-glow: #9d4edd; /* Deep Magic Purple */
+            --accent-green: #39ff14; /* Slime Green */
+            --dark-card: #1a1a24;
+        }
+
+        /* Navigation Menu */
+        nav {
+            background-color: #111116;
+            border-bottom: 2px solid var(--primary-glow);
+            padding: 15px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            font-weight: bold;
+            color: #ffffff;
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .logo span {
+            color: var(--accent-green);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 12px;
+        }
+
+        .nav-links a {
+            color: #aaa;
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: color 0.3s;
+        }
+
+        .nav-links a.active, .nav-links a:hover {
+            color: var(--accent-green);
+        }
+
+        /* Hero Banner Area */
+        .hero {
+            text-align: center;
+            padding: 40px 20px;
+            background: linear-gradient(180deg, #1a0b2e 0%, #0d0d11 100%);
+            border-bottom: 1px solid #222;
+        }
+
+        .warning-tag {
+            color: var(--accent-green);
+            font-size: 0.8rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+            display: inline-block;
+        }
+
+        h1 {
+            color: #ffffff;
+            font-size: 2rem;
+            line-height: 1.2;
+            margin-bottom: 10px;
+            text-shadow: 0 0 10px rgba(157, 78, 221, 0.5);
+        }
+
+        .subtitle {
+            color: #b3b3cc;
+            font-size: 1.1rem;
+            font-style: italic;
+        }
+
+        /* Main Content Container */
+        .content-container {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Info Display Cards */
+        .card {
+            background-color: var(--dark-card);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid #2a2a3a;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        }
+
+        .card-title {
+            color: var(--primary-glow);
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: bold;
+        }
+
+        .important-text {
+            color: #ffffff;
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+
+        ul {
+            list-style-position: inside;
+            margin-top: 5px;
+        }
+
+        li {
+            margin-bottom: 8px;
+            color: #cdcdde;
+        }
+
+        /* Call To Action Sticky Button */
+        .cta-sticky {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 10px 20px;
+            background-color: #111116;
+            border-top: 1px solid #2a2a3a;
+            display: flex;
+            justify-content: center;
+            z-index: 99;
+        }
+
+        .btn {
+            background-color: var(--accent-green);
+            color: #000000;
+            text-decoration: none;
+            font-weight: bold;
+            text-transform: uppercase;
+            padding: 12px 30px;
+            border-radius: 30px;
+            font-size: 1rem;
+            letter-spacing: 1px;
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+            box-shadow: 0 0 15px rgba(57, 255, 20, 0.4);
+            transition: transform 0.2s;
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+    </style>
 </head>
 <body>
-    <main class="wrap landing-wrap">
-        <header class="landing-nav">
-            <a class="brand" href="/rsvp/">V I Key® · Celebrations</a>
-            <nav aria-label="Event themes">
-                <a href="/rsvp/events/" aria-current="page">Events</a>
-                <a href="/rsvp/weddings/">Weddings</a>
-                <a href="/rsvp/parties/">Parties</a>
-                <a href="/rsvp/engagements/">Engagements</a>
-            </nav>
-        </header>
-        <section class="landing-hero" aria-labelledby="heading">
-            <div class="landing-copy">
-                <p class="brand">Made for your moment · made to share</p>
-                <h1 id="heading">Every occasion, beautifully yours.</h1>
-                <p>Bring everyone together with a thoughtful online invitation for the moments worth celebrating, from family gatherings to milestone occasions.</p>
-                <p>Share your event details and a personal link. Guests can reply online, so you can spend less time organising and more time looking forward to it.</p>
-                <p>Already invited? Open the unique event link shared by your host to view the details and RSVP.</p>
+
+    <!-- Top Navigation Menu -->
+    <nav>
+        <div class="nav-container">
+            <div class="logo">My<span>Website</span></div>
+            <div class="nav-links">
+                <a href="#weddings">Weddings</a>
+                <a href="#engagements">Engagements</a>
+                <a href="#parties">Parties</a>
+                <a href="#events" class="active">Events</a>
             </div>
-            <div>
-                <p class="preview-label">A little inspiration · example invitation</p>
-                <article class="rsvp-card" aria-labelledby="sampleHeading">
-                    <div class="rsvp-banner" aria-hidden="true"></div>
-                    <header class="rsvp-head">
-                        <p class="brand">Save the date</p>
-                        <h2 id="sampleHeading">A day to remember</h2>
-                        <p>Join us for a special gathering</p>
-                    </header>
-                    <div class="sample-invitation">
-                        <p class="sample-date">Saturday, 12 September 2027 · 4 pm</p>
-                        <p>The Garden Room<br>Good food, good company and a little celebration</p>
-                        <p>We'd love to celebrate with you.<br>Please reply by 29 August.</p>
-                    </div>
-                </article>
-            </div>
+        </div>
+    </nav>
+
+    <!-- Main Header -->
+    <header class="hero">
+        <span class="warning-tag">⚠️ Are you brave enough to enter?</span>
+        <h1>STEVIES SCARY HALLOWEEN SHOW</h1>
+        <p class="subtitle">The Ultimate Spooky Display</p>
+    </header>
+
+    <!-- Content Sections -->
+    <main class="content-container">
+
+        <!-- Date & Time Card -->
+        <section class="card">
+            <div class="card-title">🕒 When</div>
+            <p class="important-text">Saturday, 31st October 2037</p>
+            <p>Gates open at 6:00 PM</p>
+            <p style="color: var(--accent-green);">Main display begins at 8:00 PM</p>
         </section>
-        <section class="landing-details" aria-labelledby="detailsHeading">
-            <h2 id="detailsHeading">Your event, easy to share.</h2>
-            <ol class="landing-steps">
-                <li><h3>Make it yours</h3><p>Add your event name, date, venue and any details your guests need to know.</p></li>
-                <li><h3>Share your invitation</h3><p>Get a unique event link to send to everyone you want to celebrate with.</p></li>
-                <li><h3>Welcome your guests</h3><p>Guests can RSVP online with their attendance, additional guests and notes.</p></li>
-            </ol>
+
+        <!-- Location Card -->
+        <section class="card">
+            <div class="card-title">📍 Where</div>
+            <p class="important-text">The Showgrounds</p>
+            <p>13 Cobblecroft Road</p>
+            <p><strong>Glenmavis</strong></p>
         </section>
-        <footer class="landing-footer"><p>Choose a style for your next celebration.</p><a href="/rsvp/weddings/">Weddings</a> · <a href="/rsvp/parties/">Parties</a> · <a href="/rsvp/engagements/">Engagements</a><br><a href="/rsvp/">Explore all celebrations</a> · <a href="/">V I Key® home</a></footer>
+
+        <!-- Experience Card -->
+        <section class="card">
+            <div class="card-title">👻 What to Expect</div>
+            <ul>
+                <li>Immersive haunted walkthroughs</li>
+                <li>Live atmospheric special effects</li>
+                <li>Terrifying custom illusions</li>
+                <li>The grand finale horror light display</li>
+            </ul>
+            <p style="margin-top: 15px; font-size: 0.9rem; font-style: italic; color: #aaa;">
+                *Warning: This attraction contains strobe lighting, smoke machines, and jump scares. Not recommended for the faint-hearted.
+            </p>
+        </section>
+
     </main>
+
+    <!-- Mobile Sticky Footer Button -->
+    <div class="cta-sticky">
+        <a href="https://yeslovey.com" class="btn">Secure Your Tickets Now</a>
+    </div>
+
 </body>
 </html>
