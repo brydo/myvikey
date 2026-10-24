@@ -2,6 +2,23 @@
     'use strict';
     var message = document.getElementById('message');
     var receiptKey = 'rsvp_receipt';
+    var eventTypes = ['celebration', 'weddings', 'parties', 'engagements'];
+
+    function theme(type) {
+        return eventTypes.indexOf(type) !== -1 ? type : 'celebration';
+    }
+
+    function applyTheme(type) {
+        type = theme(type);
+        document.body.setAttribute('data-event-type', type);
+        var eyebrow = document.querySelector('.eyebrow');
+        if (eyebrow) eyebrow.textContent = {
+            celebration: 'Together is a beautiful place to be',
+            weddings: 'A beautiful beginning, shared with our favourite people',
+            parties: 'Good company. Great memories. Let’s celebrate!',
+            engagements: 'Here’s to forever, and the people who make it sparkle'
+        }[type];
+    }
 
     function status(text, error) {
         message.textContent = text;
@@ -34,9 +51,11 @@
             form.elements.name.focus();
         });
         if (eventId) {
+            document.getElementById('occasionChooser').hidden = true;
             status('Opening your invitation…');
             post('/api/rsvp', { action: 'get-invitation', id: eventId }).then(function (data) {
                 invitation = data.invitation;
+                applyTheme(invitation.eventType);
                 document.getElementById('heading').textContent = invitation.title;
                 document.getElementById('invitationText').textContent = invitation.text;
                 document.getElementById('invitationHelp').hidden = true;
@@ -73,7 +92,8 @@
                 window.RSVP.sendOptions(document.getElementById('sendOptions'), data.response, data.organiser);
                 try {
                     sessionStorage.setItem(receiptKey, JSON.stringify({
-                        response: data.response, organiser: data.organiser
+                        response: data.response, organiser: data.organiser,
+                        eventType: theme(invitation.eventType)
                     }));
                     window.location.assign('/rsvp/view');
                 } catch (storageError) {
@@ -92,6 +112,7 @@
         try {
             var saved = JSON.parse(sessionStorage.getItem(receiptKey));
             if (saved) {
+                applyTheme(saved.eventType);
                 var reply = saved.response || saved;
                 window.RSVP.render(receipt, reply);
                 window.RSVP.sendOptions(document.getElementById('sendOptions'), reply, saved.organiser);
@@ -115,11 +136,19 @@
     var more = document.getElementById('more');
     var editor = document.getElementById('invitationForm');
     var share = document.getElementById('shareInvitation');
+    var initialTheme = theme(new URLSearchParams(window.location.search).get('type'));
+    editor.elements.eventType.value = initialTheme;
+    applyTheme(initialTheme);
+    editor.elements.eventType.addEventListener('change', function () {
+        applyTheme(editor.elements.eventType.value);
+    });
 
     function showInvitation(invitation) {
         ['id', 'title', 'text', 'whatsapp', 'email'].forEach(function (field) {
             editor.elements[field].value = invitation[field] || '';
         });
+        editor.elements.eventType.value = theme(invitation.eventType);
+        applyTheme(invitation.eventType);
         share.replaceChildren();
         var link = document.createElement('a');
         link.href = window.location.origin + '/rsvp/?id=' + encodeURIComponent(invitation.id);
@@ -133,7 +162,7 @@
         var session = token;
         var button = editor.querySelector('button[type="submit"]');
         button.disabled = true;
-        var payload = { action: 'save-invitation' };
+        var payload = { action: 'save-invitation', eventType: theme(editor.elements.eventType.value) };
         ['title', 'text', 'whatsapp', 'email'].forEach(function (field) {
             payload[field] = editor.elements[field].value.trim();
         });
@@ -158,6 +187,8 @@
     });
     document.getElementById('newInvitation').addEventListener('click', function () {
         editor.reset();
+        editor.elements.eventType.value = initialTheme;
+        applyTheme(initialTheme);
         share.replaceChildren();
         status('New invitation. Save to create a separate share link.');
     });
@@ -171,6 +202,8 @@
         more.hidden = true;
         editor.hidden = true;
         editor.reset();
+        editor.elements.eventType.value = initialTheme;
+        applyTheme(initialTheme);
         share.replaceChildren();
         status('');
     }

@@ -6,6 +6,9 @@ const validId = id => typeof id === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-
 
 function invitationFields(body) {
   const result = {};
+  const eventType = body.eventType === undefined ? 'celebration' : body.eventType;
+  if (!['celebration', 'weddings', 'parties', 'engagements'].includes(eventType)) return null;
+  result.eventType = eventType;
   for (const [field, max] of Object.entries({ title: 100, text: 5000, whatsapp: 16, email: 254 })) {
     if (typeof body[field] !== 'string' || body[field].trim().length > max) return null;
     result[field] = body[field].trim();
