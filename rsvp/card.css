@@ -198,6 +198,62 @@ dd { color: var(--ink); white-space: pre-wrap; overflow-wrap: anywhere; margin-b
 .landing-nav, .landing-copy, .landing-footer, .preview-label {
     background: var(--paper); color: var(--ink); border-radius: 16px; padding: 20px;
 }
+.rsvp-card, .page-head, .occasion-chooser, .wrap > nav, .wrap > #sendOptions,
+.landing-nav, .landing-copy, .landing-footer, .preview-label, .landing-details {
+    background: var(--card-surface, var(--paper));
+    color: var(--card-text, var(--ink));
+    overflow-wrap: anywhere;
+}
+.rsvp-card {
+    font-size: calc(1rem * var(--card-body-scale, 1));
+    line-height: var(--card-line-height, 1.6);
+    text-align: var(--card-alignment, center);
+}
+.rsvp-card h1, .rsvp-card h2 {
+    color: var(--card-heading, var(--ink));
+    font-size: calc(1.9rem * var(--card-heading-scale, 1));
+    line-height: var(--card-line-height, 1.6);
+}
+.rsvp-card h1 { font-size: calc(2.5rem * var(--card-heading-scale, 1)); }
+.rsvp-head, .invitation { text-align: var(--card-alignment, center); }
+.rsvp-head, .rsvp-section, .sample-invitation {
+    padding-left: var(--card-spacing, 24px);
+    padding-right: var(--card-spacing, 24px);
+}
+.rsvp-card .brand, .rsvp-card .rsvp-head > p:last-child,
+.page-head > p:last-child, .rsvp-card small, .rsvp-card .muted,
+.rsvp-card dt, .rsvp-card dd, .rsvp-card a:not(.rsvp-btn),
+.landing-nav a, .landing-copy .brand, .landing-footer a, .wrap > nav a,
+.occasion-chooser a, .page-head .brand {
+    color: inherit;
+}
+.rsvp-card a:not(.rsvp-btn) { text-decoration: underline; }
+#invitationText, #previewInvitationText {
+    background: transparent;
+    color: inherit;
+    border-color: currentColor;
+    font-size: inherit;
+    line-height: inherit;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+[data-copy] { white-space: pre-line; overflow-wrap: anywhere; }
+:focus-visible {
+    outline: 3px solid #fff;
+    outline-offset: 2px;
+    box-shadow: 0 0 0 5px #111;
+}
+.rsvp-card .error { color: inherit; font-weight: 700; }
+.rsvp-card input, .rsvp-card select, .rsvp-card textarea { font-size: inherit; }
+.appearance-preview {
+    margin-top: 20px;
+    padding: 20px;
+    border-radius: 16px;
+    background: var(--category-image, var(--backdrop)) center / cover;
+}
+.appearance-preview > p { background: var(--card-surface); color: var(--card-text); padding: 12px; }
+details { margin: 20px 0; }
+summary { cursor: pointer; font-weight: 600; margin-bottom: 16px; }
 @media (max-width: 480px) {
     .wrap { padding-right: 16px; padding-left: 16px; gap: 14px; }
 }

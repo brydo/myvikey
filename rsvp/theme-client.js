@@ -1,25 +1,42 @@
-import { eventTypes, theme, defaultBackgrounds, safeBackground } from './themes.js';
+import { eventTypes, theme, normalizeAppearance, defaultCopy, defaultCardStyle, copyFields, styleFields } from './themes.js';
 
-var backgrounds = Object.assign({}, defaultBackgrounds);
+var appearances = {};
+eventTypes.forEach(function (type) { appearances[type] = normalizeAppearance(type, {}); });
 var targets = new Map();
 var revision = 0;
 
-function apply(root, type) {
+function paint(root, type, settings) {
     type = theme(type);
-    targets.set(root, type);
     root.setAttribute('data-event-type', type);
-    var url = backgrounds[type];
+    var url = settings.backgroundImage;
     root.style.setProperty('--category-image', url ? 'url("' + url + '")' : 'var(--backdrop)');
     root.style.setProperty('--category-banner', url ? 'url("' + url + '")' : 'var(--banner)');
     root.style.setProperty('--image-symbol', url ? 'none' : 'initial');
     root.setAttribute('data-background-image', url ? 'true' : 'false');
+    var style = settings.cardStyle;
+    Object.entries({
+        '--card-surface': style.surface, '--card-text': style.textColor,
+        '--card-heading': style.headingColor, '--card-body-scale': style.bodyScale,
+        '--card-heading-scale': style.headingScale, '--card-line-height': style.lineHeight,
+        '--card-alignment': style.alignment, '--card-spacing': style.spacing + 'px'
+    }).forEach(function (entry) { root.style.setProperty(entry[0], String(entry[1])); });
+    root.querySelectorAll('[data-copy]').forEach(function (element) {
+        if (element.closest('[data-event-type]') !== root) return;
+        var key = element.getAttribute('data-copy');
+        if (Object.hasOwn(settings.copy, key)) element.textContent = settings.copy[key];
+    });
+}
+
+function apply(root, type) {
+    type = theme(type);
+    targets.set(root, type);
+    paint(root, type, appearances[type]);
 }
 
 function update(settings) {
     revision++;
     eventTypes.forEach(function (type) {
-        var value = settings && settings[type] && settings[type].backgroundImage;
-        backgrounds[type] = safeBackground(value) ? value : defaultBackgrounds[type];
+        appearances[type] = normalizeAppearance(type, settings && settings[type]);
     });
     targets.forEach(function (type, root) {
         if (root.isConnected === false) targets.delete(root);
@@ -47,7 +64,14 @@ async function load() {
 
 window.RSVPThemes = {
     theme: theme, apply: apply, update: update, load: load,
-    background: function (type) { return backgrounds[theme(type)]; }
+    background: function (type) { return appearances[theme(type)].backgroundImage; },
+    settings: function (type) { return appearances[theme(type)]; },
+    copy: function (type, key) { return appearances[theme(type)].copy[key]; },
+    preview: function (root, type, value) { paint(root, theme(type), normalizeAppearance(theme(type), value)); },
+    defaults: function (type) {
+        return { copy: defaultCopy(type), cardStyle: defaultCardStyle(type) };
+    },
+    copyFields: copyFields, styleFields: styleFields
 };
 apply(document.body, document.body.getAttribute('data-event-type'));
 window.RSVPThemes.ready = load();

@@ -1,5 +1,5 @@
 import { validateSession } from '../lib/auth.js';
-import { eventTypes, theme, defaultBackgrounds, safeBackground } from '../../rsvp/themes.js';
+import { eventTypes, theme, normalizeAppearance, validateAppearance } from '../../rsvp/themes.js';
 
 const PREFIX = 'rsvp:';
 const INVITATIONS = 'rsvp-invitation:';
@@ -53,18 +53,31 @@ export async function onRequestPost({ request, env }) {
   }
   try {
     if (body.action === 'save-appearance' || body.action === 'get-appearance') {
+      const readAppearance = async type => {
+        const raw = await env.FORM_SUBMISSIONS.get('rsvp-appearance:' + type);
+        let value;
+        try { value = raw ? JSON.parse(raw) : undefined; } catch { /* Ignore malformed stored settings. */ }
+        return normalizeAppearance(type, value);
+      };
       if (body.action === 'save-appearance') {
-        if (!eventTypes.includes(body.eventType) || !safeBackground(body.backgroundImage)) {
-          return reply({ success: false, error: 'Choose a category and a safe HTTPS image URL (maximum 2048 characters), or leave it blank.' }, 400);
+        const { action, eventType, ...changes } = body;
+        if (!eventTypes.includes(eventType) || !Object.prototype.hasOwnProperty.call(changes, 'backgroundImage')) {
+          return reply({ success: false, error: 'Choose a category, a safe HTTPS image URL (maximum 2048 characters) or blank, plain text, and readable card colours (contrast at least 4.5:1).' }, 400);
         }
-        await env.FORM_SUBMISSIONS.put('rsvp-appearance:' + body.eventType,
-          JSON.stringify({ backgroundImage: body.backgroundImage }));
+        const current = await readAppearance(eventType);
+        const candidate = { ...current, ...changes };
+        for (const group of ['copy', 'cardStyle']) {
+          if (changes[group] && typeof changes[group] === 'object' && !Array.isArray(changes[group])) {
+            candidate[group] = { ...current[group], ...changes[group] };
+          }
+        }
+        const merged = validateAppearance(eventType, candidate);
+        if (!merged) return reply({ success: false, error: 'Use a safe HTTPS image URL (maximum 2048 characters) or blank, plain text, and valid card settings with text and heading contrast of at least 4.5:1.' }, 400);
+        await env.FORM_SUBMISSIONS.put('rsvp-appearance:' + eventType, JSON.stringify(merged));
       }
       const appearance = {};
       await Promise.all(eventTypes.map(async type => {
-        const raw = await env.FORM_SUBMISSIONS.get('rsvp-appearance:' + type);
-        const value = raw ? JSON.parse(raw).backgroundImage : defaultBackgrounds[type];
-        appearance[type] = { backgroundImage: safeBackground(value) ? value : defaultBackgrounds[type] };
+        appearance[type] = await readAppearance(type);
       }));
       return reply({ success: true, appearance });
     }

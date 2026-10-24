@@ -9,13 +9,13 @@
 .landing-copy .rsvp-btn { text-decoration: none; padding: 14px 22px; }
 .landing-copy .setup-note { font-size: .9rem; margin-top: 12px; }
 .preview-label { text-align: center; margin-bottom: 12px; font-size: .85rem; letter-spacing: 2px; text-transform: uppercase; }
-.sample-invitation { padding: 24px; text-align: center; }
+.sample-invitation { padding: 24px var(--card-spacing, 24px); text-align: var(--card-alignment, center); }
 .sample-invitation p { margin-top: 16px; }
-.sample-invitation .sample-date { font-weight: 600; color: var(--accent); }
-.landing-details { padding: clamp(24px, 4vw, 40px); background: var(--paper); border: 1px solid var(--border); border-radius: 20px; }
+.sample-invitation .sample-date { font-weight: 600; color: inherit; }
+.landing-details { padding: clamp(24px, 4vw, 40px); background: var(--card-surface, var(--paper)); border: 1px solid var(--border); border-radius: 20px; }
 .landing-details h2 { font-size: 2rem; margin-bottom: 24px; }
 .landing-steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; list-style-position: inside; }
-.landing-steps li::marker { color: var(--accent); font-weight: 700; }
+.landing-steps li::marker { color: inherit; font-weight: 700; }
 .landing-steps h3 { display: inline; font-size: 1.05rem; }
 .landing-steps p { margin-top: 12px; }
 .landing-footer { text-align: center; padding-bottom: 12px; }
