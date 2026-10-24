@@ -15,9 +15,12 @@ function api() {
             get: async key => records.get(key),
             list: async options => {
                 calls.push(options);
+                const keys = [...records.keys()].filter(key => key.startsWith(options.prefix));
+                const offset = Number(options.cursor) || 0;
+                const end = offset + options.limit;
                 return {
-                    keys: [...records.keys()].filter(key => key.startsWith(options.prefix)).map(name => ({ name })),
-                    list_complete: false, cursor: 'next-page'
+                    keys: keys.slice(offset, end).map(name => ({ name })),
+                    list_complete: end >= keys.length, cursor: end >= keys.length ? '' : String(end)
                 };
             }
         }
@@ -44,7 +47,7 @@ function api() {
     };
 }
 
-test('stores exactly the five RSVP fields, trims text, and gives each response its own key', async () => {
+test('stores the five RSVP fields and server timestamp, trims text, and gives each response its own key', async () => {
     const { post, records } = api();
     for (let i = 0; i < 2; i++) {
         const result = await post({ ...valid, phone: 'ignored', email: 'ignored', id: 'ignored' });
@@ -54,7 +57,9 @@ test('stores exactly the five RSVP fields, trims text, and gives each response i
     assert.equal(records.size, 2);
     for (const [key, raw] of records) {
         assert.match(key, /^rsvp:[0-9a-f-]{36}$/);
-        assert.deepEqual(JSON.parse(raw), {
+        const { createdAt, ...response } = JSON.parse(raw);
+        assert.equal(new Date(createdAt).toISOString(), createdAt);
+        assert.deepEqual(response, {
             name: 'Alex', event: 'Celebration', notes: 'Hello\nthere', attending: 'yes', guests: 2
         });
     }
@@ -116,7 +121,7 @@ test('listing is admin-only, scoped to RSVP keys, paginated and never cached', a
     const data = await result.json();
     assert.equal(data.responses.length, 1);
     assert.equal(data.responses[0].name, 'Alex');
-    assert.equal(data.cursor, 'next-page');
+    assert.equal(data.cursor, '');
     assert.equal(calls[0].prefix, 'rsvp:');
     assert.equal(calls[0].limit, 50);
     assert.equal(calls[0].cursor, 'previous-page');
@@ -125,10 +130,13 @@ test('listing is admin-only, scoped to RSVP keys, paginated and never cached', a
 
 function element(tag) {
     return {
-        tag, children: [], attributes: {}, textContent: '',
+        tag, children: [], attributes: {}, textContent: '', handlers: {},
         appendChild(child) { this.children.push(child); },
         replaceChildren() { this.children = []; },
-        setAttribute(key, value) { this.attributes[key] = value; }
+        setAttribute(key, value) { this.attributes[key] = value; },
+        addEventListener(name, handler) { this.handlers[name] = handler; },
+        click() { if (this.handlers.click) return this.handlers.click(); },
+        remove() {}
     };
 }
 
@@ -166,7 +174,7 @@ test('all three pages use shared RSVP assets without unrelated contact features'
 
 const invitation = {
     action: 'save-invitation', title: ' A lovely celebration ', text: ' Welcome\n\nBring joy <script>alert(1)</script> ',
-    whatsapp: '+447700900123', email: 'host+party@example.com'
+    whatsapp: '+447700900123', sms: '+447700900124'
 };
 
 async function createEvent(instance, fields = {}) {
@@ -182,7 +190,7 @@ test('invitations require site-admin auth for edits and persist public content s
         assert.equal((await instance.post({ action: 'list' }, token)).status, 401);
     }
     const first = await createEvent(instance);
-    const second = await createEvent(instance, { title: 'Second event', email: 'other@example.com' });
+    const second = await createEvent(instance, { title: 'Second event', sms: '+447700900125' });
     assert.notEqual(first.id, second.id);
     assert.equal(first.text, 'Welcome\n\nBring joy <script>alert(1)</script>');
     await instance.post({ ...valid, eventId: first.id, event: first.title });
@@ -210,14 +218,14 @@ test('validates invitation fields and destinations, allowing either, both or nei
         { text: null }, { id: '../private' }, { whatsapp: '07700900123' },
         { whatsapp: '+0123456789' }, { whatsapp: '+447700900123?text=bad' },
         { whatsapp: '+123' }, { whatsapp: '+1234567890123456' },
-        { email: 'host@example.com\r\nBcc:other@example.com' },
-        { email: 'host@example.com?subject=bad' }, { email: 'not-an-email' },
-        { email: 'host@-example.com' }, { email: 'x'.repeat(255) }
+        { sms: '07700900123' }, { sms: '+0123456789' }, { sms: '+447700900123?body=bad' },
+        { sms: '+123' }, { sms: '+1234567890123456' }, { sms: null },
+        { sms: '+447700900123\n+447700900124' }
     ]) {
         assert.equal((await instance.post({ ...invitation, ...fields }, 'valid-session')).status, 400, JSON.stringify(fields));
     }
     assert.equal(instance.records.size, 0);
-    for (const fields of [{ whatsapp: '' }, { email: '' }, { whatsapp: '', email: '' }]) {
+    for (const fields of [{ whatsapp: '' }, { sms: '' }, { whatsapp: '', sms: '' }]) {
         await createEvent(instance, fields);
     }
 });
@@ -225,7 +233,7 @@ test('validates invitation fields and destinations, allowing either, both or nei
 test('event-bound submissions reject mismatches and return only that event’s routing with a canonical receipt', async () => {
     const instance = api();
     const first = await createEvent(instance);
-    const second = await createEvent(instance, { title: 'Another event', whatsapp: '', email: 'second@example.com' });
+    const second = await createEvent(instance, { title: 'Another event', whatsapp: '', sms: '+447700900125' });
     for (const fields of [
         { eventId: first.id, event: second.title },
         { eventId: second.id, event: first.title },
@@ -240,7 +248,7 @@ test('event-bound submissions reject mismatches and return only that event’s r
         })).json();
         assert.equal(data.response.eventId, event.id);
         assert.equal(data.response.name, 'Alex');
-        assert.deepEqual(data.organiser, { whatsapp: event.whatsapp, email: event.email });
+        assert.deepEqual(data.organiser, { whatsapp: event.whatsapp, sms: event.sms });
     }
     const legacy = await (await instance.post(valid)).json();
     assert.deepEqual(legacy.organiser, {});
@@ -261,15 +269,18 @@ test('channel links validate destinations and encode the event and all five fiel
     assert.equal(whatsapp.origin + whatsapp.pathname, 'https://wa.me/447700900123');
     const message = 'RSVP\nName: Zoë & Alex\nEvent: Tea & cake #1?\nAttending: Yes\nGuests (additional): 2\nNotes: A&B\n+ <hello> ?#';
     assert.equal(whatsapp.searchParams.get('text'), message);
-    const mail = new URL(links[1].href);
-    assert.equal(decodeURIComponent(mail.pathname), invitation.email);
-    assert.equal(mail.searchParams.get('subject'), 'RSVP: ' + response.event);
-    assert.equal(mail.searchParams.get('body'), message);
+    const sms = new URL(links[1].href);
+    assert.equal(sms.protocol, 'sms:');
+    assert.equal(sms.pathname, invitation.sms);
+    assert.equal(sms.searchParams.get('body'), message);
     assert.equal(rsvp.channels(response, {}).length, 0);
     assert.equal(rsvp.channels(response, { whatsapp: '+123', email: 'a@b.com\nBcc:x@y.com' }).length, 0);
     assert.equal(rsvp.channels(response, { email: 'a@b.com?bad' }).length, 0);
     assert.equal(rsvp.channels(response, { whatsapp: invitation.whatsapp }).length, 1);
-    assert.equal(rsvp.channels(response, { email: invitation.email }).length, 1);
+    assert.equal(rsvp.channels(response, { sms: invitation.sms }).length, 1);
+    for (const sms of ['+123', '07700900123', '+447700900124?body=bad', 'javascript:alert(1)']) {
+        assert.equal(rsvp.channels(response, { sms }).length, 0);
+    }
     const root = element('section');
     rsvp.sendOptions(root, { ...response, attending: 'no', guests: 0, notes: '' }, {});
     assert.equal(root.hidden, false);
@@ -280,7 +291,8 @@ test('channel links validate destinations and encode the event and all five fiel
     assert.equal(root.children[1].rel, 'noopener noreferrer');
 });
 
-function browser({ page = 'index', storageFails = false, saved, failSave = false, expired = false, eventType, search } = {}) {
+function browser({ page = 'index', storageFails = false, saved, failSave = false, expired = false, eventType, search,
+    savedEvents, replyPages = [[]], exportExpired = false, clipboardFails = false } = {}) {
     const nodes = {};
     function node(id) {
         if (!nodes[id]) nodes[id] = {
@@ -300,15 +312,18 @@ function browser({ page = 'index', storageFails = false, saved, failSave = false
     if (page === 'admin') {
         node('password').value = 'test-only-password';
         node('invitationForm').elements = Object.fromEntries(
-            ['id', 'title', 'text', 'whatsapp', 'email', 'eventType'].map(id => [id, node('editor-' + id)])
+            ['id', 'title', 'text', 'whatsapp', 'sms', 'eventType'].map(id => [id, node('editor-' + id)])
         );
     }
-    const event = { id: '12345678-1234-4123-8123-123456789012', title: 'Saved party', text: '<img src=x>\nSecond line', whatsapp: invitation.whatsapp, email: invitation.email };
+    const event = { id: '12345678-1234-4123-8123-123456789012', title: 'Saved party', text: '<img src=x>\nSecond line', whatsapp: invitation.whatsapp, sms: invitation.sms };
     if (eventType !== undefined) event.eventType = eventType;
     const requests = [];
     const stored = new Map(saved ? [['rsvp_receipt', JSON.stringify(saved)]] : []);
     const redirects = [];
+    const downloads = [];
+    const copied = [];
     const context = {
+        navigator: { clipboard: { async writeText(value) { if (clipboardFails) throw Error('denied'); copied.push(value); } } },
         URLSearchParams, document: {
             body: node('body'),
             createElement: element,
@@ -323,13 +338,34 @@ function browser({ page = 'index', storageFails = false, saved, failSave = false
             setItem(key, value) { if (storageFails) throw Error('disabled'); stored.set(key, value); },
             getItem(key) { return stored.get(key); }
         },
-        window: { location: { origin: 'https://example.com', search: search === undefined ? '?id=' + event.id : search, assign(path) { redirects.push(path); } } },
+        window: {
+            RSVPExport: {
+                csv(replies) { return { replies }; },
+                workbook(events, replies) { return { events, replies }; },
+                download(content, filename, type) { downloads.push({ content, filename, type }); }
+            },
+            location: { origin: 'https://example.com', search: search === undefined ? '?id=' + event.id : search, assign(path) { redirects.push(path); } }
+        },
         fetch: async (path, options) => {
             const payload = JSON.parse(options.body);
             requests.push(payload);
             if (payload.action === 'get-invitation') return { ok: true, json: async () => ({ success: true, invitation: event }) };
             if (payload.action === 'verify') return { ok: true, json: async () => ({ success: true, sessionToken: 'valid-session' }) };
-            if (payload.action === 'list') return { ok: true, json: async () => ({ success: true, responses: [], cursor: '' }) };
+            if (['list', 'list-invitations'].includes(payload.action)) {
+                assert.equal(options.headers['X-Admin-Session'], 'valid-session');
+                if (exportExpired && requests.filter(item => item.action === 'list-invitations').length > 1) {
+                    return { ok: false, status: 401, json: async () => ({ success: false, error: 'Unauthorized' }) };
+                }
+                if (payload.action === 'list-invitations') {
+                    return { ok: true, json: async () => ({ success: true, invitations: savedEvents || [{ ...event, replyCount: 0 }], cursor: '' }) };
+                }
+                const index = Number(payload.cursor || 0);
+                const responses = replyPages[index].filter(reply => !payload.eventId ||
+                    (payload.eventId === 'unassigned' ? !reply.eventId : payload.eventId === reply.eventId));
+                return { ok: true, json: async () => ({
+                    success: true, responses, cursor: index + 1 < replyPages.length ? String(index + 1) : ''
+                }) };
+            }
             if (payload.action === 'save-invitation') {
                 assert.equal(options.headers['X-Admin-Session'], 'valid-session');
                 return expired ?
@@ -343,7 +379,7 @@ function browser({ page = 'index', storageFails = false, saved, failSave = false
     };
     runInNewContext(readFileSync(`${__dirname}/card-render.js`, 'utf8'), context);
     runInNewContext(readFileSync(`${__dirname}/rsvp.js`, 'utf8'), context);
-    return { nodes, requests, stored, redirects, event, tick: () => new Promise(resolve => setImmediate(resolve)) };
+    return { nodes, requests, stored, redirects, downloads, copied, event, tick: () => new Promise(resolve => setImmediate(resolve)) };
 }
 
 test('guest loads safe multiline invitation, reveals prefilled form, saves event ID and preserves send options through receipt redirect', async () => {
@@ -402,8 +438,7 @@ test('organiser login, create, reload, edit, new invitation and logout preserve 
         if (field !== 'action') app.nodes['editor-' + field].value = value;
     }
     await app.nodes.invitationForm.handlers.submit({ preventDefault() {} });
-    assert.equal(app.requests[2].action, 'save-invitation');
-    assert.equal(app.requests[2].id, undefined);
+    assert.equal(app.requests.find(item => item.action === 'save-invitation').id, undefined);
     assert.equal(app.nodes['editor-id'].value, app.event.id);
     const link = app.nodes.shareInvitation.children[1];
     assert.equal(link.href, 'https://example.com/rsvp/?id=' + app.event.id);
@@ -509,4 +544,217 @@ test('guest and receipt retain saved event theme with safe fallback for old or u
         assert.equal(view.nodes.body.attributes['data-event-type'], expected);
         assert.equal(view.nodes.back.href, '/rsvp/?id=' + app.event.id);
     }
+});
+
+test('invitation recall is admin-only, paginated, and bounded regardless of response volume', async () => {
+    const instance = api();
+    const first = await createEvent(instance, { title: 'Wedding', eventType: 'weddings' });
+    const second = await createEvent(instance, { title: 'Wedding', eventType: 'weddings' });
+    for (let i = 0; i < 49; i++) await createEvent(instance);
+    for (let i = 0; i < 1001; i++) {
+        instance.records.set('rsvp:old-' + i, JSON.stringify({
+            ...valid, eventId: i % 2 ? first.id : second.id
+        }));
+    }
+    instance.records.set('rsvp:legacy', JSON.stringify(valid));
+    for (const token of [undefined, 'invalid-session', 'other-user']) {
+        assert.equal((await instance.post({ action: 'list-invitations' }, token)).status, 401);
+    }
+    const result = await instance.post({ action: 'list-invitations' }, 'valid-session');
+    assert.equal(result.headers.get('Cache-Control'), 'no-store');
+    const data = await result.json();
+    assert.equal(data.invitations.length, 50);
+    assert.equal(data.invitations[0].id, first.id);
+    assert.equal(data.invitations[1].id, second.id);
+    assert.equal(instance.calls.length, 1);
+    assert.equal(instance.calls[0].prefix, 'rsvp-invitation:');
+    const next = await (await instance.post({ action: 'list-invitations', cursor: data.cursor }, 'valid-session')).json();
+    assert.equal(next.invitations.length, 1);
+    assert.equal(next.cursor, '');
+    assert.equal(instance.calls.length, 2);
+    assert.equal((await instance.post({ action: 'list-invitations', cursor: 123 }, 'valid-session')).status, 400);
+});
+
+test('reply filtering preserves pagination, separates matching event titles, and includes unassigned legacy records', async () => {
+    const instance = api();
+    const first = await createEvent(instance, { title: 'Same title', eventType: 'parties' });
+    const second = await createEvent(instance, { title: 'Same title', eventType: 'parties' });
+    for (let i = 0; i < 50; i++) {
+        instance.records.set('rsvp:old-' + i, JSON.stringify({ ...valid, eventId: first.id }));
+    }
+    await instance.post({ ...valid, event: second.title, eventId: second.id, createdAt: 'spoofed' });
+    instance.records.set('rsvp:legacy', JSON.stringify(valid));
+    const list = async fields => (await instance.post({ action: 'list', ...fields }, 'valid-session')).json();
+    const empty = await list({ eventId: second.id });
+    assert.equal(empty.responses.length, 0);
+    assert.equal(empty.cursor, '50');
+    const next = await list({ eventId: second.id, cursor: empty.cursor });
+    assert.equal(next.responses.length, 1);
+    assert.equal(next.responses[0].eventId, second.id);
+    assert.notEqual(next.responses[0].createdAt, 'spoofed');
+    assert.equal(next.cursor, '');
+    const unassigned = await list({ eventId: 'unassigned', cursor: '50' });
+    assert.equal(unassigned.responses.length, 1);
+    assert.equal(unassigned.responses[0].eventId, undefined);
+    assert.equal(unassigned.responses[0].createdAt, undefined);
+    assert.equal((await list({ eventId: first.id })).responses.length, 50);
+    assert.equal((await instance.post({ action: 'list', eventId: 'bad' }, 'valid-session')).status, 400);
+});
+
+test('legacy email invitations stay readable but email is ignored for routing and replaced on save', async () => {
+    const instance = api();
+    const event = await createEvent(instance);
+    delete event.sms;
+    event.email = 'legacy@example.com';
+    instance.records.set('rsvp-invitation:' + event.id, JSON.stringify(event));
+    const loaded = await (await instance.post({ action: 'get-invitation', id: event.id })).json();
+    assert.equal(loaded.invitation.email, event.email);
+    const reply = await (await instance.post({ ...valid, event: event.title, eventId: event.id })).json();
+    assert.deepEqual(reply.organiser, { whatsapp: event.whatsapp, sms: '' });
+    assert.equal(renderer().channels(reply.response, event).length, 1);
+    const updated = await createEvent(instance, { ...event, sms: undefined });
+    assert.equal(updated.sms, '');
+    assert.equal(updated.email, undefined);
+});
+
+test('event panel recalls codes and links, opens editor, scopes replies and clears on logout', async () => {
+    const app = browser({ page: 'admin' });
+    await app.nodes.loginForm.handlers.submit({ preventDefault() {} });
+    assert.equal(app.nodes.eventsPanel.hidden, false);
+    const row = app.nodes.events.children[0];
+    assert.equal(row.children[0].textContent, app.event.title);
+    assert.match(row.children[1].textContent, /Replies: 0/);
+    assert.equal(row.children[2].textContent, 'Invite code: ' + app.event.id);
+    assert.equal(row.children[3].href, 'https://example.com/rsvp/?id=' + app.event.id);
+    await row.children[4].click();
+    await row.children[5].click();
+    await app.tick();
+    assert.deepEqual(app.copied, [app.event.id, row.children[3].href]);
+    row.children[6].click();
+    assert.equal(app.nodes['editor-id'].value, app.event.id);
+    assert.equal(app.nodes['editor-sms'].value, app.event.sms);
+    row.children[7].click();
+    await app.tick();
+    assert.equal(app.requests.at(-1).eventId, app.event.id);
+    assert.equal(app.nodes.exportEvent.disabled, false);
+    app.nodes.logout.handlers.click();
+    assert.equal(app.nodes.eventsPanel.hidden, true);
+    assert.equal(app.nodes.events.children.length, 0);
+});
+
+test('reply filters skip empty pages, separate same-title events and keep clipboard fallback usable', async () => {
+    const savedEvents = [
+        { id: '11111111-1111-4111-8111-111111111111', title: 'Wedding', eventType: 'weddings' },
+        { id: '22222222-2222-4222-8222-222222222222', title: 'Wedding', eventType: 'weddings' }
+    ];
+    const app = browser({ page: 'admin', clipboardFails: true, savedEvents, replyPages: [
+        [{ ...valid, eventId: savedEvents[0].id, name: 'First wedding' }],
+        [{ ...valid, eventId: savedEvents[1].id, name: 'Second wedding' }]
+    ] });
+    await app.nodes.loginForm.handlers.submit({ preventDefault() {} });
+    assert.match(app.nodes.events.children[0].children[1].textContent, /Replies: 1/);
+    assert.match(app.nodes.events.children[1].children[1].textContent, /Replies: 1/);
+    app.nodes.replyEvent.value = savedEvents[1].id;
+    app.nodes.replyEvent.handlers.change();
+    await app.tick();
+    assert.equal(app.nodes.responses.children.length, 1);
+    assert.equal(app.nodes.responses.children[0].children[2].children[1].textContent, 'Second wedding');
+    assert.equal(app.nodes.more.hidden, true);
+    app.nodes.events.children[1].children[4].click();
+    await app.tick();
+    assert.match(app.nodes.message.textContent, /Select and copy/);
+});
+
+test('exports collect every reply page, isolate CSV events, include legacy records and require a live admin session', async () => {
+    const id = '12345678-1234-4123-8123-123456789012';
+    const replyPages = [[{ ...valid, name: 'First page', eventId: id }], [{ ...valid, name: 'Second page', eventId: id }, valid]];
+    const app = browser({ page: 'admin', replyPages });
+    await app.nodes.loginForm.handlers.submit({ preventDefault() {} });
+    assert.equal(app.nodes.responses.children.length, 1);
+    assert.match(app.nodes.events.children[0].children[1].textContent, /Replies: 2/);
+    app.nodes.events.children[0].children[8].click();
+    await app.tick();
+    assert.equal(app.downloads[0].filename, 'rsvp-' + id + '.csv');
+    assert.equal(app.downloads[0].content.replies.length, 2);
+    assert.ok(app.downloads[0].content.replies.every(reply => reply.eventId === id));
+    app.nodes.exportAll.handlers.click();
+    await app.tick();
+    assert.equal(app.downloads[1].filename, 'rsvp-all-events.xlsx');
+    assert.equal(app.downloads[1].content.events.length, 1);
+    assert.equal(app.downloads[1].content.replies.length, 3);
+    app.nodes.logout.handlers.click();
+    app.nodes.exportAll.handlers.click();
+    await app.tick();
+    assert.equal(app.downloads.length, 2);
+    const expired = browser({ page: 'admin', exportExpired: true });
+    await expired.nodes.loginForm.handlers.submit({ preventDefault() {} });
+    expired.nodes.exportAll.handlers.click();
+    await expired.tick();
+    assert.equal(expired.downloads.length, 0);
+    assert.equal(expired.nodes.eventsPanel.hidden, true);
+    assert.equal(expired.nodes.message.textContent, 'Unauthorized');
+});
+
+function exporter() {
+    const context = { window: {}, TextEncoder, Blob };
+    runInNewContext(readFileSync(`${__dirname}/export.js`, 'utf8'), context);
+    return context.window.RSVPExport;
+}
+
+async function unzipStored(blob) {
+    const bytes = Buffer.from(await blob.arrayBuffer());
+    const files = new Map();
+    let offset = 0;
+    while (bytes.readUInt32LE(offset) === 0x04034b50) {
+        const size = bytes.readUInt32LE(offset + 18);
+        const length = bytes.readUInt16LE(offset + 26);
+        assert.equal(bytes.readUInt16LE(offset + 8), 0);
+        const start = offset + 30 + length;
+        files.set(bytes.toString('utf8', offset + 30, start), bytes.toString('utf8', start, start + size));
+        offset = start + size;
+    }
+    assert.equal(bytes.readUInt32LE(offset), 0x02014b50);
+    assert.equal(bytes.readUInt32LE(bytes.length - 22), 0x06054b50);
+    assert.equal(bytes.readUInt16LE(bytes.length - 12), files.size);
+    return files;
+}
+
+test('CSV quotes Unicode, commas and newlines, includes timestamps and neutralises spreadsheet formulas', () => {
+    const csv = exporter().csv([{ name: '=1+1', event: 'Tea, "cake"', attending: 'yes', guests: 2,
+        notes: 'Zoë\nhello', eventId: 'event-1', createdAt: '2026-10-24T12:00:00.000Z' }]);
+    assert.ok(csv.startsWith('\ufeff"Name","Event","Attending","Additional Guests","Notes","Event ID","Submitted at (UTC)"\r\n'));
+    assert.ok(csv.includes(`"'=1+1","Tea, ""cake""","Yes","2","Zoë\nhello","event-1","2026-10-24T12:00:00.000Z"`));
+    for (const name of ['+SUM(1,1)', '-1+1', '@formula', '  =formula', '\tformula', '\rformula', '\nformula']) {
+        assert.ok(exporter().csv([{ ...valid, name }]).includes(`"'${name.replace(/"/g, '""')}"`));
+    }
+    assert.ok(exporter().csv([valid]).endsWith('" Hello\nthere ","",""\r\n'));
+});
+
+test('XLSX creates separate safe worksheets for same-title events, empty events, orphaned IDs and legacy replies', async () => {
+    const title = "'Wedding/party: a very long title [with] invalid* characters'";
+    const events = [{ id: 'one', title }, { id: 'two', title }, { id: 'empty', title: 'History' }];
+    const replies = [
+        { ...valid, eventId: 'one', name: '=1+1', notes: '<&>\u0000', createdAt: '2026-10-24T12:00:00.000Z' },
+        { ...valid, eventId: 'two', name: 'Zoë' },
+        { ...valid, eventId: 'orphan', event: 'Removed event' },
+        valid
+    ];
+    const files = await unzipStored(exporter().workbook(events, replies));
+    const workbook = files.get('xl/workbook.xml');
+    const names = [...workbook.matchAll(/<sheet name="([^"]+)"/g)].map(match => match[1]);
+    assert.equal(names.length, 5);
+    assert.equal(new Set(names.map(name => name.toLowerCase())).size, 5);
+    assert.ok(names.every(name => name.length <= 31 && !/[\\/*?:[\]]/.test(name) && name.toLowerCase() !== 'history'));
+    const first = files.get('xl/worksheets/sheet1.xml');
+    assert.ok(first.includes('<t xml:space="preserve">=1+1</t>'));
+    assert.ok(first.includes('&lt;&amp;&gt;'));
+    assert.ok(first.includes('2026-10-24T12:00:00.000Z'));
+    assert.doesNotMatch(first, /<f>|\u0000|Zoë/);
+    assert.match(files.get('xl/worksheets/sheet2.xml'), /Zoë/);
+    assert.equal((files.get('xl/worksheets/sheet3.xml').match(/<row>/g) || []).length, 1);
+    assert.match(workbook, /Unassigned/);
+    assert.match(files.get('[Content_Types].xml'), /spreadsheetml.sheet.main\+xml/);
+    assert.match(files.get('_rels/.rels'), /Target="xl\/workbook.xml"/);
+    const empty = await unzipStored(exporter().workbook([], []));
+    assert.match(empty.get('xl/workbook.xml'), /Unassigned/);
 });

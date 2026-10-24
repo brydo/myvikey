@@ -42,10 +42,9 @@
             links.push({ label: 'Send via WhatsApp', href: 'https://wa.me/' +
                 organiser.whatsapp.slice(1) + '?text=' + encodeURIComponent(message) });
         }
-        if (typeof organiser.email === 'string' && organiser.email.length <= 254 &&
-            /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?)+$/.test(organiser.email)) {
-            links.push({ label: 'Send via email', href: 'mailto:' + encodeURIComponent(organiser.email) +
-                '?subject=' + encodeURIComponent('RSVP: ' + response.event) + '&body=' + encodeURIComponent(message) });
+        if (typeof organiser.sms === 'string' && /^\+[1-9]\d{7,14}$/.test(organiser.sms)) {
+            links.push({ label: 'Send via text/SMS', href: 'sms:' + organiser.sms +
+                '?&body=' + encodeURIComponent(message) });
         }
         return links;
     }
@@ -57,7 +56,7 @@
         var help = document.createElement('p');
         help.textContent = links.length ?
             'Your RSVP is saved on this site. Choose an app below, then send the message yourself. Nothing has been sent to your host automatically.' :
-            'Your RSVP is saved on this site. Your host has not configured WhatsApp or email; no external message has been sent.';
+            'Your RSVP is saved on this site. Your host has not configured WhatsApp or text/SMS; no external message has been sent.';
         root.appendChild(help);
         links.forEach(function (link) {
             var anchor = document.createElement('a');

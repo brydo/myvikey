@@ -109,6 +109,10 @@ nav, .page-head { text-align: center; }
 a { color: var(--accent, #774b25); }
 nav a { display: inline-block; padding: 10px 4px; }
 .responses { display: grid; gap: 24px; }
+.events-list { display: grid; gap: 16px; margin: 18px 0; }
+.event-item { border: 1px solid var(--border, #d8bda2); border-radius: 12px; padding: 12px; overflow-wrap: anywhere; }
+.event-item h3 { font-family: Georgia, serif; }
+.event-item .rsvp-btn { margin: 8px 4px 0 0; }
 dt { color: #844456; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1.5px; }
 dd { color: #493439; white-space: pre-wrap; overflow-wrap: anywhere; margin-bottom: 12px; }
 .occasion-chooser { text-align: center; padding: 24px 0; }
