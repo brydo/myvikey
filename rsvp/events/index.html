@@ -3,188 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Theme Template</title>
+    <title>Scary Background</title>
     <style>
         * {
-            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            box-sizing: border-box;
         }
 
-        /* Fixed Background Wallpaper Setup */
         body {
-            background-image: url('https://pub-07ed0b0955a4401f9956c3ca7a33c40e.r2.dev/ween.jpg');
+            background-image: url('https://r2.dev');
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
             background-repeat: no-repeat;
-            background-color: #0d0d11; 
-            color: #e0e0e6;
-            line-height: 1.6;
-            padding-bottom: 80px; 
-        }
-
-        :root {
-            --primary-glow: #9d4edd; 
-            --accent-green: #39ff14; 
-            --dark-card: rgba(26, 26, 36, 0.85); /* Semi-transparency to see the background */
-        }
-
-        /* Navigation Menu Links */
-        nav {
-            background-color: rgba(17, 17, 22, 0.9);
-            border-bottom: 2px solid var(--primary-glow);
-            padding: 15px;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            backdrop-filter: blur(5px); /* Soft mobile blur effect behind menu */
-        }
-
-        .nav-container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            max-width: 600px;
-            margin: 0 auto;
-        }
-
-        .logo {
-            font-weight: bold;
-            color: #ffffff;
-            font-size: 1.1rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .logo span {
-            color: var(--accent-green);
-        }
-
-        .nav-links {
-            display: flex;
-            gap: 12px;
-        }
-
-        .nav-links a {
-            color: #aaa;
-            text-decoration: none;
-            font-size: 0.85rem;
-            font-weight: 600;
-            transition: color 0.3s;
-        }
-
-        .nav-links a.active, .nav-links a:hover {
-            color: var(--accent-green);
-        }
-
-        /* Header Focus Area */
-        .hero-banner {
-            text-align: center;
-            padding: 60px 20px;
-            background: linear-gradient(180deg, rgba(26, 11, 46, 0.4) 0%, rgba(13, 13, 17, 0.1) 100%);
-        }
-
-        /* Content Layout Blocks */
-        .main-layout {
-            max-width: 500px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-
-        .content-panel {
-            background-color: var(--dark-card);
-            border-radius: 12px;
-            padding: 25px 20px;
-            margin-bottom: 20px;
-            border: 1px solid rgba(157, 78, 221, 0.2);
-            box-shadow: 0 8px 32px rgba(0,0,0,0.6);
-            backdrop-filter: blur(4px);
-        }
-
-        .panel-heading {
-            color: var(--accent-green);
-            font-size: 1.2rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 12px;
-            font-weight: bold;
-            text-shadow: 0 0 8px rgba(57, 255, 20, 0.3);
-        }
-
-        /* Action Panel Footer */
-        .action-footer {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            padding: 15px 20px;
-            background-color: rgba(17, 17, 22, 0.95);
-            border-top: 1px solid #2a2a3a;
-            display: flex;
-            justify-content: center;
-            z-index: 99;
-        }
-
-        .action-button {
-            background-color: var(--accent-green);
-            color: #000000;
-            text-decoration: none;
-            font-weight: bold;
-            text-transform: uppercase;
-            padding: 12px 30px;
-            border-radius: 30px;
-            font-size: 1rem;
-            letter-spacing: 1px;
+            background-color: #0d0d11; /* fallback color */
+            min-height: 100vh;
             width: 100%;
-            max-width: 400px;
-            text-align: center;
-            box-shadow: 0 0 15px rgba(57, 255, 20, 0.4);
-            border: none;
-            cursor: pointer;
         }
     </style>
 </head>
 <body>
 
-    <!-- Navigation Menu Layout -->
-    <nav>
-        <div class="nav-container">
-            <div class="logo">Logo<span>Here</span></div>
-            <div class="nav-links">
-                <a href="#weddings">Weddings</a>
-                <a href="#engagements">Engagements</a>
-                <a href="#parties">Parties</a>
-                <a href="#events" class="active">Events</a>
-            </div>
-        </div>
-    </nav>
-
-    <!-- Header Focus Area -->
-    <header class="hero-banner">
-        <!-- Insert Main Title / Heading Here -->
-    </header>
-
-    <!-- Main Content Grid -->
-    <main class="main-layout">
-
-        <section class="content-panel">
-            <div class="panel-heading">Title One</div>
-            <!-- Insert Primary Details / Paragraphs Here -->
-        </section>
-
-        <section class="content-panel">
-            <div class="panel-heading">Title Two</div>
-            <!-- Insert Secondary Details / Lists Here -->
-        </section>
-
-    </main>
-
-    <!-- Sticky Mobile Interaction Area -->
-    <div class="action-footer">
-        <button class="action-button">Action Button</button>
-    </div>
+    <!-- Everything else is removed. Insert your text or content here -->
 
 </body>
 </html>
