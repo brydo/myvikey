@@ -34,6 +34,7 @@ import './theme-client.js';
         if (!response.ok || !data.success) {
             var error = new Error(data.error || 'Request failed. Please try again.');
             error.status = response.status;
+            error.fields = Array.isArray(data.fields) ? data.fields : [];
             throw error;
         }
         return data;
@@ -174,6 +175,18 @@ import './theme-client.js';
     var copyEditor = document.getElementById('copyEditor');
     var styleEditor = document.getElementById('styleEditor');
     var appearancePreview = document.getElementById('appearancePreview');
+    var appearanceStatus = document.getElementById('appearanceStatus');
+    var categoryNames = { celebration: 'Classic celebration', events: 'Events', weddings: 'Weddings',
+        parties: 'Parties', engagements: 'Engagements' };
+    // Unsaved edits per category survive late appearance reads, category switches and failed saves.
+    var drafts = {};
+    var styleErrors = {};
+    function selectedTheme() { return theme(editor.elements.eventType.value); }
+    function appearanceMessage(text, state) {
+        if (!appearanceStatus) return;
+        appearanceStatus.textContent = text;
+        appearanceStatus.setAttribute('data-state', state || '');
+    }
     function draftAppearance() {
         var draft = { backgroundImage: backgroundInput.value.trim(), copy: {}, cardStyle: {} };
         Object.keys(window.RSVPThemes.copyFields).forEach(function (key) {
@@ -185,9 +198,23 @@ import './theme-client.js';
         });
         return draft;
     }
+    function showStyleIssues(issues) {
+        Object.entries(window.RSVPThemes.styleFields).forEach(function (entry) {
+            if (entry[1].type !== 'color') return;
+            var input = appearanceForm.elements['style-' + entry[0]];
+            var related = issues.filter(function (issue) { return issue.field === entry[0]; });
+            if (related.length) input.setAttribute('aria-invalid', 'true');
+            else input.removeAttribute('aria-invalid');
+            styleErrors[entry[0]].textContent =
+                related.map(function (issue) { return issue.message; }).join(' ');
+        });
+        return issues;
+    }
     function previewAppearance() {
         if (!appearancePreview) return;
-        window.RSVPThemes.preview(appearancePreview, editor.elements.eventType.value, draftAppearance());
+        var draft = draftAppearance();
+        window.RSVPThemes.preview(appearancePreview, selectedTheme(), draft);
+        showStyleIssues(window.RSVPThemes.issues(selectedTheme(), draft.cardStyle));
         document.getElementById('previewInvitationTitle').textContent = editor.elements.title.value || 'Your invitation title';
         document.getElementById('previewInvitationText').textContent = editor.elements.text.value || 'Your invitation message appears here.';
     }
@@ -202,7 +229,16 @@ import './theme-client.js';
         previewAppearance();
     }
     function showBackground() {
-        if (backgroundInput) fillAppearance(window.RSVPThemes.settings(editor.elements.eventType.value));
+        if (!backgroundInput) return;
+        var type = selectedTheme();
+        fillAppearance(drafts[type] || window.RSVPThemes.settings(type));
+        appearanceMessage(drafts[type] ? 'Unsaved preview for ' + categoryNames[type] +
+            ' — not published yet. Save category settings to publish it.' : '', drafts[type] ? 'draft' : '');
+    }
+    function sameAppearance(type, first, second) {
+        var a = window.RSVPThemes.normalize(type, first), b = window.RSVPThemes.normalize(type, second);
+        return a.backgroundImage === b.backgroundImage && JSON.stringify(a.copy) === JSON.stringify(b.copy) &&
+            JSON.stringify(a.cardStyle) === JSON.stringify(b.cardStyle);
     }
     if (appearanceForm) {
         Object.entries(window.RSVPThemes.copyFields).forEach(function (entry) {
@@ -243,34 +279,66 @@ import './theme-client.js';
             }
             styleEditor.appendChild(label);
             styleEditor.appendChild(input);
+            if (field.type === 'color') {
+                var error = document.createElement('p');
+                error.id = 'style-' + key + '-error';
+                error.className = 'field-error';
+                input.setAttribute('aria-describedby', error.id);
+                styleEditor.appendChild(error);
+                styleErrors[key] = error;
+            }
         });
-        appearanceForm.addEventListener('input', previewAppearance);
+        appearanceForm.addEventListener('input', function () {
+            drafts[selectedTheme()] = draftAppearance();
+            previewAppearance();
+            appearanceMessage('Unsaved preview for ' + categoryNames[selectedTheme()] +
+                ' — not published yet. Save category settings to publish it.', 'draft');
+        });
         editor.addEventListener('input', previewAppearance);
         document.getElementById('resetAppearance').addEventListener('click', function () {
             var settings = window.RSVPThemes.defaults(editor.elements.eventType.value);
             settings.backgroundImage = backgroundInput.value.trim();
             fillAppearance(settings);
-            status('Default copy and card styles restored in preview. Save category settings to publish.');
+            drafts[selectedTheme()] = draftAppearance();
+            appearanceMessage('Default copy and card styles restored in the preview only. Save category settings to publish.', 'draft');
         });
         window.RSVPThemes.ready.then(showBackground);
         appearanceForm.addEventListener('submit', async function (event) {
             event.preventDefault();
             var session = token;
+            var type = selectedTheme();
+            var draft = draftAppearance();
             var button = appearanceForm.querySelector('button');
+            var issues = showStyleIssues(window.RSVPThemes.issues(type, draft.cardStyle));
+            if (issues.length) {
+                appearanceMessage('Not saved. ' + issues.map(function (issue) { return issue.message; }).join(' ') +
+                    ' Your unsaved changes are still here.', 'error');
+                var invalid = appearanceForm.elements['style-' + issues[0].field];
+                if (invalid.focus) invalid.focus();
+                return;
+            }
             button.disabled = true;
+            appearanceMessage('Saving ' + categoryNames[type] + ' settings…', 'pending');
             try {
                 var data = await post('/api/rsvp', {
-                    action: 'save-appearance', eventType: theme(editor.elements.eventType.value),
-                    ...draftAppearance()
+                    action: 'save-appearance', eventType: type, ...draft
                 }, session);
                 if (token !== session) return;
-                window.RSVPThemes.update(data.appearance);
-                showBackground();
-                status('Category copy, card styles and background saved for all landing pages, invitations and confirmations.');
+                window.RSVPThemes.update(data.appearance, type);
+                if (!sameAppearance(type, window.RSVPThemes.settings(type), draft)) {
+                    throw new Error('The server did not confirm your exact settings.');
+                }
+                // Keep newer edits made while the save was in flight.
+                if (drafts[type] && sameAppearance(type, drafts[type], draft)) delete drafts[type];
+                if (selectedTheme() === type) showBackground();
+                appearanceMessage('Saved and published for ' + categoryNames[type] +
+                    ': landing page, invitations, RSVP form and confirmations now use these settings.', 'success');
             } catch (error) {
                 if (token !== session) return;
                 if (error.status === 401) logout();
-                status(error.message, true);
+                if (error.fields && error.fields.length && selectedTheme() === type) showStyleIssues(error.fields);
+                appearanceMessage('Not saved. ' + (error.message || 'Unable to save category settings.') +
+                    ' Your unsaved changes are still here.', 'error');
             } finally { button.disabled = false; }
         });
     }
@@ -569,6 +637,7 @@ import './theme-client.js';
         more.hidden = true;
         editor.hidden = true;
         if (appearanceForm) appearanceForm.hidden = true;
+        drafts = {};
         editor.reset();
         editor.elements.eventType.value = initialTheme;
         applyTheme(initialTheme);

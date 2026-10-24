@@ -1,9 +1,10 @@
-import { eventTypes, theme, normalizeAppearance, defaultCopy, defaultCardStyle, copyFields, styleFields } from './themes.js';
+import { eventTypes, theme, normalizeAppearance, defaultCopy, defaultCardStyle, copyFields, styleFields, contrastIssues, buttonHover } from './themes.js';
 
 var appearances = {};
 eventTypes.forEach(function (type) { appearances[type] = normalizeAppearance(type, {}); });
 var targets = new Map();
 var revision = 0;
+var savedKey = 'rsvp_appearance_saved';
 
 function paint(root, type, settings) {
     type = theme(type);
@@ -18,7 +19,9 @@ function paint(root, type, settings) {
         '--card-surface': style.surface, '--card-text': style.textColor,
         '--card-heading': style.headingColor, '--card-body-scale': style.bodyScale,
         '--card-heading-scale': style.headingScale, '--card-line-height': style.lineHeight,
-        '--card-alignment': style.alignment, '--card-spacing': style.spacing + 'px'
+        '--card-alignment': style.alignment, '--card-spacing': style.spacing + 'px',
+        '--btn-bg': style.buttonBackground, '--btn-text': style.buttonText,
+        '--btn-border': style.buttonBorder, '--btn-hover-bg': buttonHover(style)
     }).forEach(function (entry) { root.style.setProperty(entry[0], String(entry[1])); });
     root.querySelectorAll('[data-copy]').forEach(function (element) {
         if (element.closest('[data-event-type]') !== root) return;
@@ -33,11 +36,45 @@ function apply(root, type) {
     paint(root, type, appearances[type]);
 }
 
-function update(settings) {
+// Settings this browser saved successfully. KV edge reads can lag a save by about a minute,
+// so a newer local revision wins until the server catches up.
+function savedLocally() {
+    try {
+        var value = JSON.parse(localStorage.getItem(savedKey));
+        return value && typeof value === 'object' && !Array.isArray(value) ? value : {};
+    } catch {
+        return {};
+    }
+}
+
+function writeLocal(value) {
+    try { localStorage.setItem(savedKey, JSON.stringify(value)); } catch { /* Storage is optional. */ }
+}
+
+function update(settings, savedType) {
     revision++;
+    var local = savedLocally();
+    var changed = false;
     eventTypes.forEach(function (type) {
-        appearances[type] = normalizeAppearance(type, settings && settings[type]);
+        var server = normalizeAppearance(type, settings && settings[type]);
+        if (type === savedType && server.updatedAt) {
+            local[type] = server;
+            changed = true;
+            appearances[type] = server;
+            return;
+        }
+        var mine = Object.hasOwn(local, type) ? normalizeAppearance(type, local[type]) : null;
+        if (mine && mine.updatedAt > server.updatedAt) {
+            appearances[type] = mine;
+            return;
+        }
+        if (mine) {
+            delete local[type];
+            changed = true;
+        }
+        appearances[type] = server;
     });
+    if (changed) writeLocal(local);
     targets.forEach(function (type, root) {
         if (root.isConnected === false) targets.delete(root);
         else apply(root, type);
@@ -67,7 +104,14 @@ window.RSVPThemes = {
     background: function (type) { return appearances[theme(type)].backgroundImage; },
     settings: function (type) { return appearances[theme(type)]; },
     copy: function (type, key) { return appearances[theme(type)].copy[key]; },
-    preview: function (root, type, value) { paint(root, theme(type), normalizeAppearance(theme(type), value)); },
+    // Previews show the exact draft colours; contrast problems are reported, never silently replaced.
+    preview: function (root, type, value) {
+        paint(root, theme(type), normalizeAppearance(theme(type), value, { repair: false }));
+    },
+    normalize: function (type, value) { return normalizeAppearance(theme(type), value, { repair: false }); },
+    issues: function (type, cardStyle) {
+        return contrastIssues(normalizeAppearance(theme(type), { cardStyle: cardStyle }, { repair: false }).cardStyle);
+    },
     defaults: function (type) {
         return { copy: defaultCopy(type), cardStyle: defaultCardStyle(type) };
     },
