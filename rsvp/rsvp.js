@@ -136,6 +136,11 @@
     var more = document.getElementById('more');
     var editor = document.getElementById('invitationForm');
     var share = document.getElementById('shareInvitation');
+    var eventsPanel = document.getElementById('eventsPanel');
+    var events = document.getElementById('events');
+    var replyEvent = document.getElementById('replyEvent');
+    var invitations = [];
+    var loadVersion = 0;
     var initialTheme = theme(new URLSearchParams(window.location.search).get('type'));
     editor.elements.eventType.value = initialTheme;
     applyTheme(initialTheme);
@@ -144,7 +149,7 @@
     });
 
     function showInvitation(invitation) {
-        ['id', 'title', 'text', 'whatsapp', 'email'].forEach(function (field) {
+        ['id', 'title', 'text', 'whatsapp', 'sms'].forEach(function (field) {
             editor.elements[field].value = invitation[field] || '';
         });
         editor.elements.eventType.value = theme(invitation.eventType);
@@ -163,7 +168,7 @@
         var button = editor.querySelector('button[type="submit"]');
         button.disabled = true;
         var payload = { action: 'save-invitation', eventType: theme(editor.elements.eventType.value) };
-        ['title', 'text', 'whatsapp', 'email'].forEach(function (field) {
+        ['title', 'text', 'whatsapp', 'sms'].forEach(function (field) {
             payload[field] = editor.elements[field].value.trim();
         });
         if (editor.elements.id.value.trim()) payload.id = editor.elements.id.value.trim();
@@ -171,6 +176,11 @@
             var data = await post('/api/rsvp', payload, session);
             if (token !== session) return;
             showInvitation(data.invitation);
+            var index = invitations.findIndex(function (item) { return item.id === data.invitation.id; });
+            var updated = Object.assign({}, data.invitation, { replyCount: index < 0 ? 0 : invitations[index].replyCount });
+            if (index < 0) invitations.push(updated);
+            else invitations[index] = updated;
+            renderEvents();
             status('Invitation saved. Share its link with your guests.');
         } catch (error) {
             if (token !== session) return;
@@ -193,9 +203,136 @@
         status('New invitation. Save to create a separate share link.');
     });
 
+    function renderEvents() {
+        var selected = replyEvent.value;
+        events.replaceChildren();
+        replyEvent.replaceChildren();
+        [['', 'All events'], ['unassigned', 'Unassigned (legacy replies)']].concat(
+            invitations.map(function (item) { return [item.id, item.title + ' · ' + theme(item.eventType) + ' · ' + item.id]; })
+        ).forEach(function (option) {
+            var node = document.createElement('option');
+            node.value = option[0];
+            node.textContent = option[1];
+            replyEvent.appendChild(node);
+        });
+        replyEvent.value = selected;
+        if (!replyEvent.value) replyEvent.value = '';
+        document.getElementById('exportEvent').disabled = !replyEvent.value;
+        invitations.forEach(function (item) {
+            var row = document.createElement('article');
+            row.className = 'event-item';
+            var heading = document.createElement('h3');
+            heading.textContent = item.title;
+            row.appendChild(heading);
+            var details = document.createElement('p');
+            details.textContent = 'Type: ' + theme(item.eventType) + ' · Replies: ' + item.replyCount;
+            row.appendChild(details);
+            var code = document.createElement('p');
+            code.textContent = 'Invite code: ' + item.id;
+            row.appendChild(code);
+            var link = document.createElement('a');
+            link.href = window.location.origin + '/rsvp/?id=' + encodeURIComponent(item.id);
+            link.textContent = link.href;
+            row.appendChild(link);
+            function button(label, handler) {
+                var control = document.createElement('button');
+                control.type = 'button';
+                control.className = 'rsvp-btn';
+                control.textContent = label;
+                control.addEventListener('click', handler);
+                row.appendChild(control);
+            }
+            button('Copy invite code', function () { copy(item.id); });
+            button('Copy share link', function () { copy(link.href); });
+            button('Open/Edit', function () { showInvitation(item); editor.elements.title.focus(); });
+            button('View replies', function () { replyEvent.value = item.id; filterReplies(); });
+            button('Export replies (.csv)', function () { exportReplies(item.id); });
+            events.appendChild(row);
+        });
+        if (!invitations.length) events.textContent = 'No saved invitations yet.';
+    }
+
+    async function copy(value) {
+        try {
+            await navigator.clipboard.writeText(value);
+            status('Copied to clipboard.');
+        } catch (error) {
+            status('Copy unavailable. Select and copy the invite code or link shown above.', true);
+        }
+    }
+
+    async function collect(action, session, eventId) {
+        var items = [];
+        var next = '';
+        do {
+            var payload = { action: action, cursor: next };
+            if (eventId) payload.eventId = eventId;
+            var data = await post('/api/rsvp', payload, session);
+            if (token !== session) throw new Error('Admin session changed. Please sign in again.');
+            items = items.concat(action === 'list' ? data.responses : data.invitations);
+            next = data.cursor || '';
+        } while (next);
+        return items;
+    }
+
+    async function exportReplies(eventId) {
+        var session = token;
+        if (!session) return;
+        var allButton = document.getElementById('exportAll');
+        if (allButton.disabled) return;
+        allButton.disabled = true;
+        status('Preparing export…');
+        try {
+            var savedEvents = await collect('list-invitations', session);
+            var replies = await collect('list', session, eventId);
+            if (token !== session) return;
+            if (eventId) {
+                window.RSVPExport.download(window.RSVPExport.csv(replies), 'rsvp-' + eventId + '.csv', 'text/csv;charset=utf-8');
+            } else {
+                window.RSVPExport.download(window.RSVPExport.workbook(savedEvents, replies), 'rsvp-all-events.xlsx',
+                    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+            }
+            status('Export downloaded.');
+        } catch (error) {
+            if (token !== session) return;
+            if (error.status === 401) logout();
+            status(error.message || 'Unable to export replies.', true);
+        } finally { allButton.disabled = false; }
+    }
+
+    function filterReplies() {
+        document.getElementById('exportEvent').disabled = !replyEvent.value;
+        load(false);
+    }
+    replyEvent.addEventListener('change', filterReplies);
+    document.getElementById('exportEvent').addEventListener('click', function () {
+        if (replyEvent.value) exportReplies(replyEvent.value);
+    });
+    document.getElementById('exportAll').addEventListener('click', function () { exportReplies(); });
+
+    async function refresh() {
+        var session = token;
+        try {
+            var items = await collect('list-invitations', session);
+            if (token !== session) return;
+            invitations = items;
+            renderEvents();
+            await load(false);
+        } catch (error) {
+            if (token !== session) return;
+            if (error.status === 401) logout();
+            status(error.message || 'Unable to load invitations.', true);
+        }
+    }
+
     function logout() {
         token = '';
         cursor = '';
+        loadVersion++;
+        invitations = [];
+        events.replaceChildren();
+        replyEvent.replaceChildren();
+        eventsPanel.hidden = true;
         responses.replaceChildren();
         login.hidden = false;
         actions.hidden = true;
@@ -210,6 +347,7 @@
 
     async function load(append) {
         var session = token;
+        var version = ++loadVersion;
         more.disabled = true;
         document.getElementById('refresh').disabled = true;
         if (!append) {
@@ -219,19 +357,23 @@
         more.hidden = true;
         status('Loading responses…');
         try {
-            var data = await post('/api/rsvp', { action: 'list', cursor: cursor }, token);
-            if (token !== session) return;
+            var payload = { action: 'list', cursor: cursor };
+            if (replyEvent.value) payload.eventId = replyEvent.value;
+            var data = await post('/api/rsvp', payload, token);
+            if (token !== session || version !== loadVersion) return;
             data.responses.forEach(function (response) { window.RSVP.render(responses, response); });
             cursor = data.cursor || '';
             more.hidden = !cursor;
             status(responses.children.length ? 'Responses loaded.' : 'No RSVPs yet.');
         } catch (error) {
-            if (token !== session) return;
+            if (token !== session || version !== loadVersion) return;
             if (error.status === 401) logout();
             status(error.message || 'Unable to load responses. Please try again.', true);
         } finally {
-            more.disabled = false;
-            document.getElementById('refresh').disabled = false;
+            if (version === loadVersion) {
+                more.disabled = false;
+                document.getElementById('refresh').disabled = false;
+            }
         }
     }
 
@@ -250,7 +392,8 @@
             login.hidden = true;
             actions.hidden = false;
             editor.hidden = false;
-            await load(false);
+            eventsPanel.hidden = false;
+            await refresh();
         } catch (error) {
             status(error.message || 'Unable to sign in. Please try again.', true);
         } finally {
@@ -258,6 +401,6 @@
         }
     });
     document.getElementById('logout').addEventListener('click', logout);
-    document.getElementById('refresh').addEventListener('click', function () { load(false); });
+    document.getElementById('refresh').addEventListener('click', refresh);
     more.addEventListener('click', function () { load(true); });
 })();

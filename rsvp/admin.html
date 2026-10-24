@@ -25,6 +25,18 @@
                 <button id="refresh" class="rsvp-btn" type="button">Refresh</button>
                 <button id="logout" class="rsvp-btn" type="button">Sign out</button>
             </div>
+            <section id="eventsPanel" class="rsvp-section" hidden>
+                <h2>Your events</h2>
+                <p>Each saved invitation has its own code and replies, even when event themes or titles match.</p>
+                <button id="exportAll" class="rsvp-btn" type="button">Export all events (.xlsx)</button>
+                <div id="events" class="events-list"></div>
+                <label for="replyEvent">Show replies for</label>
+                <select id="replyEvent">
+                    <option value="">All events</option>
+                    <option value="unassigned">Unassigned (legacy replies)</option>
+                </select>
+                <button id="exportEvent" class="rsvp-btn" type="button">Export selected event (.csv)</button>
+            </section>
             <form id="invitationForm" class="rsvp-section" hidden>
                 <h2>Your celebration</h2>
                 <p>Write your invitation below, save it, then share its link with guests. Host contact details are visible to anyone with the link; never enter a password here.</p>
@@ -45,9 +57,9 @@
                 <textarea id="text" name="text" class="invitation-editor" rows="9" maxlength="5000" placeholder="You're warmly invited…&#10;&#10;Add the date, time, venue and a little something special." required></textarea>
                 <label for="whatsapp">Host WhatsApp number (optional)</label>
                 <input id="whatsapp" name="whatsapp" type="tel" maxlength="16" pattern="\+[1-9][0-9]{7,14}" placeholder="+447700900123" aria-describedby="contactHint">
-                <label for="email">Host email (optional)</label>
-                <input id="email" name="email" type="email" maxlength="254">
-                <p id="contactHint">Use an international WhatsApp number beginning with +, without spaces. Leave either channel blank to hide it; with neither configured, guests can still save an RSVP.</p>
+                <label for="sms">Host text/SMS number (optional)</label>
+                <input id="sms" name="sms" type="tel" maxlength="16" pattern="\+[1-9][0-9]{7,14}" placeholder="+447700900123" aria-describedby="contactHint">
+                <p id="contactHint">Use international WhatsApp and text/SMS numbers beginning with +, without spaces. Enter each separately. Leave either channel blank to hide it; with neither configured, guests can still save an RSVP. Older email-only invitations need a text number added here to enable SMS.</p>
                 <button class="rsvp-btn primary" type="submit">Save invitation</button>
                 <p id="shareInvitation" role="status"></p>
             </form>
@@ -59,6 +71,7 @@
         <noscript><p>Please enable JavaScript to review RSVPs.</p></noscript>
     </main>
     <script src="/rsvp/card-render.js"></script>
+    <script src="/rsvp/export.js"></script>
     <script src="/rsvp/rsvp.js"></script>
 </body>
 </html>

@@ -9,13 +9,14 @@ function invitationFields(body) {
   const eventType = body.eventType === undefined ? 'celebration' : body.eventType;
   if (!['celebration', 'weddings', 'parties', 'engagements'].includes(eventType)) return null;
   result.eventType = eventType;
-  for (const [field, max] of Object.entries({ title: 100, text: 5000, whatsapp: 16, email: 254 })) {
-    if (typeof body[field] !== 'string' || body[field].trim().length > max) return null;
-    result[field] = body[field].trim();
+  for (const [field, max] of Object.entries({ title: 100, text: 5000, whatsapp: 16, sms: 16 })) {
+    const value = field === 'sms' && body[field] === undefined ? '' : body[field];
+    if (typeof value !== 'string' || value.trim().length > max) return null;
+    result[field] = value.trim();
   }
   if (!result.title || !result.text) return null;
   if (result.whatsapp && !/^\+[1-9]\d{7,14}$/.test(result.whatsapp)) return null;
-  if (result.email && !/^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?)+$/.test(result.email)) return null;
+  if (result.sms && !/^\+[1-9]\d{7,14}$/.test(result.sms)) return null;
   return result;
 }
 
@@ -34,7 +35,7 @@ export async function onRequestPost({ request, env }) {
     return reply({ success: false, error: 'Invalid JSON' }, 400);
   }
 
-  if (['list', 'save-invitation'].includes(body.action)) {
+  if (['list', 'list-invitations', 'save-invitation'].includes(body.action)) {
     const session = await validateSession(env, request.headers.get('x-admin-session'));
     if (!session || session.userId !== '__admin__') {
       return reply({ success: false, error: 'Unauthorized' }, 401);
@@ -53,7 +54,7 @@ export async function onRequestPost({ request, env }) {
     if (body.action === 'save-invitation') {
       const fields = invitationFields(body);
       if (!fields || (body.id !== undefined && !validId(body.id))) {
-        return reply({ success: false, error: 'Enter a title, invitation text, and valid contact details (WhatsApp in +countrycode format, email as name@example.com).' }, 400);
+        return reply({ success: false, error: 'Enter a title, invitation text, and valid WhatsApp/text numbers in +countrycode format.' }, 400);
       }
       const id = body.id || crypto.randomUUID();
       if (body.id && !await env.FORM_SUBMISSIONS.get(INVITATIONS + id)) {
@@ -69,12 +70,36 @@ export async function onRequestPost({ request, env }) {
       if (!raw) return reply({ success: false, error: 'Invitation not found' }, 404);
       return reply({ success: true, invitation: JSON.parse(raw) });
     }
-    if (body.action === 'list') {
-      const page = await env.FORM_SUBMISSIONS.list({ prefix: PREFIX, limit: 50, cursor: body.cursor || undefined });
+    if (body.action === 'list' || body.action === 'list-invitations') {
+      if (body.eventId !== undefined && body.eventId !== 'unassigned' && !validId(body.eventId)) {
+        return reply({ success: false, error: 'Invalid invitation ID' }, 400);
+      }
+      const invitations = body.action === 'list-invitations';
+      const page = await env.FORM_SUBMISSIONS.list({
+        prefix: invitations ? INVITATIONS : PREFIX, limit: 50, cursor: body.cursor || undefined
+      });
       const records = await Promise.all(page.keys.map(key => env.FORM_SUBMISSIONS.get(key.name)));
+      let items = records.filter(Boolean).map(raw => JSON.parse(raw));
+      if (invitations) {
+        const counts = new Map(items.map(item => [item.id, 0]));
+        let cursor;
+        // Count across every reply page, including replies stored before event filtering existed.
+        do {
+          const replies = await env.FORM_SUBMISSIONS.list({ prefix: PREFIX, limit: 1000, cursor });
+          const values = await Promise.all(replies.keys.map(key => env.FORM_SUBMISSIONS.get(key.name)));
+          values.filter(Boolean).forEach(raw => {
+            const id = JSON.parse(raw).eventId;
+            if (counts.has(id)) counts.set(id, counts.get(id) + 1);
+          });
+          cursor = replies.list_complete ? '' : replies.cursor;
+        } while (cursor);
+        items = items.map(item => ({ ...item, replyCount: counts.get(item.id) }));
+      } else if (body.eventId !== undefined) {
+        items = items.filter(item => body.eventId === 'unassigned' ? !item.eventId : item.eventId === body.eventId);
+      }
       return reply({
         success: true,
-        responses: records.filter(Boolean).map(raw => JSON.parse(raw)),
+        [invitations ? 'invitations' : 'responses']: items,
         cursor: page.list_complete ? '' : page.cursor
       });
     }
@@ -106,11 +131,12 @@ export async function onRequestPost({ request, env }) {
     }
     response.attending = body.attending;
     response.guests = body.guests;
+    response.createdAt = new Date().toISOString();
     if (invitation) response.eventId = invitation.id;
     await env.FORM_SUBMISSIONS.put(PREFIX + crypto.randomUUID(), JSON.stringify(response));
     return reply({
       success: true, response,
-      organiser: invitation ? { whatsapp: invitation.whatsapp, email: invitation.email } : {}
+      organiser: invitation ? { whatsapp: invitation.whatsapp || '', sms: invitation.sms || '' } : {}
     });
   } catch {
     return reply({ success: false, error: 'Unable to process RSVP. Please try again.' }, 500);
