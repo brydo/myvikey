@@ -280,7 +280,7 @@ test('channel links validate destinations and encode the event and all five fiel
     assert.equal(root.children[1].rel, 'noopener noreferrer');
 });
 
-function browser({ page = 'index', storageFails = false, saved, failSave = false, expired = false } = {}) {
+function browser({ page = 'index', storageFails = false, saved, failSave = false, expired = false, eventType, search } = {}) {
     const nodes = {};
     function node(id) {
         if (!nodes[id]) nodes[id] = {
@@ -300,28 +300,30 @@ function browser({ page = 'index', storageFails = false, saved, failSave = false
     if (page === 'admin') {
         node('password').value = 'test-only-password';
         node('invitationForm').elements = Object.fromEntries(
-            ['id', 'title', 'text', 'whatsapp', 'email'].map(id => [id, node('editor-' + id)])
+            ['id', 'title', 'text', 'whatsapp', 'email', 'eventType'].map(id => [id, node('editor-' + id)])
         );
     }
     const event = { id: '12345678-1234-4123-8123-123456789012', title: 'Saved party', text: '<img src=x>\nSecond line', whatsapp: invitation.whatsapp, email: invitation.email };
+    if (eventType !== undefined) event.eventType = eventType;
     const requests = [];
     const stored = new Map(saved ? [['rsvp_receipt', JSON.stringify(saved)]] : []);
     const redirects = [];
     const context = {
         URLSearchParams, document: {
+            body: node('body'),
             createElement: element,
             createTextNode(text) { return { textContent: text }; },
             getElementById(id) {
                 if ((id === 'loginForm' && page !== 'admin') || (id === 'rsvpForm' && page !== 'index') || (id === 'receipt' && page !== 'view')) return null;
                 return node(id);
             },
-            querySelector() { return node('back'); }
+            querySelector(selector) { return node(selector === '.eyebrow' ? 'eyebrow' : 'back'); }
         },
         sessionStorage: {
             setItem(key, value) { if (storageFails) throw Error('disabled'); stored.set(key, value); },
             getItem(key) { return stored.get(key); }
         },
-        window: { location: { origin: 'https://example.com', search: '?id=' + event.id, assign(path) { redirects.push(path); } } },
+        window: { location: { origin: 'https://example.com', search: search === undefined ? '?id=' + event.id : search, assign(path) { redirects.push(path); } } },
         fetch: async (path, options) => {
             const payload = JSON.parse(options.body);
             requests.push(payload);
@@ -428,4 +430,83 @@ test('expired organiser session hides and clears invitation editor', async () =>
     assert.equal(app.nodes.loginForm.hidden, false);
     assert.equal(app.nodes.shareInvitation.children.length, 0);
     assert.equal(app.nodes.message.textContent, 'Unauthorized');
+});
+
+test('event themes persist on invitations while legacy invitations default to classic', async () => {
+    const instance = api();
+    for (const eventType of ['celebration', 'weddings', 'parties', 'engagements']) {
+        const event = await createEvent(instance, { eventType });
+        const loaded = await (await instance.post({ action: 'get-invitation', id: event.id })).json();
+        assert.equal(loaded.invitation.eventType, eventType);
+        const updated = await createEvent(instance, { id: event.id, eventType });
+        assert.equal(updated.id, event.id);
+        assert.equal(updated.eventType, eventType);
+    }
+    assert.equal((await createEvent(instance)).eventType, 'celebration');
+    for (const eventType of [null, {}, ['weddings'], 'unknown', '__proto__', '<script>']) {
+        assert.equal((await instance.post({ ...invitation, eventType }, 'valid-session')).status, 400);
+    }
+    const legacy = await createEvent(instance);
+    delete legacy.eventType;
+    instance.records.set('rsvp-invitation:' + legacy.id, JSON.stringify(legacy));
+    const loaded = await (await instance.post({ action: 'get-invitation', id: legacy.id })).json();
+    assert.deepEqual(loaded.invitation, legacy);
+});
+
+test('landing pages have distinct themes and accessible navigation without public admin links', () => {
+    for (const eventType of ['weddings', 'parties', 'engagements']) {
+        const html = readFileSync(`${__dirname}/${eventType}/index.html`, 'utf8');
+        assert.match(html, new RegExp(`data-event-type="${eventType}"`));
+        assert.doesNotMatch(html, /href=["'][^"']*admin/i);
+        assert.match(html, new RegExp(`href="/rsvp/${eventType}/" aria-current="page"`));
+        assert.match(html, /example invitation/);
+        assert.match(html, /unique .* link shared by your host/);
+        assert.match(html, /href="\/rsvp\/landing.css"/);
+        assert.doesNotMatch(html, /<form|<script/);
+        const chooser = readFileSync(`${__dirname}/index.html`, 'utf8');
+        assert.ok(chooser.includes(`href="/rsvp/${eventType}/"`));
+        assert.doesNotMatch(chooser, /href=["'][^"']*admin|Organiser setup|sign in below/i);
+    }
+});
+
+test('direct admin links preselect the theme, which is saved and restored when loading invitations', async () => {
+    for (const eventType of ['weddings', 'parties', 'engagements']) {
+        const app = browser({ page: 'admin', search: '?type=' + eventType });
+        assert.equal(app.nodes['editor-eventType'].value, eventType);
+        assert.equal(app.nodes.body.attributes['data-event-type'], eventType);
+        await app.nodes.loginForm.handlers.submit({ preventDefault() {} });
+        await app.nodes.invitationForm.handlers.submit({ preventDefault() {} });
+        assert.equal(app.requests.at(-1).eventType, eventType);
+        assert.equal(app.nodes.shareInvitation.children[1].href, 'https://example.com/rsvp/?id=' + app.event.id);
+        app.event.eventType = 'parties';
+        await app.nodes.loadInvitation.handlers.click();
+        assert.equal(app.nodes['editor-eventType'].value, 'parties');
+        assert.equal(app.nodes.body.attributes['data-event-type'], 'parties');
+        app.nodes.newInvitation.handlers.click();
+        assert.equal(app.nodes['editor-eventType'].value, eventType);
+        app.nodes['editor-eventType'].value = 'engagements';
+        app.nodes['editor-eventType'].handlers.change();
+        assert.equal(app.nodes.body.attributes['data-event-type'], 'engagements');
+    }
+    const invalid = browser({ page: 'admin', search: '?type=__proto__' });
+    assert.equal(invalid.nodes['editor-eventType'].value, 'celebration');
+});
+
+test('guest and receipt retain saved event theme with safe fallback for old or unknown themes', async () => {
+    for (const eventType of [undefined, 'unknown', 'weddings', 'parties', 'engagements']) {
+        const app = browser({ eventType });
+        await app.tick();
+        const expected = !eventType || eventType === 'unknown' ? 'celebration' : eventType;
+        assert.equal(app.nodes.body.attributes['data-event-type'], expected);
+        assert.equal(app.nodes.occasionChooser.hidden, true);
+        app.nodes.name.value = 'Guest';
+        app.nodes.attending.value = 'yes';
+        app.nodes.guests.value = '0';
+        await app.nodes.rsvpForm.handlers.submit({ preventDefault() {} });
+        const saved = JSON.parse(app.stored.get('rsvp_receipt'));
+        assert.equal(saved.eventType, expected);
+        const view = browser({ page: 'view', saved });
+        assert.equal(view.nodes.body.attributes['data-event-type'], expected);
+        assert.equal(view.nodes.back.href, '/rsvp/?id=' + app.event.id);
+    }
 });

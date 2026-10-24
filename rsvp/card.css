@@ -7,7 +7,7 @@ body {
         radial-gradient(ellipse at top left, #efd1d3, transparent 55%),
         radial-gradient(ellipse at bottom right, #f2e1bd, transparent 60%);
     background-color: #faf5ef;
-    color: #493439;
+    color: var(--ink, #493439);
     line-height: 1.6;
     min-height: 100vh;
     min-height: 100svh;
@@ -24,13 +24,13 @@ body {
     width: 100%;
     max-width: 500px;
     margin: 0 auto;
-    background: #fffaf4;
-    border: 1px solid #d8bda2;
+    background: var(--paper, #fffaf4);
+    border: 1px solid var(--border, #d8bda2);
     border-radius: 20px;
     overflow: hidden;
     padding-bottom: 24px;
     box-shadow: 0 20px 60px #8c566521;
-    color: #493439;
+    color: var(--ink, #493439);
 }
 .rsvp-banner {
     height: 110px;
@@ -54,7 +54,7 @@ body {
 .rsvp-head { padding: 14px 20px 0; text-align: center; }
 h1, h2 { font-family: Georgia, "Times New Roman", serif; font-size: 1.9rem; line-height: 1.25; overflow-wrap: anywhere; }
 h1 { font-size: clamp(2.2rem, 8vw, 3rem); font-weight: 400; }
-.brand { color: #825f2d; font-weight: 600; margin-bottom: 12px; letter-spacing: 2px; font-size: .8rem; text-transform: uppercase; }
+.brand { color: var(--accent, #825f2d); font-weight: 600; margin-bottom: 12px; letter-spacing: 2px; font-size: .8rem; text-transform: uppercase; }
 .rsvp-head > p:last-child, .page-head > p:last-child { color: #70565b; margin-top: 12px; }
 .invitation { text-align: center; }
 #invitationText, .invitation-editor { white-space: pre-wrap; overflow-wrap: anywhere; font-family: Georgia, serif; line-height: 1.9; }
@@ -97,20 +97,75 @@ small { display: block; margin: -10px 0 16px; color: #70565b; }
     cursor: pointer;
 }
 .rsvp-btn:hover { background: #f1d9d5; border-color: #844456; }
-.primary { background: #844456; color: #fff; border-color: #844456; }
-.primary:hover { background: #6c3444; }
+.primary { background: var(--accent, #844456); color: #fff; border-color: var(--accent, #844456); }
+.primary:hover { background: var(--accent-hover, #6c3444); }
 .rsvp-btn:disabled { opacity: 0.6; cursor: wait; }
-:focus-visible { outline: 3px solid #844456; outline-offset: 3px; }
+:focus-visible { outline: 3px solid var(--accent, #844456); outline-offset: 3px; }
 [hidden] { display: none !important; }
 #message { overflow-wrap: anywhere; }
 #message:not(:empty) { margin-top: 12px; }
 .error { color: #a51f32; }
 nav, .page-head { text-align: center; }
-a { color: #774b25; }
+a { color: var(--accent, #774b25); }
 nav a { display: inline-block; padding: 10px 4px; }
 .responses { display: grid; gap: 24px; }
 dt { color: #844456; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1.5px; }
 dd { color: #493439; white-space: pre-wrap; overflow-wrap: anywhere; margin-bottom: 12px; }
+.occasion-chooser { text-align: center; padding: 24px 0; }
+.occasion-chooser h2 { font-size: 1.6rem; margin-bottom: 12px; }
+.occasion-chooser nav { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 16px; }
+body[data-event-type="weddings"] {
+    --accent: #47634d; --accent-hover: #354b3a; --ink: #34463a;
+    --paper: #fffdf7; --border: #c6cbb4;
+    background: radial-gradient(ellipse at top left, #dce7d7, transparent 60%), #faf7ef;
+}
+body[data-event-type="weddings"] .rsvp-banner {
+    background:
+        radial-gradient(ellipse at 8% 95%, #9ead8c 0 12%, transparent 13%),
+        radial-gradient(ellipse at 92% 95%, #bdc9a9 0 12%, transparent 13%),
+        linear-gradient(120deg, #e2eadb, #fff9e7, #e2eadb);
+}
+body[data-event-type="weddings"] .rsvp-banner::before,
+body[data-event-type="weddings"] .rsvp-banner::after {
+    content: ""; width: 56px; height: 56px; border: 3px solid #a18243;
+    border-radius: 50%; left: calc(50% - 46px); bottom: 24px; transform: rotate(-18deg);
+}
+body[data-event-type="weddings"] .rsvp-banner::after { left: calc(50% - 10px); }
+body[data-event-type="parties"] {
+    --accent: #743b8f; --accent-hover: #58266f; --ink: #422751;
+    --paper: #fffaff; --border: #d6b7e1;
+    background: radial-gradient(ellipse at top left, #ead3fc, transparent 60%),
+        radial-gradient(ellipse at bottom right, #ffdfbd, transparent 60%), #fff7f5;
+}
+body[data-event-type="parties"] .rsvp-banner {
+    background:
+        radial-gradient(circle, #a34a88 0 2px, transparent 3px) 0 0 / 33px 37px,
+        radial-gradient(circle, #b07b27 0 3px, transparent 4px) 16px 12px / 47px 43px,
+        linear-gradient(120deg, #ead3fc, #ffe5cf);
+}
+body[data-event-type="parties"] .rsvp-banner::before,
+body[data-event-type="parties"] .rsvp-banner::after {
+    content: "✦"; color: #743b8f; font-size: 64px; bottom: 12px;
+}
+body[data-event-type="parties"] h1 { font-family: inherit; font-weight: 700; }
+body[data-event-type="engagements"] {
+    --accent: #84502c; --accent-hover: #663b1e; --ink: #563b35;
+    --paper: #fffcf8; --border: #dec5aa;
+    background: radial-gradient(ellipse at top left, #f4d9d4, transparent 60%),
+        radial-gradient(ellipse at bottom right, #efdfb9, transparent 60%), #fff9f2;
+}
+body[data-event-type="engagements"] .rsvp-banner {
+    background:
+        radial-gradient(circle at 20% 25%, #aa8349 0 2px, transparent 3px),
+        radial-gradient(circle at 80% 70%, #aa8349 0 2px, transparent 3px),
+        linear-gradient(120deg, #f4d9d4, #fff3d8, #f4d9d4);
+}
+body[data-event-type="engagements"] .rsvp-banner::before {
+    content: "◇"; color: #95692c; left: calc(50% - 32px); bottom: 10px; font-size: 80px;
+}
+body[data-event-type="engagements"] .rsvp-banner::after {
+    content: "✧"; color: #95692c; right: 18%; bottom: 26px; font-size: 32px; transform: none;
+}
 @media (max-width: 480px) {
     .wrap { padding-right: 16px; padding-left: 16px; gap: 14px; }
 }

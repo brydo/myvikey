@@ -20,7 +20,7 @@
                 <p id="invitationText">Make room for a little celebration.
 
 A beautiful invitation, a special gathering, and the people who make it yours.</p>
-                <p id="invitationHelp">Have an invitation? Open the link shared by your host. Organisers can sign in below to create and share one.</p>
+                <p id="invitationHelp">Have an invitation? Open the unique event link shared by your host to view the details and send your RSVP.</p>
                 <button id="openRsvp" class="rsvp-btn primary" type="button" hidden>RSVP to this celebration</button>
             </div>
             <p id="message" class="rsvp-section" role="status" aria-live="polite"></p>
@@ -46,7 +46,16 @@ A beautiful invitation, a special gathering, and the people who make it yours.</
                 <div id="sendOptions" hidden></div>
             </form>
         </section>
-        <nav aria-label="RSVP navigation"><a href="/">V I Key®</a> · <a href="/rsvp/admin">Organiser setup</a></nav>
+        <section id="occasionChooser" class="occasion-chooser" aria-labelledby="occasionHeading">
+            <h2 id="occasionHeading">Every occasion, beautifully yours.</h2>
+            <p>Explore a theme for your next celebration.</p>
+            <nav aria-label="Event themes">
+                <a href="/rsvp/weddings/">Weddings</a>
+                <a href="/rsvp/parties/">Parties &amp; celebrations</a>
+                <a href="/rsvp/engagements/">Engagements</a>
+            </nav>
+        </section>
+        <nav aria-label="RSVP navigation"><a href="/">V I Key®</a></nav>
         <noscript><p>Please enable JavaScript to send your RSVP.</p></noscript>
     </main>
     <script src="/rsvp/card-render.js"></script>
