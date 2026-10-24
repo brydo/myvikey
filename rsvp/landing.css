@@ -25,3 +25,8 @@
     .landing-nav { justify-content: center; }
     .landing-nav nav { justify-content: center; }
 }
+/* Prevent old background image flash while RSVP theme settings load */
+body.rsvp-theme-loading::before,
+body.rsvp-theme-loading::after {
+  opacity: 0 !important;
+}
