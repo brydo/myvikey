@@ -546,7 +546,7 @@ test('guest and receipt retain saved event theme with safe fallback for old or u
     }
 });
 
-test('invitation recall is admin-only, paginated, and counts same-type events by ID across all reply pages', async () => {
+test('invitation recall is admin-only, paginated, and bounded regardless of response volume', async () => {
     const instance = api();
     const first = await createEvent(instance, { title: 'Wedding', eventType: 'weddings' });
     const second = await createEvent(instance, { title: 'Wedding', eventType: 'weddings' });
@@ -565,13 +565,13 @@ test('invitation recall is admin-only, paginated, and counts same-type events by
     const data = await result.json();
     assert.equal(data.invitations.length, 50);
     assert.equal(data.invitations[0].id, first.id);
-    assert.equal(data.invitations[0].replyCount, 500);
     assert.equal(data.invitations[1].id, second.id);
-    assert.equal(data.invitations[1].replyCount, 501);
-    assert.equal(data.invitations[2].replyCount, 0);
+    assert.equal(instance.calls.length, 1);
+    assert.equal(instance.calls[0].prefix, 'rsvp-invitation:');
     const next = await (await instance.post({ action: 'list-invitations', cursor: data.cursor }, 'valid-session')).json();
     assert.equal(next.invitations.length, 1);
     assert.equal(next.cursor, '');
+    assert.equal(instance.calls.length, 2);
     assert.equal((await instance.post({ action: 'list-invitations', cursor: 123 }, 'valid-session')).status, 400);
 });
 
@@ -642,12 +642,36 @@ test('event panel recalls codes and links, opens editor, scopes replies and clea
     assert.equal(app.nodes.events.children.length, 0);
 });
 
+test('reply filters skip empty pages, separate same-title events and keep clipboard fallback usable', async () => {
+    const savedEvents = [
+        { id: '11111111-1111-4111-8111-111111111111', title: 'Wedding', eventType: 'weddings' },
+        { id: '22222222-2222-4222-8222-222222222222', title: 'Wedding', eventType: 'weddings' }
+    ];
+    const app = browser({ page: 'admin', clipboardFails: true, savedEvents, replyPages: [
+        [{ ...valid, eventId: savedEvents[0].id, name: 'First wedding' }],
+        [{ ...valid, eventId: savedEvents[1].id, name: 'Second wedding' }]
+    ] });
+    await app.nodes.loginForm.handlers.submit({ preventDefault() {} });
+    assert.match(app.nodes.events.children[0].children[1].textContent, /Replies: 1/);
+    assert.match(app.nodes.events.children[1].children[1].textContent, /Replies: 1/);
+    app.nodes.replyEvent.value = savedEvents[1].id;
+    app.nodes.replyEvent.handlers.change();
+    await app.tick();
+    assert.equal(app.nodes.responses.children.length, 1);
+    assert.equal(app.nodes.responses.children[0].children[2].children[1].textContent, 'Second wedding');
+    assert.equal(app.nodes.more.hidden, true);
+    app.nodes.events.children[1].children[4].click();
+    await app.tick();
+    assert.match(app.nodes.message.textContent, /Select and copy/);
+});
+
 test('exports collect every reply page, isolate CSV events, include legacy records and require a live admin session', async () => {
     const id = '12345678-1234-4123-8123-123456789012';
     const replyPages = [[{ ...valid, name: 'First page', eventId: id }], [{ ...valid, name: 'Second page', eventId: id }, valid]];
     const app = browser({ page: 'admin', replyPages });
     await app.nodes.loginForm.handlers.submit({ preventDefault() {} });
     assert.equal(app.nodes.responses.children.length, 1);
+    assert.match(app.nodes.events.children[0].children[1].textContent, /Replies: 2/);
     app.nodes.events.children[0].children[8].click();
     await app.tick();
     assert.equal(app.downloads[0].filename, 'rsvp-' + id + '.csv');

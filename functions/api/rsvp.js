@@ -80,21 +80,7 @@ export async function onRequestPost({ request, env }) {
       });
       const records = await Promise.all(page.keys.map(key => env.FORM_SUBMISSIONS.get(key.name)));
       let items = records.filter(Boolean).map(raw => JSON.parse(raw));
-      if (invitations) {
-        const counts = new Map(items.map(item => [item.id, 0]));
-        let cursor;
-        // Count across every reply page, including replies stored before event filtering existed.
-        do {
-          const replies = await env.FORM_SUBMISSIONS.list({ prefix: PREFIX, limit: 1000, cursor });
-          const values = await Promise.all(replies.keys.map(key => env.FORM_SUBMISSIONS.get(key.name)));
-          values.filter(Boolean).forEach(raw => {
-            const id = JSON.parse(raw).eventId;
-            if (counts.has(id)) counts.set(id, counts.get(id) + 1);
-          });
-          cursor = replies.list_complete ? '' : replies.cursor;
-        } while (cursor);
-        items = items.map(item => ({ ...item, replyCount: counts.get(item.id) }));
-      } else if (body.eventId !== undefined) {
+      if (!invitations && body.eventId !== undefined) {
         items = items.filter(item => body.eventId === 'unassigned' ? !item.eventId : item.eventId === body.eventId);
       }
       return reply({

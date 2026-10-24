@@ -314,8 +314,14 @@
         var session = token;
         try {
             var items = await collect('list-invitations', session);
+            // Count via bounded API pages rather than an unbounded KV scan in one invocation.
+            var replies = await collect('list', session);
             if (token !== session) return;
-            invitations = items;
+            var counts = new Map();
+            replies.forEach(function (reply) { counts.set(reply.eventId, (counts.get(reply.eventId) || 0) + 1); });
+            invitations = items.map(function (item) {
+                return Object.assign({}, item, { replyCount: counts.get(item.id) || 0 });
+            });
             renderEvents();
             await load(false);
         } catch (error) {
@@ -359,8 +365,12 @@
         try {
             var payload = { action: 'list', cursor: cursor };
             if (replyEvent.value) payload.eventId = replyEvent.value;
-            var data = await post('/api/rsvp', payload, token);
-            if (token !== session || version !== loadVersion) return;
+            var data;
+            do {
+                data = await post('/api/rsvp', payload, token);
+                if (token !== session || version !== loadVersion) return;
+                payload.cursor = data.cursor || '';
+            } while (!data.responses.length && payload.cursor);
             data.responses.forEach(function (response) { window.RSVP.render(responses, response); });
             cursor = data.cursor || '';
             more.hidden = !cursor;
