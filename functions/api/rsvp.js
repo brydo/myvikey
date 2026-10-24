@@ -1,4 +1,5 @@
 import { validateSession } from '../lib/auth.js';
+import { eventTypes, theme, defaultBackgrounds, safeBackground } from '../../rsvp/themes.js';
 
 const PREFIX = 'rsvp:';
 const INVITATIONS = 'rsvp-invitation:';
@@ -7,7 +8,7 @@ const validId = id => typeof id === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-
 function invitationFields(body) {
   const result = {};
   const eventType = body.eventType === undefined ? 'celebration' : body.eventType;
-  if (!['celebration', 'events', 'weddings', 'parties', 'engagements'].includes(eventType)) return null;
+  if (!eventTypes.includes(eventType)) return null;
   result.eventType = eventType;
   for (const [field, max] of Object.entries({ title: 100, text: 5000, whatsapp: 16, sms: 16 })) {
     const value = ['whatsapp', 'sms'].includes(field) && body[field] === undefined ? '' : body[field];
@@ -35,7 +36,7 @@ export async function onRequestPost({ request, env }) {
     return reply({ success: false, error: 'Invalid JSON' }, 400);
   }
 
-  if (['list', 'list-invitations', 'save-invitation', 'delete-reply', 'delete-event'].includes(body.action)) {
+  if (['list', 'list-invitations', 'save-invitation', 'save-appearance', 'delete-reply', 'delete-event'].includes(body.action)) {
     const session = await validateSession(env, request.headers.get('x-admin-session'));
     if (!session || session.userId !== '__admin__') {
       return reply({ success: false, error: 'Unauthorized' }, 401);
@@ -43,7 +44,7 @@ export async function onRequestPost({ request, env }) {
     if (body.cursor !== undefined && (typeof body.cursor !== 'string' || body.cursor.length > 2048)) {
       return reply({ success: false, error: 'Invalid cursor' }, 400);
     }
-  } else if (!['submit', 'get-invitation'].includes(body.action)) {
+  } else if (!['submit', 'get-invitation', 'get-appearance'].includes(body.action)) {
     return reply({ success: false, error: 'Unknown action' }, 400);
   }
 
@@ -51,6 +52,22 @@ export async function onRequestPost({ request, env }) {
     return reply({ success: false, error: 'RSVP storage is unavailable. Please try again later.' }, 503);
   }
   try {
+    if (body.action === 'save-appearance' || body.action === 'get-appearance') {
+      if (body.action === 'save-appearance') {
+        if (!eventTypes.includes(body.eventType) || !safeBackground(body.backgroundImage)) {
+          return reply({ success: false, error: 'Choose a category and a safe HTTPS image URL (maximum 2048 characters), or leave it blank.' }, 400);
+        }
+        await env.FORM_SUBMISSIONS.put('rsvp-appearance:' + body.eventType,
+          JSON.stringify({ backgroundImage: body.backgroundImage }));
+      }
+      const appearance = {};
+      await Promise.all(eventTypes.map(async type => {
+        const raw = await env.FORM_SUBMISSIONS.get('rsvp-appearance:' + type);
+        const value = raw ? JSON.parse(raw).backgroundImage : defaultBackgrounds[type];
+        appearance[type] = { backgroundImage: safeBackground(value) ? value : defaultBackgrounds[type] };
+      }));
+      return reply({ success: true, appearance });
+    }
     if (body.action === 'delete-reply') {
       if (typeof body.id !== 'string' || !/^[a-zA-Z0-9_-]{1,100}$/.test(body.id)) {
         return reply({ success: false, error: 'Invalid reply ID' }, 400);
@@ -111,6 +128,16 @@ export async function onRequestPost({ request, env }) {
       if (!invitations && body.eventId !== undefined) {
         items = items.filter(item => body.eventId === 'unassigned' ? !item.eventId : item.eventId === body.eventId);
       }
+      if (!invitations) {
+        const categories = new Map();
+        await Promise.all([...new Set(items.map(item => item.eventId).filter(validId))].map(async id => {
+          const raw = await env.FORM_SUBMISSIONS.get(INVITATIONS + id);
+          if (raw) categories.set(id, theme(JSON.parse(raw).eventType));
+        }));
+        items = items.map(item => ({
+          ...item, eventType: categories.get(item.eventId) || theme(item.eventType)
+        }));
+      }
       return reply({
         success: true,
         [invitations ? 'invitations' : 'responses']: items,
@@ -146,7 +173,10 @@ export async function onRequestPost({ request, env }) {
     response.attending = body.attending;
     response.guests = body.guests;
     response.createdAt = new Date().toISOString();
-    if (invitation) response.eventId = invitation.id;
+    if (invitation) {
+      response.eventId = invitation.id;
+      response.eventType = theme(invitation.eventType);
+    }
     const key = PREFIX + crypto.randomUUID();
     await env.FORM_SUBMISSIONS.put(key, JSON.stringify(response));
     if (invitation && !await env.FORM_SUBMISSIONS.get(INVITATIONS + invitation.id)) {

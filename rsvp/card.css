@@ -1,12 +1,31 @@
 /* Celebration invitations and shared RSVP components. */
 :root { color-scheme: light; }
+:root, [data-event-type] {
+    --accent: #844456; --accent-hover: #6c3444; --ink: #493439;
+    --paper: #fffaf4; --border: #d8bda2; --backdrop-color: #faf5ef;
+    --backdrop: radial-gradient(ellipse at top left, #efd1d3, transparent 55%),
+        radial-gradient(ellipse at bottom right, #f2e1bd, transparent 60%);
+    --banner: radial-gradient(ellipse at 15% 100%, #a9b2a1 0 9%, transparent 10%),
+        radial-gradient(ellipse at 85% 100%, #b4bca8 0 9%, transparent 10%),
+        radial-gradient(circle at 30% 35%, #b08c48 0 2px, transparent 3px),
+        radial-gradient(circle at 75% 20%, #b08c48 0 2px, transparent 3px),
+        linear-gradient(120deg, #f4dedc, #fff5e5, #f2d9d8);
+    --symbol: "❀"; --symbol-color: #a9576b; --symbol-size: 90px;
+    --symbol-bottom: -16px; --symbol-left: 4%; --symbol-right: 4%;
+    --symbol-width: auto; --symbol-height: auto; --symbol-border: 0;
+    --symbol-after: var(--symbol); --symbol-after-color: #bb7482;
+    --symbol-after-size: var(--symbol-size); --symbol-after-bottom: var(--symbol-bottom);
+    --symbol-radius: 0; --heading-font: Georgia, "Times New Roman", serif; --heading-weight: 400;
+}
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    background:
-        radial-gradient(ellipse at top left, #efd1d3, transparent 55%),
-        radial-gradient(ellipse at bottom right, #f2e1bd, transparent 60%);
-    background-color: #faf5ef;
+    background-image: var(--category-image, var(--backdrop));
+    background-color: var(--backdrop-color);
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
     color: var(--ink, #493439);
     line-height: 1.6;
     min-height: 100vh;
@@ -35,25 +54,28 @@ body {
 .rsvp-banner {
     height: 110px;
     position: relative;
-    background:
-        radial-gradient(ellipse at 15% 100%, #a9b2a1 0 9%, transparent 10%),
-        radial-gradient(ellipse at 85% 100%, #b4bca8 0 9%, transparent 10%),
-        radial-gradient(circle at 30% 35%, #b08c48 0 2px, transparent 3px),
-        radial-gradient(circle at 75% 20%, #b08c48 0 2px, transparent 3px),
-        linear-gradient(120deg, #f4dedc, #fff5e5, #f2d9d8);
+    background: var(--category-banner, var(--banner));
+    background-size: cover;
+    background-position: center;
 }
 .rsvp-banner::before, .rsvp-banner::after {
-    content: "❀";
+    content: var(--image-symbol, var(--symbol));
     position: absolute;
-    color: #a9576b;
-    font: 90px/1 Georgia, serif;
-    bottom: -16px;
-    left: 4%;
+    color: var(--symbol-color);
+    font: var(--symbol-size)/1 Georgia, serif;
+    bottom: var(--symbol-bottom);
+    left: var(--symbol-left);
+    width: var(--symbol-width); height: var(--symbol-height);
+    border: var(--symbol-border); border-radius: var(--symbol-radius);
 }
-.rsvp-banner::after { left: auto; right: 4%; transform: rotate(30deg); color: #bb7482; }
+.rsvp-banner::after {
+    content: var(--image-symbol, var(--symbol-after)); color: var(--symbol-after-color);
+    font-size: var(--symbol-after-size); bottom: var(--symbol-after-bottom);
+    left: auto; right: var(--symbol-right); transform: rotate(30deg);
+}
 .rsvp-head { padding: 14px 20px 0; text-align: center; }
 h1, h2 { font-family: Georgia, "Times New Roman", serif; font-size: 1.9rem; line-height: 1.25; overflow-wrap: anywhere; }
-h1 { font-size: clamp(2.2rem, 8vw, 3rem); font-weight: 400; }
+h1 { font-family: var(--heading-font); font-size: clamp(2.2rem, 8vw, 3rem); font-weight: var(--heading-weight); }
 .brand { color: var(--accent, #825f2d); font-weight: 600; margin-bottom: 12px; letter-spacing: 2px; font-size: .8rem; text-transform: uppercase; }
 .rsvp-head > p:last-child, .page-head > p:last-child { color: #70565b; margin-top: 12px; }
 .invitation { text-align: center; }
@@ -113,78 +135,68 @@ nav a { display: inline-block; padding: 10px 4px; }
 .event-item { border: 1px solid var(--border, #d8bda2); border-radius: 12px; padding: 12px; overflow-wrap: anywhere; }
 .event-item h3 { font-family: Georgia, serif; }
 .event-item .rsvp-btn { margin: 8px 4px 0 0; }
-dt { color: #844456; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1.5px; }
-dd { color: #493439; white-space: pre-wrap; overflow-wrap: anywhere; margin-bottom: 12px; }
+dt { color: var(--accent); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1.5px; }
+dd { color: var(--ink); white-space: pre-wrap; overflow-wrap: anywhere; margin-bottom: 12px; }
 .occasion-chooser { text-align: center; padding: 24px 0; }
 .occasion-chooser h2 { font-size: 1.6rem; margin-bottom: 12px; }
 .occasion-chooser nav { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 16px; }
-body[data-event-type="events"] {
+[data-event-type="events"] {
     --accent: #326477; --accent-hover: #244c5b; --ink: #2e4650;
     --paper: #faffff; --border: #b5cdd1;
-    background: radial-gradient(ellipse at top left, #d3e9ed, transparent 60%),
-        radial-gradient(ellipse at bottom right, #f2e1bd, transparent 60%), #f5fafb;
-}
-body[data-event-type="events"] .rsvp-banner {
-    background:
+    --backdrop-color: #0d0d11;
+    --backdrop: radial-gradient(ellipse at top left, #d3e9ed, transparent 60%),
+        radial-gradient(ellipse at bottom right, #f2e1bd, transparent 60%);
+    --banner:
         radial-gradient(circle at 20% 25%, #a18243 0 2px, transparent 3px),
         radial-gradient(circle at 80% 70%, #a18243 0 2px, transparent 3px),
         linear-gradient(120deg, #d3e9ed, #fff5de, #d3e9ed);
+    --symbol: "✧"; --symbol-color: #326477; --symbol-size: 64px; --symbol-bottom: 12px;
+    --symbol-after-color: #326477;
 }
-body[data-event-type="events"] .rsvp-banner::before,
-body[data-event-type="events"] .rsvp-banner::after {
-    content: "✧"; color: #326477; font-size: 64px; bottom: 12px;
-}
-body[data-event-type="weddings"] {
+[data-event-type="weddings"] {
     --accent: #47634d; --accent-hover: #354b3a; --ink: #34463a;
     --paper: #fffdf7; --border: #c6cbb4;
-    background: radial-gradient(ellipse at top left, #dce7d7, transparent 60%), #faf7ef;
-}
-body[data-event-type="weddings"] .rsvp-banner {
-    background:
+    --backdrop-color: #faf7ef;
+    --backdrop: radial-gradient(ellipse at top left, #dce7d7, transparent 60%);
+    --banner:
         radial-gradient(ellipse at 8% 95%, #9ead8c 0 12%, transparent 13%),
         radial-gradient(ellipse at 92% 95%, #bdc9a9 0 12%, transparent 13%),
         linear-gradient(120deg, #e2eadb, #fff9e7, #e2eadb);
+    --symbol: ""; --symbol-width: 56px; --symbol-height: 56px; --symbol-border: 3px solid #a18243;
+    --symbol-radius: 50%; --symbol-left: calc(50% - 46px); --symbol-right: calc(50% - 46px); --symbol-bottom: 24px;
 }
-body[data-event-type="weddings"] .rsvp-banner::before,
-body[data-event-type="weddings"] .rsvp-banner::after {
-    content: ""; width: 56px; height: 56px; border: 3px solid #a18243;
-    border-radius: 50%; left: calc(50% - 46px); bottom: 24px; transform: rotate(-18deg);
-}
-body[data-event-type="weddings"] .rsvp-banner::after { left: calc(50% - 10px); }
-body[data-event-type="parties"] {
+[data-event-type="parties"] {
     --accent: #743b8f; --accent-hover: #58266f; --ink: #422751;
     --paper: #fffaff; --border: #d6b7e1;
-    background: radial-gradient(ellipse at top left, #ead3fc, transparent 60%),
-        radial-gradient(ellipse at bottom right, #ffdfbd, transparent 60%), #fff7f5;
-}
-body[data-event-type="parties"] .rsvp-banner {
-    background:
+    --backdrop-color: #fff7f5;
+    --backdrop: radial-gradient(ellipse at top left, #ead3fc, transparent 60%),
+        radial-gradient(ellipse at bottom right, #ffdfbd, transparent 60%);
+    --banner:
         radial-gradient(circle, #a34a88 0 2px, transparent 3px) 0 0 / 33px 37px,
         radial-gradient(circle, #b07b27 0 3px, transparent 4px) 16px 12px / 47px 43px,
         linear-gradient(120deg, #ead3fc, #ffe5cf);
+    --symbol: "✦"; --symbol-color: #743b8f; --symbol-size: 64px; --symbol-bottom: 12px;
+    --symbol-after-color: #743b8f;
+    --heading-font: inherit; --heading-weight: 700;
 }
-body[data-event-type="parties"] .rsvp-banner::before,
-body[data-event-type="parties"] .rsvp-banner::after {
-    content: "✦"; color: #743b8f; font-size: 64px; bottom: 12px;
-}
-body[data-event-type="parties"] h1 { font-family: inherit; font-weight: 700; }
-body[data-event-type="engagements"] {
+[data-event-type="engagements"] {
     --accent: #84502c; --accent-hover: #663b1e; --ink: #563b35;
     --paper: #fffcf8; --border: #dec5aa;
-    background: radial-gradient(ellipse at top left, #f4d9d4, transparent 60%),
-        radial-gradient(ellipse at bottom right, #efdfb9, transparent 60%), #fff9f2;
-}
-body[data-event-type="engagements"] .rsvp-banner {
-    background:
+    --backdrop-color: #fff9f2;
+    --backdrop: radial-gradient(ellipse at top left, #f4d9d4, transparent 60%),
+        radial-gradient(ellipse at bottom right, #efdfb9, transparent 60%);
+    --banner:
         radial-gradient(circle at 20% 25%, #aa8349 0 2px, transparent 3px),
         radial-gradient(circle at 80% 70%, #aa8349 0 2px, transparent 3px),
         linear-gradient(120deg, #f4d9d4, #fff3d8, #f4d9d4);
+    --symbol: "◇"; --symbol-color: #95692c; --symbol-left: calc(50% - 32px);
+    --symbol-right: 18%; --symbol-bottom: 10px; --symbol-size: 80px;
+    --symbol-after: "✧"; --symbol-after-color: #95692c; --symbol-after-size: 32px; --symbol-after-bottom: 26px;
 }
-body[data-event-type="engagements"] .rsvp-banner::before {
-    content: "◇"; color: #95692c; left: calc(50% - 32px); bottom: 10px; font-size: 80px;
-}
-body[data-event-type="engagements"] .rsvp-banner::after {
-    content: "✧"; color: #95692c; right: 18%; bottom: 26px; font-size: 32px; transform: none;
+/* Opaque surfaces keep copy and controls readable over any chosen image. */
+.page-head, .occasion-chooser, .wrap > nav, .wrap > #sendOptions,
+.landing-nav, .landing-copy, .landing-footer, .preview-label {
+    background: var(--paper); color: var(--ink); border-radius: 16px; padding: 20px;
 }
 @media (max-width: 480px) {
     .wrap { padding-right: 16px; padding-left: 16px; gap: 14px; }

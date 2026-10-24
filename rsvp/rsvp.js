@@ -1,16 +1,16 @@
+import './theme-client.js';
+
 (function () {
     'use strict';
     var message = document.getElementById('message');
     var receiptKey = 'rsvp_receipt';
-    var eventTypes = ['celebration', 'events', 'weddings', 'parties', 'engagements'];
-
     function theme(type) {
-        return eventTypes.indexOf(type) !== -1 ? type : 'celebration';
+        return window.RSVPThemes.theme(type);
     }
 
     function applyTheme(type) {
         type = theme(type);
-        document.body.setAttribute('data-event-type', type);
+        window.RSVPThemes.apply(document.body, type);
         var eyebrow = document.querySelector('.eyebrow');
         if (eyebrow) eyebrow.textContent = {
             celebration: 'Together is a beautiful place to be',
@@ -96,7 +96,8 @@
                         response: data.response, organiser: data.organiser,
                         eventType: theme(invitation.eventType)
                     }));
-                    window.location.assign('/rsvp/view');
+                    window.location.assign('/rsvp/view?type=' + theme(invitation.eventType) +
+                        '&id=' + encodeURIComponent(invitation.id));
                 } catch (storageError) {
                     // Keep the reply and send options here if browser storage is unavailable.
                 }
@@ -110,22 +111,42 @@
 
     var receipt = document.getElementById('receipt');
     if (receipt) {
+        var receiptParams = new URLSearchParams(window.location.search);
+        applyTheme(receiptParams.get('type'));
+        var receiptId = receiptParams.get('id');
+        var back = document.querySelector('nav a');
+        back.href = receiptId && /^[0-9a-f-]{36}$/.test(receiptId) ?
+            '/rsvp/?id=' + encodeURIComponent(receiptId) :
+            (theme(receiptParams.get('type')) === 'celebration' ? '/rsvp/' : '/rsvp/' + theme(receiptParams.get('type')) + '/');
+        function receiptTheme(type) {
+            applyTheme(type);
+            if (receipt.children.length) window.RSVPThemes.apply(receipt.children[0], type);
+        }
+        function resolveReceiptTheme(id) {
+            if (!id) return;
+            post('/api/rsvp', { action: 'get-invitation', id: id }).then(function (data) {
+                receiptTheme(data.invitation.eventType);
+            }).catch(function () { /* Keep the saved category if the invitation is unavailable. */ });
+        }
         try {
             var saved = JSON.parse(sessionStorage.getItem(receiptKey));
-            if (saved) {
-                applyTheme(saved.eventType);
+            if (saved && (!receiptId || (saved.response || saved).eventId === receiptId)) {
                 var reply = saved.response || saved;
-                window.RSVP.render(receipt, reply);
+                var savedType = theme(saved.eventType || reply.eventType || receiptParams.get('type'));
+                applyTheme(savedType);
+                window.RSVP.render(receipt, Object.assign({}, reply, { eventType: savedType }));
                 window.RSVP.sendOptions(document.getElementById('sendOptions'), reply, saved.organiser);
                 document.getElementById('receiptHeading').textContent = 'Thank you!';
                 status('Thanks, your RSVP is saved on this site.');
                 if (reply.eventId) {
                     document.querySelector('nav a').href = '/rsvp/?id=' + encodeURIComponent(reply.eventId);
                 }
+                receiptId = reply.eventId || receiptId;
             }
         } catch (error) {
             status('Your confirmation is unavailable in this tab. If you already submitted, your RSVP is still recorded.');
         }
+        resolveReceiptTheme(receiptId);
     }
 
     var login = document.getElementById('loginForm');
@@ -145,10 +166,40 @@
     var deleting = false;
     var cleanupJobs = [];
     var initialTheme = theme(new URLSearchParams(window.location.search).get('type'));
+    var appearanceForm = document.getElementById('appearanceForm');
+    var backgroundInput = document.getElementById('backgroundImage');
+    function showBackground() {
+        if (backgroundInput) backgroundInput.value = window.RSVPThemes.background(editor.elements.eventType.value);
+    }
+    if (appearanceForm) {
+        window.RSVPThemes.ready.then(showBackground);
+        appearanceForm.addEventListener('submit', async function (event) {
+            event.preventDefault();
+            var session = token;
+            var button = appearanceForm.querySelector('button');
+            button.disabled = true;
+            try {
+                var data = await post('/api/rsvp', {
+                    action: 'save-appearance', eventType: theme(editor.elements.eventType.value),
+                    backgroundImage: backgroundInput.value.trim()
+                }, session);
+                if (token !== session) return;
+                window.RSVPThemes.update(data.appearance);
+                showBackground();
+                status('Category background saved for all invitations, landing pages and confirmations.');
+            } catch (error) {
+                if (token !== session) return;
+                if (error.status === 401) logout();
+                status(error.message, true);
+            } finally { button.disabled = false; }
+        });
+    }
     editor.elements.eventType.value = initialTheme;
     applyTheme(initialTheme);
+    showBackground();
     editor.elements.eventType.addEventListener('change', function () {
         applyTheme(editor.elements.eventType.value);
+        showBackground();
     });
 
     function showInvitation(invitation) {
@@ -157,6 +208,7 @@
         });
         editor.elements.eventType.value = theme(invitation.eventType);
         applyTheme(invitation.eventType);
+        showBackground();
         share.replaceChildren();
         var link = document.createElement('a');
         link.href = window.location.origin + '/rsvp/?id=' + encodeURIComponent(invitation.id);
@@ -202,6 +254,7 @@
         editor.reset();
         editor.elements.eventType.value = initialTheme;
         applyTheme(initialTheme);
+        showBackground();
         share.replaceChildren();
         status('New invitation. Save to create a separate share link.');
     });
@@ -300,6 +353,7 @@
                     editor.reset();
                     editor.elements.eventType.value = initialTheme;
                     applyTheme(initialTheme);
+                    showBackground();
                     share.replaceChildren();
                 }
                 if (replyEvent.value === id) replyEvent.value = '';
@@ -434,9 +488,11 @@
         actions.hidden = true;
         more.hidden = true;
         editor.hidden = true;
+        if (appearanceForm) appearanceForm.hidden = true;
         editor.reset();
         editor.elements.eventType.value = initialTheme;
         applyTheme(initialTheme);
+        showBackground();
         share.replaceChildren();
         status('');
     }
@@ -508,6 +564,7 @@
             login.reset();
             login.hidden = true;
             actions.hidden = false;
+            if (appearanceForm) appearanceForm.hidden = false;
             editor.hidden = false;
             eventsPanel.hidden = false;
             await refresh();

@@ -3,6 +3,9 @@ const { readFileSync } = require('node:fs');
 const { test } = require('node:test');
 const { runInNewContext } = require('node:vm');
 const { webcrypto } = require('node:crypto');
+const themesSource = readFileSync(`${__dirname}/themes.js`, 'utf8').replace(/^export /gm, '');
+const apiSource = themesSource + '\n' + readFileSync(`${__dirname}/../functions/api/rsvp.js`, 'utf8')
+    .replace(/^import .*;\n/gm, '').replace('export async function', 'async function');
 
 const valid = { action: 'submit', name: ' Alex ', event: ' Celebration ', attending: 'yes', guests: 2, notes: ' Hello\nthere ' };
 
@@ -31,10 +34,7 @@ function api() {
         validateSession: async (_, token) => token === 'valid-session' ? { userId: '__admin__' } :
             token === 'other-user' ? { userId: 'other' } : null
     };
-    const source = readFileSync(`${__dirname}/../functions/api/rsvp.js`, 'utf8')
-        .replace(/^import .*;\n/, '')
-        .replace('export async function', 'async function');
-    runInNewContext(source, context);
+    runInNewContext(apiSource, context);
     return {
         env, records, calls,
         post: (body, token, url = 'https://example.com/api/rsvp') => context.onRequestPost({
@@ -94,8 +94,7 @@ test('requires HTTPS, handles invalid JSON and reports storage failures honestly
     const { post, env } = api();
     assert.equal((await post(valid, null, 'http://example.com/api/rsvp')).status, 403);
     const context = { URL, Response };
-    runInNewContext(readFileSync(`${__dirname}/../functions/api/rsvp.js`, 'utf8')
-        .replace(/^import .*;\n/, '').replace('export async function', 'async function'), context);
+    runInNewContext(apiSource, context);
     const invalid = await context.onRequestPost({
         env, request: new Request('https://example.com/api/rsvp', { method: 'POST', body: '{' })
     });
@@ -132,9 +131,11 @@ test('listing is admin-only, scoped to RSVP keys, paginated and never cached', a
 function element(tag) {
     return {
         tag, children: [], attributes: {}, textContent: '', handlers: {},
+        style: { setProperty(key, value) { this[key] = value; } },
         appendChild(child) { this.children.push(child); },
         replaceChildren() { this.children = []; },
         setAttribute(key, value) { this.attributes[key] = value; },
+        getAttribute(key) { return this.attributes[key]; },
         addEventListener(name, handler) { this.handlers[name] = handler; },
         click() { if (this.handlers.click) return this.handlers.click(); },
         remove() {}
@@ -338,7 +339,7 @@ test('channel links validate destinations and encode the event and all five fiel
     assert.equal(root.children[1].rel, 'noopener noreferrer');
 });
 
-function browser({ page = 'index', storageFails = false, saved, failSave = false, expired = false, eventType, search,
+function browser({ page = 'index', storageFails = false, saved, failSave = false, expired = false, eventType, search, appearanceFails = false,
     savedEvents, replyPages = [[]], exportExpired = false, clipboardFails = false, apiPost, confirm = () => true } = {}) {
     const nodes = {};
     function node(id) {
@@ -371,12 +372,13 @@ function browser({ page = 'index', storageFails = false, saved, failSave = false
     const copied = [];
     const context = {
         navigator: { clipboard: { async writeText(value) { if (clipboardFails) throw Error('denied'); copied.push(value); } } },
-        URLSearchParams, document: {
+        URL, URLSearchParams, document: {
             body: node('body'),
             createElement: element,
             createTextNode(text) { return { textContent: text }; },
             getElementById(id) {
-                if ((id === 'loginForm' && page !== 'admin') || (id === 'rsvpForm' && page !== 'index') || (id === 'receipt' && page !== 'view')) return null;
+                if ((['loginForm', 'appearanceForm', 'backgroundImage'].includes(id) && page !== 'admin') ||
+                    (id === 'rsvpForm' && page !== 'index') || (id === 'receipt' && page !== 'view')) return null;
                 return node(id);
             },
             querySelector(selector) { return node(selector === '.eyebrow' ? 'eyebrow' : 'back'); }
@@ -392,12 +394,14 @@ function browser({ page = 'index', storageFails = false, saved, failSave = false
                 workbook(events, replies) { return { events, replies }; },
                 download(content, filename, type) { downloads.push({ content, filename, type }); }
             },
-            location: { origin: 'https://example.com', search: search === undefined ? '?id=' + event.id : search, assign(path) { redirects.push(path); } }
+            location: { origin: 'https://example.com', search: search === undefined ? (page === 'index' ? '?id=' + event.id : '') : search, assign(path) { redirects.push(path); } }
         },
         fetch: async (path, options) => {
             const payload = JSON.parse(options.body);
             requests.push(payload);
+            if (payload.action === 'get-appearance' && appearanceFails) throw Error('offline');
             if (path === '/api/rsvp' && apiPost) return apiPost(payload, options.headers['X-Admin-Session']);
+            if (payload.action === 'get-appearance') return { ok: true, json: async () => ({ success: true }) };
             if (payload.action === 'get-invitation') return { ok: true, json: async () => ({ success: true, invitation: event }) };
             if (payload.action === 'verify') return { ok: true, json: async () => ({ success: true, sessionToken: 'valid-session' }) };
             if (['list', 'list-invitations'].includes(payload.action)) {
@@ -426,9 +430,12 @@ function browser({ page = 'index', storageFails = false, saved, failSave = false
             return { ok: true, json: async () => ({ success: true, response, organiser: invitation }) };
         }
     };
+    if (page === 'landing') node('body').setAttribute('data-event-type', eventType);
+    runInNewContext(themesSource + '\n' + readFileSync(`${__dirname}/theme-client.js`, 'utf8').replace(/^import .*;\n/gm, ''), context);
     runInNewContext(readFileSync(`${__dirname}/card-render.js`, 'utf8'), context);
-    runInNewContext(readFileSync(`${__dirname}/rsvp.js`, 'utf8'), context);
-    return { nodes, requests, stored, redirects, downloads, copied, event, tick: () => new Promise(resolve => setImmediate(resolve)) };
+    if (page !== 'landing') runInNewContext(readFileSync(`${__dirname}/rsvp.js`, 'utf8').replace(/^import .*;\n/gm, ''), context);
+    return { nodes, requests, stored, redirects, downloads, copied, event, themes: context.window.RSVPThemes,
+        tick: () => new Promise(resolve => setImmediate(resolve)) };
 }
 
 test('deletion is admin-only, validates identifiers and cannot delete unrelated KV records', async () => {
@@ -707,7 +714,7 @@ test('real API organiser routing preserves SMS from admin save/load through gues
         guest.nodes.guests.value = '0';
         guest.nodes.notes.value = 'See you there!';
         await guest.nodes.rsvpForm.handlers.submit({ preventDefault() {} });
-        assert.deepEqual(guest.redirects, ['/rsvp/view']);
+        assert.deepEqual(guest.redirects, ['/rsvp/view?type=celebration&id=' + id]);
         const saved = JSON.parse(guest.stored.get('rsvp_receipt'));
         assert.deepEqual(saved.organiser, { whatsapp, sms: invitation.sms });
         const receipt = browser({ page: 'view', saved });
@@ -741,8 +748,8 @@ test('guest loads safe multiline invitation, reveals prefilled form, saves event
     assert.equal(app.nodes.guests.value, '0');
     assert.equal(app.nodes.guests.disabled, true);
     await app.nodes.rsvpForm.handlers.submit({ preventDefault() {} });
-    assert.equal(app.requests[1].eventId, app.event.id);
-    assert.deepEqual(app.redirects, ['/rsvp/view']);
+    assert.equal(app.requests.find(item => item.action === 'submit').eventId, app.event.id);
+    assert.deepEqual(app.redirects, ['/rsvp/view?type=celebration&id=' + app.event.id]);
     const receipt = JSON.parse(app.stored.get('rsvp_receipt'));
     const view = browser({ page: 'view', saved: receipt });
     assert.equal(view.nodes.receipt.children.length, 1);
@@ -775,7 +782,7 @@ test('storage-disabled browser retains reply and channel choices; failed server 
 test('organiser login, create, reload, edit, new invitation and logout preserve protected workflow', async () => {
     const app = browser({ page: 'admin' });
     await app.nodes.loginForm.handlers.submit({ preventDefault() {} });
-    assert.equal(app.requests[0].id, '__admin__');
+    assert.equal(app.requests.find(item => item.action === 'verify').id, '__admin__');
     assert.equal(app.nodes.invitationForm.hidden, false);
     for (const [field, value] of Object.entries(invitation)) {
         if (field !== 'action') app.nodes['editor-' + field].value = value;
@@ -840,14 +847,15 @@ test('landing pages have distinct themes and accessible navigation without publi
         assert.match(html, /example invitation/);
         assert.match(html, /unique .* link shared by your host/);
         assert.match(html, /href="\/rsvp\/landing.css"/);
-        assert.doesNotMatch(html, /<form|<script/);
+        assert.doesNotMatch(html, /<form/);
+        assert.match(html, /type="module" src="\/rsvp\/theme-client.js"/);
         const chooser = readFileSync(`${__dirname}/index.html`, 'utf8');
         assert.ok(chooser.includes(`href="/rsvp/${eventType}/"`));
         assert.doesNotMatch(chooser, /href=["'][^"']*admin|Organiser setup|sign in below/i);
     }
 });
 
-for (const eventType of ['weddings', 'parties', 'engagements']) {
+for (const eventType of ['events', 'weddings', 'parties', 'engagements']) {
     test(`${eventType} landing header has complete theme navigation and one current page`, () => {
         const html = readFileSync(`${__dirname}/${eventType}/index.html`, 'utf8');
         const header = html.match(/<header\b[^>]*>([\s\S]*?)<\/header>/);
@@ -878,7 +886,219 @@ test('events landing page uses shared assets and is linked from the RSVP index',
     assert.match(html, /href="\/rsvp\/engagements\/"/);
     assert.match(chooser, /href="\/rsvp\/events\/"/);
     assert.match(html, /data-event-type="events"/);
-    assert.doesNotMatch(html, /<form|<script|href=["'][^"']*admin/i);
+    assert.doesNotMatch(html, /<form|href=["'][^"']*admin/i);
+    assert.match(html, /src="\/rsvp\/theme-client.js"/);
+});
+
+const halloween = 'https://pub-07ed0b0955a4401f9956c3ca7a33c40e.r2.dev/ween.jpg';
+const categories = ['celebration', 'events', 'weddings', 'parties', 'engagements'];
+
+test('public appearance reads expose only whitelisted backgrounds and preserve category defaults', async () => {
+    const instance = api();
+    const event = await createEvent(instance, { eventType: 'events' });
+    await instance.post({ ...valid, event: event.title, eventId: event.id });
+    instance.records.set('sub_private', '{"password":"private"}');
+    instance.records.set('rsvp-appearance:private', '{"secret":"private"}');
+    const response = await instance.post({ action: 'get-appearance' });
+    assert.equal(response.headers.get('Cache-Control'), 'no-store');
+    const data = await response.json();
+    assert.deepEqual(Object.keys(data).sort(), ['appearance', 'success']);
+    assert.deepEqual(Object.keys(data.appearance).sort(), [...categories].sort());
+    for (const type of categories) {
+        assert.deepEqual(data.appearance[type], { backgroundImage: type === 'events' ? halloween : '' });
+    }
+    assert.equal(instance.calls.length, 0, 'Public settings never list invitations or replies');
+    assert.doesNotMatch(JSON.stringify(data), new RegExp(event.id + '|private|' + event.title));
+});
+
+test('only trusted admins can persist bounded safe HTTPS category backgrounds', async () => {
+    const instance = api();
+    const settings = { action: 'save-appearance', eventType: 'events', backgroundImage: 'https://images.example.com/party.jpg?v=2&size=large' };
+    for (const token of [undefined, 'invalid-session', 'other-user']) {
+        assert.equal((await instance.post(settings, token)).status, 401);
+    }
+    assert.equal(instance.records.size, 0);
+    for (const backgroundImage of [
+        undefined, null, {}, [], 3, 'http://example.com/a.jpg', '//example.com/a.jpg',
+        'javascript:alert(1)', 'data:image/svg+xml,bad', 'https://', '******example.com/a',
+        'https://example.com/a.jpg");color:red;/*', 'https://example.com/a\\b',
+        'https://example.com/a\nb', 'https://example.com/<img>', 'https://example.com/' + 'a'.repeat(2048)
+    ]) {
+        assert.equal((await instance.post({ ...settings, backgroundImage }, 'valid-session')).status, 400, String(backgroundImage));
+    }
+    for (const eventType of ['unknown', '__proto__', null, {}, ['events']]) {
+        assert.equal((await instance.post({ ...settings, eventType }, 'valid-session')).status, 400);
+    }
+    assert.equal(instance.records.size, 0);
+    assert.equal((await instance.post(settings, 'valid-session')).status, 200);
+    assert.deepEqual(JSON.parse(instance.records.get('rsvp-appearance:events')), { backgroundImage: settings.backgroundImage });
+    const data = await (await instance.post({ action: 'get-appearance' })).json();
+    assert.equal(data.appearance.events.backgroundImage, settings.backgroundImage);
+    assert.equal(data.appearance.weddings.backgroundImage, '');
+    assert.equal((await instance.post({ ...settings, backgroundImage: '' }, 'valid-session')).status, 200);
+    assert.equal((await (await instance.post({ action: 'get-appearance' })).json()).appearance.events.backgroundImage, '');
+});
+
+test('every category uses its current saved background across landing, existing invitation, form, receipt and reply card', async () => {
+    for (const eventType of categories) {
+        const instance = api();
+        const event = await createEvent(instance, { eventType });
+        const original = instance.records.get('rsvp-invitation:' + event.id);
+        const backgroundImage = 'https://images.example.com/' + eventType + '.jpg';
+        const admin = browser({ page: 'admin', search: '?type=' + eventType, apiPost: instance.post });
+        await admin.nodes.loginForm.handlers.submit({ preventDefault() {} });
+        await admin.tick();
+        assert.equal(admin.nodes.appearanceForm.hidden, false);
+        admin.nodes.backgroundImage.value = backgroundImage;
+        await admin.nodes.appearanceForm.handlers.submit({ preventDefault() {} });
+        assert.equal(instance.records.get('rsvp-invitation:' + event.id), original, 'Settings must not rewrite invitations');
+        const landing = browser({ page: 'landing', eventType, search: '', apiPost: instance.post });
+        const guest = browser({ search: '?id=' + event.id, apiPost: instance.post });
+        await Promise.all([landing.tick(), guest.tick()]);
+        assert.equal(landing.requests.some(item => item.action === 'get-invitation'), false);
+        const expected = 'url("' + backgroundImage + '")';
+        for (const app of [admin, landing, guest]) {
+            assert.equal(app.nodes.body.style['--category-image'], expected);
+            assert.equal(app.nodes.body.attributes['data-event-type'], eventType);
+        }
+        assert.equal(guest.nodes.heading.textContent, event.title);
+        assert.equal(guest.nodes.invitationText.textContent, event.text);
+        guest.nodes.openRsvp.handlers.click();
+        assert.equal(guest.nodes.rsvpForm.hidden, false);
+        assert.equal(guest.nodes.body.style['--category-image'], expected);
+        guest.nodes.name.value = 'Guest';
+        guest.nodes.attending.value = 'yes';
+        guest.nodes.guests.value = '0';
+        await guest.nodes.rsvpForm.handlers.submit({ preventDefault() {} });
+        const saved = JSON.parse(guest.stored.get('rsvp_receipt'));
+        assert.equal(saved.response.eventType, eventType);
+        const receipt = browser({ page: 'view', search: guest.redirects[0].split('?')[1] ? '?' + guest.redirects[0].split('?')[1] : '',
+            saved, apiPost: instance.post });
+        await receipt.tick();
+        assert.equal(receipt.nodes.body.style['--category-image'], expected);
+        assert.equal(receipt.nodes.receipt.children[0].style['--category-image'], expected);
+        assert.equal(receipt.nodes.back.href, '/rsvp/?id=' + event.id);
+        await admin.nodes.refresh.handlers.click();
+        assert.equal(admin.nodes.responses.children[0].style['--category-image'], expected);
+        await admin.nodes.logout.handlers.click();
+        assert.equal(admin.nodes.appearanceForm.hidden, true);
+    }
+});
+
+test('Events Halloween default is shared even when appearance loading fails', async () => {
+    for (const page of ['landing', 'index', 'view', 'admin']) {
+        const app = browser({ page, eventType: 'events', appearanceFails: true,
+            search: page === 'index' ? undefined : '?type=events',
+            saved: page === 'view' ? { response: valid, eventType: 'events' } : undefined });
+        await app.tick();
+        assert.equal(app.nodes.body.style['--category-image'], 'url("' + halloween + '")');
+        assert.equal(await app.themes.ready, false);
+    }
+    const css = readFileSync(`${__dirname}/card.css`, 'utf8');
+    assert.match(css, /--backdrop-color: #0d0d11/);
+    for (const rule of ['background-size: cover', 'background-position: center', 'background-attachment: fixed', 'background-repeat: no-repeat']) {
+        assert.ok(css.includes(rule));
+    }
+});
+
+test('mixed admin reply cards resolve category by invitation ID, including legacy replies, without changing the preview', async () => {
+    const instance = api();
+    const first = await createEvent(instance, { title: 'Same title', eventType: 'events' });
+    const second = await createEvent(instance, { title: 'Same title', eventType: 'weddings' });
+    for (const event of [first, second]) {
+        await instance.post({ ...valid, event: event.title, eventId: event.id, eventType: 'parties' });
+    }
+    instance.records.set('rsvp:old', JSON.stringify({ ...valid, eventId: second.id }));
+    instance.records.set('rsvp:unassigned', JSON.stringify(valid));
+    const admin = browser({ page: 'admin', search: '?type=parties', apiPost: instance.post });
+    await admin.nodes.loginForm.handlers.submit({ preventDefault() {} });
+    await admin.tick();
+    assert.deepEqual(admin.nodes.responses.children.map(card => card.attributes['data-event-type']),
+        ['events', 'weddings', 'weddings', 'celebration']);
+    assert.equal(admin.nodes.responses.children[0].style['--category-image'], 'url("' + halloween + '")');
+    assert.equal(admin.nodes.responses.children[1].style['--category-image'], 'var(--backdrop)');
+    assert.equal(admin.nodes.body.attributes['data-event-type'], 'parties');
+    const replies = await (await instance.post({ action: 'list', eventId: first.id }, 'valid-session')).json();
+    assert.equal(replies.responses.length, 1);
+    assert.equal(replies.responses[0].eventId, first.id);
+    await instance.post({ action: 'delete-event', id: first.id, deleteReplies: false }, 'valid-session');
+    const retained = await (await instance.post({ action: 'list' }, 'valid-session')).json();
+    assert.equal(retained.responses[0].eventType, 'events', 'Deleted invitations retain server-saved category');
+});
+
+test('receipts load current appearance and invitation category, retain legacy fallback, and never show a different invitation receipt', async () => {
+    const instance = api();
+    const event = await createEvent(instance, { eventType: 'events' });
+    const saved = { response: { ...valid, eventId: event.id }, eventType: 'events' };
+    await createEvent(instance, { ...event, eventType: 'engagements' });
+    await instance.post({ action: 'save-appearance', eventType: 'engagements', backgroundImage: 'https://images.example.com/new.jpg' }, 'valid-session');
+    const receipt = browser({ page: 'view', saved, apiPost: instance.post });
+    await receipt.tick();
+    assert.equal(receipt.nodes.body.attributes['data-event-type'], 'engagements');
+    assert.equal(receipt.nodes.receipt.children[0].attributes['data-event-type'], 'engagements');
+    assert.equal(receipt.nodes.body.style['--category-image'], 'url("https://images.example.com/new.jpg")');
+    const empty = browser({ page: 'view', search: '?type=events&id=' + event.id, apiPost: instance.post });
+    await empty.tick();
+    assert.equal(empty.nodes.body.attributes['data-event-type'], 'engagements');
+    assert.equal(empty.nodes.back.href, '/rsvp/?id=' + event.id);
+    assert.equal(empty.nodes.receipt.children.length, 0);
+    const other = await createEvent(instance, { eventType: 'weddings' });
+    const mismatch = browser({ page: 'view', saved, search: '?type=weddings&id=' + other.id, apiPost: instance.post });
+    await mismatch.tick();
+    assert.equal(mismatch.nodes.receipt.children.length, 0);
+    const legacy = browser({ page: 'view', saved: valid, appearanceFails: true });
+    assert.equal(legacy.nodes.body.attributes['data-event-type'], 'celebration');
+});
+
+test('client rejects unsafe appearance responses and keeps defaults on failed settings requests', async () => {
+    const app = browser({ page: 'landing', eventType: 'events', appearanceFails: true, search: '' });
+    await app.tick();
+    app.themes.update({ events: { backgroundImage: 'javascript:alert(1)' }, weddings: { backgroundImage: 'https://host/a");color:red' } });
+    assert.equal(app.nodes.body.style['--category-image'], 'url("' + halloween + '")');
+    app.themes.apply(app.nodes.body, '__proto__');
+    assert.equal(app.nodes.body.attributes['data-event-type'], 'celebration');
+    assert.equal(app.nodes.body.style['--category-image'], 'var(--backdrop)');
+});
+
+test('admin category resets synchronize the background input after deletion and logout', async () => {
+    const instance = api();
+    const event = await createEvent(instance, { eventType: 'weddings' });
+    const admin = browser({ page: 'admin', search: '?type=events', apiPost: instance.post });
+    await admin.nodes.loginForm.handlers.submit({ preventDefault() {} });
+    await admin.tick();
+    admin.nodes['editor-id'].value = event.id;
+    await admin.nodes.loadInvitation.handlers.click();
+    assert.equal(admin.nodes.backgroundImage.value, '');
+    admin.nodes.logout.handlers.click();
+    assert.equal(admin.nodes['editor-eventType'].value, 'events');
+    assert.equal(admin.nodes.backgroundImage.value, halloween);
+    await admin.nodes.loginForm.handlers.submit({ preventDefault() {} });
+    admin.nodes['editor-id'].value = event.id;
+    await admin.nodes.loadInvitation.handlers.click();
+    const row = admin.nodes.events.children[0];
+    await row.children.find(node => node.tag === 'button' && node.textContent === 'Delete event').click();
+    assert.equal(admin.nodes['editor-eventType'].value, 'events');
+    assert.equal(admin.nodes.backgroundImage.value, halloween);
+});
+
+test('a slow initial appearance read cannot overwrite a newer authenticated settings save', async () => {
+    const instance = api();
+    let finish;
+    const pending = new Promise(resolve => { finish = resolve; });
+    const admin = browser({ page: 'admin', search: '?type=events', apiPost: async (payload, token) => {
+        if (payload.action === 'get-appearance') {
+            await pending;
+            return Response.json({ success: true, appearance: { events: { backgroundImage: halloween } } });
+        }
+        return instance.post(payload, token);
+    } });
+    await admin.nodes.loginForm.handlers.submit({ preventDefault() {} });
+    admin.nodes.backgroundImage.value = 'https://images.example.com/new.jpg';
+    await admin.nodes.appearanceForm.handlers.submit({ preventDefault() {} });
+    finish();
+    await admin.tick();
+    assert.equal(admin.nodes.body.style['--category-image'], 'url("https://images.example.com/new.jpg")');
+    assert.equal(admin.nodes.backgroundImage.value, 'https://images.example.com/new.jpg');
 });
 
 test('admin theme options match the shared card themes, including Events tokens and banner', () => {
@@ -888,13 +1108,12 @@ test('admin theme options match the shared card themes, including Events tokens 
         ['celebration', 'events', 'weddings', 'parties', 'engagements']);
     assert.match(selector, /<option value="events">Events · versatile celebration<\/option>/);
     const css = readFileSync(`${__dirname}/card.css`, 'utf8');
-    const tokens = css.match(/body\[data-event-type="events"\] \{([^}]+)\}/)[1];
+    const tokens = css.match(/\[data-event-type="events"\] \{([^}]+)\}/)[1];
     for (const token of ['accent', 'accent-hover', 'ink', 'paper', 'border']) {
         assert.ok(tokens.includes(`--${token}:`));
     }
-    assert.match(css, /body\[data-event-type="events"\] \.rsvp-banner \{/);
-    assert.match(css, /body\[data-event-type="events"\] \.rsvp-banner::before,/);
-    assert.match(css, /body\[data-event-type="events"\] \.rsvp-banner::after \{/);
+    assert.match(tokens, /--banner:/);
+    assert.match(tokens, /--symbol: "✧"/);
 });
 
 test('direct admin links preselect the theme, which is saved and restored when loading invitations', async () => {
