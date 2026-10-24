@@ -7,7 +7,7 @@ const themesSource = readFileSync(`${__dirname}/themes.js`, 'utf8').replace(/^ex
 const apiSource = themesSource + '\n' + readFileSync(`${__dirname}/../functions/api/rsvp.js`, 'utf8')
     .replace(/^import .*;\n/gm, '').replace('export async function', 'async function');
 const appearanceModel = runInNewContext(themesSource +
-    '\n({ copyFields, styleFields, defaultCopy, defaultCardStyle, normalizeAppearance, validateAppearance })', { URL });
+    '\n({ copyFields, styleFields, defaultCopy, defaultCardStyle, normalizeAppearance, validateAppearance, contrastIssues, buttonHover })', { URL });
 const plain = value => JSON.parse(JSON.stringify(value));
 // Saved settings carry a server-owned revision; compare everything else exactly.
 const unrevised = value => { const { updatedAt, ...rest } = plain(value); return rest; };
@@ -379,7 +379,7 @@ test('channel links validate destinations and encode the event and all five fiel
 });
 
 function browser({ page = 'index', storageFails = false, saved, failSave = false, expired = false, eventType, search, appearanceFails = false,
-    savedEvents, replyPages = [[]], exportExpired = false, clipboardFails = false, apiPost, confirm = () => true } = {}) {
+    savedEvents, replyPages = [[]], exportExpired = false, clipboardFails = false, apiPost, confirm = () => true, localStore } = {}) {
     const nodes = {};
     function node(id) {
         if (!nodes[id]) nodes[id] = {
@@ -458,6 +458,10 @@ function browser({ page = 'index', storageFails = false, saved, failSave = false
         sessionStorage: {
             setItem(key, value) { if (storageFails) throw Error('disabled'); stored.set(key, value); },
             getItem(key) { return stored.get(key); }
+        },
+        localStorage: localStore && {
+            setItem(key, value) { localStore.set(key, value); },
+            getItem(key) { return localStore.has(key) ? localStore.get(key) : null; }
         },
         window: {
             confirm,
@@ -1889,4 +1893,334 @@ test('XLSX creates separate safe worksheets for same-title events, empty events,
     assert.match(files.get('_rels/.rels'), /Target="xl\/workbook.xml"/);
     const empty = await unzipStored(exporter().workbook([], []));
     assert.match(empty.get('xl/workbook.xml'), /Unassigned/);
+});
+
+// Distinct, readable palettes per category, including the editable button colours.
+const palettes = {
+    celebration: { surface: '#2b1d22', textColor: '#fbeff2', headingColor: '#ffd6e0',
+        buttonBackground: '#ffd6e0', buttonText: '#2b1d22', buttonBorder: '#ffd6e0' },
+    events: { surface: '#14101f', textColor: '#f5e9ff', headingColor: '#ffb347',
+        buttonBackground: '#ff7518', buttonText: '#14101f', buttonBorder: '#ffb347' },
+    weddings: { surface: '#f7fbf4', textColor: '#1f3324', headingColor: '#2c4a33',
+        buttonBackground: '#2c4a33', buttonText: '#f7fbf4', buttonBorder: '#5b7a61' },
+    parties: { surface: '#fff4fb', textColor: '#3a1450', headingColor: '#6a1b9a',
+        buttonBackground: '#ffe066', buttonText: '#3a1450', buttonBorder: '#6a1b9a' },
+    engagements: { surface: '#fffaf0', textColor: '#4a2c20', headingColor: '#7a3e1d',
+        buttonBackground: '#7a3e1d', buttonText: '#fffaf0', buttonBorder: '#a0522d' }
+};
+const colorKeys = ['surface', 'textColor', 'headingColor', 'buttonBackground', 'buttonText', 'buttonBorder'];
+
+async function signIn(admin) {
+    await admin.nodes.loginForm.handlers.submit({ preventDefault() {} });
+    await admin.tick();
+}
+
+function chooseCategory(admin, type) {
+    admin.nodes['editor-eventType'].value = type;
+    admin.nodes['editor-eventType'].handlers.change();
+}
+
+function editStyles(admin, styles) {
+    for (const [key, value] of Object.entries(styles)) admin.nodes.appearanceForm.elements['style-' + key].value = value;
+    admin.nodes.appearanceForm.handlers.input();
+}
+
+function shownColors(admin) {
+    return Object.fromEntries(colorKeys.map(key => [key, admin.nodes.appearanceForm.elements['style-' + key].value]));
+}
+
+function buttonTokens(node) {
+    return { buttonBackground: node.style['--btn-bg'], buttonText: node.style['--btn-text'], buttonBorder: node.style['--btn-border'] };
+}
+
+test('test palettes are valid, readable and keep derived hover states readable', () => {
+    for (const type of categories) {
+        const style = { ...appearanceModel.defaultCardStyle(type), ...palettes[type] };
+        assert.deepEqual(plain(appearanceModel.contrastIssues(style)), [], type);
+        const hover = appearanceModel.buttonHover(style);
+        assert.notEqual(hover, style.buttonBackground, type + ' hover must be visibly different');
+        assert.ok(contrastRatio(style.buttonText, hover) >= 4.5, type + ' hover label contrast');
+    }
+});
+
+test('exact chosen card and button colours survive save, fresh public read, admin reload, category switches and re-apply in all five categories', async () => {
+    const instance = api();
+    const admin = browser({ page: 'admin', search: '?type=celebration', apiPost: instance.post });
+    await signIn(admin);
+    for (const type of categories) {
+        chooseCategory(admin, type);
+        editStyles(admin, palettes[type]);
+        assert.equal(admin.nodes.appearanceStatus.getAttribute('data-state'), 'draft');
+        assert.match(admin.nodes.appearanceStatus.textContent, /Unsaved preview .*not published/);
+        await admin.nodes.appearanceForm.handlers.submit({ preventDefault() {} });
+        assert.equal(admin.nodes.appearanceStatus.getAttribute('data-state'), 'success', type);
+        assert.match(admin.nodes.appearanceStatus.textContent, /^Saved and published for /);
+        assert.deepEqual(shownColors(admin), palettes[type], type + ' inputs keep exact colours after Save');
+        assert.deepEqual(buttonTokens(admin.nodes.body), {
+            buttonBackground: palettes[type].buttonBackground, buttonText: palettes[type].buttonText,
+            buttonBorder: palettes[type].buttonBorder
+        });
+    }
+    for (const type of categories) {
+        chooseCategory(admin, type);
+        assert.deepEqual(shownColors(admin), palettes[type], type + ' after switching categories');
+        assert.equal(admin.nodes.appearancePreview.style['--btn-bg'], palettes[type].buttonBackground);
+        assert.equal(admin.nodes.appearancePreview.style['--card-surface'], palettes[type].surface);
+    }
+    const fresh = (await (await instance.post({ action: 'get-appearance' })).json()).appearance;
+    for (const type of categories) {
+        for (const key of colorKeys) assert.equal(fresh[type].cardStyle[key], palettes[type][key], type + ' ' + key);
+    }
+    const reloaded = browser({ page: 'admin', search: '?type=events', apiPost: instance.post });
+    await signIn(reloaded);
+    for (const type of categories) {
+        chooseCategory(reloaded, type);
+        assert.deepEqual(shownColors(reloaded), palettes[type], type + ' after reload');
+        await reloaded.nodes.appearanceForm.handlers.submit({ preventDefault() {} });
+        assert.equal(reloaded.nodes.appearanceStatus.getAttribute('data-state'), 'success');
+        assert.deepEqual(shownColors(reloaded), palettes[type], type + ' after applying again');
+    }
+});
+
+test('save response is authoritative when KV reads lag a write, and a reload prefers this browser’s newer saved revision', async () => {
+    const instance = api();
+    const read = instance.env.FORM_SUBMISSIONS.get;
+    let lagging = true;
+    // Simulate an edge cache still holding the pre-save (missing) value.
+    instance.env.FORM_SUBMISSIONS.get = async key => lagging && key.startsWith('rsvp-appearance:') ? undefined : read(key);
+    const local = new Map();
+    const admin = browser({ page: 'admin', search: '?type=events', apiPost: instance.post, localStore: local });
+    await signIn(admin);
+    editStyles(admin, palettes.events);
+    await admin.nodes.appearanceForm.handlers.submit({ preventDefault() {} });
+    assert.equal(admin.nodes.appearanceStatus.getAttribute('data-state'), 'success');
+    assert.deepEqual(shownColors(admin), palettes.events, 'Inputs must not revert to the stale read');
+    assert.equal(admin.themes.settings('events').cardStyle.buttonBackground, palettes.events.buttonBackground);
+    assert.ok(JSON.parse(local.get('rsvp_appearance_saved')).events.updatedAt > 0);
+
+    const reloaded = browser({ page: 'admin', search: '?type=events', apiPost: instance.post, localStore: local });
+    await signIn(reloaded);
+    assert.deepEqual(shownColors(reloaded), palettes.events, 'Reload keeps the newer saved revision over a stale edge read');
+    const landing = browser({ page: 'landing', eventType: 'events', search: '', apiPost: instance.post, localStore: local });
+    await landing.tick();
+    assert.equal(landing.nodes.body.style['--btn-bg'], palettes.events.buttonBackground);
+    assert.equal(landing.nodes.body.style['--category-image'], 'url("' + halloween + '")', 'Events background is preserved');
+
+    lagging = false;
+    const caughtUp = browser({ page: 'landing', eventType: 'events', search: '', apiPost: instance.post, localStore: local });
+    await caughtUp.tick();
+    assert.equal(caughtUp.nodes.body.style['--btn-bg'], palettes.events.buttonBackground);
+    assert.equal(Object.hasOwn(JSON.parse(local.get('rsvp_appearance_saved')), 'events'), false, 'Local copy is pruned once the server catches up');
+
+    // An older local revision never overrides newer server settings saved elsewhere.
+    local.set('rsvp_appearance_saved', JSON.stringify({ events: { ...appearanceModel.normalizeAppearance('events', {}), updatedAt: 1 } }));
+    const other = browser({ page: 'landing', eventType: 'events', search: '', apiPost: instance.post, localStore: local });
+    await other.tick();
+    assert.equal(other.nodes.body.style['--btn-bg'], palettes.events.buttonBackground);
+});
+
+test('invalid colour combinations show exact preview values with inline actionable errors, keep input and never report success', async () => {
+    const instance = api();
+    const admin = browser({ page: 'admin', search: '?type=weddings', apiPost: instance.post });
+    await signIn(admin);
+    const fields = admin.nodes.appearanceForm.elements;
+    const errorFor = key => admin.nodes.styleEditor.children.find(node => node.id === 'style-' + key + '-error');
+    editStyles(admin, { surface: '#ffffff', textColor: '#eeeeee', buttonBackground: '#123456', buttonText: '#123456', buttonBorder: '#fafafa' });
+    assert.equal(admin.nodes.appearancePreview.style['--card-text'], '#eeeeee', 'Preview shows the exact chosen colour');
+    for (const key of ['textColor', 'buttonText', 'buttonBorder']) {
+        assert.equal(fields['style-' + key].getAttribute('aria-invalid'), 'true', key);
+        assert.equal(fields['style-' + key].getAttribute('aria-describedby'), 'style-' + key + '-error');
+        assert.match(errorFor(key).textContent, /needs at least (4\.5|3):1\. Choose a (darker|lighter) /, key);
+    }
+    assert.equal(fields['style-headingColor'].getAttribute('aria-invalid'), null);
+    assert.equal(errorFor('headingColor').textContent, '');
+    const requests = admin.requests.length;
+    await admin.nodes.appearanceForm.handlers.submit({ preventDefault() {} });
+    assert.equal(admin.requests.slice(requests).some(item => item.action === 'save-appearance'), false);
+    assert.equal(admin.nodes.appearanceStatus.getAttribute('data-state'), 'error');
+    assert.match(admin.nodes.appearanceStatus.textContent, /^Not saved\. Text colour #eeeeee .* still here\.$/);
+    assert.equal(fields['style-textColor'].value, '#eeeeee', 'Unsaved input is kept');
+    assert.equal(instance.records.has('rsvp-appearance:weddings'), false);
+
+    // Fixing the colours clears the inline errors and saves.
+    editStyles(admin, palettes.weddings);
+    assert.equal(fields['style-textColor'].getAttribute('aria-invalid'), null);
+    assert.equal(errorFor('textColor').textContent, '');
+    await admin.nodes.appearanceForm.handlers.submit({ preventDefault() {} });
+    assert.equal(admin.nodes.appearanceStatus.getAttribute('data-state'), 'success');
+
+    // The server enforces the same rules and explains each failing pair.
+    for (const [cardStyle, field, minimum] of [
+        [{ buttonBackground: '#777777', buttonText: '#888888' }, 'buttonText', 4.5],
+        [{ surface: '#ffffff', buttonBorder: '#eeeeee' }, 'buttonBorder', 3],
+        [{ surface: '#000000', textColor: '#ffffff', headingColor: '#ffffff', buttonBorder: '#111111' }, 'buttonBorder', 3]
+    ]) {
+        const response = await instance.post({ action: 'save-appearance', eventType: 'parties', backgroundImage: '', cardStyle }, 'valid-session');
+        assert.equal(response.status, 400);
+        const data = await response.json();
+        assert.equal(data.fields[0].field, field);
+        assert.equal(data.fields[0].minimum, minimum);
+        assert.match(data.error, /^Not saved: /);
+    }
+    assert.equal(instance.records.has('rsvp-appearance:parties'), false);
+});
+
+test('a save the server does not confirm exactly is reported as not saved and keeps the draft', async () => {
+    const instance = api();
+    const admin = browser({ page: 'admin', search: '?type=parties', apiPost: async (payload, token) => {
+        if (payload.action !== 'save-appearance') return instance.post(payload, token);
+        // A misbehaving or stale server response that silently substituted a colour.
+        const appearance = (await (await instance.post({ action: 'get-appearance' })).json()).appearance;
+        return Response.json({ success: true, appearance });
+    } });
+    await signIn(admin);
+    editStyles(admin, palettes.parties);
+    await admin.nodes.appearanceForm.handlers.submit({ preventDefault() {} });
+    assert.equal(admin.nodes.appearanceStatus.getAttribute('data-state'), 'error');
+    assert.match(admin.nodes.appearanceStatus.textContent, /did not confirm your exact settings/);
+    assert.doesNotMatch(admin.nodes.appearanceStatus.textContent, /Saved and published/);
+    assert.deepEqual(shownColors(admin), palettes.parties);
+});
+
+test('late appearance loading and category switches never overwrite unsaved colour edits', async () => {
+    const instance = api();
+    await instance.post({ action: 'save-appearance', eventType: 'engagements', backgroundImage: '', cardStyle: palettes.engagements }, 'valid-session');
+    let finish;
+    const pending = new Promise(resolve => { finish = resolve; });
+    const admin = browser({ page: 'admin', search: '?type=engagements', apiPost: async (payload, token) => {
+        if (payload.action === 'get-appearance') await pending;
+        return instance.post(payload, token);
+    } });
+    await signIn(admin);
+    const edit = { surface: '#ffffff', textColor: '#000000', headingColor: '#000000', buttonBackground: '#000000', buttonText: '#ffffff', buttonBorder: '#000000' };
+    editStyles(admin, edit);
+    finish();
+    await admin.tick();
+    await admin.tick();
+    assert.equal(admin.themes.settings('engagements').cardStyle.surface, palettes.engagements.surface, 'Saved settings did load');
+    assert.deepEqual(shownColors(admin), edit, 'Late read must not overwrite unsaved edits');
+    assert.equal(admin.nodes.appearancePreview.style['--card-surface'], '#ffffff');
+    assert.equal(admin.nodes.appearanceStatus.getAttribute('data-state'), 'draft');
+    chooseCategory(admin, 'weddings');
+    assert.equal(shownColors(admin).surface, appearanceModel.defaultCardStyle('weddings').surface);
+    chooseCategory(admin, 'engagements');
+    assert.deepEqual(shownColors(admin), edit, 'Unsaved draft is restored when switching back');
+    assert.match(admin.nodes.appearanceStatus.textContent, /Unsaved preview for Engagements/);
+    assert.equal(JSON.parse(instance.records.get('rsvp-appearance:engagements')).cardStyle.surface, palettes.engagements.surface);
+    admin.nodes.logout.handlers.click();
+    await signIn(admin);
+    chooseCategory(admin, 'engagements');
+    assert.deepEqual(shownColors(admin), palettes.engagements, 'Signing out discards unsaved drafts');
+});
+
+test('older settings without button colours keep the original accent buttons and derive readable buttons for dark cards', async () => {
+    const css = readFileSync(`${__dirname}/card.css`, 'utf8');
+    for (const type of categories) {
+        const block = type === 'celebration' ? css.match(/:root, \[data-event-type\] \{([^}]*)\}/)[1] :
+            css.match(new RegExp('\\[data-event-type="' + type + '"\\] \\{([^}]*)\\}'))[1];
+        const accent = block.match(/--accent: (#[0-9a-f]{6})/)[1];
+        const defaults = appearanceModel.defaultCardStyle(type);
+        assert.equal(defaults.buttonBackground, accent, type);
+        assert.equal(defaults.buttonBorder, accent, type);
+        assert.equal(defaults.buttonText, '#ffffff', type);
+    }
+    const instance = api();
+    instance.records.set('rsvp-appearance:events', JSON.stringify({
+        backgroundImage: halloween, copy: { brand: 'Legacy brand' },
+        cardStyle: { surface: '#14101f', textColor: '#ffffff', headingColor: '#ffffff', spacing: 20 }
+    }));
+    instance.records.set('rsvp-appearance:weddings', JSON.stringify({ backgroundImage: '' }));
+    const settings = (await (await instance.post({ action: 'get-appearance' })).json()).appearance;
+    assert.equal(settings.events.backgroundImage, halloween);
+    assert.equal(settings.events.copy.brand, 'Legacy brand');
+    assert.equal(settings.events.cardStyle.surface, '#14101f');
+    assert.equal(settings.events.updatedAt, 0);
+    assert.deepEqual(plain(appearanceModel.contrastIssues(settings.events.cardStyle)), []);
+    assert.deepEqual(settings.weddings.cardStyle, plain(appearanceModel.defaultCardStyle('weddings')));
+    // Older clients that send only card colours still save; buttons stay readable.
+    const response = await instance.post({ action: 'save-appearance', eventType: 'parties', backgroundImage: '',
+        cardStyle: { surface: '#000000', textColor: '#ffffff', headingColor: '#ffffff' } }, 'valid-session');
+    assert.equal(response.status, 200);
+    const parties = (await response.json()).appearance.parties.cardStyle;
+    assert.equal(parties.surface, '#000000');
+    assert.deepEqual(plain(appearanceModel.contrastIssues(parties)), []);
+    // Unknown or server-owned keys cannot be written by clients.
+    assert.equal((await instance.post({ action: 'save-appearance', eventType: 'parties', backgroundImage: '', updatedAt: 1e15 }, 'valid-session')).status, 400);
+});
+
+test('saved button colours reach the open RSVP CTA, form, receipt, send options and mixed reply cards without leaking across categories', async () => {
+    const instance = api();
+    for (const type of categories) {
+        assert.equal((await instance.post({ action: 'save-appearance', eventType: type,
+            backgroundImage: type === 'events' ? halloween : '', cardStyle: palettes[type] }, 'valid-session')).status, 200);
+    }
+    const events = {};
+    for (const type of categories) {
+        events[type] = await createEvent(instance, { eventType: type, title: 'Same title' });
+        const original = instance.records.get('rsvp-invitation:' + events[type].id);
+        const guest = browser({ search: '?id=' + events[type].id, apiPost: instance.post });
+        await guest.tick();
+        const palette = palettes[type];
+        assert.equal(guest.nodes.openRsvp.attributes.class, 'rsvp-btn primary');
+        assert.equal(guest.nodes.openRsvp.closest('[data-event-type]'), guest.nodes.body);
+        assert.deepEqual(buttonTokens(guest.nodes.body), { buttonBackground: palette.buttonBackground,
+            buttonText: palette.buttonText, buttonBorder: palette.buttonBorder }, type);
+        assert.equal(guest.nodes.body.style['--btn-hover-bg'], appearanceModel.buttonHover({ ...palette }));
+        assert.equal(guest.nodes.body.style['--card-surface'], palette.surface);
+        guest.nodes.openRsvp.handlers.click();
+        guest.nodes.name.value = 'Guest';
+        guest.nodes.attending.value = 'yes';
+        guest.nodes.guests.value = '0';
+        await guest.nodes.rsvpForm.handlers.submit({ preventDefault() {} });
+        const saved = JSON.parse(guest.stored.get('rsvp_receipt'));
+        const receipt = browser({ page: 'view', search: '?' + guest.redirects[0].split('?')[1], saved, apiPost: instance.post });
+        await receipt.tick();
+        for (const node of [receipt.nodes.body, receipt.nodes.receipt.children[0], receipt.nodes.sendOptions]) {
+            assert.equal(node.attributes['data-event-type'], type);
+            assert.deepEqual(buttonTokens(node), { buttonBackground: palette.buttonBackground,
+                buttonText: palette.buttonText, buttonBorder: palette.buttonBorder }, type + ' receipt');
+        }
+        assert.equal(instance.records.get('rsvp-invitation:' + events[type].id), original, 'Invitations are never re-saved');
+    }
+    const admin = browser({ page: 'admin', search: '?type=parties', apiPost: instance.post });
+    await signIn(admin);
+    const cards = admin.nodes.responses.children;
+    assert.equal(cards.length, categories.length);
+    for (const card of cards) {
+        const type = card.attributes['data-event-type'];
+        assert.equal(card.style['--btn-bg'], palettes[type].buttonBackground, type + ' reply card');
+        assert.equal(card.style['--card-surface'], palettes[type].surface, type + ' reply card');
+        assert.equal(card.querySelector('button').closest('[data-event-type]'), card);
+    }
+    assert.deepEqual(new Set(cards.map(card => card.attributes['data-event-type'])), new Set(categories));
+    assert.equal(admin.nodes.body.style['--btn-bg'], palettes.parties.buttonBackground);
+});
+
+test('RSVP controls, fields and headings consume shared tokens instead of fixed colours', () => {
+    const css = readFileSync(`${__dirname}/card.css`, 'utf8');
+    const rules = [...css.matchAll(/([^{}]+)\{([^{}]*)\}/g)].map(([, selectors, body]) => ({
+        selectors: selectors.split(',').map(value => value.replace(/\/\*[\s\S]*?\*\//g, '').trim()), body
+    }));
+    const rule = selector => rules.find(item => item.selectors.includes(selector));
+    for (const [selector, tokens] of [
+        ['.rsvp-btn', ['--card-text', '--card-surface', '--btn-border']],
+        ['.rsvp-btn.primary', ['--btn-bg', '--btn-text', '--btn-border']],
+        ['.rsvp-btn.primary:hover:not(:disabled)', ['--btn-hover-bg', '--btn-text']],
+        ['.rsvp-btn:hover:not(:disabled)', ['--btn-bg', '--btn-text']],
+        ['input', ['--card-text', '--card-surface', '--btn-border']],
+        ['.page-head h1', ['--card-heading']],
+        ['.landing-copy h1', ['--card-heading']]
+    ]) {
+        const found = rule(selector);
+        assert.ok(found, selector);
+        for (const token of tokens) assert.ok(found.body.includes('var(' + token), selector + ' uses ' + token);
+        assert.doesNotMatch(found.body, /(?:^|;)\s*(?:color|background|border(?:-color)?)\s*:\s*#/, selector + ' has no fixed colour');
+    }
+    assert.doesNotMatch(css, /^\.primary\s*[{:]/m, 'No unscoped fixed-accent .primary rule remains');
+    assert.match(rule('.rsvp-btn:disabled').body, /cursor: not-allowed/);
+    assert.match(rule(':focus-visible').body, /outline: 3px solid/);
+    const admin = readFileSync(`${__dirname}/admin.html`, 'utf8');
+    assert.match(admin, /<span class="rsvp-btn primary" data-copy="openRsvp">/, 'Preview CTA matches the public primary button');
+    assert.match(admin, /id="appearanceStatus"[^>]*role="status"/);
+    assert.match(readFileSync(`${__dirname}/index.html`, 'utf8'), /id="openRsvp" data-copy="openRsvp" class="rsvp-btn primary"/);
 });

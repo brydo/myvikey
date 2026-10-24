@@ -60,6 +60,8 @@ function update(settings, savedType) {
         if (type === savedType && server.updatedAt) {
             local[type] = server;
             changed = true;
+            appearances[type] = server;
+            return;
         }
         var mine = Object.hasOwn(local, type) ? normalizeAppearance(type, local[type]) : null;
         if (mine && mine.updatedAt > server.updatedAt) {
