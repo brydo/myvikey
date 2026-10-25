@@ -1,54 +1,442 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>MyViKey</title>
-  <link rel="stylesheet" href="./card.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MyCard · Digital Business Card</title>
+    <style>
+        :root {
+            color-scheme: dark;
+            --bg-color: #121212;
+            --card-bg: #1e1e1e;
+            --text-color: #e0e0e0;
+            --text-muted: #a0a0a0;
+            --primary: #00adb5;
+            --accent: #393e46;
+            --grad-1: #00adb5;
+            --grad-2: #0077b6;
+            --border: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            padding: 0 0 calc(84px + env(safe-area-inset-bottom, 0px));
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 20px 20px 0;
+            overflow-wrap: anywhere;
+        }
+
+        .hero {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 300px);
+            align-items: center;
+            gap: 40px;
+            padding: 60px 0;
+        }
+
+        .hero-copy {
+            min-width: 0;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            background-color: var(--accent);
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        h1 {
+            margin: 15px 0;
+            font-size: clamp(2rem, 5vw, 2.5rem);
+            line-height: 1.2;
+        }
+
+        .grad {
+            background: linear-gradient(45deg, var(--grad-1), var(--grad-2));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .lead {
+            color: var(--text-muted);
+            font-size: 1.15rem;
+        }
+
+        .pills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .pill {
+            padding: 8px 16px;
+            border-radius: 30px;
+            background-color: var(--accent);
+            font-size: 0.9rem;
+        }
+
+        .pill.primary {
+            background-color: var(--primary);
+            color: #fff;
+        }
+
+        .phone {
+            width: 100%;
+            max-width: 300px;
+            margin: 0 auto;
+            padding: 15px;
+            border: 4px solid #333;
+            border-radius: 40px;
+            background: #252525;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        .screen {
+            padding: 30px 20px;
+            border-radius: 30px;
+            background-color: var(--card-bg);
+            text-align: center;
+        }
+
+        .avatar {
+            display: flex;
+            width: 70px;
+            height: 70px;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, var(--grad-1), var(--grad-2));
+            color: #fff;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .role {
+            margin: 5px 0;
+            color: var(--primary);
+            font-weight: 500;
+        }
+
+        .company {
+            margin-top: 0;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .crow {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin: 15px 0;
+            font-size: 0.95rem;
+            overflow-wrap: anywhere;
+        }
+
+        .crow a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        section {
+            padding: 50px 0;
+            text-align: center;
+        }
+
+        .section-title {
+            margin: 0 0 5px;
+            font-size: 2rem;
+        }
+
+        .section-sub {
+            margin: 0 0 40px;
+            color: var(--text-muted);
+        }
+
+        .steps,
+        .features,
+        .uses {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
+            gap: 25px;
+        }
+
+        .grid-card {
+            min-width: 0;
+            padding: 30px;
+            border: 1px solid #2a2a2a;
+            border-radius: 15px;
+            background-color: var(--card-bg);
+            text-align: center;
+        }
+
+        .num {
+            margin-bottom: 10px;
+            color: var(--primary);
+            font-size: 2rem;
+            font-weight: bold;
+        }
+
+        .icon {
+            margin-bottom: 15px;
+            font-size: 2.5rem;
+        }
+
+        .contact-link {
+            display: inline-block;
+            padding: 10px 18px;
+            border: 1px solid var(--primary);
+            border-radius: 8px;
+            color: var(--text-color);
+            text-decoration: none;
+        }
+
+        .contact-link:hover {
+            background-color: rgba(0, 173, 181, 0.12);
+        }
+
+        .contact-links {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 12px;
+            margin-top: 8px;
+        }
+
+        footer {
+            position: fixed;
+            z-index: 1000;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            padding: 12px 20px calc(12px + env(safe-area-inset-bottom, 0px));
+            border-top: 1px solid var(--border);
+            background-color: #0d0c0a;
+        }
+
+        .footer-btn {
+            display: inline-flex;
+            min-width: 44px;
+            min-height: 44px;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-color);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .footer-btn svg {
+            display: block;
+            width: 20px;
+            height: 20px;
+        }
+
+        .footer-btn .whatsapp-icon {
+            fill: #25d366;
+        }
+
+        .footer-btn .facebook-icon {
+            fill: #1877f2;
+        }
+
+        .footer-btn .instagram-icon {
+            fill: #e4405f;
+        }
+
+        .footer-btn .tiktok-icon {
+            fill: #e8e6e3;
+        }
+
+        .footer-btn .email-icon {
+            font-size: 20px;
+            line-height: 1;
+        }
+
+        .footer-btn:hover {
+            color: var(--primary);
+        }
+
+        .footer-btn:focus-visible,
+        .contact-link:focus-visible {
+            outline: 2px solid var(--primary);
+            outline-offset: 3px;
+        }
+
+        @media (max-width: 767px) {
+            .hero {
+                grid-template-columns: minmax(0, 1fr);
+                gap: 30px;
+                padding: 40px 0;
+                text-align: center;
+            }
+
+            .pills {
+                justify-content: center;
+            }
+
+            section {
+                padding: 35px 0;
+            }
+        }
+
+        @media (max-width: 480px) {
+            footer {
+                gap: clamp(8px, 4vw, 16px);
+                padding: 8px 12px calc(8px + env(safe-area-inset-bottom, 0px));
+            }
+        }
+    </style>
 </head>
 <body>
-  <main class="container">
-    <h1>MyViKey</h1>
-    <p id="status">Ready</p>
+    <main class="container">
+        <div class="hero">
+            <div class="hero-copy">
+                <span class="badge"><strong>V I Key® MyCard</strong> · Digital Business Card</span>
+                <h1>Networking, simplified.</h1>
+                <p class="lead">Share your details instantly with a single tap. Touch your NFC card to a compatible phone and your profile opens in their browser — no app needed.</p>
+                <div class="pills">
+                    <span class="pill primary">One tap sharing</span>
+                    <span class="pill">All details in one place</span>
+                    <span class="pill">No app or download needed</span>
+                </div>
+            </div>
 
-    <button id="saveBtn">Save</button>
-    <button id="loadBtn">Load</button>
-  </main>
+            <div class="phone" aria-hidden="true">
+                <div class="screen">
+                    <div class="avatar">AJ</div>
+                    <h3>Alex Johnson</h3>
+                    <p class="role">Creative Director</p>
+                    <p class="company">Example MyCard profile</p>
+                    <div class="crow"><span class="ic">📞</span>+44 7700 900123</div>
+                    <div class="crow"><span class="ic">✉</span><a href="mailto:alex@example.com">alex@example.com</a></div>
+                    <div class="crow"><span class="ic">🌐</span>northlight.example</div>
+                </div>
+            </div>
+        </div>
 
-  <!-- Keep PUBLIC logic inline so you don't need a new file -->
-  <script>
-    (() => {
-      const statusEl = document.getElementById('status');
-      const saveBtn = document.getElementById('saveBtn');
-      const loadBtn = document.getElementById('loadBtn');
-      const STORAGE_KEY = 'myvikey_public_data';
+        <section>
+            <h2 class="section-title">How it works</h2>
+            <p class="section-sub">We set up your <strong>V I Key® MyCard</strong>, so you are ready to share in seconds.</p>
+            <div class="steps">
+                <div class="grid-card">
+                    <div class="num">1</div>
+                    <h3>Order your V I Key® MyCard</h3>
+                    <p>Choose your card and we’ll get everything ready for you.</p>
+                </div>
+                <div class="grid-card">
+                    <div class="num">2</div>
+                    <h3>We set up your profile</h3>
+                    <p>Send us your details and we’ll build your MyCard page for a clean, professional look.</p>
+                </div>
+                <div class="grid-card">
+                    <div class="num">3</div>
+                    <h3>Tap and connect instantly</h3>
+                    <p>Tap your card on a compatible phone and your MyCard opens in the browser right away.</p>
+                </div>
+            </div>
+        </section>
 
-      function setStatus(msg) {
-        if (statusEl) statusEl.textContent = msg;
-      }
+        <section>
+            <h2 class="section-title">Why V I Key® MyCard</h2>
+            <p class="section-sub">Less paper, simpler introductions, and your details always ready to share.</p>
+            <div class="features">
+                <div class="grid-card">
+                    <div class="icon">📲</div>
+                    <h3>Share with a tap</h3>
+                    <p>Open your digital business card on a compatible phone with a simple NFC tap.</p>
+                </div>
+                <div class="grid-card">
+                    <div class="icon">🔄</div>
+                    <h3>Updates via us</h3>
+                    <p>Need to change your details? We can update your MyCard for you.</p>
+                </div>
+                <div class="grid-card">
+                    <div class="icon">🔒</div>
+                    <h3>Password option</h3>
+                    <p>Add password protection to your card for extra control over access.</p>
+                </div>
+                <div class="grid-card">
+                    <div class="icon">📱</div>
+                    <h3>No app needed to view</h3>
+                    <p>Your contact can view your MyCard directly in their browser.</p>
+                </div>
+                <div class="grid-card">
+                    <div class="icon">🎨</div>
+                    <h3>Clean, modern layout</h3>
+                    <p>A professional dark design that looks sharp on mobile and desktop screens.</p>
+                </div>
+            </div>
+        </section>
 
-      saveBtn?.addEventListener('click', () => {
-        const payload = {
-          updatedAt: new Date().toISOString(),
-          note: 'Public page save'
-        };
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
-        setStatus('Saved.');
-      });
+        <section>
+            <h2 class="section-title">V I Key® MyCard — made for people on the move</h2>
+            <p class="section-sub">From networking events to everyday business meetings, your details are ready when you are.</p>
+            <div class="uses">
+                <div class="grid-card">
+                    <h3>Networking</h3>
+                    <p>Make new connections and let people save your details quickly in person.</p>
+                </div>
+                <div class="grid-card">
+                    <h3>Everyday business</h3>
+                    <p>Share your contact details with customers, clients and partners in seconds.</p>
+                </div>
+            </div>
+            <p class="section-sub">Interested in your own MyCard? Contact us for pricing and setup.</p>
+            <div class="contact-links">
+                <a class="contact-link" href="mailto:vikeyshop@outlook.com">Ask about MyCard via email</a>
+                <a class="contact-link" href="https://wa.me/qr/S3WV63OUV4CTP1" target="_blank" rel="noopener noreferrer">Ask about MyCard via WhatsApp</a>
+                <a class="contact-link" href="https://vi-key.uk/mycard/?id=brian" target="_blank" rel="noopener noreferrer">View a live MyCard example</a>
+            </div>
+        </section>
+    </main>
 
-      loadBtn?.addEventListener('click', () => {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        if (!raw) return setStatus('No saved data found.');
-        try {
-          const data = JSON.parse(raw);
-          setStatus(`Loaded: ${data.updatedAt ?? 'unknown time'}`);
-        } catch {
-          setStatus('Saved data is corrupted.');
-        }
-      });
-
-      setStatus('Ready');
-    })();
-  </script>
+    <footer aria-label="Contact and social links">
+        <a href="https://wa.me/qr/S3WV63OUV4CTP1" class="footer-btn" aria-label="Contact us on WhatsApp" target="_blank" rel="noopener noreferrer">
+            <svg class="whatsapp-icon" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-1.157 4.228 4.305-1.129z"/>
+            </svg>
+        </a>
+        <a href="mailto:vikeyshop@outlook.com" class="footer-btn" aria-label="Email V I Key®">
+            <span class="email-icon" aria-hidden="true">✉</span>
+        </a>
+        <a href="https://www.facebook.com/vi.key.page" class="footer-btn" aria-label="Visit V I Key® on Facebook" target="_blank" rel="noopener noreferrer">
+            <svg class="facebook-icon" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+            </svg>
+        </a>
+        <a href="https://www.instagram.com/vi_key_shop?stkn=dHpzNHZqemh5dTIy" class="footer-btn" aria-label="Visit V I Key® on Instagram" target="_blank" rel="noopener noreferrer">
+            <svg class="instagram-icon" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.64.069-4.85.069-3.204 0-3.584-.012-4.849-.069-3.225-.148-4.771-1.664-4.919-4.919-.058-1.265-.07-1.64-.07-4.849 0-3.204.013-3.584.07-4.849.148-3.225 1.664-4.771 4.919-4.919 1.265-.057 1.645-.07 4.849-.07zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.058 1.279-.072 1.687-.072 4.947 0 3.26.014 3.668.072 4.947.2 4.358 2.618 6.78 6.98 6.98 1.279.058 1.687.072 4.947.072 3.26 0 3.668-.014 4.947-.072 4.358-.2 6.78-2.618 6.98-6.98.058-1.279.072-1.687.072-4.947 0-3.26-.014-3.668-.072-4.947-.2-4.358-2.618-6.78-6.98-6.98-1.279-.058-1.687-.072-4.947-.072zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zm0 10.162a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-10.845a1.44 1.44 0 1 1-2.88 0 1.44 1.44 0 0 1 2.88 0z"/>
+            </svg>
+        </a>
+        <a href="https://www.tiktok.com/@vi_keyshop" class="footer-btn" aria-label="Visit V I Key® on TikTok" target="_blank" rel="noopener noreferrer">
+            <svg class="tiktok-icon" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1.04-.1z"/>
+            </svg>
+        </a>
+    </footer>
 </body>
 </html>
