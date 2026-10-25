@@ -6,7 +6,7 @@
     var ADMIN_AUTH_KEY = 'mycard_admin_authed';
     var ADMIN_EXPIRY_KEY = 'mycard_admin_authed_until';
 
-    var TEXT_FIELDS = ['name', 'title', 'company', 'bio', 'photoUrl', 'phone', 'whatsapp', 'email', 'website', 'mapUrl',
+    var TEXT_FIELDS = ['name', 'title', 'company', 'bio', 'photoUrl', 'companyLogoUrl', 'companyLogoLinkUrl', 'phone', 'whatsapp', 'email', 'website', 'mapUrl',
         'facebook', 'instagram', 'tiktok', 'linkedin', 'twitter', 'customLabel', 'customUrl'];
 
     var currentPhotoPosition = '50% 50%';
