@@ -31,6 +31,43 @@
     opacity: 1;
 }
 
+/* Optional company block (only rendered when logo and/or name exists) */
+.mc-company-brand {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    margin: -42px auto 0;
+    padding: 0 16px;
+}
+
+.mc-company-logo-wrap {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    max-width: min(86%, 220px);
+    text-decoration: none;
+    color: inherit;
+}
+
+/* Keep logo proportional and unedited (no crop, no forced shape) */
+.mc-company-logo {
+    display: block;
+    max-width: 100%;
+    max-height: 88px;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+}
+
+.mc-company-name {
+    margin: 0;
+    color: #d1d5db;
+    font-size: 0.95rem;
+    line-height: 1.35;
+    word-break: break-word;
+}
+
 .mc-photo {
     width: 104px;
     height: 104px;
@@ -44,6 +81,11 @@
     justify-content: center;
     overflow: hidden;
     position: relative;
+}
+
+/* When company branding exists above photo, remove overlap pull-up */
+.mc-card.mc-has-company .mc-photo {
+    margin-top: 12px;
 }
 
 .mc-photo img {
@@ -148,7 +190,8 @@
 
 .mc-btn:focus-visible,
 .mc-link:focus-visible,
-.mc-social-link:focus-visible {
+.mc-social-link:focus-visible,
+.mc-company-logo-wrap:focus-visible {
     outline: 3px solid #fff;
     outline-offset: 2px;
 }
