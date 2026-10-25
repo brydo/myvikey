@@ -57,6 +57,11 @@
         return '';
     }
 
+    /* Keep the existing company field compatible with older cards. */
+    function companyName(c) {
+        return str(c.company) || str(c.companyName);
+    }
+
     function digits(v) { return str(v).replace(/\D/g, ''); }
 
     function phoneHref(v) {
@@ -130,6 +135,71 @@
         if (item.external) { a.target = '_blank'; a.rel = 'noopener noreferrer'; }
     }
 
+    /* Optional branding above the profile photo.
+       No placeholder is created for missing or failed logos. */
+    function appendCompanyBranding(card, c) {
+        var name = companyName(c);
+        var logoUrl = safeUrl(c.companyLogoUrl);
+        var linkUrl = safeUrl(c.companyLogoLinkUrl);
+
+        if (!name && !logoUrl) return;
+
+        var brand = el('div', 'mc-company-brand');
+
+        if (name) {
+            card.classList.add('mc-has-company');
+        } else {
+            brand.hidden = true;
+        }
+
+        if (logoUrl) {
+            var logoHolder = el(
+                linkUrl ? 'a' : 'div',
+                'mc-company-logo-wrap'
+            );
+            logoHolder.hidden = true;
+
+            if (linkUrl) {
+                setAnchor(logoHolder, {
+                    href: linkUrl,
+                    external: true
+                });
+                logoHolder.setAttribute(
+                    'aria-label',
+                    name ? 'Visit ' + name + ' website' : 'Visit company website'
+                );
+            }
+
+            var logo = el('img', 'mc-company-logo');
+            logo.alt = name ? name + ' logo' : 'Company logo';
+            logo.decoding = 'async';
+
+            logo.addEventListener('load', function () {
+                logoHolder.hidden = false;
+                brand.hidden = false;
+                card.classList.add('mc-has-company');
+            });
+
+            logo.addEventListener('error', function () {
+                logoHolder.remove();
+                if (!name) {
+                    brand.remove();
+                    card.classList.remove('mc-has-company');
+                }
+            });
+
+            logoHolder.appendChild(logo);
+            brand.appendChild(logoHolder);
+            logo.src = logoUrl;
+        }
+
+        if (name) {
+            brand.appendChild(el('p', 'mc-company-name', name));
+        }
+
+        card.appendChild(brand);
+    }
+
     /* ---------- vCard ---------- */
     function vEsc(v) {
         return String(v).replace(/\\/g, '\\\\').replace(/\r?\n/g, '\\n').replace(/;/g, '\\;').replace(/,/g, '\\,');
@@ -141,7 +211,7 @@
         var last = parts.length > 1 ? parts.pop() : '';
         var first = parts.join(' ');
         var lines = ['BEGIN:VCARD', 'VERSION:3.0', 'FN:' + vEsc(name), 'N:' + vEsc(last) + ';' + vEsc(first) + ';;;'];
-        if (str(c.company)) lines.push('ORG:' + vEsc(str(c.company)));
+        if (companyName(c)) lines.push('ORG:' + vEsc(companyName(c)));
         if (str(c.title)) lines.push('TITLE:' + vEsc(str(c.title)));
         if (phoneHref(c.phone)) lines.push('TEL;TYPE=CELL:' + vEsc(phoneHref(c.phone).slice(4)));
         if (emailHref(c.email)) lines.push('EMAIL;TYPE=INTERNET:' + vEsc(str(c.email)));
@@ -183,6 +253,8 @@
 
         card.appendChild(el('div', 'mc-banner'));
 
+        appendCompanyBranding(card, c);
+
         var photo = el('div', 'mc-photo');
         var photoUrl = safeUrl(c.photoUrl);
         var ini = initials(c.name);
@@ -208,7 +280,6 @@
         var head = el('header', 'mc-head');
         head.appendChild(el('h1', 'mc-name', str(c.name) || 'Your Name'));
         if (str(c.title)) head.appendChild(el('p', 'mc-title', str(c.title)));
-        if (str(c.company)) head.appendChild(el('p', 'mc-company', str(c.company)));
         card.appendChild(head);
 
         var actions = el('div', 'mc-actions');
@@ -261,7 +332,6 @@
             });
             card.appendChild(soc);
         }
-
 
         root.appendChild(card);
         return card;
