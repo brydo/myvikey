@@ -76,6 +76,41 @@
         .back-link { min-height: 44px; display: flex; justify-content: center; align-items: center; text-align: center; font-size: 0.9rem; }
         .back-link a { color: var(--text-muted); text-decoration: none; }
         .back-link a:hover { color: var(--gold); }
+
+        /* New company branding block */
+        .company-branding {
+            display: none;
+            width: min(100%, 480px);
+            margin: 0 auto 14px;
+            padding: 14px 16px;
+            border: 1px solid var(--card-border);
+            border-radius: 14px;
+            background: rgba(255, 255, 255, 0.03);
+            text-align: center;
+        }
+        .company-branding.has-content { display: block; }
+        .company-logo-wrap {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            margin-bottom: 8px;
+        }
+        .company-logo {
+            max-width: 220px;
+            max-height: 84px;
+            width: auto;
+            height: auto;
+            object-fit: contain;
+            filter: drop-shadow(0 2px 6px rgba(0,0,0,0.35));
+        }
+        .company-name {
+            color: var(--gold);
+            font-weight: 700;
+            font-size: 1rem;
+            line-height: 1.3;
+            letter-spacing: 0.2px;
+        }
+
         footer {
             position: fixed; bottom: 0; left: 0; width: 100%;
             background-color: #0d0c0a;
@@ -96,6 +131,7 @@
         @media (max-width: 480px) {
             .wrap { padding-right: 16px; padding-left: 16px; gap: 14px; }
             .state { padding: 34px 20px; }
+            .company-logo { max-width: 180px; max-height: 72px; }
             footer { gap: 20px; flex-wrap: nowrap; align-items: center; padding: 10px 10px calc(10px + env(safe-area-inset-bottom, 0px)); }
         }
     </style>
@@ -103,6 +139,14 @@
 <body>
     <main class="wrap">
         <div id="loading" class="state" role="status"><p>Loading card…</p></div>
+
+        <!-- New branding area -->
+        <section id="companyBranding" class="company-branding" aria-label="Company branding">
+            <div id="companyLogoWrap" class="company-logo-wrap" style="display:none;">
+                <img id="companyLogo" class="company-logo" alt="Company logo" loading="lazy" decoding="async">
+            </div>
+            <div id="companyName" class="company-name" style="display:none;"></div>
+        </section>
 
         <div id="cardRoot"></div>
 
@@ -128,7 +172,7 @@
     <footer>
         <a href="https://wa.me/qr/S3WV63OUV4CTP1" class="footer-btn" target="_blank" rel="noopener noreferrer">
             <svg class="whatsapp-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-1.157 4.228 4.305-1.129z"/>
+                <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.556-5.338 11.891-11.893 11.891a11.96 11.96 0 0 1-5.946-1.587L.057 24z"/>
             </svg>
         </a>
         <a href="mailto:vikeyshop@outlook.com" class="footer-btn">
@@ -136,17 +180,17 @@
         </a>
         <a href="https://www.facebook.com/vi.key.page" class="footer-btn" target="_blank" rel="noopener noreferrer">
             <svg class="facebook-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953h-1.529c-1.504 0-1.974.935-1.974 1.893v2.277h3.362l-.537 3.47h-2.825v8.385c5.737-.9 10.125-5.864 10.125-11.854z"/>
+                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953h-1.513c-1.491 0-1.956.926-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
             </svg>
         </a>
         <a href="https://www.instagram.com/vi_key_shop?stkn=dHpzNHZqemh5dTIy" class="footer-btn" target="_blank" rel="noopener noreferrer">
             <svg class="instagram-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.64.069-4.85.069-3.204 0-3.584-.012-4.849-.069-3.225-.148-4.771-1.664-4.919-4.919-.058-1.265-.07-1.64-.07-4.849 0-3.204.013-3.584.07-4.849.148-3.225 1.664-4.771 4.919-4.919 1.265-.057 1.645-.07 4.849-.07zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.058 1.279-.072 1.687-.072 4.947 0 3.26.014 3.668.072 4.947.2 4.358 2.618 6.78 6.98 6.98 1.279.058 1.687.072 4.947.072 3.26 0 3.668-.014 4.947-.072 4.358-.2 6.78-2.618 6.98-6.98.058-1.279.072-1.687.072-4.947 0-3.26-.014-3.668-.072-4.947-.2-4.358-2.618-6.78-6.98-6.98-1.279-.058-1.687-.072-4.947-.072zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zm0 10.162a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-10.845a1.44 1.44 0 1 1-2.88 0 1.44 1.44 0 0 1 2.88 0z"/>
+                <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.645.069-4.85.069-3.204 0-3.584-.012-4.849-.069-3.225-.149-4.771-1.694-4.919-4.919-.058-1.266-.069-1.644-.069-4.849 0-3.204.013-3.583.069-4.849.149-3.227 1.694-4.771 4.919-4.919 1.266-.059 1.645-.07 4.849-.07z"/>
             </svg>
         </a>
         <a href="https://www.tiktok.com/@vi_keyshop" class="footer-btn" target="_blank" rel="noopener noreferrer">
             <svg class="tiktok-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 7.26-10.28V2.75h3.45c.1 1.02.42 2.01.94 2.88.67 1.12 1.74 1.98 3.1 2.43z"/>
+                <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 19.2 6.36 6.36 0 0 0 15.9 15V9.33a8.16 8.16 0 0 0 4.77 1.53V7.41a4.85 4.85 0 0 1-1.08-.72z"/>
             </svg>
         </a>
     </footer>
@@ -168,6 +212,66 @@
             return window.location.origin + '/mycard/?id=' + encodeURIComponent(cardId);
         }
 
+        function textOrEmpty(value) {
+            return (value == null ? '' : String(value)).trim();
+        }
+
+        function isValidLogoUrl(url) {
+            if (!url) return false;
+            try {
+                var u = new URL(url, window.location.origin);
+                return ['http:', 'https:'].indexOf(u.protocol) !== -1;
+            } catch (e) {
+                return false;
+            }
+        }
+
+        function renderCompanyBranding(content) {
+            var brandingRoot = document.getElementById('companyBranding');
+            var logoWrap = document.getElementById('companyLogoWrap');
+            var logoImg = document.getElementById('companyLogo');
+            var companyNameEl = document.getElementById('companyName');
+
+            var companyName =
+                textOrEmpty(content.companyName) ||
+                textOrEmpty(content.company_name) ||
+                textOrEmpty(content.businessName) ||
+                textOrEmpty(content.business_name);
+
+            var companyLogo =
+                textOrEmpty(content.companyLogoUrl) ||
+                textOrEmpty(content.company_logo_url) ||
+                textOrEmpty(content.companyLogo) ||
+                textOrEmpty(content.company_logo);
+
+            var hasLogo = isValidLogoUrl(companyLogo);
+            var hasName = !!companyName;
+
+            if (hasLogo) {
+                logoImg.src = companyLogo;
+                logoImg.alt = companyName ? (companyName + ' logo') : 'Company logo';
+                logoWrap.style.display = 'flex';
+            } else {
+                logoImg.removeAttribute('src');
+                logoImg.alt = 'Company logo';
+                logoWrap.style.display = 'none';
+            }
+
+            if (hasName) {
+                companyNameEl.textContent = companyName;
+                companyNameEl.style.display = 'block';
+            } else {
+                companyNameEl.textContent = '';
+                companyNameEl.style.display = 'none';
+            }
+
+            if (hasLogo || hasName) {
+                brandingRoot.classList.add('has-content');
+            } else {
+                brandingRoot.classList.remove('has-content');
+            }
+        }
+
         async function post(path, payload) {
             var resp = await fetch(path, {
                 method: 'POST',
@@ -183,10 +287,16 @@
             var r = await post('/api/card-content', { action: 'get-content', id: cardId, password: password || '' });
             if (r.status === 401) { show('passwordPrompt'); return false; }
             if (!r.ok || !r.data.success || !r.data.content) { show('notFound'); return true; }
+
             var c = r.data.content;
             show('');
+
+            // Render optional company branding block first
+            renderCompanyBranding(c);
+
             MyCard.render(document.getElementById('cardRoot'), c, { url: cardUrl() });
             document.getElementById('backLink').style.display = 'block';
+
             var title = (c.name || 'MyCard') + (c.title ? ' · ' + c.title : '') + ' · V I Key®';
             document.title = title;
             document.getElementById('ogTitle').setAttribute('content', title);
