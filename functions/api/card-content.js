@@ -9,6 +9,8 @@ import { validateSession, verifyPassword } from '../lib/auth.js';
 const TEXT_FIELDS = { name: 100, title: 100, company: 100, bio: 1000, customLabel: 40 };
 const URL_FIELDS = {
   photoUrl: ['http:', 'https:'],
+  companyLogoUrl: ['http:', 'https:'],
+  companyLogoLinkUrl: ['http:', 'https:'],
   website: ['http:', 'https:'],
   mapUrl: ['http:', 'https:'],
   facebook: ['http:', 'https:'],
