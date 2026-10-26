@@ -290,3 +290,17 @@ summary { cursor: pointer; font-weight: 600; margin-bottom: 16px; }
     --rsvp-banner-color: initial;
     --rsvp-symbol: initial;
 }
+/* While an invitation link loads, only a neutral card with the status message is shown: the stock
+   copy, default colours, decoration and occasion links never paint before the invitation's own. */
+.rsvp-invitation-pending .rsvp-card {
+    --rsvp-banner-image: none;
+    --rsvp-banner-color: #f5f5f5;
+    --rsvp-symbol: none;
+    background: #fff;
+    color: #222;
+    border-color: #ddd;
+    box-shadow: none;
+}
+.rsvp-invitation-pending .rsvp-card > :not(.rsvp-banner, #message),
+.rsvp-invitation-pending .wrap > :not(.rsvp-card) { display: none; }
+.rsvp-invitation-pending #message:empty::before { content: "Opening your invitation…"; }

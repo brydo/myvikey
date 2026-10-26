@@ -150,11 +150,18 @@ async function startChrome() {
         function sampleBackground() {
             if (document.body && window.__backgroundFrames.length < 1000) {
                 const banner = document.querySelector('.rsvp-banner');
+                const card = document.querySelector('.rsvp-card');
+                const shown = document.getElementById('rsvpForm') ? [...document.querySelectorAll(
+                    '.wrap > :not(.rsvp-card), .rsvp-card > :not(.rsvp-banner, #message), #openRsvp')]
+                    .filter(node => node.checkVisibility({ visibilityProperty: true }))
+                    .map(node => node.innerText.trim()).filter(Boolean) : [];
                 window.__backgroundFrames.push({
                     body: getComputedStyle(document.body).backgroundImage,
                     banner: banner ? getComputedStyle(banner).backgroundImage : 'none',
                     type: document.body.dataset.eventType,
-                    state: document.body.className
+                    state: document.body.className,
+                    card: card ? getComputedStyle(card).backgroundColor : '',
+                    shown
                 });
             }
             requestAnimationFrame(sampleBackground);
@@ -567,4 +574,109 @@ test('missing modules and disabled JavaScript leave content and navigation visib
         await page('Fetch.disable');
         onImageRequest = undefined;
     }
+});
+
+const stockCopy = ["You're invited.", 'Make room for a little celebration', 'Have an invitation?',
+    'RSVP to this celebration', 'Every occasion, beautifully yours.', 'Stale'];
+const pendingFlag = 'document.documentElement.classList.contains("rsvp-invitation-pending")';
+
+async function until(condition, label) {
+    for (let attempt = 0; attempt < 400 && !condition(); attempt++) await new Promise(resolve => setTimeout(resolve, 25));
+    assert.ok(condition(), 'Timed out waiting for ' + label);
+}
+
+// Synthetic data only: a parties invitation with its own saved colours, label and image.
+async function syntheticInvitation() {
+    records.set('rsvp-appearance:parties', JSON.stringify({ backgroundImage: fixtureImage('parties'),
+        copy: { openRsvp: 'Join the synthetic party' }, cardStyle: palettes.parties, updatedAt: 2000000000000 }));
+    const created = await (await api(JSON.stringify({ action: 'save-invitation', eventType: 'parties',
+        title: 'Synthetic garden party', text: 'Synthetic invitation details',
+        whatsapp: '+447700900123', sms: '+447700900124' }), 'valid-session')).json();
+    return created.invitation;
+}
+
+function assertOnlyFinalInvitation(frames, label) {
+    const painted = frames.filter(frame => frame.card);
+    assert.ok(painted.length > 2, label + ': sampled frames');
+    for (const frame of painted) {
+        const text = frame.shown.join('\n');
+        assert.ok(!stockCopy.some(copy => text.includes(copy)), label + ': stock or stale copy painted ' + JSON.stringify(frame));
+        assert.ok(frame.body === 'none' || frame.body.includes(fixtureImage('parties')), label + ': background ' + JSON.stringify(frame));
+        if (frame.shown.length) {
+            assert.ok(text.includes('Synthetic garden party') && text.includes('Synthetic invitation details') &&
+                text.includes('Join the synthetic party'), label + ': partial content ' + JSON.stringify(frame));
+            assert.equal(frame.card, rgb(palettes.parties.surface), label + ': content colours ' + JSON.stringify(frame));
+        } else {
+            assert.equal(frame.card, 'rgb(255, 255, 255)', label + ': neutral loading card ' + JSON.stringify(frame));
+        }
+    }
+}
+
+test('id-bound invitations paint only a neutral loading shell until their own invitation, settings and image are ready', { skip }, async () => {
+    const invitation = await syntheticInvitation();
+    for (const order of [['get-invitation', 'get-appearance'], ['get-appearance', 'get-invitation']]) {
+        const label = order[0] + ' first';
+        const pending = [];
+        let imageReleased = false;
+        await images(request => imageReleased ? imageResponse(request.requestId) : pending.push(request));
+        await navigate('/rsvp/');
+        // A stale earlier revision of this category in local storage must never be painted either.
+        await evaluate('localStorage.setItem("rsvp_appearance_saved", JSON.stringify({ parties: { copy: { openRsvp: "Stale party label" },' +
+            'cardStyle: { surface: "#000000", textColor: "#ffffff", headingColor: "#ffffff" }, updatedAt: 1000 } })); return true;');
+        const releases = { module: hold('module'), 'get-invitation': hold('get-invitation'), 'get-appearance': hold('get-appearance') };
+        try {
+            await navigate('/rsvp/?id=' + invitation.id);
+            await waitFor('window.__backgroundFrames.length > 2', 'first paints');
+            assert.equal(await evaluate('return !!window.RSVPThemes;'), false, label + ': module still loading');
+            assert.equal(await evaluate('return ' + pendingFlag + ';'), true, label + ': loading flag before modules');
+            assert.equal((await styles('#message', ['visibility'])).visibility, 'visible');
+            releases.module();
+            await waitFor('window.RSVPThemes', 'module execution');
+            await new Promise(resolve => setTimeout(resolve, 100));
+            releases[order[0]]();
+            await new Promise(resolve => setTimeout(resolve, 150));
+            assert.equal(await evaluate('return ' + pendingFlag + ';'), true, label + ': waits for ' + order[1]);
+            releases[order[1]]();
+            await until(() => pending.some(item => item.request.url === fixtureImage('parties')), 'image request');
+            await new Promise(resolve => setTimeout(resolve, 150));
+            assert.equal(await evaluate('return ' + pendingFlag + ';'), true, label + ': waits for the image');
+            imageReleased = true;
+            await Promise.all(pending.map(item => imageResponse(item.requestId)));
+            await waitFor('!' + pendingFlag, label + ' reveal');
+            await new Promise(resolve => setTimeout(resolve, 100));
+            assert.equal(await evaluate('return document.getElementById("heading").textContent;'), 'Synthetic garden party');
+            assert.equal(await evaluate('return document.getElementById("openRsvp").textContent;'), 'Join the synthetic party');
+            assert.equal((await styles('.rsvp-card', ['backgroundColor'])).backgroundColor, rgb(palettes.parties.surface));
+            assert.equal((await styles('body', ['backgroundImage'])).backgroundImage, 'url("' + fixtureImage('parties') + '")');
+            assertOnlyFinalInvitation(await evaluate('return window.__backgroundFrames;'), label);
+        } finally { Object.values(releases).forEach(release => release()); }
+    }
+    await images();
+});
+
+test('failed, stalled and module-less invitation loads end in a visible, usable state', { skip }, async () => {
+    const invitation = await syntheticInvitation();
+    const stored = records.get('rsvp-invitation:' + invitation.id);
+    records.delete('rsvp-invitation:' + invitation.id);
+    try {
+        await navigate('/rsvp/?id=' + invitation.id);
+        await waitFor('!' + pendingFlag + ' && document.getElementById("message").classList.contains("error")', 'explicit lookup error');
+        assert.equal((await styles('#message', ['visibility'])).visibility, 'visible');
+        assert.match(await evaluate('return document.getElementById("message").textContent;'), /\S/);
+    } finally { records.set('rsvp-invitation:' + invitation.id, stored); }
+    const release = hold('get-invitation');
+    try {
+        await navigate('/rsvp/?id=' + invitation.id);
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        assert.equal(await evaluate('return ' + pendingFlag + ';'), true, 'stalled lookup keeps the loading shell');
+        assert.equal(await evaluate('return document.getElementById("heading").checkVisibility({ visibilityProperty: true });'), false);
+        await waitFor('!' + pendingFlag, 'bounded reveal for a stalled lookup');
+        assert.equal((await styles('#message', ['visibility'])).visibility, 'visible');
+    } finally { release(); }
+    await page('Network.setBlockedURLs', { urls: ['*r2.dev*', origin + '/rsvp/theme-client.js'] });
+    try {
+        await navigate('/rsvp/?id=' + invitation.id);
+        await waitFor('!' + pendingFlag, 'bounded reveal without modules');
+        assert.equal(await evaluate('return document.getElementById("heading").checkVisibility({ visibilityProperty: true });'), true);
+    } finally { await page('Network.setBlockedURLs', { urls: ['*r2.dev*'] }); }
 });

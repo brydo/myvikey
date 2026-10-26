@@ -6,6 +6,14 @@
     <meta name="description" content="A little invitation to a lovely celebration. RSVP with V I Key®.">
     <title>RSVP · V I Key®</title>
     <link rel="stylesheet" href="/rsvp/card.css">
+    <script>
+        // An invitation link must not paint the stock card first. rsvp.js clears this once the
+        // invitation, its category settings and image are ready; the timer bounds slow or failed loads.
+        if (new URLSearchParams(location.search).get('id')) {
+            document.documentElement.classList.add('rsvp-invitation-pending');
+            setTimeout(function () { document.documentElement.classList.remove('rsvp-invitation-pending'); }, 8000);
+        }
+    </script>
 </head>
 <body class="rsvp-theme-loading">
     <main class="wrap">
