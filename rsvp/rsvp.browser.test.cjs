@@ -39,7 +39,7 @@ const rgb = hex => 'rgb(' + hex.slice(1).match(/../g).map(value => parseInt(valu
 let records, server, origin, chromeProcess, profile, socket, page, closeBrowser;
 const events = {};
 const holds = {};
-const protocolHandlers = new Map();
+let onImageRequest;
 
 function hold(key) {
     let release;
@@ -122,8 +122,7 @@ async function startChrome() {
     socket.onmessage = event => {
         const message = JSON.parse(event.data);
         if (message.method) {
-            const handler = protocolHandlers.get(message.method);
-            if (handler) handler(message.params);
+            if (message.method === 'Fetch.requestPaused' && onImageRequest) onImageRequest(message.params);
             return;
         }
         const waiter = pending.get(message.id);
@@ -366,7 +365,7 @@ async function imageResponse(requestId, status = 200) {
 }
 
 async function images(handler = request => imageResponse(request.requestId)) {
-    protocolHandlers.set('Fetch.requestPaused', handler);
+    onImageRequest = handler;
     await page('Fetch.enable', { patterns: [{ urlPattern: 'https://rsvp-images.test/*' }] });
 }
 
@@ -566,6 +565,6 @@ test('missing modules and disabled JavaScript leave content and navigation visib
     } finally {
         await page('Emulation.setScriptExecutionDisabled', { value: false });
         await page('Fetch.disable');
-        protocolHandlers.delete('Fetch.requestPaused');
+        onImageRequest = undefined;
     }
 });
