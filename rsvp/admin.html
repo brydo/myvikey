@@ -41,7 +41,7 @@
             </section>
             <form id="invitationForm" class="rsvp-section" hidden>
                 <h2>Your celebration</h2>
-                <p>Write your invitation below, save it, then share its link with guests. Host contact details are visible to anyone with the link; never enter a password here.</p>
+                <p>Write your invitation below, save it, then share its link with guests. Use the separate guest password control to restrict access; never put passwords in the invitation text.</p>
                 <label for="invitationId">Invitation ID (to reopen an existing event)</label>
                 <input id="invitationId" name="id" maxlength="36" autocomplete="off">
                 <button id="loadInvitation" class="rsvp-btn" type="button">Open saved invitation</button>
@@ -63,6 +63,11 @@
                 <label for="sms">Host text/SMS number (optional)</label>
                 <input id="sms" name="sms" type="tel" maxlength="16" pattern="\+[1-9][0-9]{7,14}" placeholder="+447700900123" aria-describedby="contactHint">
                 <p id="contactHint">Use international WhatsApp and text/SMS numbers beginning with +, without spaces. Enter each separately. Leave either channel blank to hide it; with neither configured, guests can still save an RSVP. Older email-only invitations need a text number added here to enable SMS.</p>
+                <p id="guestProtectionStatus" role="status"></p>
+                <label for="newGuestPassword">Set or change guest password (optional)</label>
+                <input id="newGuestPassword" name="guestPassword" type="password" minlength="8" autocomplete="new-password" aria-describedby="guestPasswordHint">
+                <p id="guestPasswordHint">Blank keeps the current password unchanged. New passwords need at least 8 characters, including a non-space character, and at most 72 UTF-8 bytes. Choose a hard-to-guess password and share it separately from the invitation link. Use Remove to disable protection.</p>
+                <label><input name="removeGuestPassword" type="checkbox"> Remove guest password protection</label>
                 <button class="rsvp-btn primary" type="submit">Save invitation</button>
                 <p id="shareInvitation" role="status"></p>
             </form>

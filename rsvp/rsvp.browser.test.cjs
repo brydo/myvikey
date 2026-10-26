@@ -8,7 +8,6 @@ const { createServer } = require('node:http');
 const { spawn } = require('node:child_process');
 const { runInNewContext } = require('node:vm');
 const { webcrypto } = require('node:crypto');
-const os = require('node:os');
 const path = require('node:path');
 
 const root = path.resolve(__dirname, '..');
@@ -18,9 +17,21 @@ const skip = chrome && typeof WebSocket === 'function' ? false : 'Chromium (or C
 
 const themesSource = readFileSync(`${__dirname}/themes.js`, 'utf8').replace(/^export /gm, '');
 const model = runInNewContext(themesSource + '\n({ buttonHover, contrastIssues, defaultCardStyle })', { URL });
-const apiSource = themesSource + '\n' + readFileSync(`${root}/functions/api/rsvp.js`, 'utf8')
+const idsSource = readFileSync(`${__dirname}/invitation-id.js`, 'utf8').replace(/^export /gm, '');
+const apiSource = themesSource + '\n' + idsSource + '\n' + readFileSync(`${root}/functions/api/rsvp.js`, 'utf8')
     .replace(/^import .*;\n/gm, '').replace('export async function', 'async function');
 const categories = ['celebration', 'events', 'weddings', 'parties', 'engagements'];
+const authSource = readFileSync(`${root}/functions/lib/auth.js`, 'utf8')
+    .replace(/^import .*;\n/gm, '').replace(/^export /gm, '');
+const guestAuth = runInNewContext(authSource +
+    '\n({ hashPassword, verifyPassword, generateSessionToken, checkRateLimit, recordFailedAttempt })',
+    { bcrypt: require('bcryptjs'), crypto: webcrypto });
+const adminSessions = new Map(), rateLimits = new Map();
+const memoryKV = records => ({
+    get: async key => records.get(key),
+    put: async (key, value) => records.set(key, value),
+    delete: async key => records.delete(key)
+});
 const halloween = 'https://pub-07ed0b0955a4401f9956c3ca7a33c40e.r2.dev/ween.jpg';
 const palettes = {
     celebration: { surface: '#2b1d22', textColor: '#fbeff2', headingColor: '#ffd6e0',
@@ -48,14 +59,14 @@ function hold(key) {
     return () => { delete holds[key]; release(); };
 }
 
-function api(body, token) {
+function api(body, token, guest) {
     const context = {
-        URL, Response, crypto: webcrypto,
+        URL, Response, crypto: webcrypto, TextEncoder, ...guestAuth,
         validateSession: async (_, value) => value === 'valid-session' ? { userId: '__admin__' } : null
     };
     runInNewContext(apiSource, context);
     return context.onRequestPost({
-        env: { FORM_SUBMISSIONS: {
+        env: { ADMIN_SESSIONS: memoryKV(adminSessions), RATE_LIMIT: memoryKV(rateLimits), FORM_SUBMISSIONS: {
             put: async (key, value) => records.set(key, value),
             get: async key => records.get(key),
             delete: async key => records.delete(key),
@@ -67,7 +78,8 @@ function api(body, token) {
             }
         } },
         request: new Request('https://example.com/api/rsvp', { method: 'POST', body,
-            headers: { 'Content-Type': 'application/json', ...(token ? { 'X-Admin-Session': token } : {}) } })
+            headers: { 'Content-Type': 'application/json', ...(token ? { 'X-Admin-Session': token } : {}),
+                ...(guest ? { 'X-RSVP-Guest-Token': guest } : {}) } })
     });
 }
 
@@ -81,12 +93,13 @@ async function startServer() {
             const action = JSON.parse(body).action;
             if (holds[action]) await holds[action];
             const result = url.pathname === '/api/password' ? Response.json({ success: true, sessionToken: 'valid-session' }) :
-                url.pathname === '/api/rsvp' ? await api(body, request.headers['x-admin-session']) : new Response('', { status: 404 });
+                url.pathname === '/api/rsvp' ? await api(body, request.headers['x-admin-session'], request.headers['x-rsvp-guest-token']) : new Response('', { status: 404 });
             response.writeHead(result.status, { 'Content-Type': 'application/json' });
             return response.end(await result.text());
         }
         if (url.pathname === '/rsvp/theme-client.js' && holds.module) await holds.module;
-        let file = url.pathname.endsWith('/') ? url.pathname + 'index.html' : url.pathname;
+        let file = /^\/rsvp\/i\/[^/]+\/?$/.test(url.pathname) ? '/rsvp/index.html' :
+            url.pathname.endsWith('/') ? url.pathname + 'index.html' : url.pathname;
         if (!path.extname(file)) file += '.html';
         const full = path.join(root, path.normalize(file));
         if (!full.startsWith(path.join(root, 'rsvp') + path.sep) || !existsSync(full)) {
@@ -101,7 +114,7 @@ async function startServer() {
 }
 
 async function startChrome() {
-    profile = mkdtempSync(path.join(os.tmpdir(), 'rsvp-chrome-'));
+    profile = mkdtempSync(path.join(root, '.rsvp-chrome-'));
     chromeProcess = spawn(chrome, ['--headless=new', '--no-sandbox', '--disable-gpu', '--no-first-run',
         '--no-default-browser-check', '--remote-debugging-port=0', '--user-data-dir=' + profile, 'about:blank'],
     { stdio: ['ignore', 'ignore', 'pipe'] });
@@ -250,7 +263,7 @@ after(async () => {
     if (socket) socket.close();
     if (server) await new Promise(resolve => server.close(resolve));
     // Chromium helpers can briefly outlive the browser; temporary profile cleanup is best-effort.
-    if (profile) try { rmSync(profile, { recursive: true, force: true, maxRetries: 10, retryDelay: 100 }); } catch { /* Left in tmp. */ }
+    if (profile) try { rmSync(profile, { recursive: true, force: true, maxRetries: 10, retryDelay: 100 }); } catch { /* Best effort. */ }
 });
 
 test('admin Save keeps the exact colours, previews them with real CSS and they survive a page reload', { skip }, async () => {
@@ -679,4 +692,68 @@ test('failed, stalled and module-less invitation loads end in a visible, usable 
         await waitFor('!' + pendingFlag, 'bounded reveal without modules');
         assert.equal(await evaluate('return document.getElementById("heading").checkVisibility({ visibilityProperty: true });'), true);
     } finally { await page('Network.setBlockedURLs', { urls: ['*r2.dev*'] }); }
+});
+
+test('short invitation routes suppress the stock card while the invitation is pending', { skip }, async () => {
+    const invitation = await syntheticInvitation();
+    const release = hold('get-invitation');
+    try {
+        await navigate('/rsvp/i/' + invitation.shortId);
+        await waitFor('window.RSVPThemes && ' + pendingFlag);
+        assert.equal(await evaluate('return document.getElementById("heading").checkVisibility({ visibilityProperty: true });'), false);
+        assert.equal(await evaluate('return document.getElementById("occasionChooser").checkVisibility({ visibilityProperty: true });'), false);
+        assert.equal(await evaluate('return document.querySelector("script[type=module]").src;'), origin + '/rsvp/rsvp.js');
+    } finally { release(); }
+    await waitFor('!document.getElementById("openRsvp").hidden && !' + pendingFlag);
+    assert.equal(await evaluate('return location.pathname;'), '/rsvp/i/' + invitation.shortId);
+});
+
+test('guest passwords, short sharing, receipts and explicit admin removal work in the browser in every category', { skip }, async () => {
+    for (const type of categories) {
+        rateLimits.clear();
+        await signIn(type);
+        await evaluate('document.getElementById("newInvitation").click();' +
+            'const f = document.getElementById("invitationForm"); f.elements.eventType.value = ' + JSON.stringify(type) + ';' +
+            'f.elements.title.value = "Protected " + ' + JSON.stringify(type) + ';' +
+            'f.elements.text.value = "Private venue"; f.elements.guestPassword.value = "guest-only secret";' +
+            'f.requestSubmit(); return true;');
+        await waitFor('document.getElementById("shareInvitation").querySelector("a")', 'saved protected invitation');
+        const event = await evaluate('const f = document.getElementById("invitationForm"); return {' +
+            'id: f.elements.id.value, path: new URL(document.getElementById("shareInvitation").querySelector("a").href).pathname,' +
+            'password: f.elements.guestPassword.value, status: document.getElementById("guestProtectionStatus").textContent };');
+        assert.match(event.path, /^\/rsvp\/i\/[A-Za-z0-9_-]{22}$/);
+        assert.equal(event.password, '');
+        assert.match(event.status, /protection is on/);
+        const hash = JSON.parse(records.get('rsvp-invitation:' + event.id)).guestPasswordHash;
+        await evaluate('document.getElementById("invitationForm").requestSubmit(); return true;');
+        await waitFor('!document.querySelector("#invitationForm button[type=submit]").disabled');
+        assert.equal(JSON.parse(records.get('rsvp-invitation:' + event.id)).guestPasswordHash, hash, 'blank keeps protection unchanged');
+        await open(event.path);
+        await waitFor('!document.getElementById("guestUnlock").hidden', 'guest password prompt');
+        assert.equal(await evaluate('return document.getElementById("invitationText").textContent.includes("Private venue");'), false);
+        await evaluate('const f = document.getElementById("guestUnlock"); f.elements.password.value = "wrong"; f.requestSubmit(); return true;');
+        await waitFor('document.getElementById("message").textContent.includes("Incorrect")');
+        assert.equal(await evaluate('return document.getElementById("guestPassword").value;'), '');
+        await evaluate('const f = document.getElementById("guestUnlock"); f.elements.password.value = "guest-only secret"; f.requestSubmit(); return true;');
+        await waitFor('!document.getElementById("openRsvp").hidden', 'unlocked invitation');
+        assert.equal(await evaluate('return document.getElementById("invitationText").textContent;'), 'Private venue');
+        assert.equal(await evaluate('return document.getElementById("guestUnlock").hidden;'), true);
+        assert.equal(await evaluate('return JSON.stringify(sessionStorage).includes("guest-only secret");'), false);
+        assert.equal(await evaluate('return location.href.includes("secret");'), false);
+        await evaluate('document.getElementById("openRsvp").click(); const f = document.getElementById("rsvpForm");' +
+            'f.elements.name.value = "Guest"; f.elements.attending.value = "yes"; f.requestSubmit(); return true;');
+        await waitFor('document.getElementById("receipt") && document.getElementById("receipt").children.length > 0', 'receipt');
+        assert.equal(await evaluate('return new URLSearchParams(location.search).get("id");'), event.path.split('/').at(-1));
+        assert.equal(await evaluate('return new URL(document.querySelector("nav a").href).pathname;'), event.path);
+        assert.equal([...records.entries()].some(([key, raw]) => key.startsWith('rsvp:') && JSON.parse(raw).eventId === event.id), true);
+        await signIn(type);
+        await evaluate('const f = document.getElementById("invitationForm"); f.elements.id.value = ' + JSON.stringify(event.id) +
+            '; document.getElementById("loadInvitation").click(); return true;');
+        await waitFor('document.getElementById("guestProtectionStatus").textContent.includes("protection is on")', 'authenticated preview');
+        await evaluate('const f = document.getElementById("invitationForm"); f.elements.removeGuestPassword.checked = true; f.requestSubmit(); return true;');
+        await waitFor('document.getElementById("guestProtectionStatus").textContent.includes("No guest password")', 'explicit removal');
+        await open(event.path);
+        await waitFor('!document.getElementById("openRsvp").hidden', 'removed protection with stale guest token');
+        assert.equal(await evaluate('return document.getElementById("guestUnlock").hidden;'), true);
+    }
 });

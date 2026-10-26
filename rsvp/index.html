@@ -9,7 +9,7 @@
     <script>
         // An invitation link must not paint the stock card first. rsvp.js clears this once the
         // invitation, its category settings and image are ready; the timer bounds slow or failed loads.
-        if (new URLSearchParams(location.search).get('id')) {
+        if (new URLSearchParams(location.search).get('id') || /^\/rsvp\/i\//.test(location.pathname)) {
             document.documentElement.classList.add('rsvp-invitation-pending');
             setTimeout(function () { document.documentElement.classList.remove('rsvp-invitation-pending'); }, 8000);
         }
@@ -32,6 +32,11 @@ A beautiful invitation, a special gathering, and the people who make it yours.</
                 <button id="openRsvp" data-copy="openRsvp" class="rsvp-btn primary" type="button" hidden>RSVP to this celebration</button>
             </div>
             <p id="message" class="rsvp-section" role="status" aria-live="polite"></p>
+            <form id="guestUnlock" class="rsvp-section" hidden>
+                <label for="guestPassword">Guest password</label>
+                <input id="guestPassword" name="password" type="password" autocomplete="off" required>
+                <button class="rsvp-btn primary" type="submit">Open invitation</button>
+            </form>
             <form id="rsvpForm" class="rsvp-section" hidden>
                 <h2 data-copy="replyHeading">Your reply</h2>
                 <label for="name" data-copy="nameLabel">Name</label>

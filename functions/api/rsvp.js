@@ -1,9 +1,29 @@
-import { validateSession } from '../lib/auth.js';
+import { validateSession, hashPassword, verifyPassword, generateSessionToken, checkRateLimit, recordFailedAttempt } from '../lib/auth.js';
 import { eventTypes, theme, normalizeAppearance, validateAppearance, styleIssues } from '../../rsvp/themes.js';
+import { validInvitationId, invitationId, invitationShortId } from '../../rsvp/invitation-id.js';
 
 const PREFIX = 'rsvp:';
 const INVITATIONS = 'rsvp-invitation:';
-const validId = id => typeof id === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(id);
+const GUEST_SESSIONS = 'rsvp-guest-session:';
+const validId = validInvitationId;
+
+function invitationDTO(invitation, id) {
+  const { title, text, whatsapp = '', sms = '' } = invitation;
+  return { id, shortId: invitationShortId(id), eventType: theme(invitation.eventType),
+    title, text, whatsapp, sms, passwordProtected: !!invitation.guestPasswordHash };
+}
+
+async function guestAccess(env, request, invitation, id) {
+  if (!invitation.guestPasswordHash) return true;
+  const token = request.headers.get('x-rsvp-guest-token');
+  if (!token || !/^[a-f0-9]{64}$/.test(token) || !env.FORM_SUBMISSIONS) return false;
+  const raw = await env.FORM_SUBMISSIONS.get(GUEST_SESSIONS + token);
+  if (!raw) return false;
+  const session = JSON.parse(raw);
+  return !!invitation.guestPasswordHash && session.scope === 'rsvp-guest' && session.invitationId === id &&
+    session.protection === invitation.guestPasswordHash && session.revision === invitation.guestPasswordRevision &&
+    Number.isFinite(session.expiresAt) && session.expiresAt > Date.now();
+}
 
 function invitationFields(body) {
   const result = {};
@@ -22,8 +42,8 @@ function invitationFields(body) {
 }
 
 export async function onRequestPost({ request, env }) {
-  const reply = (data, status = 200) => Response.json(data, {
-    status, headers: { 'Cache-Control': 'no-store' }
+  const reply = (data, status = 200, headers = {}) => Response.json(data, {
+    status, headers: { ...headers, 'Cache-Control': 'no-store' }
   });
   if (new URL(request.url).protocol !== 'https:') {
     return reply({ success: false, error: 'HTTPS required' }, 403);
@@ -44,7 +64,7 @@ export async function onRequestPost({ request, env }) {
     if (body.cursor !== undefined && (typeof body.cursor !== 'string' || body.cursor.length > 2048)) {
       return reply({ success: false, error: 'Invalid cursor' }, 400);
     }
-  } else if (!['submit', 'get-invitation', 'get-appearance'].includes(body.action)) {
+  } else if (!['submit', 'get-invitation', 'unlock-invitation', 'get-appearance'].includes(body.action)) {
     return reply({ success: false, error: 'Unknown action' }, 400);
   }
 
@@ -123,18 +143,69 @@ export async function onRequestPost({ request, env }) {
         return reply({ success: false, error: 'Enter a title, invitation text, and valid WhatsApp/text numbers in +countrycode format.' }, 400);
       }
       const id = body.id || crypto.randomUUID();
-      if (body.id && !await env.FORM_SUBMISSIONS.get(INVITATIONS + id)) {
+      const raw = body.id ? await env.FORM_SUBMISSIONS.get(INVITATIONS + id) : null;
+      if (body.id && !raw) {
         return reply({ success: false, error: 'Invitation not found' }, 404);
       }
-      const invitation = { id, ...fields };
+      const invitation = { ...(raw ? JSON.parse(raw) : {}), id, ...fields };
+      if ((body.guestPassword !== undefined && typeof body.guestPassword !== 'string') ||
+          (body.removeGuestPassword !== undefined && typeof body.removeGuestPassword !== 'boolean') ||
+          (body.removeGuestPassword && body.guestPassword)) {
+        return reply({ success: false, error: 'Choose a new guest password or remove protection, not both.' }, 400);
+      }
+      if (body.guestPassword) {
+        if ([...body.guestPassword].length < 8 || !body.guestPassword.trim() ||
+            new TextEncoder().encode(body.guestPassword).length > 72) {
+          return reply({ success: false, error: 'Guest passwords need at least 8 characters, including a non-space character, and at most 72 UTF-8 bytes. Blank keeps the existing password unchanged.' }, 400);
+        }
+        if (!env.RATE_LIMIT) {
+          return reply({ success: false, error: 'Guest authentication is unavailable.' }, 503);
+        }
+        invitation.guestPasswordHash = await hashPassword(body.guestPassword);
+        invitation.guestPasswordRevision = crypto.randomUUID();
+      } else if (body.removeGuestPassword) {
+        delete invitation.guestPasswordHash;
+        invitation.guestPasswordRevision = crypto.randomUUID();
+      }
       await env.FORM_SUBMISSIONS.put(INVITATIONS + id, JSON.stringify(invitation));
-      return reply({ success: true, invitation });
+      return reply({ success: true, invitation: invitationDTO(invitation, id) });
     }
-    if (body.action === 'get-invitation') {
-      if (!validId(body.id)) return reply({ success: false, error: 'Invalid invitation ID' }, 400);
-      const raw = await env.FORM_SUBMISSIONS.get(INVITATIONS + body.id);
+    if (body.action === 'get-invitation' || body.action === 'unlock-invitation') {
+      const id = invitationId(body.id);
+      if (!id) return reply({ success: false, error: 'Invalid invitation ID' }, 400);
+      const raw = await env.FORM_SUBMISSIONS.get(INVITATIONS + id);
       if (!raw) return reply({ success: false, error: 'Invitation not found' }, 404);
-      return reply({ success: true, invitation: JSON.parse(raw) });
+      const invitation = JSON.parse(raw);
+      if (body.action === 'unlock-invitation') {
+        if (!env.RATE_LIMIT) {
+          return reply({ success: false, error: 'Guest authentication is unavailable.' }, 503);
+        }
+        const bucket = 'rsvp-guest:' + (request.headers.get('CF-Connecting-IP') || 'unknown');
+        const rateReply = limit => reply({ success: false, error: 'Too many failed attempts. Try again later.' },
+          429, { 'Retry-After': String(Math.max(1, Math.ceil((limit.lockedUntil - Date.now()) / 1000))) });
+        const limit = await checkRateLimit(env, bucket);
+        if (!limit.allowed) return rateReply(limit);
+        if (!invitation.guestPasswordHash || typeof body.password !== 'string' ||
+            !body.password || new TextEncoder().encode(body.password).length > 72 ||
+            !await verifyPassword(body.password, invitation.guestPasswordHash)) {
+          const failed = await recordFailedAttempt(env, bucket);
+          if (failed.lockedUntil) return rateReply(failed);
+          return reply({ success: false, error: 'Incorrect guest password.' }, 401);
+        }
+        const token = generateSessionToken();
+        const expiresAt = Date.now() + 30 * 60 * 1000;
+        await env.FORM_SUBMISSIONS.put(GUEST_SESSIONS + token, JSON.stringify({
+          scope: 'rsvp-guest', invitationId: id, protection: invitation.guestPasswordHash,
+          revision: invitation.guestPasswordRevision, expiresAt
+        }), { expirationTtl: 30 * 60 });
+        return reply({ success: true, guestToken: token, expiresAt });
+      }
+      const admin = await validateSession(env, request.headers.get('x-admin-session'));
+      if ((!admin || admin.userId !== '__admin__') && !await guestAccess(env, request, invitation, id)) {
+        return reply({ success: false, passwordProtected: !!invitation.guestPasswordHash,
+          error: 'Enter the guest password to open this invitation.' }, 401);
+      }
+      return reply({ success: true, invitation: invitationDTO(invitation, id) });
     }
     if (body.action === 'list' || body.action === 'list-invitations') {
       if (body.eventId !== undefined && body.eventId !== 'unassigned' && !validId(body.eventId)) {
@@ -146,7 +217,8 @@ export async function onRequestPost({ request, env }) {
       });
       const records = await Promise.all(page.keys.map(key => env.FORM_SUBMISSIONS.get(key.name)));
       let items = records.map((raw, index) => raw ?
-        { ...JSON.parse(raw), ...(!invitations ? { id: page.keys[index].name.slice(PREFIX.length) } : {}) } : null
+        (invitations ? invitationDTO(JSON.parse(raw), page.keys[index].name.slice(INVITATIONS.length)) :
+          { ...JSON.parse(raw), id: page.keys[index].name.slice(PREFIX.length) }) : null
       ).filter(Boolean);
       if (!invitations && body.eventId !== undefined) {
         items = items.filter(item => body.eventId === 'unassigned' ? !item.eventId : item.eventId === body.eventId);
@@ -169,11 +241,17 @@ export async function onRequestPost({ request, env }) {
     }
 
     let invitation;
+    let canonicalId;
     if (body.eventId !== undefined) {
-      if (!validId(body.eventId)) return reply({ success: false, error: 'Invalid invitation ID' }, 400);
-      const raw = await env.FORM_SUBMISSIONS.get(INVITATIONS + body.eventId);
+      canonicalId = invitationId(body.eventId);
+      if (!canonicalId) return reply({ success: false, error: 'Invalid invitation ID' }, 400);
+      const raw = await env.FORM_SUBMISSIONS.get(INVITATIONS + canonicalId);
       if (!raw) return reply({ success: false, error: 'Invitation not found' }, 404);
       invitation = JSON.parse(raw);
+      if (!await guestAccess(env, request, invitation, canonicalId)) {
+        return reply({ success: false, passwordProtected: !!invitation.guestPasswordHash,
+          error: 'Enter the guest password before responding.' }, 401);
+      }
       if (body.event !== invitation.title) {
         return reply({ success: false, error: 'The event has changed. Reload the invitation before responding.' }, 400);
       }
@@ -197,14 +275,26 @@ export async function onRequestPost({ request, env }) {
     response.guests = body.guests;
     response.createdAt = new Date().toISOString();
     if (invitation) {
-      response.eventId = invitation.id;
+      response.eventId = canonicalId;
       response.eventType = theme(invitation.eventType);
     }
     const key = PREFIX + crypto.randomUUID();
     await env.FORM_SUBMISSIONS.put(key, JSON.stringify(response));
-    if (invitation && !await env.FORM_SUBMISSIONS.get(INVITATIONS + invitation.id)) {
-      await env.FORM_SUBMISSIONS.delete(key);
-      return reply({ success: false, error: 'Invitation not found' }, 404);
+    if (invitation) {
+      let current, allowed = false;
+      try {
+        const currentRaw = await env.FORM_SUBMISSIONS.get(INVITATIONS + canonicalId);
+        current = currentRaw ? JSON.parse(currentRaw) : null;
+        allowed = current && current.guestPasswordHash === invitation.guestPasswordHash &&
+          current.guestPasswordRevision === invitation.guestPasswordRevision &&
+          await guestAccess(env, request, current, canonicalId);
+      } finally {
+        if (!allowed) await env.FORM_SUBMISSIONS.delete(key);
+      }
+      if (!allowed) {
+        return reply({ success: false, passwordProtected: !!current?.guestPasswordHash,
+          error: 'Invitation access changed. Reopen the invitation.' }, current ? 401 : 404);
+      }
     }
     return reply({
       success: true, response,

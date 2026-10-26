@@ -1,4 +1,5 @@
 import './theme-client.js';
+import { invitationId, invitationPath, invitationShortId } from './invitation-id.js';
 
 (function () {
     'use strict';
@@ -24,9 +25,23 @@ import './theme-client.js';
         message.setAttribute('data-copy', key);
     }
 
-    async function post(path, payload, token) {
+    var guestTokens = {};
+    function guestToken(id) {
+        id = invitationId(id);
+        if (!id) return '';
+        if (guestTokens[id]) return guestTokens[id];
+        try { return sessionStorage.getItem('rsvp_guest:' + id) || ''; } catch (error) { return ''; }
+    }
+    function saveGuestToken(id, value) {
+        id = invitationId(id);
+        if (!id) return;
+        guestTokens[id] = value;
+        try { sessionStorage.setItem('rsvp_guest:' + id, value); } catch (error) { /* Memory still works. */ }
+    }
+    async function post(path, payload, token, guest) {
         var headers = { 'Content-Type': 'application/json' };
         if (token) headers['X-Admin-Session'] = token;
+        if (guest) headers['X-RSVP-Guest-Token'] = guest;
         var response = await fetch(path, {
             method: 'POST', headers: headers, body: JSON.stringify(payload)
         });
@@ -34,6 +49,7 @@ import './theme-client.js';
         if (!response.ok || !data.success) {
             var error = new Error(data.error || 'Request failed. Please try again.');
             error.status = response.status;
+            error.passwordProtected = data.passwordProtected;
             error.fields = Array.isArray(data.fields) ? data.fields : [];
             throw error;
         }
@@ -43,7 +59,9 @@ import './theme-client.js';
     var form = document.getElementById('rsvpForm');
     if (form) {
         var invitation = null;
-        var eventId = new URLSearchParams(window.location.search).get('id');
+        var shortRoute = /^\/rsvp\/i\/([^/]+)\/?$/.exec(window.location.pathname || '');
+        var eventId = shortRoute ? shortRoute[1] : new URLSearchParams(window.location.search).get('id');
+        var unlock = document.getElementById('guestUnlock');
         var openRsvp = document.getElementById('openRsvp');
         openRsvp.addEventListener('click', function () {
             form.hidden = false;
@@ -57,8 +75,10 @@ import './theme-client.js';
             };
             document.getElementById('occasionChooser').hidden = true;
             status('Opening your invitation…');
-            post('/api/rsvp', { action: 'get-invitation', id: eventId }).then(function (data) {
+            var loadInvitation = function () { return post('/api/rsvp', { action: 'get-invitation', id: eventId },
+                null, guestToken(eventId)).then(function (data) {
                 invitation = data.invitation;
+                if (unlock) unlock.hidden = true;
                 // These two fields belong to this invitation, never the category.
                 document.getElementById('heading').removeAttribute('data-copy');
                 document.getElementById('invitationText').removeAttribute('data-copy');
@@ -75,8 +95,28 @@ import './theme-client.js';
                 return Promise.all([themed, window.RSVPThemes.ready]);
             }).catch(function (error) {
                 finishInvitationTheme(false);
+                if (error.status === 401 && unlock) {
+                    var hadToken = guestToken(eventId);
+                    saveGuestToken(eventId, '');
+                    if (hadToken && error.passwordProtected === false) return loadInvitation();
+                    unlock.hidden = false;
+                }
                 status(error.message, true);
-            }).finally(revealInvitation);
+            }).finally(revealInvitation); };
+            if (unlock) unlock.addEventListener('submit', async function (event) {
+                event.preventDefault();
+                var button = unlock.querySelector('button');
+                button.disabled = true;
+                var password = unlock.elements.password.value;
+                unlock.elements.password.value = '';
+                try {
+                    var result = await post('/api/rsvp', { action: 'unlock-invitation', id: eventId, password: password });
+                    saveGuestToken(eventId, result.guestToken);
+                    await loadInvitation();
+                } catch (error) { status(error.message, true); }
+                finally { password = ''; button.disabled = false; }
+            });
+            loadInvitation();
         }
         var attending = form.elements.attending;
         var guests = form.elements.guests;
@@ -100,7 +140,7 @@ import './theme-client.js';
                 notes: form.elements.notes.value.trim()
             };
             try {
-                var data = await post('/api/rsvp', Object.assign({ action: 'submit' }, response));
+                var data = await post('/api/rsvp', Object.assign({ action: 'submit' }, response), null, guestToken(invitation.id));
                 copyStatus('savedMessage', invitation.eventType);
                 window.RSVP.sendOptions(document.getElementById('sendOptions'), data.response, data.organiser);
                 try {
@@ -109,11 +149,19 @@ import './theme-client.js';
                         eventType: theme(invitation.eventType)
                     }));
                     window.location.assign('/rsvp/view?type=' + theme(invitation.eventType) +
-                        '&id=' + encodeURIComponent(invitation.id));
+                        '&id=' + invitationShortId(invitation.id));
                 } catch (storageError) {
                     // Keep the reply and send options here if browser storage is unavailable.
                 }
             } catch (error) {
+                if (error.status === 401 && unlock) {
+                    saveGuestToken(eventId, '');
+                    invitation = null;
+                    form.hidden = true;
+                    openRsvp.hidden = true;
+                    unlock.hidden = false;
+                    if (error.passwordProtected === false) await loadInvitation();
+                }
                 status(error.message || 'Unable to send your RSVP. Please try again.', true);
             } finally {
                 button.disabled = false;
@@ -128,8 +176,8 @@ import './theme-client.js';
         applyTheme(receiptParams.get('type'));
         var receiptId = receiptParams.get('id');
         var back = document.querySelector('nav a');
-        back.href = receiptId && /^[0-9a-f-]{36}$/.test(receiptId) ?
-            '/rsvp/?id=' + encodeURIComponent(receiptId) :
+        back.href = invitationId(receiptId) ?
+            invitationPath(receiptId) :
             (theme(receiptParams.get('type')) === 'celebration' ? '/rsvp/' : '/rsvp/' + theme(receiptParams.get('type')) + '/');
         function receiptTheme(type) {
             applyTheme(type);
@@ -141,7 +189,7 @@ import './theme-client.js';
                 finishReceiptTheme(true);
                 return;
             }
-            post('/api/rsvp', { action: 'get-invitation', id: id }).then(function (data) {
+            post('/api/rsvp', { action: 'get-invitation', id: id }, null, guestToken(id)).then(function (data) {
                 receiptTheme(data.invitation.eventType);
                 finishReceiptTheme(true);
             }).catch(function () {
@@ -151,7 +199,7 @@ import './theme-client.js';
         }
         try {
             var saved = JSON.parse(sessionStorage.getItem(receiptKey));
-            if (saved && (!receiptId || (saved.response || saved).eventId === receiptId)) {
+            if (saved && (!receiptId || (saved.response || saved).eventId === invitationId(receiptId))) {
                 var reply = saved.response || saved;
                 var savedType = theme(saved.eventType || reply.eventType || receiptParams.get('type'));
                 applyTheme(savedType);
@@ -161,7 +209,7 @@ import './theme-client.js';
                 document.getElementById('receiptHeading').textContent = window.RSVPThemes.copy(savedType, 'receiptHeading');
                 copyStatus('receiptMessage', savedType);
                 if (reply.eventId) {
-                    document.querySelector('nav a').href = '/rsvp/?id=' + encodeURIComponent(reply.eventId);
+                    document.querySelector('nav a').href = invitationPath(reply.eventId);
                 }
                 receiptId = reply.eventId || receiptId;
             }
@@ -373,14 +421,25 @@ import './theme-client.js';
             editor.elements[field].value = invitation[field] || '';
         });
         editor.elements.eventType.value = theme(invitation.eventType);
+        if (editor.elements.guestPassword) editor.elements.guestPassword.value = '';
+        if (editor.elements.removeGuestPassword) editor.elements.removeGuestPassword.checked = false;
+        var protectionStatus = document.getElementById('guestProtectionStatus');
+        if (protectionStatus) protectionStatus.textContent = invitation.passwordProtected ?
+            'Guest password protection is on.' : 'No guest password is set.';
         applyTheme(invitation.eventType);
         showBackground();
         share.replaceChildren();
         var link = document.createElement('a');
-        link.href = window.location.origin + '/rsvp/?id=' + encodeURIComponent(invitation.id);
+        link.href = window.location.origin + invitationPath(invitation.id);
         link.textContent = link.href;
         share.appendChild(document.createTextNode('Saved invitation — share this link: '));
         share.appendChild(link);
+    }
+
+    function resetInvitationEditor() {
+        editor.reset();
+        var protectionStatus = document.getElementById('guestProtectionStatus');
+        if (protectionStatus) protectionStatus.textContent = '';
     }
 
     editor.addEventListener('submit', async function (event) {
@@ -393,6 +452,11 @@ import './theme-client.js';
             payload[field] = editor.elements[field].value.trim();
         });
         if (editor.elements.id.value.trim()) payload.id = editor.elements.id.value.trim();
+        if (editor.elements.guestPassword && editor.elements.guestPassword.value) {
+            payload.guestPassword = editor.elements.guestPassword.value;
+        }
+        if (editor.elements.removeGuestPassword && editor.elements.removeGuestPassword.checked) payload.removeGuestPassword = true;
+        if (editor.elements.guestPassword) editor.elements.guestPassword.value = '';
         try {
             var data = await post('/api/rsvp', payload, session);
             if (token !== session) return;
@@ -412,12 +476,12 @@ import './theme-client.js';
     document.getElementById('loadInvitation').addEventListener('click', async function () {
         var session = token;
         try {
-            var data = await post('/api/rsvp', { action: 'get-invitation', id: editor.elements.id.value.trim() });
+            var data = await post('/api/rsvp', { action: 'get-invitation', id: editor.elements.id.value.trim() }, session);
             if (token === session) showInvitation(data.invitation);
         } catch (error) { if (token === session) status(error.message, true); }
     });
     document.getElementById('newInvitation').addEventListener('click', function () {
-        editor.reset();
+        resetInvitationEditor();
         editor.elements.eventType.value = initialTheme;
         applyTheme(initialTheme);
         showBackground();
@@ -450,10 +514,10 @@ import './theme-client.js';
             details.textContent = 'Type: ' + theme(item.eventType) + ' · Replies: ' + item.replyCount;
             row.appendChild(details);
             var code = document.createElement('p');
-            code.textContent = 'Invite code: ' + item.id;
+            code.textContent = 'Invite code: ' + invitationShortId(item.id);
             row.appendChild(code);
             var link = document.createElement('a');
-            link.href = window.location.origin + '/rsvp/?id=' + encodeURIComponent(item.id);
+            link.href = window.location.origin + invitationPath(item.id);
             link.textContent = link.href;
             row.appendChild(link);
             function button(label, handler) {
@@ -464,7 +528,7 @@ import './theme-client.js';
                 control.addEventListener('click', handler);
                 row.appendChild(control);
             }
-            button('Copy invite code', function () { copy(item.id); });
+            button('Copy invite code', function () { copy(invitationShortId(item.id)); });
             button('Copy share link', function () { copy(link.href); });
             button('Open/Edit', function () { showInvitation(item); editor.elements.title.focus(); });
             button('View replies', function () { replyEvent.value = item.id; filterReplies(); });
@@ -516,7 +580,7 @@ import './theme-client.js';
             }
             if (action === 'delete-event') {
                 if (editor.elements.id.value === id) {
-                    editor.reset();
+                    resetInvitationEditor();
                     editor.elements.eventType.value = initialTheme;
                     applyTheme(initialTheme);
                     showBackground();
@@ -656,7 +720,7 @@ import './theme-client.js';
         editor.hidden = true;
         if (appearanceForm) appearanceForm.hidden = true;
         drafts = {};
-        editor.reset();
+        resetInvitationEditor();
         editor.elements.eventType.value = initialTheme;
         applyTheme(initialTheme);
         showBackground();
