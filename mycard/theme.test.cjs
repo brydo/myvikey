@@ -12,6 +12,20 @@ function declarations(file, selector) {
         }));
 }
 
+test('landing restores the historical dark background without overriding its foreground or layout', () => {
+    const source = readFileSync(`${__dirname}/index.html`, 'utf8');
+    const root = declarations('index.html', ':root');
+    assert.equal(root['--bg-color'], '#121212');
+    assert.equal(root['--text-color'], '#e0e0e0');
+    assert.equal(root['--text-muted'], '#a0a0a0');
+    assert.equal(root['color-scheme'], 'dark');
+    const body = declarations('index.html', 'body');
+    assert.equal(body['background-color'], 'var(--bg-color)');
+    assert.equal(body.color, 'var(--text-color)');
+    assert.doesNotMatch(source, /background(?:-color)?\s*:[^;]*!important/);
+    assert.match(source, /@media\s*\(max-width:\s*767px\)/);
+});
+
 test('admin uses the charcoal and executive blue palette', () => {
     assert.deepEqual(declarations('admin.html', ':root'), {
         '--bg-color': '#0F1115',
