@@ -51,6 +51,7 @@ import './theme-client.js';
             form.elements.name.focus();
         });
         if (eventId) {
+            var finishInvitationTheme = window.RSVPThemes.beginCategory();
             document.getElementById('occasionChooser').hidden = true;
             status('Opening your invitation…');
             post('/api/rsvp', { action: 'get-invitation', id: eventId }).then(function (data) {
@@ -59,6 +60,7 @@ import './theme-client.js';
                 document.getElementById('heading').removeAttribute('data-copy');
                 document.getElementById('invitationText').removeAttribute('data-copy');
                 applyTheme(invitation.eventType);
+                finishInvitationTheme(true);
                 document.getElementById('heading').textContent = invitation.title;
                 document.getElementById('invitationText').textContent = invitation.text;
                 document.getElementById('invitationHelp').hidden = true;
@@ -66,7 +68,10 @@ import './theme-client.js';
                 form.querySelector('button').disabled = false;
                 openRsvp.hidden = false;
                 status('');
-            }).catch(function (error) { status(error.message, true); });
+            }).catch(function (error) {
+                finishInvitationTheme(false);
+                status(error.message, true);
+            });
         }
         var attending = form.elements.attending;
         var guests = form.elements.guests;
@@ -113,6 +118,7 @@ import './theme-client.js';
 
     var receipt = document.getElementById('receipt');
     if (receipt) {
+        var finishReceiptTheme = window.RSVPThemes.beginCategory();
         var receiptParams = new URLSearchParams(window.location.search);
         applyTheme(receiptParams.get('type'));
         var receiptId = receiptParams.get('id');
@@ -126,10 +132,17 @@ import './theme-client.js';
             window.RSVPThemes.apply(document.getElementById('sendOptions'), type);
         }
         function resolveReceiptTheme(id) {
-            if (!id) return;
+            if (!id) {
+                finishReceiptTheme(true);
+                return;
+            }
             post('/api/rsvp', { action: 'get-invitation', id: id }).then(function (data) {
                 receiptTheme(data.invitation.eventType);
-            }).catch(function () { /* Keep the saved category if the invitation is unavailable. */ });
+                finishReceiptTheme(true);
+            }).catch(function () {
+                // Keep saved receipt content, but not its unverified background.
+                finishReceiptTheme(false);
+            });
         }
         try {
             var saved = JSON.parse(sessionStorage.getItem(receiptKey));
