@@ -52,6 +52,9 @@ import './theme-client.js';
         });
         if (eventId) {
             var finishInvitationTheme = window.RSVPThemes.beginCategory();
+            var revealInvitation = function () {
+                if (document.documentElement) document.documentElement.classList.remove('rsvp-invitation-pending');
+            };
             document.getElementById('occasionChooser').hidden = true;
             status('Opening your invitation…');
             post('/api/rsvp', { action: 'get-invitation', id: eventId }).then(function (data) {
@@ -60,7 +63,7 @@ import './theme-client.js';
                 document.getElementById('heading').removeAttribute('data-copy');
                 document.getElementById('invitationText').removeAttribute('data-copy');
                 applyTheme(invitation.eventType);
-                finishInvitationTheme(true);
+                var themed = finishInvitationTheme(true);
                 document.getElementById('heading').textContent = invitation.title;
                 document.getElementById('invitationText').textContent = invitation.text;
                 document.getElementById('invitationHelp').hidden = true;
@@ -68,10 +71,12 @@ import './theme-client.js';
                 form.querySelector('button').disabled = false;
                 openRsvp.hidden = false;
                 status('');
+                // Reveal once saved settings and the chosen image (both bounded) have settled too.
+                return Promise.all([themed, window.RSVPThemes.ready]);
             }).catch(function (error) {
                 finishInvitationTheme(false);
                 status(error.message, true);
-            });
+            }).finally(revealInvitation);
         }
         var attending = form.elements.attending;
         var guests = form.elements.guests;
