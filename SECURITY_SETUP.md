@@ -85,6 +85,77 @@ submitting browser tab's session storage; there is no public response lookup.
 
 Run the focused tests with `node --test rsvp/rsvp.test.cjs mycard/card-render.test.cjs`.
 
+### RSVP invitation links and optional guest passwords
+
+Invitation sharing uses `/rsvp/i/<code>` across celebration, events, weddings,
+parties and engagements. The code is a canonical, URL-safe 22-character encoding
+of **all 128 UUID bits**, not a truncated identifier or an authentication token.
+New UUIDs still use `crypto.randomUUID()`. The encoding is reversible and
+collision-free for distinct UUIDs, so concurrent edits cannot allocate conflicting
+short aliases. UUIDs remain the storage keys and reply associations.
+`/rsvp/?id=<uuid>` still works; both forms use the same invitation lookup and
+access checks. `/rsvp/i/` is reserved for invitation links, leaving category
+pages, admin, receipts and assets unchanged.
+
+**Existing invitations need no live KV backfill.** Authenticated, cursor-paginated
+`list-invitations` (50 per page), loading and saving compute the same stable code
+without writing aliases or migrating records. Retry a failed page with its
+original cursor; no earlier page or invitation needs recreating. There is no
+partially completed migration to repair and no additional KV namespace.
+Saving preserves unknown stored fields; public and admin invitation payloads
+allowlist display fields rather than returning stored secrets. Deletion removes
+the canonical invitation, disabling either link form.
+
+Repository inspection found an RSVP **admin** password but no existing
+per-invitation guest password enforcement. This change adds an optional guest
+password, set/change/remove controls in RSVP admin and a guest unlock prompt.
+Existing and new invitations remain public unless an admin explicitly sets a
+guest password. Leaving the password blank when editing preserves protection;
+removal is explicit. No password is generated automatically.
+
+Guest passwords use the existing bcrypt helper (12 rounds, at least 8 characters
+with a non-space character and at most 72 UTF-8 bytes), stored as
+`guestPasswordHash` on the invitation, never returned in API
+payloads. Unlock attempts use the existing rate limiter in a separate
+`rsvp-guest:` IP bucket (3 failures in 5 minutes, 15-minute lockout). A successful
+unlock issues an opaque 30-minute token scoped to the canonical invitation and
+its current password revision. Guest sessions use `rsvp-guest-session:` keys in
+`FORM_SUBMISSIONS`, never the admin-session namespace, and cannot authorize admin
+actions. Both reads and submissions enforce guest access
+server-side, including legacy UUID requests; an admin preview session is not a
+guest submission credential. Changing/removing protection invalidates previous
+protected sessions. MyCard password handling and shared admin login are unchanged.
+
+**Rollout (not performed by this code change):**
+
+1. Deploy the Pages assets **and Functions** together, including the RSVP routing
+   middleware. Publishing static files alone does not enable short routes.
+2. Verify `FORM_SUBMISSIONS`, `ADMIN_SESSIONS` and `RATE_LIMIT` bindings in both
+   preview and production. Guest authentication fails closed if its required
+   bindings are unavailable.
+3. Check an existing UUID invitation and its short link, all five category
+   entrypoints, admin editing, and a password-protected invitation's read/submit
+   flow before sharing production links. Page through the admin invitation list
+   to copy existing short links; no migration command or live data rewrite is
+   needed.
+4. Account for Cloudflare KV's eventual consistency: invitation edits, password
+   changes, guest sessions and deletion may take time to propagate between
+   locations. The existing KV rate limiter is best-effort, not an atomic global
+   counter; use Cloudflare edge rate-limiting rules if strict distributed limits
+   are required. Short links add no separate alias cache or consistency window.
+
+Run all current regression tests with
+`node --test rsvp/*.test.cjs mycard/*.test.cjs`.
+The browser suite requires Chromium and Node 22+ (or `CHROME_PATH`).
+
+### MyCard landing background
+
+The `/mycard/` landing restores `#121212` from commit
+`7d29ddaddfbbab6ec6ee16ea7d7e648bd4d39b01`. Commit
+`00a99ce9267ca776297c6be8aafe0db64d5b1e58` subsequently added the white
+`html, body` `!important` override; only that override is removed. Newer content,
+responsive layout, viewer/admin styling and MyCard password controls remain.
+
 ## Troubleshooting
 
 | Symptom | Cause / fix |

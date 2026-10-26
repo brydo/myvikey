@@ -4,7 +4,9 @@ const { test } = require('node:test');
 const { runInNewContext } = require('node:vm');
 const { webcrypto } = require('node:crypto');
 const themesSource = readFileSync(`${__dirname}/themes.js`, 'utf8').replace(/^export /gm, '');
-const apiSource = themesSource + '\n' + readFileSync(`${__dirname}/../functions/api/rsvp.js`, 'utf8')
+const idsSource = readFileSync(`${__dirname}/invitation-id.js`, 'utf8').replace(/^export /gm, '');
+const ids = runInNewContext(idsSource + '\n({ invitationId, invitationShortId, invitationPath })');
+const apiSource = themesSource + '\n' + idsSource + '\n' + readFileSync(`${__dirname}/../functions/api/rsvp.js`, 'utf8')
     .replace(/^import .*;\n/gm, '').replace('export async function', 'async function');
 const appearanceModel = runInNewContext(themesSource +
     '\n({ copyFields, styleFields, defaultCopy, defaultCardStyle, normalizeAppearance, validateAppearance, contrastIssues, buttonHover })', { URL });
@@ -295,7 +297,8 @@ test('optional contact fields may be omitted, including WhatsApp for SMS-only in
         const event = await createEvent(instance, fields);
         assert.equal(event.whatsapp, fields.whatsapp === undefined ? '' : invitation.whatsapp);
         assert.equal(event.sms, fields.sms === undefined ? '' : invitation.sms);
-        assert.deepEqual(JSON.parse(instance.records.get('rsvp-invitation:' + event.id)), event);
+        const { shortId, passwordProtected, ...stored } = event;
+        assert.deepEqual(JSON.parse(instance.records.get('rsvp-invitation:' + event.id)), stored);
     }
 });
 
@@ -527,7 +530,7 @@ function browser({ page = 'index', storageFails = false, saved, failSave = false
     if (page === 'landing') node('body').setAttribute('data-event-type', eventType);
     runInNewContext(themesSource + '\n' + readFileSync(`${__dirname}/theme-client.js`, 'utf8').replace(/^import .*;\n/gm, ''), context);
     runInNewContext(readFileSync(`${__dirname}/card-render.js`, 'utf8'), context);
-    if (page !== 'landing') runInNewContext(readFileSync(`${__dirname}/rsvp.js`, 'utf8').replace(/^import .*;\n/gm, ''), context);
+    if (page !== 'landing') runInNewContext(idsSource + '\n' + readFileSync(`${__dirname}/rsvp.js`, 'utf8').replace(/^import .*;\n/gm, ''), context);
     return { nodes, requests, stored, redirects, downloads, copied, event, themes: context.window.RSVPThemes,
         tick: () => new Promise(resolve => setImmediate(resolve)) };
 }
@@ -808,7 +811,7 @@ test('real API organiser routing preserves SMS from admin save/load through gues
         guest.nodes.guests.value = '0';
         guest.nodes.notes.value = 'See you there!';
         await guest.nodes.rsvpForm.handlers.submit({ preventDefault() {} });
-        assert.deepEqual(guest.redirects, ['/rsvp/view?type=celebration&id=' + id]);
+        assert.deepEqual(guest.redirects, ['/rsvp/view?type=celebration&id=' + ids.invitationShortId(id)]);
         const saved = JSON.parse(guest.stored.get('rsvp_receipt'));
         assert.deepEqual(saved.organiser, { whatsapp, sms: invitation.sms });
         const receipt = browser({ page: 'view', saved });
@@ -821,7 +824,7 @@ test('real API organiser routing preserves SMS from admin save/load through gues
             assert.match(sms.searchParams.get('body'), /Name: SMS guest/);
             assert.match(sms.searchParams.get('body'), /Notes: See you there!/);
         }
-        assert.equal(receipt.nodes.back.href, '/rsvp/?id=' + id);
+        assert.equal(receipt.nodes.back.href, ids.invitationPath(id));
         assert.equal([...instance.records.keys()].filter(key => key.startsWith('rsvp:')).length, 1);
     }
 });
@@ -843,12 +846,12 @@ test('guest loads safe multiline invitation, reveals prefilled form, saves event
     assert.equal(app.nodes.guests.disabled, true);
     await app.nodes.rsvpForm.handlers.submit({ preventDefault() {} });
     assert.equal(app.requests.find(item => item.action === 'submit').eventId, app.event.id);
-    assert.deepEqual(app.redirects, ['/rsvp/view?type=celebration&id=' + app.event.id]);
+    assert.deepEqual(app.redirects, ['/rsvp/view?type=celebration&id=' + ids.invitationShortId(app.event.id)]);
     const receipt = JSON.parse(app.stored.get('rsvp_receipt'));
     const view = browser({ page: 'view', saved: receipt });
     assert.equal(view.nodes.receipt.children.length, 1);
     assert.equal(view.nodes.sendOptions.children.length, 3);
-    assert.equal(view.nodes.back.href, '/rsvp/?id=' + app.event.id);
+    assert.equal(view.nodes.back.href, ids.invitationPath(app.event.id));
     assert.doesNotMatch(view.nodes.back.href, /Guest|notes|attending/);
 });
 
@@ -885,7 +888,7 @@ test('organiser login, create, reload, edit, new invitation and logout preserve 
     assert.equal(app.requests.find(item => item.action === 'save-invitation').id, undefined);
     assert.equal(app.nodes['editor-id'].value, app.event.id);
     const link = app.nodes.shareInvitation.children[1];
-    assert.equal(link.href, 'https://example.com/rsvp/?id=' + app.event.id);
+    assert.equal(link.href, 'https://example.com' + ids.invitationPath(app.event.id));
     assert.doesNotMatch(link.href, /password|whatsapp|email|text=/i);
     await app.nodes.loadInvitation.handlers.click();
     assert.equal(app.nodes['editor-text'].value, app.event.text);
@@ -929,7 +932,7 @@ test('event themes persist on invitations while legacy invitations default to cl
     delete legacy.eventType;
     instance.records.set('rsvp-invitation:' + legacy.id, JSON.stringify(legacy));
     const loaded = await (await instance.post({ action: 'get-invitation', id: legacy.id })).json();
-    assert.deepEqual(loaded.invitation, legacy);
+    assert.deepEqual(loaded.invitation, { ...legacy, eventType: 'celebration' });
 });
 
 test('landing pages have distinct themes and accessible navigation without public admin links', () => {
@@ -1256,7 +1259,7 @@ test('every category uses its current saved background across landing, existing 
         assert.equal(receipt.nodes.message.textContent, copy.receiptMessage);
         assert.equal(receipt.nodes.receipt.children[0].children[1].textContent, copy.cardHeading);
         assert.equal(receipt.nodes.sendOptions.children.at(-1).textContent, copy.smsLabel);
-        assert.equal(receipt.nodes.back.href, '/rsvp/?id=' + event.id);
+        assert.equal(receipt.nodes.back.href, ids.invitationPath(event.id));
         await admin.nodes.refresh.handlers.click();
         assert.equal(admin.nodes.responses.children[0].style['--category-image'], expected);
         assert.equal(admin.nodes.responses.children[0].querySelectorAll('[data-copy="cardHeading"]')[0].textContent, copy.cardHeading);
@@ -1343,7 +1346,7 @@ test('receipts load current appearance and invitation category, retain legacy fa
     const empty = browser({ page: 'view', search: '?type=events&id=' + event.id, apiPost: instance.post });
     await empty.tick();
     assert.equal(empty.nodes.body.attributes['data-event-type'], 'engagements');
-    assert.equal(empty.nodes.back.href, '/rsvp/?id=' + event.id);
+    assert.equal(empty.nodes.back.href, ids.invitationPath(event.id));
     assert.equal(empty.nodes.receipt.children.length, 0);
     const other = await createEvent(instance, { eventType: 'weddings' });
     const mismatch = browser({ page: 'view', saved, search: '?type=weddings&id=' + other.id, apiPost: instance.post });
@@ -1596,7 +1599,7 @@ test('late category loading repaints existing invitation receipt and reply label
     assert.equal(card.querySelectorAll('[data-copy="nameLabel"]')[0].textContent, 'Late guest');
     assert.equal(card.style['--card-spacing'], '26px');
     assert.equal(receipt.nodes.sendOptions.children.at(-1).textContent, 'Late text');
-    assert.equal(receipt.nodes.back.href, '/rsvp/?id=' + event.id);
+    assert.equal(receipt.nodes.back.href, ids.invitationPath(event.id));
 });
 
 test('admin theme options match the shared card themes, including Events tokens and banner', () => {
@@ -1622,7 +1625,7 @@ test('direct admin links preselect the theme, which is saved and restored when l
         await app.nodes.loginForm.handlers.submit({ preventDefault() {} });
         await app.nodes.invitationForm.handlers.submit({ preventDefault() {} });
         assert.equal(app.requests.at(-1).eventType, eventType);
-        assert.equal(app.nodes.shareInvitation.children[1].href, 'https://example.com/rsvp/?id=' + app.event.id);
+        assert.equal(app.nodes.shareInvitation.children[1].href, 'https://example.com' + ids.invitationPath(app.event.id));
         app.event.eventType = 'parties';
         await app.nodes.loadInvitation.handlers.click();
         assert.equal(app.nodes['editor-eventType'].value, 'parties');
@@ -1662,7 +1665,7 @@ test('Events invitation round-trips from admin through API storage to guest and 
     assert.equal(saved.eventType, 'events');
     const receipt = browser({ page: 'view', saved });
     assert.equal(receipt.nodes.body.attributes['data-event-type'], 'events');
-    assert.equal(receipt.nodes.back.href, '/rsvp/?id=' + id);
+    assert.equal(receipt.nodes.back.href, ids.invitationPath(id));
 });
 
 test('guest and receipt retain saved event theme with safe fallback for old or unknown themes', async () => {
@@ -1689,7 +1692,7 @@ test('guest and receipt retain saved event theme with safe fallback for old or u
         const view = browser({ page: 'view', saved: { ...saved, eventType } });
         assert.equal(view.nodes.body.attributes['data-event-type'], expected);
         assert.equal(view.nodes.receiptHeading.textContent, appearanceModel.defaultCopy(expected).receiptHeading);
-        assert.equal(view.nodes.back.href, '/rsvp/?id=' + app.event.id);
+        assert.equal(view.nodes.back.href, ids.invitationPath(app.event.id));
     }
 });
 
@@ -1748,14 +1751,14 @@ test('reply filtering preserves pagination, separates matching event titles, and
     assert.equal((await instance.post({ action: 'list', eventId: 'bad' }, 'valid-session')).status, 400);
 });
 
-test('legacy email invitations stay readable but email is ignored for routing and replaced on save', async () => {
+test('legacy email invitations stay readable but email is redacted and preserved on save', async () => {
     const instance = api();
     const event = await createEvent(instance);
     delete event.sms;
     event.email = 'legacy@example.com';
     instance.records.set('rsvp-invitation:' + event.id, JSON.stringify(event));
     const loaded = await (await instance.post({ action: 'get-invitation', id: event.id })).json();
-    assert.equal(loaded.invitation.email, event.email);
+    assert.equal(loaded.invitation.email, undefined);
     const reply = await (await instance.post({ ...valid, event: event.title, eventId: event.id })).json();
     assert.deepEqual(reply.organiser, { whatsapp: event.whatsapp, sms: '' });
     assert.equal(renderer().channels(reply.response, event).length, 1);
@@ -1768,7 +1771,7 @@ test('legacy email invitations stay readable but email is ignored for routing an
     const view = browser({ page: 'view', saved: routed });
     assert.deepEqual(view.nodes.sendOptions.children.filter(node => node.tag === 'a').map(node => node.textContent),
         ['Send via WhatsApp', 'Send via text/SMS']);
-    assert.equal(view.nodes.back.href, '/rsvp/?id=' + event.id);
+    assert.equal(view.nodes.back.href, ids.invitationPath(event.id));
 });
 
 test('event panel recalls codes and links, opens editor, scopes replies and clears on logout', async () => {
@@ -1778,12 +1781,12 @@ test('event panel recalls codes and links, opens editor, scopes replies and clea
     const row = app.nodes.events.children[0];
     assert.equal(row.children[0].textContent, app.event.title);
     assert.match(row.children[1].textContent, /Replies: 0/);
-    assert.equal(row.children[2].textContent, 'Invite code: ' + app.event.id);
-    assert.equal(row.children[3].href, 'https://example.com/rsvp/?id=' + app.event.id);
+    assert.equal(row.children[2].textContent, 'Invite code: ' + ids.invitationShortId(app.event.id));
+    assert.equal(row.children[3].href, 'https://example.com' + ids.invitationPath(app.event.id));
     await row.children[4].click();
     await row.children[5].click();
     await app.tick();
-    assert.deepEqual(app.copied, [app.event.id, row.children[3].href]);
+    assert.deepEqual(app.copied, [ids.invitationShortId(app.event.id), row.children[3].href]);
     row.children[6].click();
     assert.equal(app.nodes['editor-id'].value, app.event.id);
     assert.equal(app.nodes['editor-sms'].value, app.event.sms);
