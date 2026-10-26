@@ -38,6 +38,15 @@ const rgb = hex => 'rgb(' + hex.slice(1).match(/../g).map(value => parseInt(valu
 
 let records, server, origin, chromeProcess, profile, socket, page, closeBrowser;
 const events = {};
+const holds = {};
+let onImageRequest;
+
+function hold(key) {
+    let release;
+    const promise = new Promise(resolve => { release = resolve; });
+    holds[key] = promise;
+    return () => { delete holds[key]; release(); };
+}
 
 function api(body, token) {
     const context = {
@@ -69,11 +78,14 @@ async function startServer() {
         if (request.method === 'POST') {
             let body = '';
             for await (const chunk of request) body += chunk;
+            const action = JSON.parse(body).action;
+            if (holds[action]) await holds[action];
             const result = url.pathname === '/api/password' ? Response.json({ success: true, sessionToken: 'valid-session' }) :
                 url.pathname === '/api/rsvp' ? await api(body, request.headers['x-admin-session']) : new Response('', { status: 404 });
             response.writeHead(result.status, { 'Content-Type': 'application/json' });
             return response.end(await result.text());
         }
+        if (url.pathname === '/rsvp/theme-client.js' && holds.module) await holds.module;
         let file = url.pathname.endsWith('/') ? url.pathname + 'index.html' : url.pathname;
         if (!path.extname(file)) file += '.html';
         const full = path.join(root, path.normalize(file));
@@ -109,6 +121,10 @@ async function startChrome() {
     const pending = new Map();
     socket.onmessage = event => {
         const message = JSON.parse(event.data);
+        if (message.method) {
+            if (message.method === 'Fetch.requestPaused' && onImageRequest) onImageRequest(message.params);
+            return;
+        }
         const waiter = pending.get(message.id);
         if (!waiter) return;
         pending.delete(message.id);
@@ -124,9 +140,27 @@ async function startChrome() {
     const { sessionId } = await send('Target.attachToTarget', { targetId, flatten: true });
     page = (method, params) => send(method, params, sessionId);
     closeBrowser = () => send('Browser.close').catch(() => {});
+    await page('Page.enable');
+    await page('Page.bringToFront');
     await page('Network.enable');
     // Keep the run offline and deterministic; the image URL itself is asserted as a CSS value.
     await page('Network.setBlockedURLs', { urls: ['*r2.dev*'] });
+    await page('Page.addScriptToEvaluateOnNewDocument', { source: `
+        window.__backgroundFrames = [];
+        function sampleBackground() {
+            if (document.body && window.__backgroundFrames.length < 1000) {
+                const banner = document.querySelector('.rsvp-banner');
+                window.__backgroundFrames.push({
+                    body: getComputedStyle(document.body).backgroundImage,
+                    banner: banner ? getComputedStyle(banner).backgroundImage : 'none',
+                    type: document.body.dataset.eventType,
+                    state: document.body.className
+                });
+            }
+            requestAnimationFrame(sampleBackground);
+        }
+        requestAnimationFrame(sampleBackground);
+    ` });
 }
 
 async function evaluate(body) {
@@ -136,7 +170,7 @@ async function evaluate(body) {
 }
 
 async function waitFor(condition, label) {
-    for (let attempt = 0; attempt < 200; attempt++) {
+    for (let attempt = 0; attempt < 400; attempt++) {
         if (await evaluate('return !!(' + condition + ');').catch(() => false)) return;
         await new Promise(resolve => setTimeout(resolve, 25));
     }
@@ -144,10 +178,15 @@ async function waitFor(condition, label) {
 }
 
 async function open(url) {
+    await navigate(url);
+    await waitFor('document.readyState === "complete" && window.RSVPThemes', url);
+    await evaluate('await window.RSVPThemes.ready; return true;');
+}
+
+async function navigate(url) {
     await evaluate('window.__previous = true; return true;');
     await page('Page.navigate', { url: origin + url });
-    await waitFor('!window.__previous && document.readyState === "complete" && window.RSVPThemes', url);
-    await evaluate('await window.RSVPThemes.ready; return true;');
+    await waitFor('!window.__previous && document.body', url);
 }
 
 function styles(selector, properties = ['backgroundColor', 'color', 'borderTopColor']) {
@@ -314,5 +353,218 @@ test('mixed-category admin reply cards each use their own category colours', { s
         const palette = palettes[card.type];
         assert.deepEqual(card, { type: card.type, surface: rgb(palette.surface), text: rgb(palette.textColor),
             button: rgb(palette.textColor), border: rgb(palette.buttonBorder) }, card.type);
+    }
+});
+
+const fixtureImage = name => 'https://rsvp-images.test/' + name + '.svg';
+
+async function imageResponse(requestId, status = 200) {
+    await page('Fetch.fulfillRequest', { requestId, responseCode: status,
+        responseHeaders: [{ name: 'Content-Type', value: 'image/svg+xml' }, { name: 'Cache-Control', value: 'no-store' }],
+        body: status === 200 ? Buffer.from('<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8"><path fill="#123456" d="M0 0h8v8H0z"/></svg>').toString('base64') : '' });
+}
+
+async function images(handler = request => imageResponse(request.requestId)) {
+    onImageRequest = handler;
+    await page('Fetch.enable', { patterns: [{ urlPattern: 'https://rsvp-images.test/*' }] });
+}
+
+async function neutralSurface() {
+    await waitFor('window.__backgroundFrames.length > 1', 'painted neutral surface');
+    assert.deepEqual(await styles('body', ['backgroundImage', 'backgroundColor', 'visibility']),
+        { backgroundImage: 'none', backgroundColor: 'rgb(245, 245, 245)', visibility: 'visible' });
+    if (await evaluate('return !!document.querySelector(".rsvp-banner");')) {
+        assert.equal((await styles('.rsvp-banner', ['backgroundImage'])).backgroundImage, 'none');
+    }
+    const frames = await evaluate('return window.__backgroundFrames;');
+    assert.ok(frames.every(frame => frame.body === 'none' && frame.banner === 'none'), JSON.stringify(frames));
+}
+
+test('first paints stay neutral before modules and delayed settings, never exposing cached images in any category', { skip }, async () => {
+    await images();
+    for (const type of categories.filter(type => type !== 'celebration')) {
+        const saved = JSON.parse(records.get('rsvp-appearance:' + type));
+        records.set('rsvp-appearance:' + type, JSON.stringify({ ...saved, backgroundImage: fixtureImage(type), updatedAt: 2000000000000 }));
+        await evaluate('localStorage.setItem("rsvp_appearance_saved", JSON.stringify({' + JSON.stringify(type) +
+            ': { backgroundImage: ' + JSON.stringify(fixtureImage('obsolete-' + type)) + ', updatedAt: 1000000000000 }}));');
+        const releaseModule = hold('module');
+        const releaseSettings = hold('get-appearance');
+        try {
+            await navigate('/rsvp/' + type + '/');
+            assert.equal(await evaluate('return !!window.RSVPThemes;'), false);
+            await neutralSurface();
+            releaseModule();
+            await waitFor('window.RSVPThemes', 'module execution');
+            if (type === 'events') await new Promise(resolve => setTimeout(resolve, 2700));
+            await neutralSurface();
+            releaseSettings();
+            await waitFor('document.body.classList.contains("rsvp-theme-ready")', type + ' image decode');
+            const frames = await evaluate('return window.__backgroundFrames;');
+            assert.ok(frames.every(frame => frame.body === 'none' || frame.body.includes(fixtureImage(type))), type);
+            assert.ok(frames.every(frame => !frame.body.includes('obsolete') && !frame.banner.includes('obsolete')), type);
+            assert.equal((await styles('body', ['backgroundImage'])).backgroundImage, 'url("' + fixtureImage(type) + '")');
+        } finally {
+            releaseModule();
+            releaseSettings();
+        }
+    }
+});
+
+test('guest and receipt backgrounds wait for the invitation category, not generic, URL or saved receipt hints', { skip }, async () => {
+    for (const type of categories.filter(type => type !== 'celebration')) {
+        for (const receipt of [false, true]) {
+            await evaluate('sessionStorage.setItem("rsvp_receipt", JSON.stringify({eventType: "events",' +
+                'response: {eventId: ' + JSON.stringify(events[type].id) + ', name: "Guest", attending: "yes", guests: 1}}));');
+            const release = hold('get-invitation');
+            try {
+                await navigate(receipt ? '/rsvp/view?type=events&id=' + events[type].id : '/rsvp/?id=' + events[type].id);
+                await waitFor('window.RSVPThemes', 'theme client');
+                await evaluate('await window.RSVPThemes.ready;');
+                await neutralSurface();
+                release();
+                await waitFor('document.body.dataset.eventType === ' + JSON.stringify(type) +
+                    ' && document.body.classList.contains("rsvp-theme-ready")', 'final invitation background');
+                const frames = await evaluate('return window.__backgroundFrames;');
+                assert.ok(frames.every(frame => frame.body === 'none' ||
+                    (frame.type === type && frame.body.includes(fixtureImage(type)))), type + (receipt ? ' receipt' : ' invitation'));
+            } finally { release(); }
+        }
+    }
+});
+
+test('cold images, image failures and category switches cannot reveal a previous background', { skip }, async () => {
+    const pending = [];
+    await images(request => { pending.push(request); });
+    await navigate('/rsvp/weddings/');
+    await waitFor('window.RSVPThemes && document.body.style.getPropertyValue("--category-image").includes("weddings.svg")', 'cold image');
+    await neutralSurface();
+    await evaluate('window.RSVPThemes.apply(document.body, "parties");');
+    await waitFor('document.body.dataset.eventType === "parties"', 'category switch');
+    const weddings = pending.filter(item => item.request.url === fixtureImage('weddings'));
+    assert.ok(weddings.length);
+    await Promise.all(weddings.map(item => imageResponse(item.requestId)));
+    await neutralSurface();
+    await waitFor('window.RSVPThemes && document.body.style.getPropertyValue("--category-image").includes("parties.svg")', 'next image');
+    await new Promise(resolve => setTimeout(resolve, 100));
+    const parties = pending.filter(item => item.request.url === fixtureImage('parties'));
+    assert.ok(parties.length);
+    await Promise.all(parties.map(item => imageResponse(item.requestId)));
+    await waitFor('document.body.classList.contains("rsvp-theme-ready")', 'current category image');
+    assert.equal((await styles('body', ['backgroundImage'])).backgroundImage, 'url("' + fixtureImage('parties') + '")');
+    await evaluate('window.RSVPThemes.apply(document.body, "engagements");');
+    await waitFor('document.body.classList.contains("rsvp-theme-loading")', 'failed image loading');
+    await new Promise(resolve => setTimeout(resolve, 100));
+    const engagements = pending.filter(item => item.request.url === fixtureImage('engagements'));
+    assert.ok(engagements.length);
+    await Promise.all(engagements.map(item => imageResponse(item.requestId, 404)));
+    await waitFor('document.body.classList.contains("rsvp-theme-neutral")', 'image failure fallback');
+    assert.equal((await styles('body', ['backgroundImage'])).backgroundImage, 'none');
+    assert.equal((await styles('.landing-nav a', ['visibility'])).visibility, 'visible');
+    await images();
+});
+
+test('late invitation lookup success reveals only its final category; timeout and lookup failure stay neutral', { skip }, async () => {
+    for (const receipt of [false, true]) {
+        const event = events.parties;
+        const url = receipt ? '/rsvp/view?type=events&id=' + event.id : '/rsvp/?id=' + event.id;
+        const release = hold('get-invitation');
+        try {
+            await navigate(url);
+            await waitFor('document.body.classList.contains("rsvp-theme-neutral")', 'category timeout');
+            await neutralSurface();
+            release();
+            await waitFor('document.body.dataset.eventType === "parties" && document.body.classList.contains("rsvp-theme-ready")', 'late final category');
+            const frames = await evaluate('return window.__backgroundFrames;');
+            assert.ok(frames.every(frame => frame.body === 'none' || frame.body.includes(fixtureImage('parties'))));
+        } finally { release(); }
+        const stored = records.get('rsvp-invitation:' + event.id);
+        records.delete('rsvp-invitation:' + event.id);
+        try {
+            await navigate(url);
+            await waitFor('document.body.classList.contains("rsvp-theme-neutral")', 'unavailable invitation fallback');
+            await neutralSurface();
+        } finally { records.set('rsvp-invitation:' + event.id, stored); }
+    }
+});
+
+test('stalled or failed settings and stalled images keep usable neutral surfaces rather than reveal stale defaults', { skip }, async () => {
+    const release = hold('get-appearance');
+    try {
+        await navigate('/rsvp/events/');
+        await waitFor('document.body.classList.contains("rsvp-theme-neutral")', 'bounded settings failure');
+        await neutralSurface();
+        release();
+        await new Promise(resolve => setTimeout(resolve, 100));
+        await neutralSurface();
+        assert.equal(await evaluate('return await window.RSVPThemes.ready;'), false);
+    } finally { release(); }
+    await page('Network.setBlockedURLs', { urls: ['*r2.dev*', origin + '/api/rsvp'] });
+    await navigate('/rsvp/events/');
+    await waitFor('document.body.classList.contains("rsvp-theme-neutral")', 'offline settings fallback');
+    await neutralSurface();
+    await page('Network.setBlockedURLs', { urls: ['*r2.dev*'] });
+    const pending = [];
+    await images(request => { pending.push(request); });
+    await navigate('/rsvp/weddings/');
+    await waitFor('document.body.classList.contains("rsvp-theme-neutral")', 'bounded image failure');
+    await neutralSurface();
+    await Promise.all(pending.map(item => imageResponse(item.requestId).catch(error => {
+        // Timed-out image requests may already have been cancelled by the client.
+        assert.match(error.message, /Invalid InterceptionId/);
+    })));
+    await new Promise(resolve => setTimeout(resolve, 100));
+    await neutralSurface();
+    await images();
+});
+
+test('admin draft previews wait for decoding and ignore obsolete image completions', { skip }, async () => {
+    await signIn('weddings');
+    await evaluate('const decode = Image.prototype.decode; Image.prototype.decode = function () {' +
+        'const decoded = decode.call(this); return this.src.includes("decode-slow") ?' +
+        'decoded.then(() => new Promise(resolve => { window.__finishDecode = resolve; })) : decoded; };' +
+        'const input = document.getElementById("backgroundImage"); input.value = ' + JSON.stringify(fixtureImage('decode-slow')) +
+        '; input.dispatchEvent(new Event("input", {bubbles: true}));');
+    await waitFor('window.__finishDecode', 'decoded preview bytes');
+    assert.equal((await styles('#appearancePreview', ['backgroundImage'])).backgroundImage, 'none');
+    assert.equal((await styles('#appearancePreview .rsvp-banner', ['backgroundImage'])).backgroundImage, 'none');
+    await chooseCategory('parties');
+    await waitFor('document.getElementById("appearancePreview").classList.contains("rsvp-theme-ready")', 'new category preview');
+    await evaluate('window.__finishDecode();');
+    assert.equal((await styles('#appearancePreview', ['backgroundImage'])).backgroundImage, 'url("' + fixtureImage('parties') + '")');
+    await evaluate('window.__finishDecode = null;');
+    await chooseCategory('weddings');
+    await waitFor('document.getElementById("appearancePreview").classList.contains("rsvp-theme-loading")', 'preserved unsaved draft');
+    await waitFor('window.__finishDecode', 'draft decoding');
+    await evaluate('window.__finishDecode();');
+    await waitFor('document.getElementById("appearancePreview").classList.contains("rsvp-theme-ready")', 'decoded draft');
+    assert.equal((await styles('#appearancePreview', ['backgroundImage'])).backgroundImage, 'url("' + fixtureImage('decode-slow') + '")');
+    await page('Network.setBlockedURLs', { urls: ['*r2.dev*', origin + '/api/rsvp'] });
+    try {
+        await evaluate('await window.RSVPThemes.load();');
+        assert.equal((await styles('body', ['backgroundImage'])).backgroundImage, 'none');
+        assert.equal((await styles('#appearancePreview .rsvp-banner', ['backgroundImage'])).backgroundImage,
+            'url("' + fixtureImage('decode-slow') + '")', 'ready preview is independent of a failed page background');
+    } finally { await page('Network.setBlockedURLs', { urls: ['*r2.dev*'] }); }
+});
+
+test('missing modules and disabled JavaScript leave content and navigation visible on a neutral background', { skip }, async () => {
+    await page('Network.setBlockedURLs', { urls: ['*r2.dev*', origin + '/rsvp/theme-client.js'] });
+    await navigate('/rsvp/events/');
+    await waitFor('document.readyState === "complete"', 'failed module request');
+    assert.equal(await evaluate('return !!window.RSVPThemes;'), false);
+    await neutralSurface();
+    assert.equal((await styles('.landing-nav a', ['visibility'])).visibility, 'visible');
+    await page('Network.setBlockedURLs', { urls: ['*r2.dev*'] });
+    await page('Emulation.setScriptExecutionDisabled', { value: true });
+    try {
+        await page('Page.navigate', { url: origin + '/rsvp/engagements/' });
+        // Runtime evaluation remains available through CDP when page scripts are disabled.
+        await waitFor('document.querySelector(".landing-copy h1")', 'no-JS landing');
+        assert.equal((await styles('body', ['backgroundImage'])).backgroundImage, 'none');
+        assert.equal((await styles('.landing-nav a', ['visibility'])).visibility, 'visible');
+    } finally {
+        await page('Emulation.setScriptExecutionDisabled', { value: false });
+        await page('Fetch.disable');
+        onImageRequest = undefined;
     }
 });

@@ -7,6 +7,79 @@ var revision = 0;
 var savedKey = 'rsvp_appearance_saved';
 var readyClass = 'rsvp-theme-ready';
 var loadingClass = 'rsvp-theme-loading';
+var neutralClass = 'rsvp-theme-neutral';
+var waitLimit = 6000;
+var settingsState = 'loading';
+var categoryState = 'ready';
+var categoryRevision = 0;
+var backgrounds = new WeakMap();
+
+function surface(root, state) {
+    root.classList.toggle(loadingClass, state === 'loading');
+    root.classList.toggle(readyClass, state === 'ready');
+    root.classList.toggle(neutralClass, state === 'failed');
+}
+
+function bounded(task, cancel) {
+    var timer;
+    return Promise.race([task, new Promise(function (_, reject) {
+        timer = setTimeout(function () {
+            if (cancel) cancel();
+            reject(new Error('Theme request timed out'));
+        }, waitLimit);
+    })]).finally(function () { clearTimeout(timer); });
+}
+
+function backgroundReady(root, url) {
+    var gate = root === document.body ?
+        (settingsState === 'failed' || categoryState === 'failed' ? 'failed' :
+            settingsState === 'loading' || categoryState === 'loading' ? 'loading' : 'ready') : 'ready';
+    var key = gate + ':' + url;
+    var previous = backgrounds.get(root);
+    if (previous && previous.key === key) return previous.ready;
+    var current = { key: key };
+    backgrounds.set(root, current);
+    surface(root, gate === 'ready' && !url ? 'ready' : gate === 'failed' ? 'failed' : 'loading');
+    current.ready = Promise.resolve();
+    if (gate !== 'ready' || !url) return current.ready;
+    var image = new Image();
+    current.ready = bounded(new Promise(function (resolve, reject) {
+        image.onload = function () {
+            // Decode before exposing CSS backgrounds, not merely after receiving the bytes.
+            (image.decode ? image.decode() : Promise.resolve()).then(resolve, reject);
+        };
+        image.onerror = reject;
+        image.src = url;
+    }), function () { image.src = ''; }).then(function () {
+        if (backgrounds.get(root) === current) surface(root, 'ready');
+    }, function () {
+        if (backgrounds.get(root) === current) surface(root, 'failed');
+    }).finally(function () { image.onload = image.onerror = null; });
+    return current.ready;
+}
+
+function refreshBackground() {
+    var type = targets.get(document.body);
+    return backgroundReady(document.body, appearances[theme(type)].backgroundImage);
+}
+
+// Invitation lookup owns the final category; a URL hint or saved receipt is provisional.
+function beginCategory() {
+    var started = ++categoryRevision;
+    categoryState = 'loading';
+    refreshBackground();
+    var timer = setTimeout(function () {
+        if (categoryRevision !== started) return;
+        categoryState = 'failed';
+        refreshBackground();
+    }, waitLimit);
+    return function (success) {
+        clearTimeout(timer);
+        if (categoryRevision !== started) return Promise.resolve();
+        categoryState = success ? 'ready' : 'failed';
+        return refreshBackground();
+    };
+}
 
 function paint(root, type, settings) {
     type = theme(type);
@@ -35,6 +108,7 @@ function paint(root, type, settings) {
 function apply(root, type) {
     type = theme(type);
     targets.set(root, type);
+    if (root === document.body) backgroundReady(root, appearances[type].backgroundImage);
     paint(root, type, appearances[type]);
 }
 
@@ -61,14 +135,9 @@ function hydrateFromLocal() {
     });
 }
 
-function markReady(root) {
-    if (!root) return;
-    root.classList.remove(loadingClass);
-    root.classList.add(readyClass);
-}
-
 function update(settings, savedType) {
     revision++;
+    settingsState = 'ready';
     var local = savedLocally();
     var changed = false;
     eventTypes.forEach(function (type) {
@@ -99,33 +168,43 @@ function update(settings, savedType) {
 
 async function load() {
     var started = revision;
+    settingsState = 'loading';
+    refreshBackground();
+    var controller = new AbortController();
     try {
-        var response = await fetch('/api/rsvp', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            cache: 'no-store',
-            body: JSON.stringify({ action: 'get-appearance' })
-        });
-        var data = await response.json();
-        if (!response.ok || !data.success) throw new Error('Appearance unavailable');
+        var data = await bounded((async function () {
+            var response = await fetch('/api/rsvp', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                cache: 'no-store',
+                signal: controller.signal,
+                body: JSON.stringify({ action: 'get-appearance' })
+            });
+            var data = await response.json();
+            if (!response.ok || !data.success) throw new Error('Appearance unavailable');
+            return data;
+        })(), function () { controller.abort(); });
         if (revision === started) update(data.appearance);
-        markReady(document.body);
+        await refreshBackground();
         return true;
     } catch {
-        // If server fetch fails, keep UI usable with local/default theme and still reveal page.
-        markReady(document.body);
+        // Keep content usable, but never reveal an unverified cached/default background.
+        if (revision === started) settingsState = 'failed';
+        await refreshBackground();
         return false;
     }
 }
 
 window.RSVPThemes = {
-    theme: theme, apply: apply, update: update, load: load,
+    theme: theme, apply: apply, update: update, load: load, beginCategory: beginCategory,
     background: function (type) { return appearances[theme(type)].backgroundImage; },
     settings: function (type) { return appearances[theme(type)]; },
     copy: function (type, key) { return appearances[theme(type)].copy[key]; },
     // Previews show the exact draft colours; contrast problems are reported, never silently replaced.
     preview: function (root, type, value) {
-        paint(root, theme(type), normalizeAppearance(theme(type), value, { repair: false }));
+        var settings = normalizeAppearance(theme(type), value, { repair: false });
+        backgroundReady(root, settings.backgroundImage);
+        paint(root, theme(type), settings);
     },
     normalize: function (type, value) { return normalizeAppearance(theme(type), value, { repair: false }); },
     issues: function (type, cardStyle) {
@@ -138,9 +217,6 @@ window.RSVPThemes = {
 };
 
 document.body.classList.add(loadingClass);
-hydrateFromLocal(); // Prefer last saved local appearance immediately; avoids wrong-image flash.
+hydrateFromLocal();
 apply(document.body, document.body.getAttribute('data-event-type'));
 window.RSVPThemes.ready = load();
-
-// Safety valve: never leave page in loading state if fetch stalls.
-setTimeout(function () { markReady(document.body); }, 2500);

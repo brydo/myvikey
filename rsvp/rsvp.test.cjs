@@ -136,6 +136,18 @@ test('listing is admin-only, scoped to RSVP keys, paginated and never cached', a
 function element(tag) {
     return {
         tag, children: [], attributes: {}, textContent: '', handlers: {}, parentNode: null,
+        classList: {
+            values: new Set(),
+            add(value) { this.values.add(value); },
+            remove(value) { this.values.delete(value); },
+            contains(value) { return this.values.has(value); },
+            toggle(value, force) {
+                if (force === undefined) force = !this.values.has(value);
+                if (force) this.add(value);
+                else this.remove(value);
+                return force;
+            }
+        },
         style: { setProperty(key, value) { this[key] = value; } },
         appendChild(child) {
             if (child.parentNode) child.remove();
@@ -384,7 +396,6 @@ function browser({ page = 'index', storageFails = false, saved, failSave = false
     function node(id) {
         if (!nodes[id]) nodes[id] = {
             ...element('div'), hidden: true, value: '', disabled: false, handlers: {},
-            classList: { toggle() {} },
             addEventListener(name, callback) { this.handlers[name] = callback; },
             focus() { this.focused = true; },
             reset() {
@@ -437,6 +448,13 @@ function browser({ page = 'index', storageFails = false, saved, failSave = false
     const downloads = [];
     const copied = [];
     const context = {
+        setTimeout, clearTimeout, AbortController,
+        Image: class {
+            set src(value) {
+                if (value) Promise.resolve().then(() => { if (this.onload) this.onload(); });
+            }
+            decode() { return Promise.resolve(); }
+        },
         navigator: { clipboard: { async writeText(value) { if (clipboardFails) throw Error('denied'); copied.push(value); } } },
         URL, URLSearchParams, document: {
             body: node('body'),

@@ -54,12 +54,13 @@ body {
 .rsvp-banner {
     height: 110px;
     position: relative;
-    background: var(--category-banner, var(--banner));
+    background: var(--rsvp-banner-image, var(--category-banner, var(--banner)));
+    background-color: var(--rsvp-banner-color, transparent);
     background-size: cover;
     background-position: center;
 }
 .rsvp-banner::before, .rsvp-banner::after {
-    content: var(--image-symbol, var(--symbol));
+    content: var(--rsvp-symbol, var(--image-symbol, var(--symbol)));
     position: absolute;
     color: var(--symbol-color);
     font: var(--symbol-size)/1 Georgia, serif;
@@ -69,7 +70,7 @@ body {
     border: var(--symbol-border); border-radius: var(--symbol-radius);
 }
 .rsvp-banner::after {
-    content: var(--image-symbol, var(--symbol-after)); color: var(--symbol-after-color);
+    content: var(--rsvp-symbol, var(--image-symbol, var(--symbol-after))); color: var(--symbol-after-color);
     font-size: var(--symbol-after-size); bottom: var(--symbol-after-bottom);
     left: auto; right: var(--symbol-right); transform: rotate(30deg);
 }
@@ -273,8 +274,19 @@ summary { cursor: pointer; font-weight: 600; margin-bottom: 16px; }
 @media (max-width: 480px) {
     .wrap { padding-right: 16px; padding-left: 16px; gap: 14px; }
 }
-/* Prevent old background image flash while RSVP theme settings load */
-body.rsvp-theme-loading::before,
-body.rsvp-theme-loading::after {
-  opacity: 0 !important;
+/* Static HTML starts neutral, even before modules load or when JavaScript is unavailable.
+   Only decoration is withheld; content and controls remain visible and usable. */
+:is(body, .appearance-preview):is(.rsvp-theme-loading, .rsvp-theme-neutral) {
+    background-image: none !important;
+    background-color: #f5f5f5 !important;
+}
+.rsvp-theme-loading, .rsvp-theme-neutral {
+    --rsvp-banner-image: none;
+    --rsvp-banner-color: #f5f5f5;
+    --rsvp-symbol: none;
+}
+.rsvp-theme-ready {
+    --rsvp-banner-image: initial;
+    --rsvp-banner-color: initial;
+    --rsvp-symbol: initial;
 }
