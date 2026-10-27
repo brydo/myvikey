@@ -1,5 +1,5 @@
 import './theme-client.js';
-import { invitationId, invitationPath, invitationShortId } from './invitation-id.js';
+import { invitationId, invitationPath } from './invitation-id.js';
 
 (function () {
     'use strict';
@@ -149,7 +149,7 @@ import { invitationId, invitationPath, invitationShortId } from './invitation-id
                         eventType: theme(invitation.eventType)
                     }));
                     window.location.assign('/rsvp/view?type=' + theme(invitation.eventType) +
-                        '&id=' + invitationShortId(invitation.id));
+                        '&id=' + invitation.id);
                 } catch (storageError) {
                     // Keep the reply and send options here if browser storage is unavailable.
                 }
@@ -514,7 +514,7 @@ import { invitationId, invitationPath, invitationShortId } from './invitation-id
             details.textContent = 'Type: ' + theme(item.eventType) + ' · Replies: ' + item.replyCount;
             row.appendChild(details);
             var code = document.createElement('p');
-            code.textContent = 'Invite code: ' + invitationShortId(item.id);
+            code.textContent = 'Invite code: ' + item.id;
             row.appendChild(code);
             var link = document.createElement('a');
             link.href = window.location.origin + invitationPath(item.id);
@@ -528,7 +528,7 @@ import { invitationId, invitationPath, invitationShortId } from './invitation-id
                 control.addEventListener('click', handler);
                 row.appendChild(control);
             }
-            button('Copy invite code', function () { copy(invitationShortId(item.id)); });
+            button('Copy invite code', function () { copy(item.id); });
             button('Copy share link', function () { copy(link.href); });
             button('Open/Edit', function () { showInvitation(item); editor.elements.title.focus(); });
             button('View replies', function () { replyEvent.value = item.id; filterReplies(); });
@@ -789,7 +789,7 @@ import { invitationId, invitationPath, invitationShortId } from './invitation-id
             try {
                 var jobs = JSON.parse(sessionStorage.getItem('rsvp_delete_jobs'));
                 cleanupJobs = Array.isArray(jobs) ? jobs.filter(function (id) {
-                    return typeof id === 'string' && /^[0-9a-f-]{36}$/.test(id);
+                    return !!invitationId(id);
                 }) : [];
             } catch (error) { cleanupJobs = []; }
             login.reset();

@@ -1,6 +1,6 @@
 import { validateSession, hashPassword, verifyPassword, generateSessionToken, checkRateLimit, recordFailedAttempt } from '../lib/auth.js';
 import { eventTypes, theme, normalizeAppearance, validateAppearance, styleIssues } from '../../rsvp/themes.js';
-import { validInvitationId, invitationId, invitationShortId } from '../../rsvp/invitation-id.js';
+import { validInvitationId, invitationId, generateInvitationId } from '../../rsvp/invitation-id.js';
 
 const PREFIX = 'rsvp:';
 const INVITATIONS = 'rsvp-invitation:';
@@ -9,7 +9,7 @@ const validId = validInvitationId;
 
 function invitationDTO(invitation, id) {
   const { title, text, whatsapp = '', sms = '' } = invitation;
-  return { id, shortId: invitationShortId(id), eventType: theme(invitation.eventType),
+  return { id, eventType: theme(invitation.eventType),
     title, text, whatsapp, sms, passwordProtected: !!invitation.guestPasswordHash };
 }
 
@@ -142,7 +142,19 @@ export async function onRequestPost({ request, env }) {
       if (!fields || (body.id !== undefined && !validId(body.id))) {
         return reply({ success: false, error: 'Enter a title, invitation text, and valid WhatsApp/text numbers in +countrycode format.' }, 400);
       }
-      const id = body.id || crypto.randomUUID();
+      let id = body.id;
+      if (!id) {
+        for (let attempt = 0; attempt < 10; attempt++) {
+          const candidate = generateInvitationId();
+          if (await env.FORM_SUBMISSIONS.get(INVITATIONS + candidate) === null) {
+            id = candidate;
+            break;
+          }
+        }
+        if (!id) {
+          return reply({ success: false, error: 'Unable to allocate a unique invitation code. Please try again.' }, 503);
+        }
+      }
       const raw = body.id ? await env.FORM_SUBMISSIONS.get(INVITATIONS + id) : null;
       if (body.id && !raw) {
         return reply({ success: false, error: 'Invitation not found' }, 404);
@@ -215,10 +227,11 @@ export async function onRequestPost({ request, env }) {
       const page = await env.FORM_SUBMISSIONS.list({
         prefix: invitations ? INVITATIONS : PREFIX, limit: 50, cursor: body.cursor || undefined
       });
-      const records = await Promise.all(page.keys.map(key => env.FORM_SUBMISSIONS.get(key.name)));
+      const keys = invitations ? page.keys.filter(key => validId(key.name.slice(INVITATIONS.length))) : page.keys;
+      const records = await Promise.all(keys.map(key => env.FORM_SUBMISSIONS.get(key.name)));
       let items = records.map((raw, index) => raw ?
-        (invitations ? invitationDTO(JSON.parse(raw), page.keys[index].name.slice(INVITATIONS.length)) :
-          { ...JSON.parse(raw), id: page.keys[index].name.slice(PREFIX.length) }) : null
+        (invitations ? invitationDTO(JSON.parse(raw), keys[index].name.slice(INVITATIONS.length)) :
+          { ...JSON.parse(raw), id: keys[index].name.slice(PREFIX.length) }) : null
       ).filter(Boolean);
       if (!invitations && body.eventId !== undefined) {
         items = items.filter(item => body.eventId === 'unassigned' ? !item.eventId : item.eventId === body.eventId);

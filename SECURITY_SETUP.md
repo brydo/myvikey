@@ -88,28 +88,32 @@ Run the focused tests with `node --test rsvp/rsvp.test.cjs mycard/card-render.te
 ### RSVP invitation links and optional guest passwords
 
 Invitation sharing uses `/rsvp/i/<code>` across celebration, events, weddings,
-parties and engagements. The code is a canonical, URL-safe 22-character encoding
-of **all 128 UUID bits**, not a truncated identifier or an authentication token.
-New UUIDs still use `crypto.randomUUID()`. The encoding is reversible and
-collision-free for distinct UUIDs, so concurrent edits cannot allocate conflicting
-short aliases. UUIDs remain the storage keys and reply associations.
-`/rsvp/?id=<uuid>` still works; both forms use the same invitation lookup and
-access checks. `/rsvp/i/` is reserved for invitation links, leaving category
-pages, admin, receipts and assets unchanged.
+parties and engagements. Each invitation gets a random **7-character** code from
+`A–Z`, `a–z`, `0–9`, `-` and `_`, generated with `crypto.getRandomValues()`.
+Codes are case-sensitive and have 42 bits of randomness; they are not authentication
+tokens. Use a guest password for private invitations. The code is the sole
+invitation ID, stored directly under `rsvp-invitation:<code>` and used in reply
+associations. Creation checks storage before saving, retries collisions up to
+10 times, and returns a retryable 503 error if no unused code is found.
+Edits preserve the code. `/rsvp/i/` is reserved for invitation links, leaving
+category pages, admin, receipts and assets unchanged. Query-based invitation and
+receipt pages also accept only these 7-character IDs.
 
-**Existing invitations need no live KV backfill.** Authenticated, cursor-paginated
-`list-invitations` (50 per page), loading and saving compute the same stable code
-without writing aliases or migrating records. Retry a failed page with its
-original cursor; no earlier page or invitation needs recreating. There is no
-partially completed migration to repair and no additional KV namespace.
+**Testing-phase breaking change: no backward compatibility.** UUID and reversible
+22-character invitation IDs are rejected by routing and API lookups. Old
+invitations are omitted from the authenticated, cursor-paginated invitation list
+(50 storage keys per page); create new invitations in admin and share the new
+links. No migration, backfill, alias map or additional KV namespace is introduced.
+Old stored invitations and replies are not rewritten or automatically deleted;
+old replies remain available in the admin response list.
 Saving preserves unknown stored fields; public and admin invitation payloads
 allowlist display fields rather than returning stored secrets. Deletion removes
-the canonical invitation, disabling either link form.
+the invitation, disabling its link.
 
 Repository inspection found an RSVP **admin** password but no existing
 per-invitation guest password enforcement. This change adds an optional guest
 password, set/change/remove controls in RSVP admin and a guest unlock prompt.
-Existing and new invitations remain public unless an admin explicitly sets a
+New invitations remain public unless an admin explicitly sets a
 guest password. Leaving the password blank when editing preserves protection;
 removal is explicit. No password is generated automatically.
 
@@ -122,7 +126,7 @@ unlock issues an opaque 30-minute token scoped to the canonical invitation and
 its current password revision. Guest sessions use `rsvp-guest-session:` keys in
 `FORM_SUBMISSIONS`, never the admin-session namespace, and cannot authorize admin
 actions. Both reads and submissions enforce guest access
-server-side, including legacy UUID requests; an admin preview session is not a
+server-side; an admin preview session is not a
 guest submission credential. Changing/removing protection invalidates previous
 protected sessions. MyCard password handling and shared admin login are unchanged.
 
@@ -133,16 +137,17 @@ protected sessions. MyCard password handling and shared admin login are unchange
 2. Verify `FORM_SUBMISSIONS`, `ADMIN_SESSIONS` and `RATE_LIMIT` bindings in both
    preview and production. Guest authentication fails closed if its required
    bindings are unavailable.
-3. Check an existing UUID invitation and its short link, all five category
+3. Create new invitations and check their 7-character links, all five category
    entrypoints, admin editing, and a password-protected invitation's read/submit
-   flow before sharing production links. Page through the admin invitation list
-   to copy existing short links; no migration command or live data rewrite is
-   needed.
+   flow before sharing production links. Confirm UUID and 22-character links fail.
+   Recreate any testing invitations you still need; legacy links will not work.
 4. Account for Cloudflare KV's eventual consistency: invitation edits, password
    changes, guest sessions and deletion may take time to propagate between
    locations. The existing KV rate limiter is best-effort, not an atomic global
    counter; use Cloudflare edge rate-limiting rules if strict distributed limits
-   are required. Short links add no separate alias cache or consistency window.
+   are required. Code collision checks are also best-effort: KV has no atomic
+   create-if-absent operation, so simultaneous creates in different Workers can
+   theoretically race. Codes have 64^7 possibilities; no separate alias cache is used.
 
 Run all current regression tests with
 `node --test rsvp/*.test.cjs mycard/*.test.cjs`.

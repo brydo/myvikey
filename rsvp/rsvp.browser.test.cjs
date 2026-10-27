@@ -28,7 +28,7 @@ const guestAuth = runInNewContext(authSource +
     { bcrypt: require('bcryptjs'), crypto: webcrypto });
 const adminSessions = new Map(), rateLimits = new Map();
 const memoryKV = records => ({
-    get: async key => records.get(key),
+    get: async key => records.get(key) || null,
     put: async (key, value) => records.set(key, value),
     delete: async key => records.delete(key)
 });
@@ -68,7 +68,7 @@ function api(body, token, guest) {
     return context.onRequestPost({
         env: { ADMIN_SESSIONS: memoryKV(adminSessions), RATE_LIMIT: memoryKV(rateLimits), FORM_SUBMISSIONS: {
             put: async (key, value) => records.set(key, value),
-            get: async key => records.get(key),
+            get: async key => records.get(key) || null,
             delete: async key => records.delete(key),
             list: async ({ prefix, limit, cursor }) => {
                 const keys = [...records.keys()].filter(key => key.startsWith(prefix));
@@ -698,14 +698,14 @@ test('short invitation routes suppress the stock card while the invitation is pe
     const invitation = await syntheticInvitation();
     const release = hold('get-invitation');
     try {
-        await navigate('/rsvp/i/' + invitation.shortId);
+        await navigate('/rsvp/i/' + invitation.id);
         await waitFor('window.RSVPThemes && ' + pendingFlag);
         assert.equal(await evaluate('return document.getElementById("heading").checkVisibility({ visibilityProperty: true });'), false);
         assert.equal(await evaluate('return document.getElementById("occasionChooser").checkVisibility({ visibilityProperty: true });'), false);
         assert.equal(await evaluate('return document.querySelector("script[type=module]").src;'), origin + '/rsvp/rsvp.js');
     } finally { release(); }
     await waitFor('!document.getElementById("openRsvp").hidden && !' + pendingFlag);
-    assert.equal(await evaluate('return location.pathname;'), '/rsvp/i/' + invitation.shortId);
+    assert.equal(await evaluate('return location.pathname;'), '/rsvp/i/' + invitation.id);
 });
 
 test('guest passwords, short sharing, receipts and explicit admin removal work in the browser in every category', { skip }, async () => {
@@ -721,7 +721,7 @@ test('guest passwords, short sharing, receipts and explicit admin removal work i
         const event = await evaluate('const f = document.getElementById("invitationForm"); return {' +
             'id: f.elements.id.value, path: new URL(document.getElementById("shareInvitation").querySelector("a").href).pathname,' +
             'password: f.elements.guestPassword.value, status: document.getElementById("guestProtectionStatus").textContent };');
-        assert.match(event.path, /^\/rsvp\/i\/[A-Za-z0-9_-]{22}$/);
+        assert.match(event.path, /^\/rsvp\/i\/[A-Za-z0-9_-]{7}$/);
         assert.equal(event.password, '');
         assert.match(event.status, /protection is on/);
         const hash = JSON.parse(records.get('rsvp-invitation:' + event.id)).guestPasswordHash;
