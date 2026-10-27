@@ -5,7 +5,7 @@ export async function onRequest({ request, env, next }) {
   const match = /^\/rsvp\/i\/([^/]+)\/?$/.exec(url.pathname);
   if (!match) return next();
   if (!['GET', 'HEAD'].includes(request.method)) return new Response('Method not allowed', { status: 405 });
-  if (!invitationId(match[1]) || match[1].length !== 22) return new Response('Invitation not found', { status: 404 });
+  if (!invitationId(match[1])) return new Response('Invitation not found', { status: 404 });
   try {
     let target = new URL('/rsvp/', url.origin);
     for (let i = 0; i < 4; i++) {

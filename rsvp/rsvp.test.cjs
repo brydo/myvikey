@@ -5,7 +5,7 @@ const { runInNewContext } = require('node:vm');
 const { webcrypto } = require('node:crypto');
 const themesSource = readFileSync(`${__dirname}/themes.js`, 'utf8').replace(/^export /gm, '');
 const idsSource = readFileSync(`${__dirname}/invitation-id.js`, 'utf8').replace(/^export /gm, '');
-const ids = runInNewContext(idsSource + '\n({ invitationId, invitationShortId, invitationPath })');
+const ids = runInNewContext(idsSource + '\n({ invitationId, invitationPath })');
 const apiSource = themesSource + '\n' + idsSource + '\n' + readFileSync(`${__dirname}/../functions/api/rsvp.js`, 'utf8')
     .replace(/^import .*;\n/gm, '').replace('export async function', 'async function');
 const appearanceModel = runInNewContext(themesSource +
@@ -22,7 +22,7 @@ function api() {
     const env = {
         FORM_SUBMISSIONS: {
             put: async (key, value) => records.set(key, value),
-            get: async key => records.get(key),
+            get: async key => records.get(key) || null,
             delete: async key => records.delete(key),
             list: async options => {
                 calls.push(options);
@@ -264,7 +264,7 @@ test('invitations require site-admin auth for edits and persist public content s
     const other = await (await instance.post({ action: 'get-invitation', id: second.id })).json();
     assert.deepEqual(other.invitation, second);
     assert.equal((await instance.post({ action: 'get-invitation', id: 'rsvp:private' })).status, 400);
-    const missing = '00000000-0000-4000-8000-000000000000';
+    const missing = 'Missing';
     assert.equal((await instance.post({ action: 'get-invitation', id: missing })).status, 404);
     assert.equal((await instance.post({ ...invitation, id: missing }, 'valid-session')).status, 404);
 });
@@ -297,7 +297,7 @@ test('optional contact fields may be omitted, including WhatsApp for SMS-only in
         const event = await createEvent(instance, fields);
         assert.equal(event.whatsapp, fields.whatsapp === undefined ? '' : invitation.whatsapp);
         assert.equal(event.sms, fields.sms === undefined ? '' : invitation.sms);
-        const { shortId, passwordProtected, ...stored } = event;
+        const { passwordProtected, ...stored } = event;
         assert.deepEqual(JSON.parse(instance.records.get('rsvp-invitation:' + event.id)), stored);
     }
 });
@@ -443,7 +443,7 @@ function browser({ page = 'index', storageFails = false, saved, failSave = false
             ['id', 'title', 'text', 'whatsapp', 'sms', 'eventType'].map(id => [id, node('editor-' + id)])
         );
     }
-    const event = { id: '12345678-1234-4123-8123-123456789012', title: 'Saved party', text: '<img src=x>\nSecond line', whatsapp: invitation.whatsapp, sms: invitation.sms };
+    const event = { id: 'Ab3xQ9k', title: 'Saved party', text: '<img src=x>\nSecond line', whatsapp: invitation.whatsapp, sms: invitation.sms };
     if (eventType !== undefined) event.eventType = eventType;
     const requests = [];
     const stored = new Map(saved ? [['rsvp_receipt', JSON.stringify(saved)]] : []);
@@ -811,7 +811,7 @@ test('real API organiser routing preserves SMS from admin save/load through gues
         guest.nodes.guests.value = '0';
         guest.nodes.notes.value = 'See you there!';
         await guest.nodes.rsvpForm.handlers.submit({ preventDefault() {} });
-        assert.deepEqual(guest.redirects, ['/rsvp/view?type=celebration&id=' + ids.invitationShortId(id)]);
+        assert.deepEqual(guest.redirects, ['/rsvp/view?type=celebration&id=' + id]);
         const saved = JSON.parse(guest.stored.get('rsvp_receipt'));
         assert.deepEqual(saved.organiser, { whatsapp, sms: invitation.sms });
         const receipt = browser({ page: 'view', saved });
@@ -846,7 +846,7 @@ test('guest loads safe multiline invitation, reveals prefilled form, saves event
     assert.equal(app.nodes.guests.disabled, true);
     await app.nodes.rsvpForm.handlers.submit({ preventDefault() {} });
     assert.equal(app.requests.find(item => item.action === 'submit').eventId, app.event.id);
-    assert.deepEqual(app.redirects, ['/rsvp/view?type=celebration&id=' + ids.invitationShortId(app.event.id)]);
+    assert.deepEqual(app.redirects, ['/rsvp/view?type=celebration&id=' + app.event.id]);
     const receipt = JSON.parse(app.stored.get('rsvp_receipt'));
     const view = browser({ page: 'view', saved: receipt });
     assert.equal(view.nodes.receipt.children.length, 1);
@@ -1781,12 +1781,12 @@ test('event panel recalls codes and links, opens editor, scopes replies and clea
     const row = app.nodes.events.children[0];
     assert.equal(row.children[0].textContent, app.event.title);
     assert.match(row.children[1].textContent, /Replies: 0/);
-    assert.equal(row.children[2].textContent, 'Invite code: ' + ids.invitationShortId(app.event.id));
+    assert.equal(row.children[2].textContent, 'Invite code: ' + app.event.id);
     assert.equal(row.children[3].href, 'https://example.com' + ids.invitationPath(app.event.id));
     await row.children[4].click();
     await row.children[5].click();
     await app.tick();
-    assert.deepEqual(app.copied, [ids.invitationShortId(app.event.id), row.children[3].href]);
+    assert.deepEqual(app.copied, [app.event.id, row.children[3].href]);
     row.children[6].click();
     assert.equal(app.nodes['editor-id'].value, app.event.id);
     assert.equal(app.nodes['editor-sms'].value, app.event.sms);
@@ -1801,8 +1801,8 @@ test('event panel recalls codes and links, opens editor, scopes replies and clea
 
 test('reply filters skip empty pages, separate same-title events and keep clipboard fallback usable', async () => {
     const savedEvents = [
-        { id: '11111111-1111-4111-8111-111111111111', title: 'Wedding', eventType: 'weddings' },
-        { id: '22222222-2222-4222-8222-222222222222', title: 'Wedding', eventType: 'weddings' }
+        { id: 'Ab3xQ9k', title: 'Wedding', eventType: 'weddings' },
+        { id: 'Cd4yR8m', title: 'Wedding', eventType: 'weddings' }
     ];
     const app = browser({ page: 'admin', clipboardFails: true, savedEvents, replyPages: [
         [{ ...valid, eventId: savedEvents[0].id, name: 'First wedding' }],
@@ -1823,7 +1823,7 @@ test('reply filters skip empty pages, separate same-title events and keep clipbo
 });
 
 test('exports collect every reply page, isolate CSV events, include legacy records and require a live admin session', async () => {
-    const id = '12345678-1234-4123-8123-123456789012';
+    const id = 'Ab3xQ9k';
     const replyPages = [[{ ...valid, name: 'First page', eventId: id }], [{ ...valid, name: 'Second page', eventId: id }, valid]];
     const app = browser({ page: 'admin', replyPages });
     await app.nodes.loginForm.handlers.submit({ preventDefault() {} });

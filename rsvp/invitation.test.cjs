@@ -7,7 +7,7 @@ const bcrypt = require('bcryptjs');
 
 const source = path => readFileSync(`${__dirname}/${path}`, 'utf8').replace(/^import .*;\n/gm, '').replace(/^export /gm, '');
 const idSource = source('invitation-id.js');
-const ids = runInNewContext(idSource + '\n({ invitationId, invitationShortId, invitationPath })');
+const ids = runInNewContext(idSource + '\n({ invitationId, generateInvitationId, invitationPath })', { crypto: webcrypto });
 const contextSource = source('../functions/lib/auth.js') + '\n' + source('themes.js') + '\n' +
     idSource + '\n' + source('../functions/api/rsvp.js');
 const adminToken = 'a'.repeat(64);
@@ -30,10 +30,10 @@ function kv() {
     };
 }
 
-function api() {
+function api(crypto = webcrypto) {
     const env = { FORM_SUBMISSIONS: kv(), ADMIN_SESSIONS: kv(), RATE_LIMIT: kv() };
     env.ADMIN_SESSIONS.records.set(adminToken, JSON.stringify({ userId: '__admin__', expiresAt: Date.now() + 1800000 }));
-    const context = { bcrypt, crypto: webcrypto, URL, Response, TextEncoder };
+    const context = { bcrypt, crypto, URL, Response, TextEncoder };
     runInNewContext(contextSource, context);
     return {
         env,
@@ -53,7 +53,7 @@ async function save(app, fields = {}) {
     assert.equal(response.status, 200, await response.clone().text());
     const data = await response.json();
     assert.deepEqual(Object.keys(data.invitation).sort(),
-        ['id', 'shortId', 'eventType', 'title', 'text', 'whatsapp', 'sms', 'passwordProtected'].sort());
+        ['id', 'eventType', 'title', 'text', 'whatsapp', 'sms', 'passwordProtected'].sort());
     return data.invitation;
 }
 
@@ -63,29 +63,94 @@ async function unlock(app, id, password = 'guest secret') {
     return (await response.json()).guestToken;
 }
 
-test('full UUID encoding is a canonical, collision-free bijection under concurrent generation', async () => {
-    const uuids = await Promise.all(Array.from({ length: 10000 }, async () => randomUUID()));
-    uuids.push('00000000-0000-0000-0000-000000000000', 'ffffffff-ffff-ffff-ffff-ffffffffffff');
-    const codes = uuids.map(id => ids.invitationShortId(id));
-    assert.equal(new Set(codes).size, new Set(uuids).size);
-    codes.forEach((code, index) => {
-        assert.match(code, /^[A-Za-z0-9_-]{22}$/);
-        assert.equal(ids.invitationId(code), uuids[index]);
-        assert.equal(ids.invitationId(uuids[index]), uuids[index]);
+test('random invitation codes use exactly seven URL-safe characters and reject legacy identifiers', () => {
+    const codes = Array.from({ length: 10000 }, () => ids.generateInvitationId());
+    assert.equal(new Set(codes).size, codes.length);
+    codes.forEach(code => {
+        assert.match(code, /^[A-Za-z0-9_-]{7}$/);
+        assert.equal(ids.invitationId(code), code);
+        assert.equal(ids.invitationPath(code), '/rsvp/i/' + code);
     });
-    assert.equal(codes.at(-1), '_____________________w');
-    for (const bad of [null, {}, '', 'A'.repeat(21), 'A'.repeat(23), 'A'.repeat(21) + 'B',
-        codes[0] + '=', '../admin', 'rsvp:private', uuids[0].toUpperCase(), 'events', 'admin', 'view']) {
+    const deterministic = runInNewContext(idSource + '\ngenerateInvitationId()', {
+        crypto: { getRandomValues: bytes => { bytes.set([0, 25, 26, 51, 52, 62, 255]); return bytes; } }
+    });
+    assert.equal(deterministic, 'AZaz0-_');
+    for (const bad of [null, {}, '', 'A'.repeat(6), 'A'.repeat(8), 'A'.repeat(22), randomUUID(),
+        codes[0] + '=', '../admin', 'rsvp:private', 'abc/def', 'abc%def', 'abc def', 'events', 'admin', 'view']) {
         assert.equal(ids.invitationId(bad), null, String(bad));
+        assert.equal(ids.invitationPath(bad), '/rsvp/');
     }
 });
 
-test('legacy records expose short IDs on every page without writes or backfill; category edits stay stable', async () => {
+test('creation retries storage collisions without overwriting invitations and stops after ten attempts', async () => {
+    let attempts = 0;
+    const app = api({ getRandomValues: bytes => { attempts++; bytes.fill(attempts <= 2 ? 0 : 1); return bytes; } });
+    const original = JSON.stringify({ title: 'Existing', text: 'Do not overwrite' });
+    app.env.FORM_SUBMISSIONS.records.set('rsvp-invitation:AAAAAAA', original);
+    const event = await save(app);
+    assert.equal(attempts, 3);
+    assert.equal(event.id, 'BBBBBBB');
+    assert.equal(await app.env.FORM_SUBMISSIONS.get('rsvp-invitation:AAAAAAA'), original);
+    assert.equal(app.env.FORM_SUBMISSIONS.writes.length, 1);
+    attempts = 0;
+    const blocked = api({ getRandomValues: bytes => { attempts++; bytes.fill(0); return bytes; } });
+    blocked.env.FORM_SUBMISSIONS.records.set('rsvp-invitation:AAAAAAA', original);
+    const response = await blocked.post(invitation, { admin: true });
+    assert.equal(response.status, 503);
+    assert.match((await response.json()).error, /unique invitation code.*try again/i);
+    assert.equal(attempts, 10);
+    assert.equal(blocked.env.FORM_SUBMISSIONS.writes.length, 0);
+    assert.equal(await blocked.env.FORM_SUBMISSIONS.get('rsvp-invitation:AAAAAAA'), original);
+});
+
+test('creation fails closed if collision checks or invitation writes fail', async () => {
+    for (const operation of ['get', 'put']) {
+        const app = api();
+        app.env.FORM_SUBMISSIONS[operation] = async () => { throw Error('private storage detail'); };
+        const response = await app.post(invitation, { admin: true });
+        assert.equal(response.status, 500);
+        assert.doesNotMatch(await response.text(), /private storage detail/);
+        assert.equal(app.env.FORM_SUBMISSIONS.writes.length, 0);
+    }
+});
+
+test('legacy invitation IDs are rejected in all API actions and skipped in paginated invitation lists', async () => {
+    const app = api();
+    const legacy = [randomUUID(), 'gQvuFEFxRDKh4N9Xdm-u8g'];
+    for (let i = 0; i < 51; i++) {
+        const id = i === 0 ? legacy[1] : randomUUID();
+        app.env.FORM_SUBMISSIONS.records.set('rsvp-invitation:' + id, JSON.stringify({ ...invitation, id }));
+    }
+    app.env.FORM_SUBMISSIONS.records.set('rsvp-invitation:' + legacy[0], JSON.stringify(invitation));
+    const event = await save(app);
+    const writes = app.env.FORM_SUBMISSIONS.writes.length;
+    for (const id of legacy) {
+        for (const body of [
+            { action: 'get-invitation', id },
+            { action: 'unlock-invitation', id, password: 'guest secret' },
+            { ...invitation, id },
+            { ...reply, eventId: id },
+            { action: 'delete-event', id, deleteReplies: false },
+            { action: 'list', eventId: id }
+        ]) {
+            assert.equal((await app.post(body, { admin: true })).status, 400, JSON.stringify(body));
+        }
+    }
+    const first = await (await app.post({ action: 'list-invitations' }, { admin: true })).json();
+    assert.deepEqual(first.invitations, []);
+    assert.ok(first.cursor);
+    const second = await (await app.post({ action: 'list-invitations', cursor: first.cursor }, { admin: true })).json();
+    assert.deepEqual(second.invitations, [event]);
+    assert.equal(second.cursor, '');
+    assert.equal(app.env.FORM_SUBMISSIONS.writes.length, writes);
+});
+
+test('short-code records paginate without writes; category edits keep the same code', async () => {
     const app = api();
     const categories = ['celebration', 'events', 'weddings', 'parties', 'engagements'];
     const originals = [];
     for (let i = 0; i < 107; i++) {
-        const id = randomUUID();
+        const id = ids.generateInvitationId();
         const record = { id, title: invitation.title, text: invitation.text, eventType: categories[i % 5],
             futureMetadata: { untouched: true }, privateSecret: 'never expose', passwordHash: 'unrelated secret' };
         const raw = JSON.stringify(record);
@@ -103,52 +168,46 @@ test('legacy records expose short IDs on every page without writes or backfill; 
     assert.equal(pages.length, originals.length);
     assert.equal(app.env.FORM_SUBMISSIONS.writes.length, 0);
     for (const [index, [id, raw]] of originals.entries()) {
-        assert.equal(pages[index].shortId, ids.invitationShortId(id));
-        for (const code of [id, pages[index].shortId]) {
-            const response = await app.post({ action: 'get-invitation', id: code });
-            const payload = await response.json();
-            assert.equal(payload.invitation.id, id);
-            assert.doesNotMatch(JSON.stringify(payload), /futureMetadata|privateSecret|passwordHash|never expose/);
-        }
+        assert.equal(pages[index].id, id);
+        const response = await app.post({ action: 'get-invitation', id });
+        const payload = await response.json();
+        assert.equal(payload.invitation.id, id);
+        assert.doesNotMatch(JSON.stringify(payload), /futureMetadata|privateSecret|passwordHash|never expose/);
         assert.equal(app.env.FORM_SUBMISSIONS.records.get('rsvp-invitation:' + id), raw);
     }
     assert.equal(app.env.FORM_SUBMISSIONS.writes.length, 0);
     for (const event of pages.slice(0, 5)) {
         for (let edit = 0; edit < 3; edit++) {
-            const changed = await save(app, { id: event.id, eventType: event.eventType, text: 'Edit ' + edit, shortId: 'spoofed' });
-            assert.equal(changed.shortId, event.shortId);
+            const changed = await save(app, { id: event.id, eventType: event.eventType, text: 'Edit ' + edit });
+            assert.equal(changed.id, event.id);
             assert.equal(JSON.parse(await app.env.FORM_SUBMISSIONS.get('rsvp-invitation:' + event.id)).futureMetadata.untouched, true);
-            for (const code of [changed.id, changed.shortId]) {
-                const submitted = await app.post({ ...reply, eventId: code });
-                assert.equal(submitted.status, 200);
-                assert.equal((await submitted.json()).response.eventId, event.id);
-            }
+            const submitted = await app.post({ ...reply, eventId: changed.id });
+            assert.equal(submitted.status, 200);
+            assert.equal((await submitted.json()).response.eventId, event.id);
         }
     }
 });
 
-test('protection gates UUID and short reads/submissions across every category; DTOs never disclose hashes', async () => {
+test('protection gates short-code reads/submissions across every category; DTOs never disclose hashes', async () => {
     for (const eventType of ['celebration', 'events', 'weddings', 'parties', 'engagements']) {
         const app = api();
         const original = await save(app, { eventType });
         const event = await save(app, { id: original.id, eventType, guestPassword: 'guest secret' });
-        assert.equal(event.shortId, original.shortId);
+        assert.equal(event.id, original.id);
         assert.equal(event.passwordProtected, true);
         const stored = JSON.parse(await app.env.FORM_SUBMISSIONS.get('rsvp-invitation:' + event.id));
         assert.match(stored.guestPasswordHash, /^\$2[aby]\$12\$/);
         assert.equal(await bcrypt.compare('guest secret', stored.guestPasswordHash), true);
         assert.doesNotMatch(JSON.stringify(stored), /"guestPassword":/);
-        for (const id of [event.id, event.shortId]) {
-            for (const admin of [false, true]) {
-                const read = await app.post({ action: 'get-invitation', id }, { admin });
-                assert.equal(read.status, admin ? 200 : 401);
-                const payload = await read.text();
-                assert.doesNotMatch(payload, /guestPasswordHash|\$2[aby]\$/);
-                if (!admin) assert.doesNotMatch(payload, /Date and venue/);
-                assert.equal((await app.post({ ...reply, eventId: id }, { admin })).status, 401);
-            }
+        for (const admin of [false, true]) {
+            const read = await app.post({ action: 'get-invitation', id: event.id }, { admin });
+            assert.equal(read.status, admin ? 200 : 401);
+            const payload = await read.text();
+            assert.doesNotMatch(payload, /guestPasswordHash|\$2[aby]\$/);
+            if (!admin) assert.doesNotMatch(payload, /Date and venue/);
+            assert.equal((await app.post({ ...reply, eventId: event.id }, { admin })).status, 401);
         }
-        const token = await unlock(app, event.shortId);
+        const token = await unlock(app, event.id);
         assert.match(token, /^[a-f0-9]{64}$/);
         const sessionWrite = app.env.FORM_SUBMISSIONS.writes.at(-1);
         assert.ok(sessionWrite.key.startsWith('rsvp-guest-session:'));
@@ -158,14 +217,12 @@ test('protection gates UUID and short reads/submissions across every category; D
         assert.equal(session.invitationId, event.id);
         assert.equal(session.scope, 'rsvp-guest');
         assert.equal(session.userId, undefined);
-        for (const id of [event.id, event.shortId]) {
-            const read = await app.post({ action: 'get-invitation', id }, { guest: token });
-            assert.equal(read.status, 200);
-            assert.doesNotMatch(await read.text(), /guest secret|guestPasswordHash|guestPasswordRevision|\$2[aby]\$/);
-            const submitted = await app.post({ ...reply, eventId: id }, { guest: token });
-            assert.equal(submitted.status, 200);
-            assert.equal((await submitted.json()).response.eventId, event.id);
-        }
+        const read = await app.post({ action: 'get-invitation', id: event.id }, { guest: token });
+        assert.equal(read.status, 200);
+        assert.doesNotMatch(await read.text(), /guest secret|guestPasswordHash|guestPasswordRevision|\$2[aby]\$/);
+        const submitted = await app.post({ ...reply, eventId: event.id }, { guest: token });
+        assert.equal(submitted.status, 200);
+        assert.equal((await submitted.json()).response.eventId, event.id);
         const listed = await app.post({ action: 'list-invitations' }, { admin: true });
         assert.doesNotMatch(await listed.text(), /guestPasswordHash|guestPasswordRevision|guest secret|\$2[aby]\$/);
         const unchanged = await save(app, { id: event.id, eventType, guestPassword: '' });
@@ -179,65 +236,61 @@ test('parallel invitation creation requires exactly one record per invitation wi
     const app = api();
     const events = await Promise.all(Array.from({ length: 60 }, () => save(app)));
     assert.equal(new Set(events.map(event => event.id)).size, 60);
-    assert.equal(new Set(events.map(event => event.shortId)).size, 60);
+    assert.ok(events.every(event => /^[A-Za-z0-9_-]{7}$/.test(event.id)));
     assert.equal(app.env.FORM_SUBMISSIONS.writes.length, 60);
     assert.equal(app.env.FORM_SUBMISSIONS.records.size, 60);
     assert.ok(app.env.FORM_SUBMISSIONS.writes.every(write => write.key.startsWith('rsvp-invitation:')));
     await Promise.all(events.map(async event => {
-        const read = await app.post({ action: 'get-invitation', id: event.shortId });
+        const read = await app.post({ action: 'get-invitation', id: event.id });
         assert.equal((await read.json()).invitation.id, event.id);
     }));
     assert.equal(app.env.FORM_SUBMISSIONS.writes.length, 60);
 });
 
-test('a protection change during submission rolls back the late reply for either identifier', async () => {
-    for (const useShort of [false, true]) {
-        const app = api();
-        const event = await save(app, { guestPassword: 'guest secret' });
-        const token = await unlock(app, event.shortId);
-        const put = app.env.FORM_SUBMISSIONS.put.bind(app.env.FORM_SUBMISSIONS);
-        app.env.FORM_SUBMISSIONS.put = async (key, value, options) => {
-            await put(key, value, options);
-            if (key.startsWith('rsvp:')) {
-                const record = JSON.parse(await app.env.FORM_SUBMISSIONS.get('rsvp-invitation:' + event.id));
-                record.guestPasswordRevision = randomUUID();
-                await put('rsvp-invitation:' + event.id, JSON.stringify(record));
-            }
-        };
-        assert.equal((await app.post({ ...reply, eventId: useShort ? event.shortId : event.id }, { guest: token })).status, 401);
-        assert.equal([...app.env.FORM_SUBMISSIONS.records.keys()].some(key => key.startsWith('rsvp:')), false);
-    }
+test('a protection change during submission rolls back the late reply', async () => {
+    const app = api();
+    const event = await save(app, { guestPassword: 'guest secret' });
+    const token = await unlock(app, event.id);
+    const put = app.env.FORM_SUBMISSIONS.put.bind(app.env.FORM_SUBMISSIONS);
+    app.env.FORM_SUBMISSIONS.put = async (key, value, options) => {
+        await put(key, value, options);
+        if (key.startsWith('rsvp:')) {
+            const record = JSON.parse(await app.env.FORM_SUBMISSIONS.get('rsvp-invitation:' + event.id));
+            record.guestPasswordRevision = randomUUID();
+            await put('rsvp-invitation:' + event.id, JSON.stringify(record));
+        }
+    };
+    assert.equal((await app.post({ ...reply, eventId: event.id }, { guest: token })).status, 401);
+    assert.equal([...app.env.FORM_SUBMISSIONS.records.keys()].some(key => key.startsWith('rsvp:')), false);
 });
 
 test('submission revalidates guest sessions after writing and rolls back expiry, revocation or unavailable session storage', async () => {
-    for (const useShort of [false, true]) {
-        for (const change of ['expired', 'deleted', 'unavailable']) {
-            const app = api();
-            const event = await save(app, { guestPassword: 'guest secret' });
-            const token = await unlock(app, event.shortId);
-            const put = app.env.FORM_SUBMISSIONS.put.bind(app.env.FORM_SUBMISSIONS);
-            app.env.FORM_SUBMISSIONS.put = async (key, value, options) => {
-                await put(key, value, options);
-                if (!key.startsWith('rsvp:')) return;
-                const sessionKey = 'rsvp-guest-session:' + token;
-                if (change === 'expired') {
-                    const session = JSON.parse(await app.env.FORM_SUBMISSIONS.get(sessionKey));
-                    app.env.FORM_SUBMISSIONS.records.set(sessionKey, JSON.stringify({ ...session, expiresAt: Date.now() - 1 }));
-                } else if (change === 'deleted') {
-                    app.env.FORM_SUBMISSIONS.records.delete(sessionKey);
-                } else {
-                    const get = app.env.FORM_SUBMISSIONS.get.bind(app.env.FORM_SUBMISSIONS);
-                    app.env.FORM_SUBMISSIONS.get = async key => {
-                        if (key.startsWith('rsvp-guest-session:')) throw new Error('private storage error');
-                        return get(key);
-                    };
-                }
-            };
-            const response = await app.post({ ...reply, eventId: useShort ? event.shortId : event.id }, { guest: token });
-            assert.equal(response.status, change === 'unavailable' ? 500 : 401);
-            assert.doesNotMatch(await response.text(), /private storage error/);
-            assert.equal([...app.env.FORM_SUBMISSIONS.records.keys()].some(key => key.startsWith('rsvp:')), false);
-        }
+    for (const change of ['expired', 'deleted', 'unavailable']) {
+        const app = api();
+        const event = await save(app, { guestPassword: 'guest secret' });
+        const token = await unlock(app, event.id);
+        const put = app.env.FORM_SUBMISSIONS.put.bind(app.env.FORM_SUBMISSIONS);
+        app.env.FORM_SUBMISSIONS.put = async (key, value, options) => {
+            await put(key, value, options);
+            if (!key.startsWith('rsvp:')) return;
+            const sessionKey = 'rsvp-guest-session:' + token;
+            if (change === 'expired') {
+                const session = JSON.parse(await app.env.FORM_SUBMISSIONS.get(sessionKey));
+                app.env.FORM_SUBMISSIONS.records.set(sessionKey, JSON.stringify({ ...session, expiresAt: Date.now() - 1 }));
+            } else if (change === 'deleted') {
+                app.env.FORM_SUBMISSIONS.records.delete(sessionKey);
+            } else {
+                const get = app.env.FORM_SUBMISSIONS.get.bind(app.env.FORM_SUBMISSIONS);
+                app.env.FORM_SUBMISSIONS.get = async key => {
+                    if (key.startsWith('rsvp-guest-session:')) throw new Error('private storage error');
+                    return get(key);
+                };
+            }
+        };
+        const response = await app.post({ ...reply, eventId: event.id }, { guest: token });
+        assert.equal(response.status, change === 'unavailable' ? 500 : 401);
+        assert.doesNotMatch(await response.text(), /private storage error/);
+        assert.equal([...app.env.FORM_SUBMISSIONS.records.keys()].some(key => key.startsWith('rsvp:')), false);
     }
 });
 
@@ -265,7 +318,7 @@ test('guest sessions are scoped, expire and revoke on password changes/removal/d
     const second = await save(app, { guestPassword: 'guest secret' });
     const token = await unlock(app, first.id);
     assert.equal((await app.post({ action: 'list-invitations' }, { guest: token })).status, 401);
-    assert.equal((await app.post({ action: 'get-invitation', id: second.shortId }, { guest: token })).status, 401);
+    assert.equal((await app.post({ action: 'get-invitation', id: second.id }, { guest: token })).status, 401);
     assert.equal((await app.post({ ...reply, eventId: second.id }, { guest: token })).status, 401);
     const sessionKey = 'rsvp-guest-session:' + token;
     const original = JSON.parse(await app.env.FORM_SUBMISSIONS.get(sessionKey));
@@ -273,22 +326,18 @@ test('guest sessions are scoped, expire and revoke on password changes/removal/d
     assert.equal((await app.post({ ...reply, eventId: first.id }, { guest: token })).status, 401);
     app.env.FORM_SUBMISSIONS.records.set(sessionKey, JSON.stringify(original));
     await save(app, { id: first.id, guestPassword: 'changed secret' });
-    for (const id of [first.id, first.shortId]) {
-        assert.equal((await app.post({ action: 'get-invitation', id }, { guest: token })).status, 401);
-        assert.equal((await app.post({ ...reply, eventId: id }, { guest: token })).status, 401);
-    }
-    const changed = await unlock(app, first.shortId, 'changed secret');
+    assert.equal((await app.post({ action: 'get-invitation', id: first.id }, { guest: token })).status, 401);
+    assert.equal((await app.post({ ...reply, eventId: first.id }, { guest: token })).status, 401);
+    const changed = await unlock(app, first.id, 'changed secret');
     await save(app, { id: first.id, removeGuestPassword: true });
-    for (const id of [first.id, first.shortId]) {
-        assert.equal((await app.post({ ...reply, eventId: id }, { guest: changed })).status, 200);
-        assert.equal((await app.post({ action: 'get-invitation', id }, { guest: 'malformed-stale-token' })).status, 200);
-    }
-    assert.equal((await app.post({ ...reply, eventId: first.shortId })).status, 200);
+    assert.equal((await app.post({ ...reply, eventId: first.id }, { guest: changed })).status, 200);
+    assert.equal((await app.post({ action: 'get-invitation', id: first.id }, { guest: 'malformed-stale-token' })).status, 200);
+    assert.equal((await app.post({ ...reply, eventId: first.id })).status, 200);
     await save(app, { id: first.id, guestPassword: 'changed secret' });
     assert.equal((await app.post({ ...reply, eventId: first.id }, { guest: changed })).status, 401);
     const current = await unlock(app, first.id, 'changed secret');
     await app.post({ action: 'delete-event', id: first.id, deleteReplies: false }, { admin: true });
-    for (const id of [first.id, first.shortId, randomUUID(), ids.invitationShortId(randomUUID())]) {
+    for (const id of [first.id, ids.generateInvitationId()]) {
         assert.equal((await app.post({ action: 'get-invitation', id }, { guest: current })).status, 404);
         assert.equal((await app.post({ ...reply, eventId: id }, { guest: current })).status, 404);
         assert.equal((await app.post({ action: 'unlock-invitation', id, password: 'changed secret' })).status, 404);
@@ -301,7 +350,7 @@ test('guest sessions cannot authenticate to real admin APIs with raw or prefixed
     app.env.MEMORIAL_PASSWORDS = kv();
     app.env.MEMORIAL_PASSWORDS.records.set('__admin__', 'unchanged-admin-password-hash');
     const event = await save(app, { guestPassword: 'guest secret' });
-    const token = await unlock(app, event.shortId);
+    const token = await unlock(app, event.id);
     const guestKey = 'rsvp-guest-session:' + token;
     assert.ok(await app.env.FORM_SUBMISSIONS.get(guestKey));
     assert.equal(app.env.ADMIN_SESSIONS.records.size, 1);
@@ -342,10 +391,8 @@ test('guest unlock, invitation read and submit do not depend on the admin sessio
     const event = await save(app, { guestPassword: 'guest secret' });
     delete app.env.ADMIN_SESSIONS;
     const token = await unlock(app, event.id);
-    for (const id of [event.id, event.shortId]) {
-        assert.equal((await app.post({ action: 'get-invitation', id }, { guest: token })).status, 200);
-        assert.equal((await app.post({ ...reply, eventId: id }, { guest: token })).status, 200);
-    }
+    assert.equal((await app.post({ action: 'get-invitation', id: event.id }, { guest: token })).status, 200);
+    assert.equal((await app.post({ ...reply, eventId: event.id }, { guest: token })).status, 200);
 });
 
 test('guest password attempts use the existing rate limiter but a separate namespace and fail closed without bindings', async () => {
@@ -357,7 +404,7 @@ test('guest password attempts use the existing rate limiter but a separate names
     const token = await unlock(app, event.id);
     assert.ok(token);
     for (let i = 0; i < 3; i++) {
-        const failed = await app.post({ action: 'unlock-invitation', id: event.shortId, password: 'wrong' });
+        const failed = await app.post({ action: 'unlock-invitation', id: event.id, password: 'wrong' });
         assert.equal(failed.status, i === 2 ? 429 : 401);
         if (i === 2) assert.ok(Number(failed.headers.get('Retry-After')) > 0);
     }
@@ -371,7 +418,7 @@ test('guest password attempts use the existing rate limiter but a separate names
         const previous = app.env[binding];
         delete app.env[binding];
         assert.equal((await app.post({ action: 'unlock-invitation', id: event.id, password: 'guest secret' })).status, 503);
-        assert.equal((await app.post({ ...reply, eventId: event.shortId })).status, binding === 'FORM_SUBMISSIONS' ? 503 : 401);
+        assert.equal((await app.post({ ...reply, eventId: event.id })).status, binding === 'FORM_SUBMISSIONS' ? 503 : 401);
         if (binding === 'RATE_LIMIT') {
             assert.equal((await app.post({ ...invitation, guestPassword: 'new secret' }, { admin: true })).status, 503);
         }
@@ -386,22 +433,20 @@ test('guest password attempts use the existing rate limiter but a separate names
     assert.equal(app.env.FORM_SUBMISSIONS.writes.length, writes);
 });
 
-test('invitation-only namespace never resolves reply UUIDs or short codes to other KV records', async () => {
+test('invitation-only namespace never resolves short codes to other KV records', async () => {
     const app = api();
-    const id = randomUUID();
+    const id = ids.generateInvitationId();
     app.env.FORM_SUBMISSIONS.records.set('rsvp:' + id, '{"name":"private reply"}');
     app.env.FORM_SUBMISSIONS.records.set(id, '{"secret":"private value"}');
-    for (const code of [id, ids.invitationShortId(id)]) {
-        assert.equal((await app.post({ action: 'get-invitation', id: code })).status, 404);
-        assert.equal((await app.post({ ...reply, eventId: code })).status, 404);
-    }
+    assert.equal((await app.post({ action: 'get-invitation', id })).status, 404);
+    assert.equal((await app.post({ ...reply, eventId: id })).status, 404);
     assert.equal(app.env.FORM_SUBMISSIONS.writes.length, 0);
 });
 
 test('short-route middleware keeps existing routes, validates canonically and safely follows same-origin asset redirects', async () => {
     const context = { URL, Request, Response };
     runInNewContext(idSource + '\n' + source('../functions/rsvp/_middleware.js'), context);
-    const code = ids.invitationShortId(randomUUID()), calls = [];
+    const code = ids.generateInvitationId(), calls = [];
     const request = (path, fetch, method = 'GET') => context.onRequest({
         request: new Request('https://example.com' + path, { method }),
         env: { ASSETS: { fetch } }, next: () => new Response('existing route', { status: 201 })
@@ -419,7 +464,9 @@ test('short-route middleware keeps existing routes, validates canonically and sa
         '/rsvp/parties/', '/rsvp/engagements/', '/rsvp/card.css', '/rsvp/rsvp.js']) {
         assert.equal((await request(path, fetch)).status, 201);
     }
-    assert.equal((await request('/rsvp/i/' + 'A'.repeat(21) + 'B', fetch)).status, 404);
+    for (const invalid of ['A'.repeat(22), randomUUID(), 'A'.repeat(6), 'A'.repeat(8), 'abc%def']) {
+        assert.equal((await request('/rsvp/i/' + invalid, fetch)).status, 404);
+    }
     assert.equal((await request('/rsvp/i/' + code, fetch, 'POST')).status, 405);
     const credentialed = new URL('https://example.com/rsvp/');
     credentialed.username = 'fixture';
