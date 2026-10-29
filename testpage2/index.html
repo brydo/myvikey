@@ -3,56 +3,119 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Beautiful online invitations for every event, with a unique link and easy RSVPs from V I Key®.">
-    <title>Event Invitations · V I Key®</title>
+    <meta name="description" content="Modern luxe wedding invitations with a unique event link and simple online RSVPs. Celebrate your love with V I Key®.">
+    <title>Wedding Invitations · V I Key®</title>
     <link rel="stylesheet" href="/rsvp/card.css">
     <link rel="stylesheet" href="/rsvp/landing.css">
+    
+    <style>
+        /* Modern Responsive Background Settings */
+        body {
+            /* Utilizing the official site asset path */
+            background-image: url('https://pub-07ed0b0955a4401f9956c3ca7a33c40e.r2.dev/wbg.jpg'); 
+            background-size: cover;
+            background-position: center center;
+            background-repeat: no-repeat;
+            background-attachment: scroll; /* Optimal performance across landscape and portrait mobile engines */
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+            color: #2c3e50; /* Stable contrast color for modern fonts over background highlights */
+        }
+
+        /* Mobile-First Layout Optimizations */
+        .landing-wrap {
+            box-sizing: border-box;
+            padding: 1rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Glassmorphism backing layers to maximize text legibility across varying display sizes */
+        .landing-copy, .rsvp-card, .landing-details {
+            background: rgba(255, 255, 255, 0.78); 
+            -webkit-backdrop-filter: blur(14px);
+            backdrop-filter: blur(14px);
+            border: 1px solid rgba(255, 255, 255, 0.45);
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.03);
+            margin-bottom: 2rem;
+        }
+
+        .landing-nav {
+            background: rgba(255, 255, 255, 0.82);
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+            padding: 1rem;
+            border-radius: 30px;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.35);
+        }
+
+        /* Desktop Target Adjustments (For the 5% online desktop traffic split) */
+        @media (min-width: 769px) {
+            body {
+                background-attachment: fixed; /* Fixes background image in frame on desktop browsers during scroll */
+            }
+            .landing-hero {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 2rem;
+                align-items: start;
+            }
+            .landing-copy, .rsvp-card {
+                margin-bottom: 0;
+            }
+        }
+    </style>
 </head>
-<body>
+<body class="rsvp-theme-loading" data-event-type="weddings">
     <main class="wrap landing-wrap">
         <header class="landing-nav">
             <a class="brand" href="/rsvp/">V I Key® · Celebrations</a>
             <nav aria-label="Event themes">
-                <a href="/rsvp/events/" aria-current="page">Events</a>
-                <a href="/rsvp/weddings/">Weddings</a>
+                <a href="/rsvp/events/">Events</a>
+                <a href="/rsvp/weddings/" aria-current="page">Weddings</a>
                 <a href="/rsvp/parties/">Parties</a>
                 <a href="/rsvp/engagements/">Engagements</a>
             </nav>
         </header>
         <section class="landing-hero" aria-labelledby="heading">
             <div class="landing-copy">
-                <p class="brand">Made for your moment · made to share</p>
-                <h1 id="heading">Every occasion, beautifully yours.</h1>
-                <p>Bring everyone together with a thoughtful online invitation for the moments worth celebrating, from family gatherings to milestone occasions.</p>
-                <p>Share your event details and a personal link. Guests can reply online, so you can spend less time organising and more time looking forward to it.</p>
-                <p>Already invited? Open the unique event link shared by your host to view the details and RSVP.</p>
+                <p class="brand" data-copy="landingTagline">Contemporary Luxe · Quartz &amp; Chrome</p>
+                <h1 id="heading" data-copy="landingHeading">Your forever starts with a beautiful invitation.</h1>
+                <p data-copy="landingDescription">Gleaming crystalline lines, architectural design, and pristine silver flourishes. A modern glimpse of your love story, made to share seamlessly online.</p>
+                <p data-copy="landingExtra">Bring your ceremony, reception and RSVP details together in one striking invitation.</p>
+                <p data-copy="landingHelp">Already invited? Open the unique wedding link shared by your host to view the details and RSVP.</p>
             </div>
             <div>
-                <p class="preview-label">A little inspiration · example invitation</p>
+                <p class="preview-label" data-copy="previewLabel">A little inspiration · example invitation</p>
                 <article class="rsvp-card" aria-labelledby="sampleHeading">
                     <div class="rsvp-banner" aria-hidden="true"></div>
                     <header class="rsvp-head">
-                        <p class="brand">Save the date</p>
-                        <h2 id="sampleHeading">A day to remember</h2>
-                        <p>Join us for a special gathering</p>
+                        <p class="brand" data-copy="sampleBrand">Together with their families</p>
+                        <h2 id="sampleHeading" data-copy="sampleHeading">Alex &amp; Jamie</h2>
+                        <p data-copy="sampleSubtitle">Joyfully invite you to their wedding</p>
                     </header>
                     <div class="sample-invitation">
-                        <p class="sample-date">Saturday, 12 September 2027 · 4 pm</p>
-                        <p>The Garden Room<br>Good food, good company and a little celebration</p>
-                        <p>We'd love to celebrate with you.<br>Please reply by 29 August.</p>
+                        <p class="sample-date" data-copy="sampleDate">Saturday, 19 June 2027 · 2 pm</p>
+                        <p data-copy="sampleVenue">The Crystal Pavilion<br>Dinner, dancing &amp; happily ever after</p>
+                        <p data-copy="sampleMessage">Your presence would mean the world to us.<br>Please reply by 19 May.</p>
                     </div>
                 </article>
             </div>
         </section>
         <section class="landing-details" aria-labelledby="detailsHeading">
-            <h2 id="detailsHeading">Your event, easy to share.</h2>
+            <h2 id="detailsHeading" data-copy="detailsHeading">Less organising. More happily ever after.</h2>
             <ol class="landing-steps">
-                <li><h3>Make it yours</h3><p>Add your event name, date, venue and any details your guests need to know.</p></li>
-                <li><h3>Share your invitation</h3><p>Get a unique event link to send to everyone you want to celebrate with.</p></li>
-                <li><h3>Welcome your guests</h3><p>Guests can RSVP online with their attendance, additional guests and notes.</p></li>
+                <li><h3 data-copy="step1Heading">Make it yours</h3><p data-copy="step1Text">Your site admin adds your names, ceremony time, venue and reply-by date, with this wedding theme selected.</p></li>
+                <li><h3 data-copy="step2Heading">Share your moment</h3><p data-copy="step2Text">Saving creates an automatic event ID and a unique link to send by WhatsApp or text/SMS.</p></li>
+                <li><h3 data-copy="step3Heading">Welcome your guests</h3><p data-copy="step3Text">Guests reply online with attendance, additional guests and notes. Replies stay linked to your wedding.</p></li>
             </ol>
         </section>
-        <footer class="landing-footer"><p>Choose a style for your next celebration.</p><a href="/rsvp/weddings/">Weddings</a> · <a href="/rsvp/parties/">Parties</a> · <a href="/rsvp/engagements/">Engagements</a><br><a href="/rsvp/">Explore all celebrations</a> · <a href="/">V I Key® home</a></footer>
+        <footer class="landing-footer" style="text-align: center; padding: 2rem 0; color: #7f8c8d;"><p data-copy="footerHelp">Already invited? Open the personal event link shared by your host.</p><a href="/rsvp/" data-copy="exploreLink" style="color: #2c3e50;">Explore all celebrations</a> · <a href="/" data-copy="homeLink" style="color: #2c3e50;">V I Key® home</a></footer>
     </main>
+    <script type="module" src="/rsvp/theme-client.js"></script>
 </body>
 </html>
