@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="A little invitation to a lovely celebration. RSVP with V I Key®.">
+    <title>RSVP · V I Key®</title>
+    <link rel="stylesheet" href="/rsvp/card.css">
+    <script>
+        // An invitation link must not paint the stock card first. rsvp.js clears this once the
+        // invitation, its category settings and image are ready; the timer bounds slow or failed loads.
+        if (new URLSearchParams(location.search).get('id') || /^\/rsvp\/i\//.test(location.pathname)) {
+            document.documentElement.classList.add('rsvp-invitation-pending');
+            setTimeout(function () { document.documentElement.classList.remove('rsvp-invitation-pending'); }, 8000);
+        }
+    </script>
+</head>
+<body class="rsvp-theme-loading">
+    <main class="wrap">
+        <section class="rsvp-card" aria-labelledby="heading">
+            <div class="rsvp-banner" aria-hidden="true"></div>
+            <header class="rsvp-head">
+                <p class="brand" data-copy="brand">V I Key® · RSVP</p>
+                <h1 id="heading" data-copy="inviteHeading">You're invited.</h1>
+                <p class="eyebrow" data-copy="tagline">Together is a beautiful place to be</p>
+            </header>
+            <div class="rsvp-section invitation">
+                <p id="invitationText" data-copy="inviteText">Make room for a little celebration.
+
+A beautiful invitation, a special gathering, and the people who make it yours.</p>
+                <p id="invitationHelp" data-copy="inviteHelp">Have an invitation? Open the unique event link shared by your host to view the details and send your RSVP.</p>
+                <button id="openRsvp" data-copy="openRsvp" class="rsvp-btn primary" type="button" hidden>RSVP to this celebration</button>
+            </div>
+            <p id="message" class="rsvp-section" role="status" aria-live="polite"></p>
+            <form id="guestUnlock" class="rsvp-section" hidden>
+                <label for="guestPassword">Guest password</label>
+                <input id="guestPassword" name="password" type="password" autocomplete="off" required>
+                <button class="rsvp-btn primary" type="submit">Open invitation</button>
+            </form>
+            <form id="rsvpForm" class="rsvp-section" hidden>
+                <h2 data-copy="replyHeading">Your reply</h2>
+                <label for="name" data-copy="nameLabel">Name</label>
+                <input id="name" name="name" autocomplete="name" maxlength="100" required>
+                <label for="event" data-copy="eventLabel">Event</label>
+                <input id="event" name="event" maxlength="100" readonly required>
+                <label for="attending" data-copy="attendingLabel">Attending</label>
+                <select id="attending" name="attending" required>
+                    <option value="" data-copy="chooseLabel">Please choose</option>
+                    <option value="yes" data-copy="yesLabel">Yes</option>
+                    <option value="no" data-copy="noLabel">No</option>
+                </select>
+                <label for="guests" data-copy="guestsLabel">Guests</label>
+                <input id="guests" name="guests" type="number" min="0" max="100" step="1" value="0" aria-describedby="guestsHint" required>
+                <small id="guestsHint" data-copy="guestsHint">Additional guests, not including you. Use 0 if not attending.</small>
+                <label for="notes" data-copy="notesLabel">Notes (optional)</label>
+                <textarea id="notes" name="notes" rows="3" maxlength="1000"></textarea>
+                <button data-copy="saveReply" class="rsvp-btn primary" type="submit" disabled>Save RSVP &amp; choose how to send</button>
+                <p data-copy="saveHelp">Your reply will be saved here. You can then open WhatsApp or text/SMS to send it to your host yourself.</p>
+                <div id="sendOptions" hidden></div>
+            </form>
+        </section>
+        <section id="occasionChooser" class="occasion-chooser" aria-labelledby="occasionHeading">
+            <h2 id="occasionHeading" data-copy="occasionHeading">Every occasion, beautifully yours.</h2>
+            <p data-copy="occasionDescription">Explore a theme for your next celebration.</p>
+            <nav aria-label="Event themes">
+                <a href="/rsvp/events/">Events</a>
+                <a href="/rsvp/weddings/">Weddings</a>
+                <a href="/rsvp/parties/">Parties &amp; celebrations</a>
+                <a href="/rsvp/engagements/">Engagements</a>
+            </nav>
+        </section>
+        <nav aria-label="RSVP navigation"><a href="/">V I Key®</a></nav>
+        <noscript><p>Please enable JavaScript to send your RSVP.</p></noscript>
+    </main>
+    <script src="/rsvp/card-render.js"></script>
+    <script type="module" src="/rsvp/rsvp.js"></script>
+</body>
+</html>
