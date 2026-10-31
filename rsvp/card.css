@@ -1,15 +1,19 @@
 /* Celebration invitations and shared RSVP components. */
 :root { color-scheme: light; }
 :root, [data-event-type] {
-    --accent: #b48a97; --accent-hover: #9c7380; --ink: #4f4447;
-    --paper: #fcfbfa; --border: #e6dad1; --backdrop-color: #f7f5f2;
-    --backdrop: radial-gradient(ellipse at top left, #f3e5f5, transparent 55%),
-        radial-gradient(ellipse at bottom right, #e8f0fe, transparent 60%);
-    --banner: linear-gradient(120deg, #fce4ec, #e8eaf6, #e1f5fe);
-    --symbol: ""; --symbol-color: transparent; --symbol-size: 0px;
-    --symbol-bottom: 0px; --symbol-left: 0%; --symbol-right: 0%;
+    --accent: #844456; --accent-hover: #6c3444; --ink: #493439;
+    --paper: #fffaf4; --border: #d8bda2; --backdrop-color: #faf5ef;
+    --backdrop: radial-gradient(ellipse at top left, #efd1d3, transparent 55%),
+        radial-gradient(ellipse at bottom right, #f2e1bd, transparent 60%);
+    --banner: radial-gradient(ellipse at 15% 100%, #a9b2a1 0 9%, transparent 10%),
+        radial-gradient(ellipse at 85% 100%, #b4bca8 0 9%, transparent 10%),
+        radial-gradient(circle at 30% 35%, #b08c48 0 2px, transparent 3px),
+        radial-gradient(circle at 75% 20%, #b08c48 0 2px, transparent 3px),
+        linear-gradient(120deg, #f4dedc, #fff5e5, #f2d9d8);
+    --symbol: "❀"; --symbol-color: #a9576b; --symbol-size: 90px;
+    --symbol-bottom: -16px; --symbol-left: 4%; --symbol-right: 4%;
     --symbol-width: auto; --symbol-height: auto; --symbol-border: 0;
-    --symbol-after: ""; --symbol-after-color: transparent;
+    --symbol-after: var(--symbol); --symbol-after-color: #bb7482;
     --symbol-after-size: var(--symbol-size); --symbol-after-bottom: var(--symbol-bottom);
     --symbol-radius: 0; --heading-font: Georgia, "Times New Roman", serif; --heading-weight: 400;
 }
@@ -144,18 +148,159 @@ dd { color: var(--ink); white-space: pre-wrap; overflow-wrap: anywhere; margin-b
 .occasion-chooser h2 { font-size: 1.6rem; margin-bottom: 12px; }
 .occasion-chooser nav { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 16px; }
 [data-event-type="events"] {
-    --accent: #6b8e9b; --accent-hover: #547581; --ink: #38454a;
-    --paper: #f7fafb; --border: #d2dee0;
-    --backdrop-color: #fafcfc;
-    --backdrop: radial-gradient(ellipse at top left, #e0f2f1, transparent 60%),
-        radial-gradient(ellipse at bottom right, #fce4ec, transparent 60%);
-    --banner: linear-gradient(120deg, #e0f2f1, #e8eaf6, #e0f7fa);
-    --symbol: ""; --symbol-color: transparent; --symbol-size: 0px; --symbol-bottom: 0px;
-    --symbol-after-color: transparent;
+    --accent: #326477; --accent-hover: #244c5b; --ink: #2e4650;
+    --paper: #faffff; --border: #b5cdd1;
+    --backdrop-color: #0d0d11;
+    --backdrop: radial-gradient(ellipse at top left, #d3e9ed, transparent 60%),
+        radial-gradient(ellipse at bottom right, #f2e1bd, transparent 60%);
+    --banner:
+        radial-gradient(circle at 20% 25%, #a18243 0 2px, transparent 3px),
+        radial-gradient(circle at 80% 70%, #a18243 0 2px, transparent 3px),
+        linear-gradient(120deg, #d3e9ed, #fff5de, #d3e9ed);
+    --symbol: "✧"; --symbol-color: #326477; --symbol-size: 64px; --symbol-bottom: 12px;
+    --symbol-after-color: #326477;
 }
 [data-event-type="weddings"] {
-    --accent: #7ca385; --accent-hover: #63856b; --ink: #3c473e;
-    --paper: #fbfcf9; --border: #dce3db;
-    --backdrop-color: #fafdfa;
-    --backdrop: radial-gradient(ellipse at top left, #e8f5e9, transparent 60%);
-    --banner: linear-gradient(120deg, #e8f5e9, #f1f8e9, #f9fbe7);
+    --accent: #47634d; --accent-hover: #354b3a; --ink: #34463a;
+    --paper: #fffdf7; --border: #c6cbb4;
+    --backdrop-color: #faf7ef;
+    --backdrop: radial-gradient(ellipse at top left, #dce7d7, transparent 60%);
+    --banner:
+        radial-gradient(ellipse at 8% 95%, #9ead8c 0 12%, transparent 13%),
+        radial-gradient(ellipse at 92% 95%, #bdc9a9 0 12%, transparent 13%),
+        linear-gradient(120deg, #e2eadb, #fff9e7, #e2eadb);
+    --symbol: ""; --symbol-width: 56px; --symbol-height: 56px; --symbol-border: 3px solid #a18243;
+    --symbol-radius: 50%; --symbol-left: calc(50% - 46px); --symbol-right: calc(50% - 46px); --symbol-bottom: 24px;
+}
+[data-event-type="parties"] {
+    --accent: #743b8f; --accent-hover: #58266f; --ink: #422751;
+    --paper: #fffaff; --border: #d6b7e1;
+    --backdrop-color: #fff7f5;
+    --backdrop: radial-gradient(ellipse at top left, #ead3fc, transparent 60%),
+        radial-gradient(ellipse at bottom right, #ffdfbd, transparent 60%);
+    --banner:
+        radial-gradient(circle, #a34a88 0 2px, transparent 3px) 0 0 / 33px 37px,
+        radial-gradient(circle, #b07b27 0 3px, transparent 4px) 16px 12px / 47px 43px,
+        linear-gradient(120deg, #ead3fc, #ffe5cf);
+    --symbol: "✦"; --symbol-color: #743b8f; --symbol-size: 64px; --symbol-bottom: 12px;
+    --symbol-after-color: #743b8f;
+    --heading-font: inherit; --heading-weight: 700;
+}
+[data-event-type="engagements"] {
+    --accent: #84502c; --accent-hover: #663b1e; --ink: #563b35;
+    --paper: #fffcf8; --border: #dec5aa;
+    --backdrop-color: #fff9f2;
+    --backdrop: radial-gradient(ellipse at top left, #f4d9d4, transparent 60%),
+        radial-gradient(ellipse at bottom right, #efdfb9, transparent 60%);
+    --banner:
+        radial-gradient(circle at 20% 25%, #aa8349 0 2px, transparent 3px),
+        radial-gradient(circle at 80% 70%, #aa8349 0 2px, transparent 3px),
+        linear-gradient(120deg, #f4d9d4, #fff3d8, #f4d9d4);
+    --symbol: "◇"; --symbol-color: #95692c; --symbol-left: calc(50% - 32px);
+    --symbol-right: 18%; --symbol-bottom: 10px; --symbol-size: 80px;
+    --symbol-after: "✧"; --symbol-after-color: #95692c; --symbol-after-size: 32px; --symbol-after-bottom: 26px;
+}
+/* Opaque surfaces keep copy and controls readable over any chosen image. */
+.page-head, .occasion-chooser, .wrap > nav, .wrap > #sendOptions,
+.landing-nav, .landing-copy, .landing-footer, .preview-label {
+    background: var(--paper); color: var(--ink); border-radius: 16px; padding: 20px;
+}
+.rsvp-card, .page-head, .occasion-chooser, .wrap > nav, .wrap > #sendOptions,
+.landing-nav, .landing-copy, .landing-footer, .preview-label, .landing-details {
+    background: var(--card-surface, var(--paper));
+    color: var(--card-text, var(--ink));
+    overflow-wrap: anywhere;
+}
+.rsvp-card {
+    font-size: calc(1rem * var(--card-body-scale, 1));
+    line-height: var(--card-line-height, 1.6);
+    text-align: var(--card-alignment, center);
+}
+.rsvp-card h1, .rsvp-card h2 {
+    color: var(--card-heading, var(--ink));
+    font-size: calc(1.9rem * var(--card-heading-scale, 1));
+    line-height: var(--card-line-height, 1.6);
+}
+.rsvp-card h1 { font-size: calc(2.5rem * var(--card-heading-scale, 1)); }
+.page-head h1, .occasion-chooser h2, .landing-copy h1, .landing-details h2, .landing-details h3 {
+    color: var(--card-heading, var(--ink));
+}
+.rsvp-head, .invitation { text-align: var(--card-alignment, center); }
+.rsvp-head, .rsvp-section, .sample-invitation {
+    padding-left: var(--card-spacing, 24px);
+    padding-right: var(--card-spacing, 24px);
+}
+.rsvp-card .brand, .rsvp-card .rsvp-head > p:last-child,
+.page-head > p:last-child, .rsvp-card small, .rsvp-card .muted,
+.rsvp-card dt, .rsvp-card dd, .rsvp-card a:not(.rsvp-btn),
+.landing-nav a, .landing-copy .brand, .landing-footer a, .wrap > nav a,
+.occasion-chooser a, .page-head .brand {
+    color: inherit;
+}
+.rsvp-card a:not(.rsvp-btn) { text-decoration: underline; }
+#invitationText, #previewInvitationText {
+    background: transparent;
+    color: inherit;
+    border-color: currentColor;
+    font-size: inherit;
+    line-height: inherit;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+[data-copy] { white-space: pre-line; overflow-wrap: anywhere; }
+:focus-visible {
+    outline: 3px solid #fff;
+    outline-offset: 2px;
+    box-shadow: 0 0 0 5px #111;
+}
+.rsvp-card .error { color: inherit; font-weight: 700; }
+.field-error:empty { display: none; }
+.field-error { margin: -8px 0 16px; font-weight: 700; border-left: 4px solid currentColor; padding-left: 12px; }
+.appearance-status:not(:empty) { margin-top: 12px; }
+.appearance-status[data-state="error"] { font-weight: 700; border-left: 4px solid currentColor; padding-left: 12px; }
+.appearance-status[data-state="success"] { font-weight: 700; }
+.preview-note { margin-top: 12px; font-size: .9rem; }
+.appearance-preview .rsvp-btn { margin: 8px 4px; }
+.rsvp-card input, .rsvp-card select, .rsvp-card textarea { font-size: inherit; }
+.appearance-preview {
+    margin-top: 20px;
+    padding: 20px;
+    border-radius: 16px;
+    background: var(--category-image, var(--backdrop)) center / cover;
+}
+.appearance-preview > p { background: var(--card-surface); color: var(--card-text); padding: 12px; }
+details { margin: 20px 0; }
+summary { cursor: pointer; font-weight: 600; margin-bottom: 16px; }
+@media (max-width: 480px) {
+    .wrap { padding-right: 16px; padding-left: 16px; gap: 14px; }
+}
+/* Static HTML starts neutral, even before modules load or when JavaScript is unavailable.
+   Only decoration is withheld; content and controls remain visible and usable. */
+:is(body, .appearance-preview):is(.rsvp-theme-loading, .rsvp-theme-neutral) {
+    background-image: none !important;
+    background-color: #f5f5f5 !important;
+}
+.rsvp-theme-loading, .rsvp-theme-neutral {
+    --rsvp-banner-image: none;
+    --rsvp-banner-color: #f5f5f5;
+    --rsvp-symbol: none;
+}
+.rsvp-theme-ready {
+    --rsvp-banner-image: initial;
+    --rsvp-banner-color: initial;
+    --rsvp-symbol: initial;
+}
+/* While an invitation link loads, only a neutral card with the status message is shown: the stock
+   copy, default colours, decoration and occasion links never paint before the invitation's own. */
+.rsvp-invitation-pending .rsvp-card {
+    --rsvp-banner-image: none;
+    --rsvp-banner-color: #f5f5f5;
+    --rsvp-symbol: none;
+    background: #fff;
+    color: #222;
+    border-color: #ddd;
+    box-shadow: none;
+}
+.rsvp-invitation-pending .rsvp-card > :not(.rsvp-banner, #message),
+.rsvp-invitation-pending .wrap > :not(.rsvp-card) { display: none; }
+.rsvp-invitation-pending #message:empty::before { content: "Opening your invitation…"; }
