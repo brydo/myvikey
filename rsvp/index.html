@@ -3,76 +3,311 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="A little invitation to a lovely celebration. RSVP with V I Key®.">
-    <title>RSVP · V I Key®</title>
+    <meta name="description" content="Add V I Key® smart NFC tags to your paper invitations. Guests tap to RSVP instantly via WhatsApp or SMS, and you get an automated spreadsheet tracker.">
+    <title>Upgrade Your Invitations with Smart NFC Tags · V I Key®</title>
     <link rel="stylesheet" href="/rsvp/card.css">
+    <style>
+        :root {
+            --primary-gold: #d4af37;
+            --dark-charcoal: #1c1c1e;
+            --soft-bg: #faf9f6;
+            --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+            --transition: all 0.3s ease;
+        }
+
+        body {
+            background-color: var(--soft-bg);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            color: var(--dark-charcoal);
+            margin: 0;
+            padding: 0;
+        }
+
+        .wrap {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        /* High-Converting Sales Header */
+        .seller-hero {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .seller-hero .badge {
+            display: inline-block;
+            background: rgba(212, 175, 55, 0.12);
+            color: #b59226;
+            padding: 6px 16px;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 20px;
+        }
+
+        .seller-hero h1 {
+            font-size: 2.8rem;
+            font-weight: 800;
+            line-height: 1.2;
+            margin: 0 0 15px 0;
+        }
+
+        .seller-hero p.tagline {
+            font-size: 1.3rem;
+            color: #555;
+            max-width: 750px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        /* The 3-Step Process Flow */
+        .process-flow {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 25px;
+            margin: 50px 0 60px;
+        }
+
+        .step-card {
+            background: #fff;
+            padding: 35px 30px;
+            border-radius: 20px;
+            box-shadow: var(--card-shadow);
+            position: relative;
+            border: 1px solid rgba(0,0,0,0.02);
+        }
+
+        .step-card .step-num {
+            position: absolute;
+            top: 20px;
+            right: 25px;
+            font-size: 3rem;
+            font-weight: 900;
+            color: rgba(214, 175, 55, 0.15);
+            line-height: 1;
+        }
+
+        .step-card h3 {
+            margin: 0 0 12px 0;
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+
+        .step-card p {
+            margin: 0;
+            font-size: 0.95rem;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        /* Showcase Layout Styling */
+        .occasion-chooser {
+            background: #fff;
+            padding: 40px;
+            border-radius: 24px;
+            box-shadow: var(--card-shadow);
+            border: 1px solid rgba(0,0,0,0.02);
+            margin-bottom: 40px;
+        }
+
+        .occasion-chooser h2 {
+            font-size: 1.8rem;
+            margin: 0 0 10px 0;
+            font-weight: 700;
+            text-align: center;
+        }
+
+        .occasion-chooser p.desc {
+            color: #666;
+            margin: 0 0 35px 0;
+            line-height: 1.5;
+            text-align: center;
+        }
+
+        .theme-navigation {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 650px) {
+            .theme-navigation {
+                grid-template-columns: 1fr;
+            }
+            .seller-hero h1 { font-size: 2.2rem; }
+        }
+
+        .theme-navigation a {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 22px 25px;
+            background: var(--soft-bg);
+            color: var(--dark-charcoal);
+            text-decoration: none;
+            border-radius: 14px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: var(--transition);
+            border: 1px solid transparent;
+        }
+
+        .theme-navigation a::after {
+            content: "→";
+            font-size: 1.2rem;
+            transition: var(--transition);
+            color: var(--primary-gold);
+        }
+
+        .theme-navigation a:hover {
+            background: #fff;
+            border-color: var(--primary-gold);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(214, 175, 51, 0.1);
+        }
+
+        .theme-navigation a:hover::after {
+            transform: translateX(5px);
+        }
+
+        /* Contact Section */
+        .contact-showcase {
+            background: #fff;
+            padding: 40px;
+            border-radius: 24px;
+            box-shadow: var(--card-shadow);
+            border: 1px solid rgba(0,0,0,0.02);
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .contact-showcase h2 {
+            font-size: 1.8rem;
+            margin: 0 0 10px 0;
+            font-weight: 700;
+        }
+
+        .contact-showcase p {
+            color: #666;
+            margin: 0 0 30px 0;
+            line-height: 1.5;
+        }
+
+        .contact-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .contact-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 16px 32px;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .contact-btn.whatsapp {
+            background-color: #25D366;
+            color: #fff;
+        }
+
+        .contact-btn.whatsapp:hover {
+            background-color: #20ba5a;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(37, 211, 102, 0.2);
+        }
+
+        .contact-btn.sms {
+            background-color: var(--dark-charcoal);
+            color: #fff;
+        }
+
+        .contact-btn.sms:hover {
+            background-color: #333;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        .footer-nav {
+            text-align: center;
+            margin-top: 60px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .footer-nav a {
+            color: #999;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .footer-nav a:hover {
+            color: var(--primary-gold);
+        }
+    </style>
     <script>
-        // An invitation link must not paint the stock card first. rsvp.js clears this once the
-        // invitation, its category settings and image are ready; the timer bounds slow or failed loads.
         if (new URLSearchParams(location.search).get('id') || /^\/rsvp\/i\//.test(location.pathname)) {
             document.documentElement.classList.add('rsvp-invitation-pending');
-            setTimeout(function () { document.documentElement.classList.remove('rsvp-invitation-pending'); }, 8000);
+            setTimeout(function () {
+                document.documentElement.classList.remove('rsvp-invitation-pending');
+            }, 8000);
         }
     </script>
 </head>
 <body class="rsvp-theme-loading">
-    <main class="wrap">
-        <section class="rsvp-card" aria-labelledby="heading">
-            <div class="rsvp-banner" aria-hidden="true"></div>
-            <header class="rsvp-head">
-                <p class="brand" data-copy="brand">V I Key® · RSVP</p>
-                <h1 id="heading" data-copy="inviteHeading">You're invited.</h1>
-                <p class="eyebrow" data-copy="tagline">Together is a beautiful place to be</p>
-            </header>
-            <div class="rsvp-section invitation">
-                <p id="invitationText" data-copy="inviteText">Make room for a little celebration.
 
-A beautiful invitation, a special gathering, and the people who make it yours.</p>
-                <p id="invitationHelp" data-copy="inviteHelp">Have an invitation? Open the unique event link shared by your host to view the details and send your RSVP.</p>
-                <button id="openRsvp" data-copy="openRsvp" class="rsvp-btn primary" type="button" hidden>RSVP to this celebration</button>
+    <main class="wrap">
+        
+        <!-- Seller Headline -->
+        <header class="seller-hero">
+            <span class="badge">Upgrade Your Stationery</span>
+            <h1>Add Digital Intelligence to Your Paper Invites</h1>
+            <p class="tagline">Stick a custom V I Key® NFC tag onto your physical invitations. Give your guests a magical tap-to-RSVP experience, and receive an organized spreadsheet of all responses automatically.</p>
+        </header>
+
+        <!-- 3-Step Flow Explaining How it Works -->
+        <section class="process-flow">
+            <div class="step-card">
+                <div class="step-num">1</div>
+                <h3>Stick &amp; Send</h3>
+                <p>Hosts attach our small, elegant digital tags to their pre-made physical cards or invitations before posting them out.</p>
             </div>
-            <p id="message" class="rsvp-section" role="status" aria-live="polite"></p>
-            <form id="guestUnlock" class="rsvp-section" hidden>
-                <label for="guestPassword">Guest password</label>
-                <input id="guestPassword" name="password" type="password" autocomplete="off" required>
-                <button class="rsvp-btn primary" type="submit">Open invitation</button>
-            </form>
-            <form id="rsvpForm" class="rsvp-section" hidden>
-                <h2 data-copy="replyHeading">Your reply</h2>
-                <label for="name" data-copy="nameLabel">Name</label>
-                <input id="name" name="name" autocomplete="name" maxlength="100" required>
-                <label for="event" data-copy="eventLabel">Event</label>
-                <input id="event" name="event" maxlength="100" readonly required>
-                <label for="attending" data-copy="attendingLabel">Attending</label>
-                <select id="attending" name="attending" required>
-                    <option value="" data-copy="chooseLabel">Please choose</option>
-                    <option value="yes" data-copy="yesLabel">Yes</option>
-                    <option value="no" data-copy="noLabel">No</option>
-                </select>
-                <label for="guests" data-copy="guestsLabel">Guests</label>
-                <input id="guests" name="guests" type="number" min="0" max="100" step="1" value="0" aria-describedby="guestsHint" required>
-                <small id="guestsHint" data-copy="guestsHint">Additional guests, not including you. Use 0 if not attending.</small>
-                <label for="notes" data-copy="notesLabel">Notes (optional)</label>
-                <textarea id="notes" name="notes" rows="3" maxlength="1000"></textarea>
-                <button data-copy="saveReply" class="rsvp-btn primary" type="submit" disabled>Save RSVP &amp; choose how to send</button>
-                <p data-copy="saveHelp">Your reply will be saved here. You can then open WhatsApp or text/SMS to send it to your host yourself.</p>
-                <div id="sendOptions" hidden></div>
-            </form>
+            <div class="step-card">
+                <div class="step-num">2</div>
+                <h3>Tap to Reply</h3>
+                <p>Guests simply tap the tag with their smartphone to open their premium digital dashboard and instantly submit details via WhatsApp or SMS.</p>
+            </div>
+            <div class="step-card">
+                <div class="step-num">3</div>
+                <h3>Get Your Spreadsheet</h3>
+                <p>Every response is structured automatically. We generate and deliver a clean, comprehensive master spreadsheet straight to the host.</p>
+            </div>
         </section>
+
+        <!-- Main Layout Selection Showcase -->
         <section id="occasionChooser" class="occasion-chooser" aria-labelledby="occasionHeading">
-            <h2 id="occasionHeading" data-copy="occasionHeading">Every occasion, beautifully yours.</h2>
-            <p data-copy="occasionDescription">Explore a theme for your next celebration.</p>
-            <nav aria-label="Event themes">
-                <a href="/rsvp/events/">Events</a>
-                <a href="/rsvp/weddings/">Weddings</a>
-                <a href="/rsvp/parties/">Parties &amp; celebrations</a>
-                <a href="/rsvp/engagements/">Engagements</a>
+            <h2 id="occasionHeading" data-copy="occasionHeading">Choose your layout style.</h2>
+            <p class="desc" data-copy="occasionDescription">We configure custom landing page interactions engineered cleanly for your specific type of celebration:</p>
+            
+            <nav class="theme-navigation" aria-label="Event themes">
+                <a href="/rsvp/weddings/">💍 &nbsp; Weddings</a>
+                <a href="/rsvp/engagements/">✨ &nbsp; Engagements</a>
+                <a href="/rsvp/parties/">🎉 &nbsp; Parties &amp; Celebrations</a>
+                <a href="/rsvp/events/">💼 &nbsp; Corporate &amp; Special Events</a>
             </nav>
         </section>
-        <nav aria-label="RSVP navigation"><a href="/">V I Key®</a></nav>
-        <noscript><p>Please enable JavaScript to send your RSVP.</p></noscript>
-    </main>
-    <script src="/rsvp/card-render.js"></script>
-    <script type="module" src="/rsvp/rsvp.js"></script>
-</body>
-</html>
+
+        <!-- Premium Contact Section -->
+        <section class="contact-showcase">
+            <h2>Ready to Transform Your Event?</h2>
+            <p>Have questions or want to order custom digital tags for your invitations? Chat with us directly right now.</p>
+            <div class="contact-buttons">
