@@ -19,6 +19,27 @@
             background-image: var(--rsvp-landing-background) !important;
         }
     </style>
+    <style id="rsvp-landing-card">
+        /* Change these colours to restyle only the main landing-page box.
+           Remove this style block to restore the original themed box and flowers.
+           The background image, other pages and invitation links are unaffected. */
+        html.rsvp-landing .wrap > .rsvp-card {
+            --rsvp-landing-card-colour: #f7e6ec;
+            --rsvp-landing-card-text: #493439;
+            --rsvp-landing-card-heading: #493439;
+            --card-surface: var(--rsvp-landing-card-colour);
+            --card-text: var(--rsvp-landing-card-text);
+            --card-heading: var(--rsvp-landing-card-heading);
+            background: var(--rsvp-landing-card-colour);
+        }
+        html.rsvp-landing .wrap > .rsvp-card > .rsvp-banner {
+            background: var(--rsvp-landing-card-colour);
+        }
+        html.rsvp-landing .wrap > .rsvp-card > .rsvp-banner::before,
+        html.rsvp-landing .wrap > .rsvp-card > .rsvp-banner::after {
+            content: none;
+        }
+    </style>
     <script>
         // An invitation link must not paint the stock card first. rsvp.js clears this once the
         // invitation, its category settings and image are ready; the timer bounds slow or failed loads.
