@@ -1,1 +1,296 @@
-COMING SOON 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Petri's Menu</title>
+  <style>
+    :root {
+      --bg-dark: #121212;
+      --card-bg: #1e1e1e;
+      --border-color: #333333;
+      --text-main: #ffffff;
+      --text-sub: #b3b3b3;
+      --accent-color: #e50914;
+      --price-color: #ffb703;
+    }
+
+    body {
+      font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      max-width: 750px;
+      margin: 30px auto 0 auto;
+      padding: 0 15px;
+    }
+
+    .menu-header {
+      text-align: center;
+      margin-bottom: 25px;
+    }
+
+    /* Top Dead Centre SVG Logo Container */
+    .brand-logo-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .brand-logo-svg {
+      width: 220px;
+      height: auto;
+      max-width: 100%;
+    }
+
+    .menu-header h1 {
+      font-size: 28px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin: 0 0 5px 0;
+    }
+
+    .menu-header p {
+      color: var(--text-sub);
+      font-size: 14px;
+      margin: 0 0 10px 0;
+    }
+
+    /* Clickable Phone Number Styling */
+    .phone-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--price-color);
+      font-size: 16px;
+      font-weight: 700;
+      text-decoration: none;
+      transition: color 0.2s ease;
+      margin-top: 5px;
+    }
+
+    .phone-link:hover {
+      color: var(--accent-color);
+      text-decoration: underline;
+    }
+
+    .accordion {
+      background-color: var(--card-bg);
+      color: var(--text-main);
+      cursor: pointer;
+      padding: 16px 20px;
+      width: 100%;
+      border: 1px solid var(--border-color);
+      text-align: left;
+      font-size: 16px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      transition: all 0.2s ease-in-out;
+      margin-top: 10px;
+      border-radius: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .accordion:hover, .accordion.active {
+      background-color: #2a2a2a;
+      border-color: var(--accent-color);
+    }
+
+    .accordion-icon {
+      font-size: 18px;
+      color: var(--accent-color);
+      transition: transform 0.3s ease;
+    }
+
+    .accordion.active .accordion-icon {
+      transform: rotate(45deg);
+    }
+
+    .panel {
+      padding: 0 20px;
+      background-color: #181818;
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease-out;
+      border: 1px solid var(--border-color);
+      border-top: none;
+      border-bottom-left-radius: 8px;
+      border-bottom-right-radius: 8px;
+    }
+
+    .menu-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      padding: 12px 0;
+      border-bottom: 1px solid #282828;
+    }
+
+    .menu-item:last-child {
+      border-bottom: none;
+    }
+
+    .item-details {
+      padding-right: 15px;
+    }
+
+    .item-name {
+      font-size: 15px;
+      font-weight: 600;
+      display: block;
+      color: #fff;
+    }
+
+    .item-desc {
+      font-size: 12px;
+      color: var(--text-sub);
+      margin-top: 3px;
+      line-height: 1.4;
+    }
+
+    .item-price {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--price-color);
+      white-space: nowrap;
+    }
+
+    /* Persistent Footer */
+    footer {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background-color: #0d0c0a;
+      border-top: 1px solid var(--border-color);
+      padding: 15px 20px;
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      z-index: 1000;
+    }
+
+    .footer-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 16px;
+      line-height: 1;
+      text-decoration: none;
+      color: var(--text-main);
+      transition: color 0.3s;
+    }
+
+    .footer-btn .whatsapp-icon {
+      width: 1em;
+      height: 1em;
+      fill: #25D366;
+      display: inline-block;
+      vertical-align: middle;
+    }
+
+    .footer-btn .facebook-icon {
+      width: 1em;
+      height: 1em;
+      fill: #1877F2;
+      display: inline-block;
+      vertical-align: middle;
+    }
+
+    .footer-btn .instagram-icon {
+      width: 1em;
+      height: 1em;
+      fill: #E4405F;
+      display: inline-block;
+      vertical-align: middle;
+    }
+
+    .footer-btn .tiktok-icon {
+      width: 1em;
+      height: 1em;
+      fill: #e8e6e3;
+      display: inline-block;
+      vertical-align: middle;
+    }
+
+    .footer-btn .email-icon {
+      font-size: 1em;
+      display: inline-block;
+      line-height: 1;
+    }
+
+    .footer-btn:hover {
+      color: var(--price-color);
+    }
+
+    @media (max-width: 480px) {
+      footer {
+        gap: 20px;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        align-items: center;
+        justify-content: center;
+        padding: 10px;
+      }
+      body {
+        padding-bottom: 120px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="menu-header">
+    <!-- TOP DEAD CENTRE SVG LOGO -->
+    <div class="brand-logo-container">
+      <svg class="brand-logo-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 320">
+        <defs>
+          <style>
+            .brand-white { fill: #ffffff; }
+            .font-script { font-family: 'Brush Script MT', 'Pacifico', 'Caveat', cursive, sans-serif; font-weight: bold; }
+            .font-sub { font-family: 'Arial Black', 'Impact', sans-serif; font-weight: 900; letter-spacing: 7px; }
+          </style>
+        </defs>
+
+        <g transform="translate(300, 150)" text-anchor="middle">
+          <!-- Brick Oven Arch Top Accent -->
+          <g class="brand-white" transform="translate(0, -95)">
+            <!-- Keystone (Center) -->
+            <path d="M -18 -45 L 18 -45 L 14 -22 L -14 -22 Z" />
+            
+            <!-- Inner Left Bricks -->
+            <path d="M -23 -43 L -42 -37 L -34 -17 L -18 -21 Z" />
+            <path d="M -47 -34 L -62 -23 L -49 -6 L -37 -15 Z" />
+            <path d="M -66 -18 L -75 -2 L -58 10 L -52 -4 Z" />
+            <path d="M -77 4 L -80 22 L -61 26 L -60 9 Z" />
+
+            <!-- Inner Right Bricks -->
+            <path d="M 23 -43 L 42 -37 L 34 -17 L 18 -21 Z" />
+            <path d="M 47 -34 L 62 -23 L 49 -6 L 37 -15 Z" />
+            <path d="M 66 -18 L 75 -2 L 58 10 L 52 -4 Z" />
+            <path d="M 77 4 L 80 22 L 61 26 L 60 9 Z" />
+          </g>
+
+          <!-- Main Script Logo: Petri's -->
+          <text class="brand-white font-script" x="0" y="45" font-size="125" letter-spacing="-2">Petri's</text>
+
+          <!-- Subtitle: PIZZERIA X STREETFOOD -->
+          <text class="brand-white font-sub" x="4" y="88" font-size="15">PIZZERIA  X  STREETFOOD</text>
+        </g>
+      </svg>
+    </div>
+
+    <h1>Petri's Menu</h1>
+    <p>Fresh & Quality Street Food</p>
+    
+    <!-- HYPERLINKED TELEPHONE NUMBER -->
+    <a href="tel:01698682277" class="phone-link">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M6.62 10.79a15.053 15.053 0 006.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/>
+      </svg>
+      01698 682277
+    </a>
+  </div>
