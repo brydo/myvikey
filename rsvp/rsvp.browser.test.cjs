@@ -266,6 +266,43 @@ after(async () => {
     if (profile) try { rmSync(profile, { recursive: true, force: true, maxRetries: 10, retryDelay: 100 }); } catch { /* Best effort. */ }
 });
 
+test('the main landing background stays isolated, can be swapped in one setting and can be reverted', { skip }, async () => {
+    const image = 'https://pub-07ed0b0955a4401f9956c3ca7a33c40e.r2.dev/eventimage.jpg';
+    for (const viewport of [{ width: 390, height: 844 }, { width: 1440, height: 900 }]) {
+        await page('Emulation.setDeviceMetricsOverride', { ...viewport, deviceScaleFactor: 1, mobile: false });
+        for (const route of ['/rsvp/', '/rsvp/index.html', '/rsvp/?utm_source=share']) {
+            await open(route);
+            const background = await styles('body', ['backgroundImage', 'backgroundSize', 'backgroundPosition', 'backgroundRepeat']);
+            assert.deepEqual(background, { backgroundImage: 'url("' + image + '")',
+                backgroundSize: 'cover', backgroundPosition: '50% 50%', backgroundRepeat: 'no-repeat' });
+        }
+    }
+    await page('Emulation.clearDeviceMetricsOverride');
+    const card = await styles('.rsvp-card');
+    const banner = await styles('.rsvp-banner', ['backgroundImage']);
+    const heading = await styles('#heading', ['color', 'fontSize']);
+    for (const state of ['rsvp-theme-loading', 'rsvp-theme-neutral', 'rsvp-theme-ready']) {
+        await evaluate('document.body.className = ' + JSON.stringify(state) + '; return true;');
+        assert.equal((await styles('body', ['backgroundImage'])).backgroundImage, 'url("' + image + '")', state);
+    }
+    const replacement = 'https://example.com/replacement.jpg';
+    await evaluate('document.documentElement.style.setProperty("--rsvp-landing-background", ' +
+        JSON.stringify('url("' + replacement + '")') + '); return true;');
+    assert.equal((await styles('body', ['backgroundImage'])).backgroundImage, 'url("' + replacement + '")');
+    assert.deepEqual(await styles('.rsvp-card'), card);
+    assert.deepEqual(await styles('.rsvp-banner', ['backgroundImage']), banner);
+    assert.deepEqual(await styles('#heading', ['color', 'fontSize']), heading);
+    await evaluate('document.getElementById("rsvp-landing-background").remove(); return true;');
+    const restored = (await styles('body', ['backgroundImage'])).backgroundImage;
+    assert.match(restored, /radial-gradient/);
+    assert.ok(!restored.includes(image) && !restored.includes(replacement));
+    for (const route of ['/rsvp/?id=missing', '/rsvp/i/missing', '/rsvp/events/', '/rsvp/view', '/rsvp/admin']) {
+        await open(route);
+        assert.equal(await evaluate('return document.documentElement.classList.contains("rsvp-landing");'), false, route);
+        assert.ok(!(await styles('body', ['backgroundImage'])).backgroundImage.includes(image), route);
+    }
+});
+
 test('admin Save keeps the exact colours, previews them with real CSS and they survive a page reload', { skip }, async () => {
     await signIn('celebration');
     for (const type of categories) {

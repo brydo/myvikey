@@ -6,12 +6,27 @@
     <meta name="description" content="A little invitation to a lovely celebration. RSVP with V I Key®.">
     <title>RSVP · V I Key®</title>
     <link rel="stylesheet" href="/rsvp/card.css">
+    <style id="rsvp-landing-background">
+        /* Change only the URL below to swap the landing-page background.
+           Remove this style block to restore the original themed background.
+           Invitation links and other pages keep their existing backgrounds. */
+        html.rsvp-landing {
+            --rsvp-landing-background: url("https://pub-07ed0b0955a4401f9956c3ca7a33c40e.r2.dev/eventimage.jpg");
+        }
+        /* The landing image is independent of shared theme loading and failure states. */
+        html.rsvp-landing body,
+        html.rsvp-landing body:is(.rsvp-theme-loading, .rsvp-theme-neutral) {
+            background-image: var(--rsvp-landing-background) !important;
+        }
+    </style>
     <script>
         // An invitation link must not paint the stock card first. rsvp.js clears this once the
         // invitation, its category settings and image are ready; the timer bounds slow or failed loads.
         if (new URLSearchParams(location.search).get('id') || /^\/rsvp\/i\//.test(location.pathname)) {
             document.documentElement.classList.add('rsvp-invitation-pending');
             setTimeout(function () { document.documentElement.classList.remove('rsvp-invitation-pending'); }, 8000);
+        } else {
+            document.documentElement.classList.add('rsvp-landing');
         }
     </script>
 </head>
