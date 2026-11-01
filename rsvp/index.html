@@ -95,6 +95,7 @@ A beautiful invitation, a special gathering, and the people who make it yours.</
                 <div id="sendOptions" hidden></div>
             </form>
         </section>
+
         <section id="occasionChooser" class="occasion-chooser" aria-labelledby="occasionHeading">
             <h2 id="occasionHeading" data-copy="occasionHeading">Every occasion, beautifully yours.</h2>
             <p data-copy="occasionDescription">Explore a theme for your next celebration.</p>
@@ -105,10 +106,34 @@ A beautiful invitation, a special gathering, and the people who make it yours.</
                 <a href="/rsvp/engagements/">Engagements</a>
             </nav>
         </section>
+
         <nav aria-label="RSVP navigation"><a href="/">V I Key®</a></nav>
         <noscript><p>Please enable JavaScript to send your RSVP.</p></noscript>
     </main>
+
     <script src="/rsvp/card-render.js"></script>
     <script type="module" src="/rsvp/rsvp.js"></script>
+    <script>
+        (function () {
+            if (!document.documentElement.classList.contains('rsvp-landing')) return;
+
+            var landingCopy = {
+                '#heading': 'Bring everyone together.',
+                '.rsvp-head .eyebrow': 'Beautiful moments begin with an invitation.',
+                '#invitationText': 'Create a moment worth remembering with a thoughtful invitation and the people you love.',
+                '#invitationHelp': 'Already have an invitation? Open the personal link from your host to view the event details and RSVP.',
+                '#occasionHeading': 'Make your next occasion feel special.',
+                '[data-copy="occasionDescription"]': 'Explore a style for your celebration.'
+            };
+
+            Object.entries(landingCopy).forEach(function (entry) {
+                var element = document.querySelector(entry[0]);
+                if (element) {
+                    element.textContent = entry[1];
+                    element.removeAttribute('data-copy');
+                }
+            });
+        })();
+    </script>
 </body>
 </html>
