@@ -303,6 +303,55 @@ test('the main landing background stays isolated, can be swapped in one setting 
     }
 });
 
+test('the landing box is plain pastel, independently editable and reversible without changing layout or other surfaces', { skip }, async () => {
+    await open('/rsvp/');
+    const appearance = () => evaluate(`
+        const card = document.querySelector('.wrap > .rsvp-card');
+        const banner = card.querySelector('.rsvp-banner');
+        return {
+            card: getComputedStyle(card).backgroundColor,
+            text: getComputedStyle(card).color,
+            heading: getComputedStyle(card.querySelector('h1')).color,
+            banner: getComputedStyle(banner).backgroundColor,
+            image: getComputedStyle(banner).backgroundImage,
+            before: getComputedStyle(banner, '::before').content,
+            after: getComputedStyle(banner, '::after').content
+        };
+    `);
+    for (const state of ['rsvp-theme-loading', 'rsvp-theme-neutral', 'rsvp-theme-ready']) {
+        await evaluate('document.body.className = ' + JSON.stringify(state) + '; return true;');
+        assert.deepEqual(await appearance(), { card: rgb('#f7e6ec'), text: rgb('#493439'),
+            heading: rgb('#493439'), banner: rgb('#f7e6ec'), image: 'none', before: 'none', after: 'none' }, state);
+    }
+    const unchanged = () => evaluate(`
+        const card = document.querySelector('.wrap > .rsvp-card');
+        return {
+            width: card.getBoundingClientRect().width, height: card.getBoundingClientRect().height,
+            border: getComputedStyle(card).border, radius: getComputedStyle(card).borderRadius,
+            copy: card.innerText, background: getComputedStyle(document.body).backgroundImage,
+            chooser: getComputedStyle(document.getElementById('occasionChooser')).backgroundColor,
+            navigation: getComputedStyle(document.querySelector('.wrap > nav')).backgroundColor
+        };
+    `);
+    const before = await unchanged();
+    await evaluate('document.querySelector(".wrap > .rsvp-card").style.setProperty("--rsvp-landing-card-colour", "#e4edf7"); return true;');
+    assert.equal((await appearance()).card, rgb('#e4edf7'));
+    assert.equal((await appearance()).banner, rgb('#e4edf7'));
+    assert.deepEqual(await unchanged(), before);
+    await evaluate('document.getElementById("rsvp-landing-card").remove(); return true;');
+    assert.equal((await appearance()).card, rgb(model.defaultCardStyle('celebration').surface));
+    assert.match((await styles('.rsvp-banner', ['backgroundImage'])).backgroundImage, /gradient/);
+    assert.equal(await evaluate('return getComputedStyle(document.querySelector(".rsvp-banner"), "::before").content;'), '"❀"');
+    assert.deepEqual(await unchanged(), before);
+    for (const route of ['/rsvp/?id=missing', '/rsvp/i/missing', '/rsvp/events/', '/rsvp/view', '/rsvp/admin']) {
+        await open(route);
+        assert.equal(await evaluate('return getComputedStyle(document.body).getPropertyValue("--rsvp-landing-card-colour");'), '', route);
+        if (await evaluate('return !!document.querySelector(".rsvp-card");')) {
+            assert.equal(await evaluate('return getComputedStyle(document.querySelector(".rsvp-card")).getPropertyValue("--rsvp-landing-card-colour");'), '', route);
+        }
+    }
+});
+
 test('admin Save keeps the exact colours, previews them with real CSS and they survive a page reload', { skip }, async () => {
     await signIn('celebration');
     for (const type of categories) {
@@ -389,7 +438,8 @@ test('invitation, open RSVP button, form fields, receipt and landing pages rende
         assert.deepEqual(await styles('#sendOptions .rsvp-btn'), { backgroundColor: rgb(palette.surface),
             color: rgb(palette.textColor), borderTopColor: rgb(palette.buttonBorder) }, type + ' send button');
         await open(type === 'celebration' ? '/rsvp/' : '/rsvp/' + type + '/');
-        assert.equal((await styles('.rsvp-card', ['backgroundColor'])).backgroundColor, rgb(palette.surface), type + ' landing');
+        assert.equal((await styles('.rsvp-card', ['backgroundColor'])).backgroundColor,
+            rgb(type === 'celebration' ? '#f7e6ec' : palette.surface), type + ' landing');
         if (type !== 'celebration') {
             assert.equal((await styles('.landing-copy h1', ['color'])).color, rgb(palette.headingColor));
         }
