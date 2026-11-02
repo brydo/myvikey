@@ -2,9 +2,19 @@
 export async function onRequestPost({ request, env }) {
   try {
     const formData = await request.formData();
+
+    if (formData.get('_gotcha')) {
+      return new Response(JSON.stringify({ success: false, error: 'Invalid submission' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
     const data = {};
     for (const [key, value] of formData.entries()) {
-      data[key] = value;
+      if (key !== '_gotcha') {
+        data[key] = value;
+      }
     }
 
     const timestamp = new Date().toISOString();
