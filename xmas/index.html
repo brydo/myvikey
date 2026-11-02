@@ -1004,7 +1004,7 @@ In Your VI-Key®</p>
             });
         });
 
-        // --- Form submit: decrement stock then submit to our own API ---
+        // --- Form submit: submit the order, then decrement stock ---
         form.addEventListener('submit', async function(e) {
             e.preventDefault();
 
@@ -1018,7 +1018,6 @@ In Your VI-Key®</p>
             submitBtn.disabled = true;
             submitBtn.textContent = 'Submitting...';
 
-            // Collect selected tags with quantities
             const selectedTagIds = [];
             const orderItems = [];
             tagOptionLabels.forEach((label) => {
@@ -1027,32 +1026,13 @@ In Your VI-Key®</p>
                 if (checkbox.checked && !checkbox.disabled) {
                     const qty = parseInt(qtyInput.value) || 1;
                     const tagId = label.dataset.tag;
-                    for (let i = 0; i < qty; i++) {
-                        selectedTagIds.push(tagId);
-                    }
-                    orderItems.push({
-                        tag: tagId,
-                        name: checkbox.value,
-                        qty: qty
-                    });
+                    for (let i = 0; i < qty; i++) selectedTagIds.push(tagId);
+                    orderItems.push({ tag: tagId, name: checkbox.value, qty });
                 }
             });
 
-            // Decrement stock in KV
-            try {
-                await fetch('/api/order', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ tags: selectedTagIds })
-                });
-            } catch (err) {
-                console.log('Stock update failed, continuing with submission');
-            }
-
-            // Submit form to our own /api/submit endpoint
             try {
                 const formData = new FormData(form);
-                // Add order items as JSON
                 formData.append('order_items', JSON.stringify(orderItems));
                 formData.append('order_total', orderTotal ? orderTotal.textContent : '');
 
@@ -1062,6 +1042,18 @@ In Your VI-Key®</p>
                 });
 
                 if (response.ok) {
+                    try {
+                        const stockResponse = await fetch('/api/order', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ tags: selectedTagIds })
+                        });
+                        if (!stockResponse.ok) {
+                            console.error('Stock update failed:', stockResponse.status);
+                        }
+                    } catch (err) {
+                        console.error('Stock update failed:', err);
+                    }
                     window.location.href = '/xmas/thanks.html';
                 } else {
                     alert('Something went wrong. Please try again.');
