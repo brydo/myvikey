@@ -30,6 +30,7 @@
                 <p>Each saved invitation has its own code and replies, even when event themes or titles match.</p>
                 <p>Deleting an event disables its shared invitation link. Choose whether to keep its replies or delete them too. Kept replies remain under All events and in exports. Deletions are permanent; export a backup first if needed.</p>
                 <button id="exportAll" class="rsvp-btn" type="button">Export all events (.xlsx)</button>
+                <div id="summary" class="rsvp-section" role="status"></div>
                 <div id="events" class="events-list"></div>
                 <div id="deletionJobs" role="status"></div>
                 <label for="replyEvent">Show replies for</label>
@@ -56,6 +57,8 @@
                 </select>
                 <label for="title">Event title</label>
                 <input id="title" name="title" maxlength="100" required>
+                <label for="invitesSent">Total invites sent</label>
+                <input id="invitesSent" name="invitesSent" type="number" min="0" max="100000" step="1" value="0">
                 <label for="text">Invitation text</label>
                 <textarea id="text" name="text" class="invitation-editor" rows="9" maxlength="5000" placeholder="You're warmly invited…&#10;&#10;Add the date, time, venue and a little something special." required></textarea>
                 <label for="whatsapp">Host WhatsApp number (optional)</label>

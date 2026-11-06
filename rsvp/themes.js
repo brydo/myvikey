@@ -38,6 +38,7 @@ export const copyFields = {
     attendingLabel: { label: 'Attending label', max: 100, default: 'Attending', required: true },
     chooseLabel: { label: 'Choose label', max: 100, default: 'Please choose', required: true },
     yesLabel: { label: 'Yes label', max: 100, default: 'Yes', required: true },
+    maybeLabel: { label: 'Maybe label', max: 100, default: 'Maybe', required: true },
     noLabel: { label: 'No label', max: 100, default: 'No', required: true },
     guestsLabel: { label: 'Guests label', max: 100, default: 'Guests', required: true },
     guestsHint: { label: 'Guests hint', max: 1000, default: 'Additional guests, not including you. Use 0 if not attending.' },
