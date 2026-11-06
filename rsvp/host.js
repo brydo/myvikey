@@ -1,3 +1,5 @@
+import './theme-client.js';
+
 (function () {
     'use strict';
 
@@ -7,6 +9,15 @@
     var cursor = '';
     var loadVersion = 0;
     var $ = function (id) { return document.getElementById(id); };
+    var pathTypes = { wedding: 'weddings', weddings: 'weddings', event: 'events', events: 'events', party: 'parties',
+        parties: 'parties', engagement: 'engagements', engagements: 'engagements', celebration: 'celebration', celebrations: 'celebration' };
+    var pathType = /^\/rsvp\/([a-z]+)\/hostlogin/.exec(window.location.pathname || '');
+    var params = new URLSearchParams(window.location.search);
+    function pathTheme() { return (pathType && pathTypes[pathType[1]]) || params.get('type'); }
+    function applyTheme(type) {
+        window.RSVPThemes.apply(document.body, window.RSVPThemes.theme(type));
+    }
+    applyTheme(pathTheme());
     var labels = { yes: 'Going', maybe: 'Maybe', no: 'Not going' };
 
     function status(text, error) {
@@ -39,6 +50,7 @@
         $('more').hidden = true;
         $('hostLogin').hidden = false;
         $('hostPassword').value = '';
+        applyTheme(pathTheme());
     }
 
     function render() {
@@ -75,6 +87,7 @@
                 if (token !== session || version !== loadVersion) return;
                 next = data.cursor || '';
                 invitation = data.invitation;
+                applyTheme(invitation.eventType);
                 replies = replies.concat(data.responses);
             } while (next && !data.responses.length);
             cursor = next;
@@ -137,6 +150,6 @@
     $('hostXlsx').addEventListener('click', function () { download('xlsx'); });
     $('hostLogout').addEventListener('click', function () { logout(); status('Signed out.'); });
 
-    var preset = new URLSearchParams(window.location.search).get('id');
+    var preset = params.get('id');
     if (preset) $('hostEvent').value = preset;
 })();
