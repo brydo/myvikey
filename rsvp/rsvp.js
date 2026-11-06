@@ -736,6 +736,8 @@ import { invitationId, invitationPath } from './invitation-id.js';
         status('');
     }
 
+    var groups = new Map();
+
     async function load(append) {
         var session = token;
         var version = ++loadVersion;
@@ -744,6 +746,7 @@ import { invitationId, invitationPath } from './invitation-id.js';
         if (!append) {
             cursor = '';
             responses.replaceChildren();
+            groups = new Map();
         }
         more.hidden = true;
         status('Loading responses…');
@@ -757,13 +760,23 @@ import { invitationId, invitationPath } from './invitation-id.js';
                 payload.cursor = data.cursor || '';
             } while (!data.responses.length && payload.cursor);
             data.responses.forEach(function (response) {
+                var key = response.eventId || 'unassigned';
+                var group = groups.get(key);
+                if (!group) {
+                    group = document.createElement('section');
+                    group.className = 'response-group';
+                    var groupHeading = document.createElement('h3');
+                    groupHeading.textContent = response.event;
+                    group.appendChild(groupHeading);
+                    groups.set(key, group);
+                    responses.appendChild(group);
+                }
                 var line = document.createElement('article');
                 line.className = 'response';
                 var summary = document.createElement('p');
-                summary.textContent = response.name + ' — ' + ({ yes: 'Going', maybe: 'Maybe' }[response.attending] || 'Not going') +
-                    (!replyEvent.value ? ' · ' + response.event : '');
+                summary.textContent = response.name + ' — ' + ({ yes: 'Going', maybe: 'Maybe' }[response.attending] || 'Not going');
                 line.appendChild(summary);
-                responses.appendChild(line);
+                group.appendChild(line);
                 var button = document.createElement('button');
                 button.type = 'button';
                 button.className = 'rsvp-btn';
@@ -772,11 +785,11 @@ import { invitationId, invitationPath } from './invitation-id.js';
                     return remove('delete-reply', response.id,
                         'Permanently delete the reply from "' + response.name + '" for "' + response.event + '"? This cannot be undone.');
                 });
-                responses.children[responses.children.length - 1].appendChild(button);
+                line.appendChild(button);
             });
             cursor = data.cursor || '';
             more.hidden = !cursor;
-            status(responses.children.length ? 'Responses loaded.' : 'No RSVPs yet.');
+            status(responses.querySelector('.response') ? 'Responses loaded.' : 'No RSVPs yet.');
         } catch (error) {
             if (token !== session || version !== loadVersion) return;
             if (error.status === 401) logout();
