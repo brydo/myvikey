@@ -77,7 +77,7 @@
                 throw new Error(data.error || 'Something went wrong. Please try again.');
             }
             feedback.className = 'form-feedback success';
-            feedback.textContent = 'Thank you! Your order request has been sent. We\u2019ll be in touch within 24 hours to confirm your package and next steps.';
+            feedback.textContent = 'Thank you! Your order request has been sent. We\u2019ll be in touch within 72 hours to confirm your package and next steps.';
             form.reset();
         } catch (error) {
             feedback.className = 'form-feedback error';
