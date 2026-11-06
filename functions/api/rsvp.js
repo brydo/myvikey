@@ -5,12 +5,37 @@ import { validInvitationId, invitationId, generateInvitationId } from '../../rsv
 const PREFIX = 'rsvp:';
 const INVITATIONS = 'rsvp-invitation:';
 const GUEST_SESSIONS = 'rsvp-guest-session:';
+const HOST_SESSIONS = 'rsvp-host-session:';
+const HOST_SESSION_SECONDS = 30 * 60;
 const validId = validInvitationId;
 
 function invitationDTO(invitation, id) {
   const { title, text, whatsapp = '', sms = '', invitesSent = 0 } = invitation;
   return { id, eventType: theme(invitation.eventType),
-    title, text, whatsapp, sms, invitesSent, passwordProtected: !!invitation.guestPasswordHash };
+    title, text, whatsapp, sms, invitesSent, passwordProtected: !!invitation.guestPasswordHash,
+    hostPasswordProtected: !!invitation.hostPasswordHash };
+}
+
+function validPassword(value) {
+  return typeof value === 'string' && [...value].length >= 8 && !!value.trim() &&
+    new TextEncoder().encode(value).length <= 72;
+}
+
+// A host token is valid only for the one event and host password it was issued for.
+async function hostAccess(env, request) {
+  const token = request.headers.get('x-rsvp-host-token');
+  if (!token || !/^[a-f0-9]{64}$/.test(token)) return null;
+  const raw = await env.FORM_SUBMISSIONS.get(HOST_SESSIONS + token);
+  if (!raw) return null;
+  const session = JSON.parse(raw);
+  if (session.scope !== 'rsvp-host' || !validId(session.invitationId) ||
+      !Number.isFinite(session.expiresAt) || session.expiresAt <= Date.now()) return null;
+  const invitationRaw = await env.FORM_SUBMISSIONS.get(INVITATIONS + session.invitationId);
+  if (!invitationRaw) return null;
+  const invitation = JSON.parse(invitationRaw);
+  if (!invitation.hostPasswordHash || invitation.hostPasswordHash !== session.protection ||
+      invitation.hostPasswordRevision !== session.revision) return null;
+  return { id: session.invitationId, invitation };
 }
 
 async function guestAccess(env, request, invitation, id) {
@@ -68,7 +93,7 @@ export async function onRequestPost({ request, env }) {
     if (body.cursor !== undefined && (typeof body.cursor !== 'string' || body.cursor.length > 2048)) {
       return reply({ success: false, error: 'Invalid cursor' }, 400);
     }
-  } else if (!['submit', 'get-invitation', 'unlock-invitation', 'get-appearance'].includes(body.action)) {
+  } else if (!['submit', 'get-invitation', 'unlock-invitation', 'get-appearance', 'host-login', 'host-list'].includes(body.action)) {
     return reply({ success: false, error: 'Unknown action' }, 400);
   }
 
@@ -183,8 +208,72 @@ export async function onRequestPost({ request, env }) {
         delete invitation.guestPasswordHash;
         invitation.guestPasswordRevision = crypto.randomUUID();
       }
+      if ((body.hostPassword !== undefined && typeof body.hostPassword !== 'string') ||
+          (body.removeHostPassword !== undefined && typeof body.removeHostPassword !== 'boolean') ||
+          (body.removeHostPassword && body.hostPassword)) {
+        return reply({ success: false, error: 'Choose a new host password or remove host access, not both.' }, 400);
+      }
+      if (body.hostPassword) {
+        if (!validPassword(body.hostPassword)) {
+          return reply({ success: false, error: 'Host passwords need at least 8 characters, including a non-space character, and at most 72 UTF-8 bytes. Blank keeps the existing password unchanged.' }, 400);
+        }
+        if (!env.RATE_LIMIT) {
+          return reply({ success: false, error: 'Host authentication is unavailable.' }, 503);
+        }
+        invitation.hostPasswordHash = await hashPassword(body.hostPassword);
+        invitation.hostPasswordRevision = crypto.randomUUID();
+      } else if (body.removeHostPassword) {
+        delete invitation.hostPasswordHash;
+        invitation.hostPasswordRevision = crypto.randomUUID();
+      }
       await env.FORM_SUBMISSIONS.put(INVITATIONS + id, JSON.stringify(invitation));
       return reply({ success: true, invitation: invitationDTO(invitation, id) });
+    }
+    if (body.action === 'host-login') {
+      if (!env.RATE_LIMIT) {
+        return reply({ success: false, error: 'Host authentication is unavailable.' }, 503);
+      }
+      const id = invitationId(body.id);
+      const bucket = 'rsvp-host:' + (request.headers.get('CF-Connecting-IP') || 'unknown');
+      const rateReply = limit => reply({ success: false, error: 'Too many failed attempts. Try again later.' },
+        429, { 'Retry-After': String(Math.max(1, Math.ceil((limit.lockedUntil - Date.now()) / 1000))) });
+      const limit = await checkRateLimit(env, bucket);
+      if (!limit.allowed) return rateReply(limit);
+      const raw = id ? await env.FORM_SUBMISSIONS.get(INVITATIONS + id) : null;
+      const invitation = raw ? JSON.parse(raw) : null;
+      if (!invitation || !invitation.hostPasswordHash || typeof body.password !== 'string' ||
+          !body.password || new TextEncoder().encode(body.password).length > 72 ||
+          !await verifyPassword(body.password, invitation.hostPasswordHash)) {
+        const failed = await recordFailedAttempt(env, bucket);
+        if (failed.lockedUntil) return rateReply(failed);
+        return reply({ success: false, error: 'Incorrect event code or host password.' }, 401);
+      }
+      const token = generateSessionToken();
+      const expiresAt = Date.now() + HOST_SESSION_SECONDS * 1000;
+      await env.FORM_SUBMISSIONS.put(HOST_SESSIONS + token, JSON.stringify({
+        scope: 'rsvp-host', invitationId: id, protection: invitation.hostPasswordHash,
+        revision: invitation.hostPasswordRevision, expiresAt
+      }), { expirationTtl: HOST_SESSION_SECONDS });
+      return reply({ success: true, hostToken: token, expiresAt });
+    }
+    if (body.action === 'host-list') {
+      const host = await hostAccess(env, request);
+      if (!host) return reply({ success: false, error: 'Unauthorized' }, 401);
+      if (body.cursor !== undefined && (typeof body.cursor !== 'string' || body.cursor.length > 2048)) {
+        return reply({ success: false, error: 'Invalid cursor' }, 400);
+      }
+      const page = await env.FORM_SUBMISSIONS.list({ prefix: PREFIX, limit: 50, cursor: body.cursor || undefined });
+      const records = await Promise.all(page.keys.map(key => env.FORM_SUBMISSIONS.get(key.name)));
+      const responses = records.map(raw => raw ? JSON.parse(raw) : null)
+        .filter(item => item && item.eventId === host.id)
+        .map(({ name, event, attending, guests, notes, createdAt }) => ({
+          name, event, attending, guests, notes: notes || '', createdAt, eventId: host.id
+        }));
+      const { title, eventType, invitesSent = 0 } = host.invitation;
+      return reply({
+        success: true, invitation: { id: host.id, title, eventType: theme(eventType), invitesSent },
+        responses, cursor: page.list_complete ? '' : page.cursor
+      });
     }
     if (body.action === 'get-invitation' || body.action === 'unlock-invitation') {
       const id = invitationId(body.id);

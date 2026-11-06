@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex">
+    <title>Host login · V I Key®</title>
+    <link rel="stylesheet" href="/rsvp/card.css">
+    <style>
+        .host-table { width: 100%; border-collapse: collapse; }
+        .host-table th, .host-table td { text-align: left; padding: .4rem .5rem; border-bottom: 1px solid #ccc; vertical-align: top; }
+        @media print {
+            #hostLogin, #hostActions, #more, nav, #message { display: none !important; }
+            body { background: #fff !important; }
+        }
+    </style>
+</head>
+<body class="rsvp-theme-loading">
+    <main class="wrap">
+        <section class="rsvp-card">
+            <header class="rsvp-head">
+                <p class="brand">V I Key® · RSVP</p>
+                <h1>Host login</h1>
+                <p>Sign in with your event code and host password to see the replies to your event.</p>
+            </header>
+            <form id="hostLogin" class="rsvp-section">
+                <label for="hostEvent">Event code</label>
+                <input id="hostEvent" maxlength="36" autocomplete="off" required>
+                <label for="hostPassword">Host password</label>
+                <input id="hostPassword" type="password" autocomplete="current-password" required>
+                <button class="rsvp-btn primary" type="submit">Sign in</button>
+            </form>
+            <div id="hostActions" class="rsvp-section" hidden>
+                <button id="hostRefresh" class="rsvp-btn" type="button">Refresh</button>
+                <button id="hostPrint" class="rsvp-btn" type="button">Print</button>
+                <button id="hostCsv" class="rsvp-btn" type="button">Download (.csv)</button>
+                <button id="hostXlsx" class="rsvp-btn" type="button">Download (.xlsx)</button>
+                <button id="hostLogout" class="rsvp-btn" type="button">Sign out</button>
+            </div>
+            <section id="hostResults" class="rsvp-section" hidden>
+                <h2 id="hostTitle"></h2>
+                <p id="hostSummary" role="status"></p>
+                <table class="host-table">
+                    <thead><tr><th>Name</th><th>Reply</th><th>Guests</th><th>Notes</th></tr></thead>
+                    <tbody id="hostRows"></tbody>
+                </table>
+            </section>
+            <p id="message" class="rsvp-section" role="status" aria-live="polite"></p>
+        </section>
+        <button id="more" class="rsvp-btn" type="button" hidden>Load more</button>
+        <nav aria-label="RSVP navigation"><a href="/rsvp/">Back to RSVP</a></nav>
+        <noscript><p>Please enable JavaScript to sign in.</p></noscript>
+    </main>
+    <script src="/rsvp/export.js"></script>
+    <script type="module" src="/rsvp/host.js"></script>
+</body>
+</html>
