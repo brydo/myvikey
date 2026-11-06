@@ -13,6 +13,8 @@ var settingsState = 'loading';
 var categoryState = 'ready';
 var categoryRevision = 0;
 var backgrounds = new WeakMap();
+// Per-event background overrides, keyed by the root they were applied to.
+var eventBackgrounds = new Map();
 
 function surface(root, state) {
     root.classList.toggle(loadingClass, state === 'loading');
@@ -60,7 +62,8 @@ function backgroundReady(root, url) {
 
 function refreshBackground() {
     var type = targets.get(document.body);
-    return backgroundReady(document.body, appearances[theme(type)].backgroundImage);
+    var eventBackground = eventBackgrounds.get(document.body);
+    return backgroundReady(document.body, eventBackground || appearances[theme(type)].backgroundImage);
 }
 
 // Invitation lookup owns the final category; a URL hint or saved receipt is provisional.
@@ -108,8 +111,18 @@ function paint(root, type, settings) {
 function apply(root, type) {
     type = theme(type);
     targets.set(root, type);
-    if (root === document.body) backgroundReady(root, appearances[type].backgroundImage);
-    paint(root, type, appearances[type]);
+    var settings = appearances[type];
+    var eventBackground = eventBackgrounds.get(root);
+    // An event override swaps only the background; the category's copy and card style stay.
+    if (eventBackground) settings = Object.assign({}, settings, { backgroundImage: eventBackground });
+    if (root === document.body) backgroundReady(root, settings.backgroundImage);
+    paint(root, type, settings);
+}
+
+// Lets one event override the category background without affecting other events.
+function applyEvent(root, type, eventBackground) {
+    eventBackgrounds.set(root, eventBackground || '');
+    apply(root, type);
 }
 
 // Settings this browser saved successfully. KV edge reads can lag a save by about a minute,
@@ -196,7 +209,7 @@ async function load() {
 }
 
 window.RSVPThemes = {
-    theme: theme, apply: apply, update: update, load: load, beginCategory: beginCategory,
+    theme: theme, apply: apply, applyEvent: applyEvent, update: update, load: load, beginCategory: beginCategory,
     background: function (type) { return appearances[theme(type)].backgroundImage; },
     settings: function (type) { return appearances[theme(type)]; },
     copy: function (type, key) { return appearances[theme(type)].copy[key]; },

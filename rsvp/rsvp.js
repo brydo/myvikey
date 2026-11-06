@@ -9,9 +9,13 @@ import { invitationId, invitationPath } from './invitation-id.js';
         return window.RSVPThemes.theme(type);
     }
 
-    function applyTheme(type) {
+    function applyTheme(type, eventBackground) {
         type = theme(type);
-        window.RSVPThemes.apply(document.body, type);
+        if (eventBackground) {
+            window.RSVPThemes.applyEvent(document.body, type, eventBackground);
+        } else {
+            window.RSVPThemes.apply(document.body, type);
+        }
     }
 
     function status(text, error) {
@@ -82,7 +86,7 @@ import { invitationId, invitationPath } from './invitation-id.js';
                 // These two fields belong to this invitation, never the category.
                 document.getElementById('heading').removeAttribute('data-copy');
                 document.getElementById('invitationText').removeAttribute('data-copy');
-                applyTheme(invitation.eventType);
+                applyTheme(invitation.eventType, invitation.backgroundImage);
                 var themed = finishInvitationTheme(true);
                 document.getElementById('heading').textContent = invitation.title;
                 document.getElementById('invitationText').textContent = invitation.text;
@@ -422,6 +426,7 @@ import { invitationId, invitationPath } from './invitation-id.js';
         ['id', 'title', 'text', 'whatsapp', 'sms'].forEach(function (field) {
             editor.elements[field].value = invitation[field] || '';
         });
+        editor.elements.eventBackground.value = invitation.backgroundImage || '';
         editor.elements.invitesSent.value = invitation.invitesSent || 0;
         editor.elements.eventType.value = theme(invitation.eventType);
         if (editor.elements.guestPassword) editor.elements.guestPassword.value = '';
@@ -462,6 +467,7 @@ import { invitationId, invitationPath } from './invitation-id.js';
         ['title', 'text', 'whatsapp', 'sms'].forEach(function (field) {
             payload[field] = editor.elements[field].value.trim();
         });
+        payload.backgroundImage = editor.elements.eventBackground.value.trim();
         payload.invitesSent = Number(editor.elements.invitesSent.value) || 0;
         if (editor.elements.id.value.trim()) payload.id = editor.elements.id.value.trim();
         if (editor.elements.guestPassword && editor.elements.guestPassword.value) {

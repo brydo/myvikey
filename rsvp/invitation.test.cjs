@@ -53,7 +53,7 @@ async function save(app, fields = {}) {
     assert.equal(response.status, 200, await response.clone().text());
     const data = await response.json();
     assert.deepEqual(Object.keys(data.invitation).sort(),
-        ['id', 'eventType', 'title', 'text', 'whatsapp', 'sms', 'invitesSent', 'passwordProtected', 'hostPasswordProtected'].sort());
+        ['id', 'eventType', 'title', 'text', 'whatsapp', 'sms', 'invitesSent', 'backgroundImage', 'passwordProtected', 'hostPasswordProtected'].sort());
     return data.invitation;
 }
 
@@ -111,6 +111,23 @@ test('creation fails closed if collision checks or invitation writes fail', asyn
         assert.equal(response.status, 500);
         assert.doesNotMatch(await response.text(), /private storage detail/);
         assert.equal(app.env.FORM_SUBMISSIONS.writes.length, 0);
+    }
+});
+
+test('per-event background images round-trip, survive omission and reject unsafe values', async () => {
+    const app = api();
+    const url = 'https://images.example.com/wedding-bg.jpg';
+    assert.equal((await save(app)).backgroundImage, '');
+    const event = await save(app, { backgroundImage: url });
+    assert.equal(event.backgroundImage, url);
+    const stored = JSON.parse(app.env.FORM_SUBMISSIONS.records.get('rsvp-invitation:' + event.id));
+    assert.equal(stored.backgroundImage, url);
+    const renamed = await save(app, { id: event.id, title: 'Renamed party' });
+    assert.equal(renamed.backgroundImage, url, 'Omitting backgroundImage keeps the saved value');
+    const cleared = await save(app, { id: event.id, backgroundImage: '' });
+    assert.equal(cleared.backgroundImage, '');
+    for (const backgroundImage of ['http://example.com/x.jpg', 'javascript:alert(1)', 'https://exa mple.com/x.jpg', 'https://' + 'x'.repeat(2041), 42]) {
+        assert.equal((await app.post({ ...invitation, backgroundImage }, { admin: true })).status, 400, String(backgroundImage));
     }
 });
 

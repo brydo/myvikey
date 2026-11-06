@@ -1,5 +1,5 @@
 import { validateSession, hashPassword, verifyPassword, generateSessionToken, checkRateLimit, recordFailedAttempt } from '../lib/auth.js';
-import { eventTypes, theme, normalizeAppearance, validateAppearance, styleIssues } from '../../rsvp/themes.js';
+import { eventTypes, theme, normalizeAppearance, validateAppearance, styleIssues, safeBackground } from '../../rsvp/themes.js';
 import { validInvitationId, invitationId, generateInvitationId } from '../../rsvp/invitation-id.js';
 
 const PREFIX = 'rsvp:';
@@ -10,9 +10,10 @@ const HOST_SESSION_SECONDS = 30 * 60;
 const validId = validInvitationId;
 
 function invitationDTO(invitation, id) {
-  const { title, text, whatsapp = '', sms = '', invitesSent = 0 } = invitation;
+  const { title, text, whatsapp = '', sms = '', invitesSent = 0, backgroundImage = '' } = invitation;
   return { id, eventType: theme(invitation.eventType),
-    title, text, whatsapp, sms, invitesSent, passwordProtected: !!invitation.guestPasswordHash,
+    title, text, whatsapp, sms, invitesSent, backgroundImage,
+    passwordProtected: !!invitation.guestPasswordHash,
     hostPasswordProtected: !!invitation.hostPasswordHash };
 }
 
@@ -67,6 +68,10 @@ function invitationFields(body) {
   if (!result.title || !result.text) return null;
   if (result.whatsapp && !/^\+[1-9]\d{7,14}$/.test(result.whatsapp)) return null;
   if (result.sms && !/^\+[1-9]\d{7,14}$/.test(result.sms)) return null;
+  if (body.backgroundImage !== undefined) {
+    if (typeof body.backgroundImage !== 'string' || !safeBackground(body.backgroundImage)) return null;
+    result.backgroundImage = body.backgroundImage;
+  }
   return result;
 }
 

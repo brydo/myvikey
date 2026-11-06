@@ -72,6 +72,9 @@
                 <label for="sms">Host text/SMS number (optional)</label>
                 <input id="sms" name="sms" type="tel" maxlength="16" pattern="\+[1-9][0-9]{7,14}" placeholder="+447700900123" aria-describedby="contactHint">
                 <p id="contactHint">Use international WhatsApp and text/SMS numbers beginning with +, without spaces. Enter each separately. Leave either channel blank to hide it; with neither configured, guests can still save an RSVP. Older email-only invitations need a text number added here to enable SMS.</p>
+                <label for="eventBackground">Event background image URL (optional, HTTPS)</label>
+                <input id="eventBackground" name="eventBackground" type="url" maxlength="2048" placeholder="https://example.com/wedding-bg.jpg" aria-describedby="eventBackgroundHint">
+                <p id="eventBackgroundHint">Set a background image for this specific event. Leave blank to use the category default. Use a trusted, publicly accessible HTTPS image URL.</p>
                 <p id="guestProtectionStatus" role="status"></p>
                 <label for="newGuestPassword">Set or change guest password (optional)</label>
                 <input id="newGuestPassword" name="guestPassword" type="password" minlength="8" autocomplete="new-password" aria-describedby="guestPasswordHint">
