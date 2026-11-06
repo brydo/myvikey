@@ -250,6 +250,8 @@ import { invitationId, invitationPath } from './invitation-id.js';
     var events = document.getElementById('events');
     var replyEvent = document.getElementById('replyEvent');
     var invitations = [];
+    var pendingInvitations = new Map();
+    var refreshVersion = 0;
     var loadVersion = 0;
     var deleting = false;
     var cleanupJobs = [];
@@ -496,8 +498,13 @@ import { invitationId, invitationPath } from './invitation-id.js';
             var data = await post('/api/rsvp', payload, session);
             if (token !== session) return;
             showInvitation(data.invitation);
+            pendingInvitations.set(data.invitation.id, data.invitation);
             var index = invitations.findIndex(function (item) { return item.id === data.invitation.id; });
-            var updated = Object.assign({}, data.invitation, { replyCount: index < 0 ? 0 : invitations[index].replyCount });
+            var counts = index < 0 ? { replyCount: 0, yesCount: 0, maybeCount: 0, noCount: 0 } : {
+                replyCount: invitations[index].replyCount, yesCount: invitations[index].yesCount,
+                maybeCount: invitations[index].maybeCount, noCount: invitations[index].noCount
+            };
+            var updated = Object.assign({}, data.invitation, counts);
             if (index < 0) invitations.push(updated);
             else invitations[index] = updated;
             renderEvents();
@@ -556,6 +563,11 @@ import { invitationId, invitationPath } from './invitation-id.js';
             var code = document.createElement('p');
             code.textContent = 'Invite code: ' + item.id;
             row.appendChild(code);
+            if (pendingInvitations.has(item.id)) {
+                var pending = document.createElement('p');
+                pending.textContent = 'Recently saved; it may take a short time to appear after signing in again.';
+                row.appendChild(pending);
+            }
             var link = document.createElement('a');
             link.href = window.location.origin + invitationPath(item.id);
             link.textContent = link.href;
@@ -623,6 +635,8 @@ import { invitationId, invitationPath } from './invitation-id.js';
                 saveCleanupJobs();
             }
             if (action === 'delete-event') {
+                pendingInvitations.delete(id);
+                refreshVersion++;
                 if (editor.elements.id.value === id) {
                     resetInvitationEditor();
                     editor.elements.eventType.value = initialTheme;
@@ -727,11 +741,24 @@ import { invitationId, invitationPath } from './invitation-id.js';
 
     async function refresh() {
         var session = token;
+        var version = ++refreshVersion;
         try {
             var items = await collect('list-invitations', session);
             // Count via bounded API pages rather than an unbounded KV scan in one invocation.
             var replies = await collect('list', session);
-            if (token !== session) return;
+            if (token !== session || version !== refreshVersion) return;
+            pendingInvitations.forEach(function (saved, id) {
+                var index = items.findIndex(function (item) { return item.id === id; });
+                var fields = ['id', 'eventType', 'title', 'text', 'whatsapp', 'sms', 'invitesSent',
+                    'backgroundImage', 'passwordProtected', 'hostPasswordProtected'];
+                if (index >= 0 && fields.every(function (field) { return items[index][field] === saved[field]; })) {
+                    pendingInvitations.delete(id);
+                } else if (index < 0) {
+                    items.push(saved);
+                } else {
+                    items[index] = saved;
+                }
+            });
             invitations = items.map(function (item) {
                 var mine = replies.filter(function (reply) { return reply.eventId === item.id; });
                 var tally = function (value) { return mine.filter(function (reply) { return reply.attending === value; }).length; };
@@ -742,7 +769,7 @@ import { invitationId, invitationPath } from './invitation-id.js';
             renderCleanupJobs();
             await load(false);
         } catch (error) {
-            if (token !== session) return;
+            if (token !== session || version !== refreshVersion) return;
             if (error.status === 401) logout();
             status(error.message || 'Unable to load invitations.', true);
         }
@@ -751,8 +778,10 @@ import { invitationId, invitationPath } from './invitation-id.js';
     function logout() {
         token = '';
         cursor = '';
+        refreshVersion++;
         loadVersion++;
         invitations = [];
+        pendingInvitations.clear();
         cleanupJobs = [];
         document.getElementById('deletionJobs').replaceChildren();
         events.replaceChildren();
