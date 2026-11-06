@@ -1,5 +1,2 @@
-# Always send the pages.dev preview domain to the real site
-https://myvikey.pages.dev/* https://vi-key.uk/:splat 301
-
 /showcase /our-services/ 301
 /showcase/ /our-services/ 301
