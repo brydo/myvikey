@@ -668,7 +668,7 @@ test('admin deletion requires confirmation, offers keep/delete choice and refres
         await admin.nodes.loginForm.handlers.submit({ preventDefault() {} });
         let row = admin.nodes.events.children[0];
         const find = (root, label) => root.children.find(node => node.tag === 'button' && node.textContent === label);
-        const replyCard = admin.nodes.responses.children[0];
+        const replyCard = admin.nodes.responses.children[0].children[1];
         await find(replyCard, 'Delete reply').click();
         assert.equal(admin.requests.filter(item => item.action.startsWith('delete-')).length, 0);
         await find(row, 'Delete event').click();
@@ -1302,8 +1302,11 @@ test('mixed admin reply cards resolve category by invitation ID, including legac
     const admin = browser({ page: 'admin', search: '?type=parties', apiPost: instance.post });
     await admin.nodes.loginForm.handlers.submit({ preventDefault() {} });
     await admin.tick();
-    assert.equal(admin.nodes.responses.children.length, 4);
-    assert.ok(admin.nodes.responses.children.every(line => /Going/.test(line.children[0].textContent)));
+    const lines = admin.nodes.responses.children.flatMap(group => group.children.slice(1));
+    assert.equal(lines.length, 4);
+    assert.ok(lines.every(line => /Going/.test(line.children[0].textContent)));
+    assert.equal(admin.nodes.responses.children.length, 3);
+    assert.ok(admin.nodes.responses.children.every(group => group.children[0].tag === 'h3'));
     assert.equal(admin.nodes.body.attributes['data-event-type'], 'parties');
     const replies = await (await instance.post({ action: 'list', eventId: first.id }, 'valid-session')).json();
     assert.equal(replies.responses.length, 1);
@@ -1805,7 +1808,7 @@ test('reply filters skip empty pages, separate same-title events and keep clipbo
     app.nodes.replyEvent.handlers.change();
     await app.tick();
     assert.equal(app.nodes.responses.children.length, 1);
-    assert.equal(app.nodes.responses.children[0].children[0].textContent, 'Second wedding — Going');
+    assert.equal(app.nodes.responses.children[0].children[1].children[0].textContent, 'Second wedding — Going');
     assert.equal(app.nodes.more.hidden, true);
     app.nodes.events.children[1].children[4].click();
     await app.tick();
