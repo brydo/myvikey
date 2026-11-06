@@ -420,6 +420,7 @@ import { invitationId, invitationPath } from './invitation-id.js';
         ['id', 'title', 'text', 'whatsapp', 'sms'].forEach(function (field) {
             editor.elements[field].value = invitation[field] || '';
         });
+        editor.elements.invitesSent.value = invitation.invitesSent || 0;
         editor.elements.eventType.value = theme(invitation.eventType);
         if (editor.elements.guestPassword) editor.elements.guestPassword.value = '';
         if (editor.elements.removeGuestPassword) editor.elements.removeGuestPassword.checked = false;
@@ -451,6 +452,7 @@ import { invitationId, invitationPath } from './invitation-id.js';
         ['title', 'text', 'whatsapp', 'sms'].forEach(function (field) {
             payload[field] = editor.elements[field].value.trim();
         });
+        payload.invitesSent = Number(editor.elements.invitesSent.value) || 0;
         if (editor.elements.id.value.trim()) payload.id = editor.elements.id.value.trim();
         if (editor.elements.guestPassword && editor.elements.guestPassword.value) {
             payload.guestPassword = editor.elements.guestPassword.value;
@@ -491,6 +493,9 @@ import { invitationId, invitationPath } from './invitation-id.js';
 
     function renderEvents() {
         var selected = replyEvent.value;
+        var total = function (key) { return invitations.reduce(function (sum, item) { return sum + (item[key] || 0); }, 0); };
+        document.getElementById('summary').textContent = total('invitesSent') + ' invites sent · ' + total('replyCount') +
+            ' replied · ' + total('yesCount') + ' going · ' + total('maybeCount') + ' maybe · ' + total('noCount') + ' not going';
         events.replaceChildren();
         replyEvent.replaceChildren();
         [['', 'All events'], ['unassigned', 'Unassigned (legacy replies)']].concat(
@@ -512,7 +517,8 @@ import { invitationId, invitationPath } from './invitation-id.js';
             row.appendChild(heading);
             var details = document.createElement('p');
             details.textContent = 'Type: ' + theme(item.eventType) + ' · Replies: ' + item.replyCount +
-                ' (Going: ' + item.yesCount + ', Not going: ' + item.noCount + ')';
+                ' (Going: ' + item.yesCount + ', Maybe: ' + item.maybeCount +
+                ', Not going: ' + item.noCount + ') · Invites sent: ' + (item.invitesSent || 0);
             row.appendChild(details);
             var code = document.createElement('p');
             code.textContent = 'Invite code: ' + item.id;
@@ -689,16 +695,11 @@ import { invitationId, invitationPath } from './invitation-id.js';
             // Count via bounded API pages rather than an unbounded KV scan in one invocation.
             var replies = await collect('list', session);
             if (token !== session) return;
-            var counts = new Map();
-            var going = new Map();
-            replies.forEach(function (reply) {
-                counts.set(reply.eventId, (counts.get(reply.eventId) || 0) + 1);
-                if (reply.attending === 'yes') going.set(reply.eventId, (going.get(reply.eventId) || 0) + 1);
-            });
             invitations = items.map(function (item) {
-                var total = counts.get(item.id) || 0;
-                var yes = going.get(item.id) || 0;
-                return Object.assign({}, item, { replyCount: total, yesCount: yes, noCount: total - yes });
+                var mine = replies.filter(function (reply) { return reply.eventId === item.id; });
+                var tally = function (value) { return mine.filter(function (reply) { return reply.attending === value; }).length; };
+                return Object.assign({}, item, { replyCount: mine.length, yesCount: tally('yes'),
+                    maybeCount: tally('maybe'), noCount: tally('no') });
             });
             renderEvents();
             renderCleanupJobs();
@@ -759,7 +760,7 @@ import { invitationId, invitationPath } from './invitation-id.js';
                 var line = document.createElement('article');
                 line.className = 'response';
                 var summary = document.createElement('p');
-                summary.textContent = response.name + ' — ' + (response.attending === 'yes' ? 'Going' : 'Not going') +
+                summary.textContent = response.name + ' — ' + ({ yes: 'Going', maybe: 'Maybe' }[response.attending] || 'Not going') +
                     (!replyEvent.value ? ' · ' + response.event : '');
                 line.appendChild(summary);
                 responses.appendChild(line);

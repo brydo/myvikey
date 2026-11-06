@@ -5,7 +5,7 @@
 
     function rows(replies) {
         return [headers].concat(replies.map(function (reply) {
-            return [reply.name, reply.event, reply.attending === 'yes' ? 'Yes' : 'No',
+            return [reply.name, reply.event, reply.attending === 'yes' ? 'Yes' : reply.attending === 'maybe' ? 'Maybe' : 'No',
                 reply.guests, reply.notes || '', reply.eventId || '', reply.createdAt || ''];
         }));
     }
@@ -31,10 +31,10 @@
         });
     }
 
-    function sheet(replies) {
+    function sheet(tableRows) {
         return '<?xml version="1.0" encoding="UTF-8"?>' +
             '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetData>' +
-            rows(replies).map(function (row) {
+            tableRows.map(function (row) {
                 return '<row>' + row.map(function (value) {
                     // Inline strings keep guest-supplied values as text, never formulas.
                     return typeof value === 'number' ? '<c><v>' + value + '</v></c>' :
@@ -100,7 +100,7 @@
 
     function workbook(invitations, replies) {
         var groups = new Map();
-        invitations.forEach(function (item) { groups.set(item.id, { title: item.title, replies: [] }); });
+        invitations.forEach(function (item) { groups.set(item.id, { title: item.title, invitesSent: item.invitesSent || 0, replies: [] }); });
         replies.forEach(function (reply) {
             var id = reply.eventId || '';
             if (!groups.has(id)) groups.set(id, { title: id ? reply.event || id : 'Unassigned', replies: [] });
@@ -110,20 +110,27 @@
         var used = new Set();
         var sheets = [];
         var files = [];
+        var summary = [['Event', 'Invites sent', 'Replied', 'Going', 'Maybe', 'Not going', 'Awaiting reply']];
         groups.forEach(function (group) {
             var base = String(group.title || 'Event').replace(/[\\/*?:[\]\u0000-\u001f]/g, ' ').trim()
                 .replace(/^'+|'+$/g, '').slice(0, 31).replace(/'+$/g, '') || 'Event';
             var name = base;
             var suffix = 1;
-            while (used.has(name.toLowerCase()) || name.toLowerCase() === 'history') {
+            while (used.has(name.toLowerCase()) || name.toLowerCase() === 'history' || name.toLowerCase() === 'summary') {
                 var ending = ' (' + (++suffix) + ')';
                 name = base.slice(0, 31 - ending.length) + ending;
             }
             used.add(name.toLowerCase());
             var index = sheets.length + 1;
             sheets.push('<sheet name="' + xml(name) + '" sheetId="' + index + '" r:id="rId' + index + '"/>');
-            files.push(['xl/worksheets/sheet' + index + '.xml', sheet(group.replies)]);
+            files.push(['xl/worksheets/sheet' + index + '.xml', sheet(rows(group.replies))]);
+            var count = function (value) { return group.replies.filter(function (r) { return r.attending === value; }).length; };
+            summary.push([group.title, group.invitesSent || 0, group.replies.length, count('yes'), count('maybe'), count('no'),
+                Math.max((group.invitesSent || 0) - group.replies.length, 0)]);
         });
+        var summaryIndex = sheets.length + 1;
+        sheets.push('<sheet name="Summary" sheetId="' + summaryIndex + '" r:id="rId' + summaryIndex + '"/>');
+        files.push(['xl/worksheets/sheet' + summaryIndex + '.xml', sheet(summary)]);
         var ns = 'http://schemas.openxmlformats.org/';
         var relationships = files.map(function (_, index) {
             return '<Relationship Id="rId' + (index + 1) + '" Type="' + ns +

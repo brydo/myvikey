@@ -53,7 +53,7 @@ async function save(app, fields = {}) {
     assert.equal(response.status, 200, await response.clone().text());
     const data = await response.json();
     assert.deepEqual(Object.keys(data.invitation).sort(),
-        ['id', 'eventType', 'title', 'text', 'whatsapp', 'sms', 'passwordProtected'].sort());
+        ['id', 'eventType', 'title', 'text', 'whatsapp', 'sms', 'invitesSent', 'passwordProtected'].sort());
     return data.invitation;
 }
 

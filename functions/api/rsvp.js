@@ -8,9 +8,9 @@ const GUEST_SESSIONS = 'rsvp-guest-session:';
 const validId = validInvitationId;
 
 function invitationDTO(invitation, id) {
-  const { title, text, whatsapp = '', sms = '' } = invitation;
+  const { title, text, whatsapp = '', sms = '', invitesSent = 0 } = invitation;
   return { id, eventType: theme(invitation.eventType),
-    title, text, whatsapp, sms, passwordProtected: !!invitation.guestPasswordHash };
+    title, text, whatsapp, sms, invitesSent, passwordProtected: !!invitation.guestPasswordHash };
 }
 
 async function guestAccess(env, request, invitation, id) {
@@ -34,6 +34,10 @@ function invitationFields(body) {
     const value = ['whatsapp', 'sms'].includes(field) && body[field] === undefined ? '' : body[field];
     if (typeof value !== 'string' || value.trim().length > max) return null;
     result[field] = value.trim();
+  }
+  if (body.invitesSent !== undefined) {
+    if (!Number.isInteger(body.invitesSent) || body.invitesSent < 0 || body.invitesSent > 100000) return null;
+    result.invitesSent = body.invitesSent;
   }
   if (!result.title || !result.text) return null;
   if (result.whatsapp && !/^\+[1-9]\d{7,14}$/.test(result.whatsapp)) return null;
@@ -277,8 +281,8 @@ export async function onRequestPost({ request, env }) {
       }
       response[field] = value.trim();
     }
-    if (!['yes', 'no'].includes(body.attending)) {
-      return reply({ success: false, error: 'Attending must be Yes or No' }, 400);
+    if (!['yes', 'no', 'maybe'].includes(body.attending)) {
+      return reply({ success: false, error: 'Attending must be Yes, No or Maybe' }, 400);
     }
     if (!Number.isInteger(body.guests) || body.guests < 0 || body.guests > 100 ||
         (body.attending === 'no' && body.guests !== 0)) {

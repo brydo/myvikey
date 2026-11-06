@@ -10,6 +10,10 @@
         element.textContent = copy(type, key, fallback);
     }
 
+    function attendingText(value) {
+        return value === 'yes' ? 'Yes' : value === 'maybe' ? 'Maybe' : 'No';
+    }
+
     function render(root, response) {
         var card = document.createElement('article');
         card.className = 'rsvp-card';
@@ -26,7 +30,7 @@
         [
             ['Name', response.name, 'nameLabel'],
             ['Event', response.event, 'eventLabel'],
-            ['Attending', response.attending === 'yes' ? 'Yes' : 'No', 'attendingLabel'],
+            ['Attending', attendingText(response.attending), 'attendingLabel'],
             ['Guests', response.guests, 'guestsLabel'],
             ['Notes', response.notes || '—', 'receiptNotesLabel']
         ].forEach(function (field) {
@@ -35,7 +39,7 @@
             var value = document.createElement('dd');
             value.textContent = String(field[1]);
             if (field[2] === 'attendingLabel') {
-                copyNode(value, response.eventType, response.attending === 'yes' ? 'yesLabel' : 'noLabel', field[1]);
+                copyNode(value, response.eventType, { yes: 'yesLabel', maybe: 'maybeLabel' }[response.attending] || 'noLabel', field[1]);
             }
             details.appendChild(label);
             details.appendChild(value);
@@ -48,7 +52,7 @@
     function channels(response, organiser) {
         organiser = organiser || {};
         var message = 'RSVP\nName: ' + response.name + '\nEvent: ' + response.event +
-            '\nAttending: ' + (response.attending === 'yes' ? 'Yes' : 'No') +
+            '\nAttending: ' + attendingText(response.attending) +
             '\nGuests (additional): ' + response.guests + '\nNotes: ' + (response.notes || '—');
         var links = [];
         if (typeof organiser.whatsapp === 'string' && /^\+[1-9]\d{7,14}$/.test(organiser.whatsapp)) {

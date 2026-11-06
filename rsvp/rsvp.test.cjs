@@ -87,7 +87,7 @@ test('rejects malformed responses without writing to storage', async () => {
             { name: '' }, { name: '   ' }, { name: 1 }, { name: 'x'.repeat(101) },
             { event: '' }, { event: null }, { event: 'x'.repeat(101) },
             { notes: {} }, { notes: 'x'.repeat(1001) },
-            { attending: 'maybe' }, { attending: true },
+            { attending: true },
             { guests: -1 }, { guests: 1.5 }, { guests: '2' }, { guests: 101 },
             { attending: 'no', guests: 1 }
         ].map(fields => ({ ...valid, ...fields }))
@@ -297,7 +297,7 @@ test('optional contact fields may be omitted, including WhatsApp for SMS-only in
         const event = await createEvent(instance, fields);
         assert.equal(event.whatsapp, fields.whatsapp === undefined ? '' : invitation.whatsapp);
         assert.equal(event.sms, fields.sms === undefined ? '' : invitation.sms);
-        const { passwordProtected, ...stored } = event;
+        const { passwordProtected, invitesSent, ...stored } = event;
         assert.deepEqual(JSON.parse(instance.records.get('rsvp-invitation:' + event.id)), stored);
     }
 });
@@ -440,7 +440,7 @@ function browser({ page = 'index', storageFails = false, saved, failSave = false
     if (page === 'admin') {
         node('password').value = 'test-only-password';
         node('invitationForm').elements = Object.fromEntries(
-            ['id', 'title', 'text', 'whatsapp', 'sms', 'eventType'].map(id => [id, node('editor-' + id)])
+            ['id', 'title', 'text', 'whatsapp', 'sms', 'invitesSent', 'eventType'].map(id => [id, node('editor-' + id)])
         );
     }
     const event = { id: 'Ab3xQ9k', title: 'Saved party', text: '<img src=x>\nSecond line', whatsapp: invitation.whatsapp, sms: invitation.sms };
@@ -1889,8 +1889,8 @@ test('XLSX creates separate safe worksheets for same-title events, empty events,
     const files = await unzipStored(exporter().workbook(events, replies));
     const workbook = files.get('xl/workbook.xml');
     const names = [...workbook.matchAll(/<sheet name="([^"]+)"/g)].map(match => match[1]);
-    assert.equal(names.length, 5);
-    assert.equal(new Set(names.map(name => name.toLowerCase())).size, 5);
+    assert.equal(names.length, 6);
+    assert.equal(new Set(names.map(name => name.toLowerCase())).size, 6);
     assert.ok(names.every(name => name.length <= 31 && !/[\\/*?:[\]]/.test(name) && name.toLowerCase() !== 'history'));
     const first = files.get('xl/worksheets/sheet1.xml');
     assert.ok(first.includes('<t xml:space="preserve">=1+1</t>'));
@@ -2226,4 +2226,21 @@ test('RSVP controls, fields and headings consume shared tokens instead of fixed 
     assert.match(admin, /<span class="rsvp-btn primary" data-copy="openRsvp">/, 'Preview CTA matches the public primary button');
     assert.match(admin, /id="appearanceStatus"[^>]*role="status"/);
     assert.match(readFileSync(`${__dirname}/index.html`, 'utf8'), /id="openRsvp" data-copy="openRsvp" class="rsvp-btn primary"/);
+});
+
+test('invites sent is stored per event, Maybe replies are accepted, and the workbook adds a summary sheet', async () => {
+    const instance = api();
+    const event = await createEvent(instance, { invitesSent: 100 });
+    assert.equal(event.invitesSent, 100);
+    const kept = await createEvent(instance, { id: event.id });
+    assert.equal(kept.invitesSent, 100, 'Omitting invitesSent keeps the saved value');
+    for (const invitesSent of [-1, 1.5, '5', 100001]) {
+        assert.equal((await instance.post({ action: 'save-invitation', ...invitation, invitesSent }, 'valid-session')).status, 400);
+    }
+    assert.equal((await instance.post({ ...valid, attending: 'maybe', event: event.title, eventId: event.id })).status, 200);
+    const files = await unzipStored(exporter().workbook([event], [{ ...valid, attending: 'maybe', eventId: event.id }]));
+    assert.match(files.get('xl/workbook.xml'), /<sheet name="Summary"/);
+    const summary = files.get('xl/worksheets/sheet2.xml');
+    assert.match(summary, /<t xml:space="preserve">Awaiting reply<\/t>/);
+    assert.match(files.get('xl/worksheets/sheet1.xml'), /Maybe/);
 });
