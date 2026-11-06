@@ -1795,7 +1795,7 @@ test('event panel recalls codes and links, opens editor, scopes replies and clea
     assert.equal(app.nodes.events.children.length, 0);
 });
 
-test('view replies shows selected event details and GMT timestamps, including legacy replies', async () => {
+test('view replies shows selected event details and UK timestamps, including legacy replies', async () => {
     const savedEvents = [
         { id: 'Ab3xQ9k', title: 'First event', eventType: 'events' },
         { id: 'Cd4yR8m', title: 'Second event', eventType: 'events' }
@@ -1818,13 +1818,13 @@ test('view replies shows selected event details and GMT timestamps, including le
     assert.equal(lines[0].children[0].textContent, 'Second — Going');
     assert.equal(lines[0].children[1].textContent, 'Additional guests: 0');
     assert.equal(lines[0].children[2].textContent, 'Notes: <b>Note</b>');
-    assert.equal(lines[0].children[3].textContent, 'Submitted: Tue, 01 Dec 2026 00:15:00 GMT');
+    assert.equal(lines[0].children[3].textContent, 'Submitted: 01/12/2026 00:15');
     assert.equal(lines[1].children[3].textContent, 'Submitted: Time unavailable');
     assert.equal(lines[2].children[3].textContent, 'Submitted: Time unavailable');
     app.nodes.events.children[0].children[7].click();
     await app.tick();
     assert.equal(app.nodes.responses.children[0].children[1].children[3].textContent,
-        'Submitted: Wed, 01 Jul 2026 12:30:45 GMT');
+        'Submitted: 01/07/2026 13:30');
 });
 
 test('view replies displays loading failures in the replies panel', async () => {
@@ -1923,8 +1923,8 @@ async function unzipStored(blob) {
 test('CSV quotes Unicode, commas and newlines, includes timestamps and neutralises spreadsheet formulas', () => {
     const csv = exporter().csv([{ name: '=1+1', event: 'Tea, "cake"', attending: 'yes', guests: 2,
         notes: 'Zoë\nhello', eventId: 'event-1', createdAt: '2026-10-24T12:00:00.000Z' }]);
-    assert.ok(csv.startsWith('\ufeff"Name","Event","Attending","Additional Guests","Notes","Event ID","Submitted at (UTC)"\r\n'));
-    assert.ok(csv.includes(`"'=1+1","Tea, ""cake""","Yes","2","Zoë\nhello","event-1","2026-10-24T12:00:00.000Z"`));
+    assert.ok(csv.startsWith('\ufeff"Name","Event","Attending","Additional Guests","Notes","Event ID","Submitted at (UK time)"\r\n'));
+    assert.ok(csv.includes(`"'=1+1","Tea, ""cake""","Yes","2","Zoë\nhello","event-1","24/10/2026 13:00"`));
     for (const name of ['+SUM(1,1)', '-1+1', '@formula', '  =formula', '\tformula', '\rformula', '\nformula']) {
         assert.ok(exporter().csv([{ ...valid, name }]).includes(`"'${name.replace(/"/g, '""')}"`));
     }
@@ -1949,7 +1949,7 @@ test('XLSX creates separate safe worksheets for same-title events, empty events,
     const first = files.get('xl/worksheets/sheet1.xml');
     assert.ok(first.includes('<t xml:space="preserve">=1+1</t>'));
     assert.ok(first.includes('&lt;&amp;&gt;'));
-    assert.ok(first.includes('2026-10-24T12:00:00.000Z'));
+    assert.ok(first.includes('24/10/2026 13:00'));
     assert.doesNotMatch(first, /<f>|\u0000|Zoë/);
     assert.match(files.get('xl/worksheets/sheet2.xml'), /Zoë/);
     assert.equal((files.get('xl/worksheets/sheet3.xml').match(/<row>/g) || []).length, 1);

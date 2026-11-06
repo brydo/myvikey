@@ -24,6 +24,18 @@ import { invitationId, invitationPath } from './invitation-id.js';
         message.classList.toggle('error', !!error);
     }
 
+    // London time (GMT/BST) for display; storage keeps ISO.
+    function ukDateTime(value) {
+        var date = value ? new Date(value) : null;
+        if (!date || isNaN(date.getTime())) return '';
+        var byType = {};
+        new Intl.DateTimeFormat('en-GB', {
+            timeZone: 'Europe/London', day: '2-digit', month: '2-digit', year: 'numeric',
+            hour: '2-digit', minute: '2-digit', hour12: false
+        }).formatToParts(date).forEach(function (part) { byType[part.type] = part.value; });
+        return byType.day + '/' + byType.month + '/' + byType.year + ' ' + byType.hour + ':' + byType.minute;
+    }
+
     function copyStatus(key, type) {
         status(window.RSVPThemes.copy(type, key));
         message.setAttribute('data-copy', key);
@@ -816,8 +828,7 @@ import { invitationId, invitationPath } from './invitation-id.js';
                 notes.textContent = 'Notes: ' + (response.notes || '—');
                 line.appendChild(notes);
                 var submitted = document.createElement('p');
-                var date = response.createdAt ? new Date(response.createdAt) : null;
-                submitted.textContent = 'Submitted: ' + (date && !isNaN(date.getTime()) ? date.toUTCString() : 'Time unavailable');
+                submitted.textContent = 'Submitted: ' + (ukDateTime(response.createdAt) || 'Time unavailable');
                 line.appendChild(submitted);
                 group.appendChild(line);
                 var button = document.createElement('button');

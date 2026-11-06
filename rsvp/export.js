@@ -1,12 +1,24 @@
 (function () {
     'use strict';
 
-    var headers = ['Name', 'Event', 'Attending', 'Additional Guests', 'Notes', 'Event ID', 'Submitted at (UTC)'];
+    var headers = ['Name', 'Event', 'Attending', 'Additional Guests', 'Notes', 'Event ID', 'Submitted at (UK time)'];
+
+    // Storage keeps ISO; people read London time (GMT in winter, BST in summer).
+    function ukDateTime(value) {
+        var date = value ? new Date(value) : null;
+        if (!date || isNaN(date.getTime())) return '';
+        var byType = {};
+        new Intl.DateTimeFormat('en-GB', {
+            timeZone: 'Europe/London', day: '2-digit', month: '2-digit', year: 'numeric',
+            hour: '2-digit', minute: '2-digit', hour12: false
+        }).formatToParts(date).forEach(function (part) { byType[part.type] = part.value; });
+        return byType.day + '/' + byType.month + '/' + byType.year + ' ' + byType.hour + ':' + byType.minute;
+    }
 
     function rows(replies) {
         return [headers].concat(replies.map(function (reply) {
             return [reply.name, reply.event, reply.attending === 'yes' ? 'Yes' : reply.attending === 'maybe' ? 'Maybe' : 'No',
-                reply.guests, reply.notes || '', reply.eventId || '', reply.createdAt || ''];
+                reply.guests, reply.notes || '', reply.eventId || '', ukDateTime(reply.createdAt)];
         }));
     }
 
