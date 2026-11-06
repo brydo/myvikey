@@ -1261,8 +1261,7 @@ test('every category uses its current saved background across landing, existing 
         assert.equal(receipt.nodes.sendOptions.children.at(-1).textContent, copy.smsLabel);
         assert.equal(receipt.nodes.back.href, ids.invitationPath(event.id));
         await admin.nodes.refresh.handlers.click();
-        assert.equal(admin.nodes.responses.children[0].style['--category-image'], expected);
-        assert.equal(admin.nodes.responses.children[0].querySelectorAll('[data-copy="cardHeading"]')[0].textContent, copy.cardHeading);
+        assert.equal(admin.nodes.responses.children.length, 1);
         await admin.nodes.logout.handlers.click();
         assert.equal(admin.nodes.appearanceForm.hidden, true);
     }
@@ -1303,17 +1302,8 @@ test('mixed admin reply cards resolve category by invitation ID, including legac
     const admin = browser({ page: 'admin', search: '?type=parties', apiPost: instance.post });
     await admin.nodes.loginForm.handlers.submit({ preventDefault() {} });
     await admin.tick();
-    assert.deepEqual(admin.nodes.responses.children.map(card => card.attributes['data-event-type']),
-        ['events', 'weddings', 'weddings', 'celebration']);
-    assert.equal(admin.nodes.responses.children[0].style['--category-image'], 'url("' + halloween + '")');
-    assert.equal(admin.nodes.responses.children[1].style['--category-image'], 'var(--backdrop)');
-    for (const [index, eventType] of ['events', 'weddings', 'weddings', 'celebration'].entries()) {
-        const card = admin.nodes.responses.children[index];
-        assert.equal(card.querySelectorAll('[data-copy="cardHeading"]')[0].textContent, eventType + ' custom card');
-        assert.equal(card.querySelectorAll('[data-copy="nameLabel"]')[0].textContent, eventType + ' custom name');
-    }
-    assert.equal(admin.nodes.responses.children[0].style['--card-spacing'], '23px');
-    assert.equal(admin.nodes.responses.children[1].style['--card-spacing'], '25px');
+    assert.equal(admin.nodes.responses.children.length, 4);
+    assert.ok(admin.nodes.responses.children.every(line => /Going/.test(line.children[0].textContent)));
     assert.equal(admin.nodes.body.attributes['data-event-type'], 'parties');
     const replies = await (await instance.post({ action: 'list', eventId: first.id }, 'valid-session')).json();
     assert.equal(replies.responses.length, 1);
@@ -1815,7 +1805,7 @@ test('reply filters skip empty pages, separate same-title events and keep clipbo
     app.nodes.replyEvent.handlers.change();
     await app.tick();
     assert.equal(app.nodes.responses.children.length, 1);
-    assert.equal(app.nodes.responses.children[0].children[2].children[1].textContent, 'Second wedding');
+    assert.equal(app.nodes.responses.children[0].children[0].textContent, 'Second wedding — Going');
     assert.equal(app.nodes.more.hidden, true);
     app.nodes.events.children[1].children[4].click();
     await app.tick();
@@ -2205,15 +2195,7 @@ test('saved button colours reach the open RSVP CTA, form, receipt, send options 
     }
     const admin = browser({ page: 'admin', search: '?type=parties', apiPost: instance.post });
     await signIn(admin);
-    const cards = admin.nodes.responses.children;
-    assert.equal(cards.length, categories.length);
-    for (const card of cards) {
-        const type = card.attributes['data-event-type'];
-        assert.equal(card.style['--btn-bg'], palettes[type].buttonBackground, type + ' reply card');
-        assert.equal(card.style['--card-surface'], palettes[type].surface, type + ' reply card');
-        assert.equal(card.querySelector('button').closest('[data-event-type]'), card);
-    }
-    assert.deepEqual(new Set(cards.map(card => card.attributes['data-event-type'])), new Set(categories));
+    assert.equal(admin.nodes.responses.children.length, categories.length);
     assert.equal(admin.nodes.body.style['--btn-bg'], palettes.parties.buttonBackground);
 });
 

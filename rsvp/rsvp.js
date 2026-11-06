@@ -511,7 +511,8 @@ import { invitationId, invitationPath } from './invitation-id.js';
             heading.textContent = item.title;
             row.appendChild(heading);
             var details = document.createElement('p');
-            details.textContent = 'Type: ' + theme(item.eventType) + ' · Replies: ' + item.replyCount;
+            details.textContent = 'Type: ' + theme(item.eventType) + ' · Replies: ' + item.replyCount +
+                ' (Going: ' + item.yesCount + ', Not going: ' + item.noCount + ')';
             row.appendChild(details);
             var code = document.createElement('p');
             code.textContent = 'Invite code: ' + item.id;
@@ -689,9 +690,15 @@ import { invitationId, invitationPath } from './invitation-id.js';
             var replies = await collect('list', session);
             if (token !== session) return;
             var counts = new Map();
-            replies.forEach(function (reply) { counts.set(reply.eventId, (counts.get(reply.eventId) || 0) + 1); });
+            var going = new Map();
+            replies.forEach(function (reply) {
+                counts.set(reply.eventId, (counts.get(reply.eventId) || 0) + 1);
+                if (reply.attending === 'yes') going.set(reply.eventId, (going.get(reply.eventId) || 0) + 1);
+            });
             invitations = items.map(function (item) {
-                return Object.assign({}, item, { replyCount: counts.get(item.id) || 0 });
+                var total = counts.get(item.id) || 0;
+                var yes = going.get(item.id) || 0;
+                return Object.assign({}, item, { replyCount: total, yesCount: yes, noCount: total - yes });
             });
             renderEvents();
             renderCleanupJobs();
@@ -749,7 +756,13 @@ import { invitationId, invitationPath } from './invitation-id.js';
                 payload.cursor = data.cursor || '';
             } while (!data.responses.length && payload.cursor);
             data.responses.forEach(function (response) {
-                window.RSVP.render(responses, response);
+                var line = document.createElement('article');
+                line.className = 'response';
+                var summary = document.createElement('p');
+                summary.textContent = response.name + ' — ' + (response.attending === 'yes' ? 'Going' : 'Not going') +
+                    (!replyEvent.value ? ' · ' + response.event : '');
+                line.appendChild(summary);
+                responses.appendChild(line);
                 var button = document.createElement('button');
                 button.type = 'button';
                 button.className = 'rsvp-btn';
