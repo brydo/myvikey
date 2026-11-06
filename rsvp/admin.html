@@ -40,6 +40,12 @@
                 </select>
                 <button id="exportEvent" class="rsvp-btn" type="button">Export selected event (.csv)</button>
             </section>
+            <section id="repliesPanel" class="rsvp-section" aria-labelledby="repliesHeading" hidden>
+                <h2 id="repliesHeading" tabindex="-1">Replies</h2>
+                <p id="repliesStatus" role="status" aria-live="polite"></p>
+                <div id="responses" class="responses"></div>
+                <button id="more" class="rsvp-btn" type="button" hidden>Load more</button>
+            </section>
             <form id="invitationForm" class="rsvp-section" hidden>
                 <h2>Your celebration</h2>
                 <p>Write your invitation below, save it, then share its link with guests. Use the separate guest password control to restrict access; never put passwords in the invitation text.</p>
@@ -120,8 +126,6 @@
             </form>
             <p id="message" class="rsvp-section" role="status" aria-live="polite"></p>
         </section>
-        <div id="responses" class="responses"></div>
-        <button id="more" class="rsvp-btn" type="button" hidden>Load more</button>
         <nav aria-label="RSVP navigation"><a href="/rsvp/">Back to RSVP</a></nav>
         <noscript><p>Please enable JavaScript to review RSVPs.</p></noscript>
     </main>

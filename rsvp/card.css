@@ -138,6 +138,7 @@ nav, .page-head { text-align: center; }
 a { color: var(--accent, #774b25); }
 nav a { display: inline-block; padding: 10px 4px; }
 .responses { display: grid; gap: 24px; }
+.response p { white-space: pre-wrap; overflow-wrap: anywhere; }
 .events-list { display: grid; gap: 16px; margin: 18px 0; }
 .event-item { border: 1px solid var(--btn-border, var(--border, #d8bda2)); border-radius: 12px; padding: 12px; overflow-wrap: anywhere; }
 .event-item h3 { font-family: Georgia, serif; }
