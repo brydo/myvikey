@@ -70,7 +70,7 @@ async function sendNotification(env, order) {
       },
       body: JSON.stringify({
         from: 'V I Key® Orders <orders@vi-key.uk>',
-        to: ['brydo@outlook.com'],
+        to: ['vikeyshop@outlook.com'],
         subject: `New ${label} order — ${order.name} (${order.package}, ${order.cardCount} cards)`,
         html
       })
