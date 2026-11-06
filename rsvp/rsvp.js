@@ -427,6 +427,12 @@ import { invitationId, invitationPath } from './invitation-id.js';
         var protectionStatus = document.getElementById('guestProtectionStatus');
         if (protectionStatus) protectionStatus.textContent = invitation.passwordProtected ?
             'Guest password protection is on.' : 'No guest password is set.';
+        if (editor.elements.hostPassword) editor.elements.hostPassword.value = '';
+        if (editor.elements.removeHostPassword) editor.elements.removeHostPassword.checked = false;
+        var hostStatus = document.getElementById('hostProtectionStatus');
+        if (hostStatus) hostStatus.textContent = invitation.hostPasswordProtected ?
+            'Host access is on. Host login: ' + window.location.origin + '/rsvp/' + theme(invitation.eventType) + '/hostlogin?id=' + invitation.id :
+            'No host password is set.';
         applyTheme(invitation.eventType);
         showBackground();
         share.replaceChildren();
@@ -441,6 +447,8 @@ import { invitationId, invitationPath } from './invitation-id.js';
         editor.reset();
         var protectionStatus = document.getElementById('guestProtectionStatus');
         if (protectionStatus) protectionStatus.textContent = '';
+        var hostStatus = document.getElementById('hostProtectionStatus');
+        if (hostStatus) hostStatus.textContent = '';
     }
 
     editor.addEventListener('submit', async function (event) {
@@ -459,6 +467,11 @@ import { invitationId, invitationPath } from './invitation-id.js';
         }
         if (editor.elements.removeGuestPassword && editor.elements.removeGuestPassword.checked) payload.removeGuestPassword = true;
         if (editor.elements.guestPassword) editor.elements.guestPassword.value = '';
+        if (editor.elements.hostPassword && editor.elements.hostPassword.value) {
+            payload.hostPassword = editor.elements.hostPassword.value;
+        }
+        if (editor.elements.removeHostPassword && editor.elements.removeHostPassword.checked) payload.removeHostPassword = true;
+        if (editor.elements.hostPassword) editor.elements.hostPassword.value = '';
         try {
             var data = await post('/api/rsvp', payload, session);
             if (token !== session) return;

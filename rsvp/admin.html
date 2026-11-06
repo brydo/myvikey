@@ -71,6 +71,11 @@
                 <input id="newGuestPassword" name="guestPassword" type="password" minlength="8" autocomplete="new-password" aria-describedby="guestPasswordHint">
                 <p id="guestPasswordHint">Blank keeps the current password unchanged. New passwords need at least 8 characters, including a non-space character, and at most 72 UTF-8 bytes. Choose a hard-to-guess password and share it separately from the invitation link. Use Remove to disable protection.</p>
                 <label><input name="removeGuestPassword" type="checkbox"> Remove guest password protection</label>
+                <p id="hostProtectionStatus" role="status"></p>
+                <label for="newHostPassword">Set or change host password (optional)</label>
+                <input id="newHostPassword" name="hostPassword" type="password" minlength="8" autocomplete="new-password" aria-describedby="hostPasswordHint">
+                <p id="hostPasswordHint">Lets the host sign in at the host login page to view this event's replies and print or download them. Hosts cannot edit or delete anything and see no other events. Blank keeps the current password. Same rules as the guest password; share it separately.</p>
+                <label><input name="removeHostPassword" type="checkbox"> Remove host access</label>
                 <button class="rsvp-btn primary" type="submit">Save invitation</button>
                 <p id="shareInvitation" role="status"></p>
             </form>

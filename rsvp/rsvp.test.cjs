@@ -297,7 +297,7 @@ test('optional contact fields may be omitted, including WhatsApp for SMS-only in
         const event = await createEvent(instance, fields);
         assert.equal(event.whatsapp, fields.whatsapp === undefined ? '' : invitation.whatsapp);
         assert.equal(event.sms, fields.sms === undefined ? '' : invitation.sms);
-        const { passwordProtected, invitesSent, ...stored } = event;
+        const { passwordProtected, hostPasswordProtected, invitesSent, ...stored } = event;
         assert.deepEqual(JSON.parse(instance.records.get('rsvp-invitation:' + event.id)), stored);
     }
 });
