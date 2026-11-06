@@ -1784,12 +1784,63 @@ test('event panel recalls codes and links, opens editor, scopes replies and clea
     assert.equal(app.nodes['editor-id'].value, app.event.id);
     assert.equal(app.nodes['editor-sms'].value, app.event.sms);
     row.children[7].click();
+    assert.equal(app.nodes.repliesHeading.focused, true);
     await app.tick();
     assert.equal(app.requests.at(-1).eventId, app.event.id);
     assert.equal(app.nodes.exportEvent.disabled, false);
+    assert.equal(app.nodes.repliesStatus.textContent, 'No RSVPs yet.');
     app.nodes.logout.handlers.click();
     assert.equal(app.nodes.eventsPanel.hidden, true);
+    assert.equal(app.nodes.repliesPanel.hidden, true);
     assert.equal(app.nodes.events.children.length, 0);
+});
+
+test('view replies shows selected event details and GMT timestamps, including legacy replies', async () => {
+    const savedEvents = [
+        { id: 'Ab3xQ9k', title: 'First event', eventType: 'events' },
+        { id: 'Cd4yR8m', title: 'Second event', eventType: 'events' }
+    ];
+    const app = browser({ page: 'admin', savedEvents, replyPages: [[
+        { ...valid, eventId: savedEvents[0].id, name: 'First', createdAt: '2026-07-01T14:30:45+02:00' },
+        { ...valid, eventId: savedEvents[1].id, name: 'Second', guests: 0, notes: '<b>Note</b>',
+            createdAt: '2026-12-01T00:15:00Z' },
+        { ...valid, eventId: savedEvents[1].id, name: 'Legacy', createdAt: 'invalid' },
+        { ...valid, eventId: savedEvents[1].id, name: 'No timestamp', createdAt: undefined }
+    ]] });
+    await app.nodes.loginForm.handlers.submit({ preventDefault() {} });
+    app.nodes.events.children[1].children[7].click();
+    assert.equal(app.nodes.repliesHeading.focused, true);
+    await app.tick();
+    assert.equal(app.nodes.repliesStatus.textContent, 'Responses loaded.');
+    assert.equal(app.nodes.responses.children.length, 1);
+    const lines = app.nodes.responses.children[0].children.slice(1);
+    assert.equal(lines.length, 3);
+    assert.equal(lines[0].children[0].textContent, 'Second — Going');
+    assert.equal(lines[0].children[1].textContent, 'Additional guests: 0');
+    assert.equal(lines[0].children[2].textContent, 'Notes: <b>Note</b>');
+    assert.equal(lines[0].children[3].textContent, 'Submitted: Tue, 01 Dec 2026 00:15:00 GMT');
+    assert.equal(lines[1].children[3].textContent, 'Submitted: Time unavailable');
+    assert.equal(lines[2].children[3].textContent, 'Submitted: Time unavailable');
+    app.nodes.events.children[0].children[7].click();
+    await app.tick();
+    assert.equal(app.nodes.responses.children[0].children[1].children[3].textContent,
+        'Submitted: Wed, 01 Jul 2026 12:30:45 GMT');
+});
+
+test('view replies displays loading failures in the replies panel', async () => {
+    const instance = api();
+    const event = await createEvent(instance);
+    const app = browser({ page: 'admin', apiPost: (payload, token) => {
+        if (payload.action === 'list' && payload.eventId) throw Error('Connection failed');
+        return instance.post(payload, token);
+    } });
+    await app.nodes.loginForm.handlers.submit({ preventDefault() {} });
+    app.nodes.events.children[0].children[7].click();
+    await app.tick();
+    assert.equal(app.nodes.repliesHeading.focused, true);
+    assert.equal(app.nodes.repliesStatus.textContent, 'Connection failed');
+    assert.equal(app.nodes.repliesStatus.classList.contains('error'), true);
+    assert.equal(app.nodes.replyEvent.value, event.id);
 });
 
 test('reply filters skip empty pages, separate same-title events and keep clipboard fallback usable', async () => {

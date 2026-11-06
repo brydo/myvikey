@@ -229,6 +229,8 @@ import { invitationId, invitationPath } from './invitation-id.js';
     var editor = document.getElementById('invitationForm');
     var share = document.getElementById('shareInvitation');
     var eventsPanel = document.getElementById('eventsPanel');
+    var repliesPanel = document.getElementById('repliesPanel');
+    var repliesStatus = document.getElementById('repliesStatus');
     var events = document.getElementById('events');
     var replyEvent = document.getElementById('replyEvent');
     var invitations = [];
@@ -538,7 +540,11 @@ import { invitationId, invitationPath } from './invitation-id.js';
             button('Copy invite code', function () { copy(item.id); });
             button('Copy share link', function () { copy(link.href); });
             button('Open/Edit', function () { showInvitation(item); editor.elements.title.focus(); });
-            button('View replies', function () { replyEvent.value = item.id; filterReplies(); });
+            button('View replies', function () {
+                replyEvent.value = item.id;
+                filterReplies();
+                document.getElementById('repliesHeading').focus();
+            });
             button('Export replies (.csv)', function () { exportReplies(item.id); });
             var deleteMode = document.createElement('select');
             deleteMode.setAttribute('aria-label', 'Replies when deleting ' + item.title);
@@ -721,6 +727,8 @@ import { invitationId, invitationPath } from './invitation-id.js';
         events.replaceChildren();
         replyEvent.replaceChildren();
         eventsPanel.hidden = true;
+        repliesPanel.hidden = true;
+        repliesStatus.textContent = '';
         responses.replaceChildren();
         login.hidden = false;
         actions.hidden = true;
@@ -738,6 +746,12 @@ import { invitationId, invitationPath } from './invitation-id.js';
 
     var groups = new Map();
 
+    function replyStatus(text, error) {
+        repliesStatus.textContent = text;
+        repliesStatus.classList.toggle('error', !!error);
+        status(text, error);
+    }
+
     async function load(append) {
         var session = token;
         var version = ++loadVersion;
@@ -749,7 +763,7 @@ import { invitationId, invitationPath } from './invitation-id.js';
             groups = new Map();
         }
         more.hidden = true;
-        status('Loading responses…');
+        replyStatus('Loading responses…');
         try {
             var payload = { action: 'list', cursor: cursor };
             if (replyEvent.value) payload.eventId = replyEvent.value;
@@ -776,6 +790,16 @@ import { invitationId, invitationPath } from './invitation-id.js';
                 var summary = document.createElement('p');
                 summary.textContent = response.name + ' — ' + ({ yes: 'Going', maybe: 'Maybe' }[response.attending] || 'Not going');
                 line.appendChild(summary);
+                var details = document.createElement('p');
+                details.textContent = 'Additional guests: ' + response.guests;
+                line.appendChild(details);
+                var notes = document.createElement('p');
+                notes.textContent = 'Notes: ' + (response.notes || '—');
+                line.appendChild(notes);
+                var submitted = document.createElement('p');
+                var date = response.createdAt ? new Date(response.createdAt) : null;
+                submitted.textContent = 'Submitted: ' + (date && !isNaN(date.getTime()) ? date.toUTCString() : 'Time unavailable');
+                line.appendChild(submitted);
                 group.appendChild(line);
                 var button = document.createElement('button');
                 button.type = 'button';
@@ -789,11 +813,11 @@ import { invitationId, invitationPath } from './invitation-id.js';
             });
             cursor = data.cursor || '';
             more.hidden = !cursor;
-            status(responses.querySelector('.response') ? 'Responses loaded.' : 'No RSVPs yet.');
+            replyStatus(groups.size ? 'Responses loaded.' : 'No RSVPs yet.');
         } catch (error) {
             if (token !== session || version !== loadVersion) return;
             if (error.status === 401) logout();
-            status(error.message || 'Unable to load responses. Please try again.', true);
+            replyStatus(error.message || 'Unable to load responses. Please try again.', true);
         } finally {
             if (version === loadVersion) {
                 more.disabled = false;
@@ -825,6 +849,7 @@ import { invitationId, invitationPath } from './invitation-id.js';
             if (appearanceForm) appearanceForm.hidden = false;
             editor.hidden = false;
             eventsPanel.hidden = false;
+            repliesPanel.hidden = false;
             await refresh();
         } catch (error) {
             status(error.message || 'Unable to sign in. Please try again.', true);
