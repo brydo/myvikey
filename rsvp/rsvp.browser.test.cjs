@@ -50,6 +50,9 @@ const rgb = hex => 'rgb(' + hex.slice(1).match(/../g).map(value => parseInt(valu
 let records, server, origin, chromeProcess, profile, socket, page, closeBrowser;
 const events = {};
 const holds = {};
+const responseHolds = {};
+const hiddenInvitationKeys = new Set();
+const completedRequests = {};
 let onImageRequest;
 
 function hold(key) {
@@ -57,6 +60,14 @@ function hold(key) {
     const promise = new Promise(resolve => { release = resolve; });
     holds[key] = promise;
     return () => { delete holds[key]; release(); };
+}
+
+function holdResponse(key) {
+    let release, started;
+    const promise = new Promise(resolve => { release = resolve; });
+    const captured = new Promise(resolve => { started = resolve; });
+    responseHolds[key] = { promise, started };
+    return { captured, release: () => { delete responseHolds[key]; release(); } };
 }
 
 function api(body, token, guest) {
@@ -71,7 +82,7 @@ function api(body, token, guest) {
             get: async key => records.get(key) || null,
             delete: async key => records.delete(key),
             list: async ({ prefix, limit, cursor }) => {
-                const keys = [...records.keys()].filter(key => key.startsWith(prefix));
+                const keys = [...records.keys()].filter(key => key.startsWith(prefix) && !hiddenInvitationKeys.has(key));
                 const offset = Number(cursor) || 0;
                 return { keys: keys.slice(offset, offset + limit).map(name => ({ name })),
                     list_complete: offset + limit >= keys.length, cursor: String(offset + limit) };
@@ -94,8 +105,15 @@ async function startServer() {
             if (holds[action]) await holds[action];
             const result = url.pathname === '/api/password' ? Response.json({ success: true, sessionToken: 'valid-session' }) :
                 url.pathname === '/api/rsvp' ? await api(body, request.headers['x-admin-session'], request.headers['x-rsvp-guest-token']) : new Response('', { status: 404 });
+            if (responseHolds[action]) {
+                const held = responseHolds[action];
+                held.started();
+                await held.promise;
+            }
             response.writeHead(result.status, { 'Content-Type': 'application/json' });
-            return response.end(await result.text());
+            response.end(await result.text());
+            completedRequests[action] = (completedRequests[action] || 0) + 1;
+            return;
         }
         if (url.pathname === '/rsvp/theme-client.js' && holds.module) await holds.module;
         let file = /^\/rsvp\/i\/[^/]+\/?$/.test(url.pathname) ? '/rsvp/index.html' :
@@ -195,6 +213,14 @@ async function waitFor(condition, label) {
         await new Promise(resolve => setTimeout(resolve, 25));
     }
     throw new Error('Timed out waiting for ' + (label || condition));
+}
+
+async function waitForRequests(action, count) {
+    for (let attempt = 0; attempt < 400; attempt++) {
+        if ((completedRequests[action] || 0) >= count) return;
+        await new Promise(resolve => setTimeout(resolve, 25));
+    }
+    throw new Error('Timed out waiting for ' + action + ' request');
 }
 
 async function open(url) {
@@ -793,6 +819,55 @@ test('short invitation routes suppress the stock card while the invitation is pe
     } finally { release(); }
     await waitFor('!document.getElementById("openRsvp").hidden && !' + pendingFlag);
     assert.equal(await evaluate('return location.pathname;'), '/rsvp/i/' + invitation.id);
+});
+
+test('new invitations stay in the admin list during stale and overlapping refreshes in every category', { skip }, async () => {
+    for (const type of categories) {
+        await signIn(type);
+        await waitFor('!document.getElementById("refresh").disabled', 'initial refresh');
+        const held = holdResponse('list-invitations');
+        try {
+            await evaluate('document.getElementById("refresh").click(); return true;');
+            await held.captured;
+            await evaluate('document.getElementById("newInvitation").click();' +
+                'const f = document.getElementById("invitationForm"); f.elements.eventType.value = ' + JSON.stringify(type) + ';' +
+                'f.elements.title.value = "Race " + ' + JSON.stringify(type) + ';' +
+                'f.elements.text.value = "Details"; f.requestSubmit(); return true;');
+            await waitFor('document.getElementById("shareInvitation").querySelector("a")', 'saved invitation');
+            const id = await evaluate('return document.getElementById("invitationForm").elements.id.value;');
+            hiddenInvitationKeys.add('rsvp-invitation:' + id);
+            assert.equal(await evaluate('return document.getElementById("events").innerText.includes(' +
+                JSON.stringify('Race ' + type) + ');'), true, type + ' immediately after save');
+            let listCount = (completedRequests.list || 0) + 2;
+            held.release();
+            await waitForRequests('list', listCount);
+            await waitFor('!document.getElementById("refresh").disabled', 'overlapping refresh');
+            assert.equal(await evaluate('return document.getElementById("events").innerText.includes(' +
+                JSON.stringify('Race ' + type) + ');'), true, type + ' after overlapping refresh');
+            listCount = (completedRequests.list || 0) + 2;
+            await evaluate('document.getElementById("refresh").click(); return true;');
+            await waitForRequests('list', listCount);
+            await waitFor('!document.getElementById("refresh").disabled', 'stale refresh');
+            assert.equal(await evaluate('return document.getElementById("events").innerText.includes(' +
+                JSON.stringify('Race ' + type) + ');'), true, type + ' after stale list');
+            hiddenInvitationKeys.delete('rsvp-invitation:' + id);
+            listCount = (completedRequests.list || 0) + 2;
+            await evaluate('document.getElementById("refresh").click(); return true;');
+            await waitForRequests('list', listCount);
+            await waitFor('!document.getElementById("refresh").disabled', 'consistent refresh');
+            assert.equal(await evaluate('return document.getElementById("events").innerText.includes(' +
+                JSON.stringify('Race ' + type) + ');'), true, type + ' after storage catches up');
+            await signIn(type);
+            await waitFor('document.getElementById("events").innerText.includes(' +
+                JSON.stringify('Race ' + type) + ')', 'saved invitation after sign-in');
+            await open('/rsvp/i/' + id);
+            await waitFor('!document.getElementById("openRsvp").hidden', 'saved guest invitation');
+            assert.equal(await evaluate('return document.getElementById("heading").textContent;'), 'Race ' + type);
+        } finally {
+            held.release();
+            hiddenInvitationKeys.clear();
+        }
+    }
 });
 
 test('guest passwords, short sharing, receipts and explicit admin removal work in the browser in every category', { skip }, async () => {
