@@ -1267,6 +1267,44 @@ test('every category uses its current saved background across landing, existing 
     }
 });
 
+test('individual invitation background follows the guest through RSVP and receipt in every category', async () => {
+    for (const eventType of categories) {
+        const instance = api();
+        const personal = 'https://images.example.com/' + eventType + '-personal.jpg';
+        const category = 'https://images.example.com/' + eventType + '-category.jpg';
+        const updatedCategory = 'https://images.example.com/' + eventType + '-updated.jpg';
+        const event = await createEvent(instance, { eventType, backgroundImage: personal });
+        const defaultEvent = await createEvent(instance, { eventType, title: 'Category event' });
+        await instance.post({ action: 'save-appearance', eventType, backgroundImage: category }, 'valid-session');
+        const guest = browser({ search: '?id=' + event.id, apiPost: instance.post });
+        await guest.tick();
+        assert.equal(guest.nodes.body.style['--category-image'], 'url("' + personal + '")');
+        guest.nodes.openRsvp.handlers.click();
+        assert.equal(guest.nodes.body.style['--category-image'], 'url("' + personal + '")');
+        guest.nodes.name.value = 'Guest';
+        guest.nodes.attending.value = 'yes';
+        guest.nodes.guests.value = '0';
+        await guest.nodes.rsvpForm.handlers.submit({ preventDefault() {} });
+        const saved = JSON.parse(guest.stored.get('rsvp_receipt'));
+        const receipt = browser({ page: 'view', search: '?id=' + event.id, saved, apiPost: instance.post });
+        await receipt.tick();
+        assert.equal(receipt.nodes.body.style['--category-image'], 'url("' + personal + '")');
+        assert.equal(receipt.nodes.receipt.children[0].style['--category-image'], 'url("' + category + '")');
+
+        await instance.post({ action: 'save-appearance', eventType, backgroundImage: updatedCategory }, 'valid-session');
+        const personalAfterChange = browser({ page: 'view', search: '?id=' + event.id, saved, apiPost: instance.post });
+        const defaultReceipt = browser({ page: 'view', search: '?id=' + defaultEvent.id, apiPost: instance.post });
+        await Promise.all([personalAfterChange.tick(), defaultReceipt.tick()]);
+        assert.equal(personalAfterChange.nodes.body.style['--category-image'], 'url("' + personal + '")');
+        assert.equal(defaultReceipt.nodes.body.style['--category-image'], 'url("' + updatedCategory + '")');
+
+        await createEvent(instance, { ...event, eventType, backgroundImage: '' });
+        const clearedReceipt = browser({ page: 'view', search: '?id=' + event.id, saved, apiPost: instance.post });
+        await clearedReceipt.tick();
+        assert.equal(clearedReceipt.nodes.body.style['--category-image'], 'url("' + updatedCategory + '")');
+    }
+});
+
 test('Events Halloween default is shared even when appearance loading fails', async () => {
     for (const page of ['landing', 'index', 'view', 'admin']) {
         const app = browser({ page, eventType: 'events', appearanceFails: true,

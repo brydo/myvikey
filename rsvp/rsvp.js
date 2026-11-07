@@ -241,8 +241,8 @@ import { safeAudioUrl } from './themes.js';
         back.href = invitationId(receiptId) ?
             invitationPath(receiptId) :
             (theme(receiptParams.get('type')) === 'celebration' ? '/rsvp/' : '/rsvp/' + theme(receiptParams.get('type')) + '/');
-        function receiptTheme(type) {
-            applyTheme(type);
+        function receiptTheme(type, eventBackground) {
+            window.RSVPThemes.applyEvent(document.body, type, eventBackground || '');
             if (receipt.children.length) window.RSVPThemes.apply(receipt.children[0], type);
             window.RSVPThemes.apply(document.getElementById('sendOptions'), type);
         }
@@ -252,7 +252,7 @@ import { safeAudioUrl } from './themes.js';
                 return;
             }
             post('/api/rsvp', { action: 'get-invitation', id: id }, null, guestToken(id)).then(function (data) {
-                receiptTheme(data.invitation.eventType);
+                receiptTheme(data.invitation.eventType, data.invitation.backgroundImage);
                 finishReceiptTheme(true);
             }).catch(function () {
                 // Keep saved receipt content, but not its unverified background.
