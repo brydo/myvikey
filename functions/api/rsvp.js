@@ -1,5 +1,5 @@
 import { validateSession, hashPassword, verifyPassword, generateSessionToken, checkRateLimit, recordFailedAttempt } from '../lib/auth.js';
-import { eventTypes, theme, normalizeAppearance, validateAppearance, styleIssues, safeBackground } from '../../rsvp/themes.js';
+import { eventTypes, theme, normalizeAppearance, validateAppearance, styleIssues, safeBackground, safeAudioUrl } from '../../rsvp/themes.js';
 import { validInvitationId, invitationId, generateInvitationId } from '../../rsvp/invitation-id.js';
 
 const PREFIX = 'rsvp:';
@@ -73,7 +73,7 @@ function invitationFields(body) {
     result.backgroundImage = body.backgroundImage;
   }
   if (body.audioUrl !== undefined) {
-    if (typeof body.audioUrl !== 'string' || !safeBackground(body.audioUrl)) return null;
+    if (!safeAudioUrl(body.audioUrl)) return null;
     result.audioUrl = body.audioUrl;
   }
   return result;
@@ -184,8 +184,8 @@ export async function onRequestPost({ request, env }) {
         return reply({ success: false, error: 'The invitation background must be a safe HTTPS image URL or blank.' }, 400);
       }
       if (body.audioUrl !== undefined &&
-          (typeof body.audioUrl !== 'string' || !safeBackground(body.audioUrl))) {
-        return reply({ success: false, error: 'The music link must be a safe HTTPS audio URL or blank.' }, 400);
+          !safeAudioUrl(body.audioUrl)) {
+        return reply({ success: false, error: 'Choose a valid audio file or enter a safe HTTPS audio URL.' }, 400);
       }
       const fields = invitationFields(body);
       if (!fields) {
