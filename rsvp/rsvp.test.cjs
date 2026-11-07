@@ -911,7 +911,7 @@ test('expired organiser session hides and clears invitation editor', async () =>
     assert.equal(app.nodes.invitationForm.hidden, true);
     assert.equal(app.nodes.loginForm.hidden, false);
     assert.equal(app.nodes.shareInvitation.children.length, 0);
-    assert.equal(app.nodes.message.textContent, 'Unauthorized');
+    assert.equal(app.nodes.message.textContent, 'Your session has expired. Please sign in again.');
 });
 
 test('event themes persist on invitations while legacy invitations default to classic', async () => {

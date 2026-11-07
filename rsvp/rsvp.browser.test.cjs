@@ -242,10 +242,11 @@ function styles(selector, properties = ['backgroundColor', 'color', 'borderTopCo
         '.map(key => [key, style[key]]));');
 }
 
-async function signIn(type) {
+async function signIn(type, openCategory = true) {
     await open('/rsvp/admin?type=' + type);
     await evaluate('document.getElementById("password").value = "local-fixture"; document.getElementById("loginForm").requestSubmit(); return true;');
     await waitFor('!document.getElementById("appearanceForm").hidden && document.getElementById("message").textContent !== "Signing in…"', 'admin sign in');
+    if (openCategory) await evaluate('document.getElementById("categoryOptions").open = true; return true;');
 }
 
 async function chooseCategory(type) {
@@ -819,6 +820,55 @@ test('short invitation routes suppress the stock card while the invitation is pe
     } finally { release(); }
     await waitFor('!document.getElementById("openRsvp").hidden && !' + pendingFlag);
     assert.equal(await evaluate('return location.pathname;'), '/rsvp/i/' + invitation.id);
+});
+
+test('simplified admin keeps advanced options available and save feedback beside the invitation', { skip }, async () => {
+    await signIn('weddings', false);
+    assert.equal(await evaluate('return document.getElementById("categoryOptions").open;'), false);
+    assert.equal(await evaluate('return document.querySelectorAll("#invitationForm details[open]").length;'), 0);
+    assert.equal(await evaluate('return document.getElementById("eventBackground").checkVisibility();'), true);
+
+    await evaluate('const f = document.getElementById("invitationForm");' +
+        'f.elements.title.value = "Simplified wedding"; f.elements.text.value = "Wedding details";' +
+        'f.elements.id.value = "not a code"; f.elements.guestPassword.value = "guest-password";' +
+        'f.requestSubmit(); return true;');
+    await waitFor('document.getElementById("invitationStatus").textContent.includes("invitation code is invalid")', 'inline save error');
+    assert.equal(await evaluate('return document.getElementById("invitationForm").elements.guestPassword.value;'), 'guest-password');
+    assert.equal(await evaluate('return document.getElementById("invitationForm").elements.title.value;'), 'Simplified wedding');
+
+    await evaluate('const f = document.getElementById("invitationForm"); f.elements.id.value = "";' +
+        'f.elements.whatsapp.value = "invalid"; f.requestSubmit(); return true;');
+    assert.equal(await evaluate('return document.getElementById("whatsapp").closest("details").open;'), true);
+    await evaluate('const f = document.getElementById("invitationForm"); f.elements.whatsapp.value = "+447700900123";' +
+        'f.elements.invitesSent.value = "12"; f.elements.eventBackground.value = "https://example.com/wedding.jpg";' +
+        'f.elements.hostPassword.value = "host-password"; f.requestSubmit(); return true;');
+    await waitFor('document.getElementById("invitationStatus").textContent.includes("Invitation saved")', 'inline save success');
+    const saved = await evaluate('const f = document.getElementById("invitationForm"); return {' +
+        'id: f.elements.id.value, mode: document.getElementById("editorMode").textContent,' +
+        'link: document.getElementById("shareInvitation").querySelector("a").href };');
+    assert.match(saved.mode, /Editing: Simplified wedding/);
+    assert.match(saved.link, new RegExp('/rsvp/i/' + saved.id + '$'));
+    const stored = JSON.parse(records.get('rsvp-invitation:' + saved.id));
+    assert.equal(stored.backgroundImage, 'https://example.com/wedding.jpg');
+    assert.equal(stored.whatsapp, '+447700900123');
+    assert.equal(stored.invitesSent, 12);
+    assert.ok(stored.guestPasswordHash && stored.hostPasswordHash);
+    assert.equal(await evaluate('return document.getElementById("categoryOptions").open;'), false);
+    const previousAppearance = records.get('rsvp-appearance:weddings');
+    try {
+        await evaluate('document.getElementById("categoryOptions").open = true;' +
+            'const input = document.getElementById("backgroundImage"); input.value = "https://example.com/category.jpg";' +
+            'input.dispatchEvent(new Event("input", { bubbles: true })); return true;');
+        assert.equal((await saveAppearance()).state, 'success');
+        assert.equal(JSON.parse(records.get('rsvp-appearance:weddings')).backgroundImage, 'https://example.com/category.jpg');
+        assert.equal(JSON.parse(records.get('rsvp-invitation:' + saved.id)).backgroundImage, 'https://example.com/wedding.jpg');
+    } finally {
+        if (previousAppearance === undefined) records.delete('rsvp-appearance:weddings');
+        else records.set('rsvp-appearance:weddings', previousAppearance);
+    }
+    await evaluate('document.getElementById("newInvitation").click(); return true;');
+    assert.equal(await evaluate('return document.getElementById("invitationForm").elements.id.value;'), '');
+    assert.match(await evaluate('return document.getElementById("editorMode").textContent;'), /Creating a new invitation/);
 });
 
 test('new invitations stay in the admin list during stale and overlapping refreshes in every category', { skip }, async () => {

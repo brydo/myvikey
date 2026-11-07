@@ -262,11 +262,29 @@ import { invitationId, invitationPath } from './invitation-id.js';
     var styleEditor = document.getElementById('styleEditor');
     var appearancePreview = document.getElementById('appearancePreview');
     var appearanceStatus = document.getElementById('appearanceStatus');
+    var invitationStatus = document.getElementById('invitationStatus');
+    var editorMode = document.getElementById('editorMode');
     var categoryNames = { celebration: 'Classic celebration', events: 'Events', weddings: 'Weddings',
         parties: 'Parties', engagements: 'Engagements' };
     // Unsaved edits per category survive late appearance reads, category switches and failed saves.
     var drafts = {};
     var styleErrors = {};
+    function revealField(field) {
+        var parent = field.parentElement;
+        while (parent) {
+            if (parent.tagName === 'DETAILS') parent.open = true;
+            parent = parent.parentElement;
+        }
+    }
+    [editor, appearanceForm].forEach(function (form) {
+        if (form) form.addEventListener('invalid', function (event) {
+            revealField(event.target);
+        }, true);
+    });
+    function invitationMessage(text, error) {
+        invitationStatus.textContent = text;
+        invitationStatus.classList.toggle('error', !!error);
+    }
     function selectedTheme() { return theme(editor.elements.eventType.value); }
     function appearanceMessage(text, state) {
         if (!appearanceStatus) return;
@@ -400,6 +418,7 @@ import { invitationId, invitationPath } from './invitation-id.js';
                 appearanceMessage('Not saved. ' + issues.map(function (issue) { return issue.message; }).join(' ') +
                     ' Your unsaved changes are still here.', 'error');
                 var invalid = appearanceForm.elements['style-' + issues[0].field];
+                revealField(invalid);
                 if (invalid.focus) invalid.focus();
                 return;
             }
@@ -443,6 +462,7 @@ import { invitationId, invitationPath } from './invitation-id.js';
         editor.elements.eventBackground.value = invitation.backgroundImage || '';
         editor.elements.invitesSent.value = invitation.invitesSent || 0;
         editor.elements.eventType.value = theme(invitation.eventType);
+        editorMode.textContent = 'Editing: ' + invitation.title + '. Choose New invitation to create another.';
         if (editor.elements.guestPassword) editor.elements.guestPassword.value = '';
         if (editor.elements.removeGuestPassword) editor.elements.removeGuestPassword.checked = false;
         var protectionStatus = document.getElementById('guestProtectionStatus');
@@ -466,6 +486,8 @@ import { invitationId, invitationPath } from './invitation-id.js';
 
     function resetInvitationEditor() {
         editor.reset();
+        editorMode.textContent = 'Creating a new invitation.';
+        invitationMessage('');
         var protectionStatus = document.getElementById('guestProtectionStatus');
         if (protectionStatus) protectionStatus.textContent = '';
         var hostStatus = document.getElementById('hostProtectionStatus');
@@ -477,24 +499,23 @@ import { invitationId, invitationPath } from './invitation-id.js';
         var session = token;
         var button = editor.querySelector('button[type="submit"]');
         button.disabled = true;
-        var payload = { action: 'save-invitation', eventType: theme(editor.elements.eventType.value) };
-        ['title', 'text', 'whatsapp', 'sms'].forEach(function (field) {
-            payload[field] = editor.elements[field].value.trim();
-        });
-        payload.backgroundImage = editor.elements.eventBackground.value.trim();
-        payload.invitesSent = Number(editor.elements.invitesSent.value) || 0;
-        if (editor.elements.id.value.trim()) payload.id = editor.elements.id.value.trim();
-        if (editor.elements.guestPassword && editor.elements.guestPassword.value) {
-            payload.guestPassword = editor.elements.guestPassword.value;
-        }
-        if (editor.elements.removeGuestPassword && editor.elements.removeGuestPassword.checked) payload.removeGuestPassword = true;
-        if (editor.elements.guestPassword) editor.elements.guestPassword.value = '';
-        if (editor.elements.hostPassword && editor.elements.hostPassword.value) {
-            payload.hostPassword = editor.elements.hostPassword.value;
-        }
-        if (editor.elements.removeHostPassword && editor.elements.removeHostPassword.checked) payload.removeHostPassword = true;
-        if (editor.elements.hostPassword) editor.elements.hostPassword.value = '';
+        invitationMessage('Saving invitation…');
         try {
+            var payload = { action: 'save-invitation', eventType: theme(editor.elements.eventType.value) };
+            ['title', 'text', 'whatsapp', 'sms'].forEach(function (field) {
+                payload[field] = editor.elements[field].value.trim();
+            });
+            payload.backgroundImage = editor.elements.eventBackground.value.trim();
+            payload.invitesSent = Number(editor.elements.invitesSent.value) || 0;
+            if (editor.elements.id.value.trim()) payload.id = editor.elements.id.value.trim();
+            if (editor.elements.guestPassword && editor.elements.guestPassword.value) {
+                payload.guestPassword = editor.elements.guestPassword.value;
+            }
+            if (editor.elements.removeGuestPassword && editor.elements.removeGuestPassword.checked) payload.removeGuestPassword = true;
+            if (editor.elements.hostPassword && editor.elements.hostPassword.value) {
+                payload.hostPassword = editor.elements.hostPassword.value;
+            }
+            if (editor.elements.removeHostPassword && editor.elements.removeHostPassword.checked) payload.removeHostPassword = true;
             var data = await post('/api/rsvp', payload, session);
             if (token !== session) return;
             showInvitation(data.invitation);
@@ -508,11 +529,16 @@ import { invitationId, invitationPath } from './invitation-id.js';
             if (index < 0) invitations.push(updated);
             else invitations[index] = updated;
             renderEvents();
-            status('Invitation saved. Share its link with your guests.');
+            invitationMessage('Invitation saved. Share its link with your guests.');
         } catch (error) {
             if (token !== session) return;
-            if (error.status === 401) logout();
-            status(error.message, true);
+            if (error.status === 401) {
+                logout();
+                status('Your session has expired. Please sign in again.', true);
+            } else {
+                invitationMessage('Not saved. ' + (error.message || 'Please try again.') +
+                    ' Your invitation details are still here.', true);
+            }
         } finally { button.disabled = false; }
     });
     document.getElementById('loadInvitation').addEventListener('click', async function () {
@@ -520,7 +546,7 @@ import { invitationId, invitationPath } from './invitation-id.js';
         try {
             var data = await post('/api/rsvp', { action: 'get-invitation', id: editor.elements.id.value.trim() }, session);
             if (token === session) showInvitation(data.invitation);
-        } catch (error) { if (token === session) status(error.message, true); }
+        } catch (error) { if (token === session) invitationMessage('Could not open invitation. ' + error.message, true); }
     });
     document.getElementById('newInvitation').addEventListener('click', function () {
         resetInvitationEditor();
@@ -528,7 +554,7 @@ import { invitationId, invitationPath } from './invitation-id.js';
         applyTheme(initialTheme);
         showBackground();
         share.replaceChildren();
-        status('New invitation. Save to create a separate share link.');
+        invitationMessage('New invitation. Save to create a separate share link.');
     });
 
     function renderEvents() {

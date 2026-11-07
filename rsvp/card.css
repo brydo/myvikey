@@ -272,6 +272,14 @@ dd { color: var(--ink); white-space: pre-wrap; overflow-wrap: anywhere; margin-b
 .appearance-preview > p { background: var(--card-surface); color: var(--card-text); padding: 12px; }
 details { margin: 20px 0; }
 summary { cursor: pointer; font-weight: 600; margin-bottom: 16px; }
+.admin-options {
+    padding: 12px 14px;
+    border: 1px solid var(--btn-border, var(--border, #d8bda2));
+    border-radius: 12px;
+}
+.admin-options > summary { margin-bottom: 0; }
+.admin-options[open] > summary { margin-bottom: 16px; }
+#editorMode, #eventBackgroundHint, #invitationStatus, .admin-shortcuts { margin: 12px 0; }
 @media (max-width: 480px) {
     .wrap { padding-right: 16px; padding-left: 16px; gap: 14px; }
 }
