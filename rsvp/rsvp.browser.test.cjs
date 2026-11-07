@@ -573,6 +573,68 @@ test('first paints stay neutral before modules and delayed settings, never expos
     }
 });
 
+test('individual backgrounds follow guest submission to confirmation without changing other invitations', { skip }, async () => {
+    await images();
+    const previousAppearances = new Map(categories.map(type => [type, records.get('rsvp-appearance:' + type)]));
+    try {
+        for (const type of categories) {
+            const categoryImage = fixtureImage(type + '-category');
+            const personalImage = fixtureImage(type + '-personal');
+            records.set('rsvp-appearance:' + type, JSON.stringify({ backgroundImage: categoryImage, updatedAt: 2000000000000 }));
+            const personal = (await (await api(JSON.stringify({ action: 'save-invitation', eventType: type,
+                title: 'Personal ' + type, text: 'Personal invitation', backgroundImage: personalImage }), 'valid-session')).json()).invitation;
+            const other = (await (await api(JSON.stringify({ action: 'save-invitation', eventType: type,
+                title: 'Other ' + type, text: 'Category invitation' }), 'valid-session')).json()).invitation;
+            await open('/rsvp/i/' + personal.id);
+            await waitFor('!document.getElementById("openRsvp").hidden && document.body.classList.contains("rsvp-theme-ready")');
+            assert.equal((await styles('body', ['backgroundImage'])).backgroundImage, 'url("' + personalImage + '")');
+            await evaluate('document.getElementById("openRsvp").click(); const f = document.getElementById("rsvpForm");' +
+                'f.elements.name.value = "Guest"; f.elements.attending.value = "yes"; f.elements.guests.value = "0"; return true;');
+            assert.equal((await styles('body', ['backgroundImage'])).backgroundImage, 'url("' + personalImage + '")');
+            await evaluate('document.getElementById("rsvpForm").requestSubmit(); return true;');
+            await waitFor('location.pathname === "/rsvp/view" && document.body.classList.contains("rsvp-theme-ready")', 'confirmation');
+            assert.equal((await styles('body', ['backgroundImage'])).backgroundImage, 'url("' + personalImage + '")');
+            assert.equal(await evaluate('return document.getElementById("receipt").children.length;'), 1);
+            await open('/rsvp/i/' + other.id);
+            await waitFor('!document.getElementById("openRsvp").hidden && document.body.classList.contains("rsvp-theme-ready")');
+            assert.equal((await styles('body', ['backgroundImage'])).backgroundImage, 'url("' + categoryImage + '")');
+        }
+    } finally {
+        previousAppearances.forEach((value, type) => {
+            if (value === undefined) records.delete('rsvp-appearance:' + type);
+            else records.set('rsvp-appearance:' + type, value);
+        });
+        await page('Fetch.disable');
+        onImageRequest = undefined;
+    }
+});
+
+test('password-protected confirmation uses its invitation background without revealing it on failed access', { skip }, async () => {
+    const type = 'weddings', personalImage = fixtureImage('protected-personal');
+    await images();
+    try {
+        const event = (await (await api(JSON.stringify({ action: 'save-invitation', eventType: type,
+            title: 'Private wedding', text: 'Private details', backgroundImage: personalImage,
+            guestPassword: 'guest-secret' }), 'valid-session')).json()).invitation;
+        await open('/rsvp/i/' + event.id);
+        await waitFor('!document.getElementById("guestUnlock").hidden');
+        await evaluate('const f = document.getElementById("guestUnlock"); f.elements.password.value = "guest-secret"; f.requestSubmit(); return true;');
+        await waitFor('!document.getElementById("openRsvp").hidden && document.body.classList.contains("rsvp-theme-ready")');
+        assert.equal((await styles('body', ['backgroundImage'])).backgroundImage, 'url("' + personalImage + '")');
+        await evaluate('document.getElementById("openRsvp").click(); const f = document.getElementById("rsvpForm");' +
+            'f.elements.name.value = "Guest"; f.elements.attending.value = "yes"; f.elements.guests.value = "0"; f.requestSubmit(); return true;');
+        await waitFor('location.pathname === "/rsvp/view" && document.body.classList.contains("rsvp-theme-ready")');
+        assert.equal((await styles('body', ['backgroundImage'])).backgroundImage, 'url("' + personalImage + '")');
+        await evaluate('sessionStorage.removeItem("rsvp_guest:' + event.id + '"); return true;');
+        await navigate('/rsvp/view?type=weddings&id=' + event.id);
+        await waitFor('document.body.classList.contains("rsvp-theme-neutral")');
+        assert.equal((await styles('body', ['backgroundImage'])).backgroundImage, 'none');
+    } finally {
+        await page('Fetch.disable');
+        onImageRequest = undefined;
+    }
+});
+
 test('guest and receipt backgrounds wait for the invitation category, not generic, URL or saved receipt hints', { skip }, async () => {
     for (const type of categories.filter(type => type !== 'celebration')) {
         for (const receipt of [false, true]) {
