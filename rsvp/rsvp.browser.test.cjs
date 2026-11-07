@@ -822,6 +822,98 @@ test('short invitation routes suppress the stock card while the invitation is pe
     assert.equal(await evaluate('return location.pathname;'), '/rsvp/i/' + invitation.id);
 });
 
+test('music invites try autoplay and fall back to a tap across all categories', { skip }, async () => {
+    const script = await page('Page.addScriptToEvaluateOnNewDocument', { source: `
+        window.__musicAttempts = 0;
+        HTMLMediaElement.prototype.play = function () {
+            window.__musicAttempts++;
+            return window.__musicMode === 'allowed' || (window.__musicMode !== 'fail' && window.__musicAttempts > 1) ?
+                Promise.resolve() : Promise.reject(new DOMException('Blocked', 'NotAllowedError'));
+        };
+        window.__musicMode = sessionStorage.getItem('test-music-mode');
+    ` });
+    try {
+        await open('/rsvp/');
+        for (const type of categories) {
+            const response = await api(JSON.stringify({ action: 'save-invitation', eventType: type,
+                title: 'Music ' + type, text: 'Music invitation', audioUrl: 'https://music.example.com/' + type + '.mp3',
+                ...(type === 'weddings' ? { guestPassword: 'guest-secret' } : {}) }), 'valid-session');
+            const invitation = (await response.json()).invitation;
+            await evaluate('sessionStorage.setItem("test-music-mode", "blocked"); return true;');
+            await open('/rsvp/i/' + invitation.id);
+            if (type === 'weddings') {
+                await waitFor('!document.getElementById("guestUnlock").hidden', 'guest password');
+                assert.equal(await evaluate('return window.__musicAttempts;'), 0);
+                await evaluate('const f = document.getElementById("guestUnlock"); f.elements.password.value = "guest-secret"; f.requestSubmit(); return true;');
+            }
+            await waitFor('!document.getElementById("openMusicInvitation").hidden', 'music open button');
+            assert.equal(await evaluate('return document.getElementById("invitationText").hidden;'), true);
+            assert.equal(await evaluate('return document.getElementById("openRsvp").hidden;'), true);
+            assert.equal(await evaluate('return window.__musicAttempts;'), 1);
+            await evaluate('document.getElementById("openMusicInvitation").click(); return true;');
+            assert.equal(await evaluate('return window.__musicAttempts;'), 2);
+            assert.equal(await evaluate('return document.getElementById("invitationText").hidden;'), false);
+            assert.equal(await evaluate('return document.getElementById("invitationMusic").hidden;'), false);
+            assert.equal(await evaluate('return document.getElementById("openRsvp").hidden;'), false);
+            await evaluate('document.getElementById("openRsvp").click(); return true;');
+            assert.equal(await evaluate('return document.getElementById("rsvpForm").hidden;'), false);
+
+            await evaluate('sessionStorage.setItem("test-music-mode", "allowed"); return true;');
+            await open('/rsvp/i/' + invitation.id);
+            await waitFor('!document.getElementById("invitationMusic").hidden', 'allowed autoplay');
+            assert.equal(await evaluate('return window.__musicAttempts;'), 1);
+            assert.equal(await evaluate('return document.getElementById("openMusicInvitation").hidden;'), true);
+            assert.equal(await evaluate('return document.getElementById("invitationText").hidden;'), false);
+        }
+        await evaluate('sessionStorage.setItem("test-music-mode", "fail"); return true;');
+        const response = await api(JSON.stringify({ action: 'save-invitation', title: 'Broken music',
+            text: 'Still accessible', audioUrl: 'https://music.example.com/broken.mp3' }), 'valid-session');
+        await open('/rsvp/i/' + (await response.json()).invitation.id);
+        await waitFor('!document.getElementById("openMusicInvitation").hidden');
+        await evaluate('document.getElementById("openMusicInvitation").click(); return true;');
+        await waitFor('document.getElementById("musicStatus").textContent.includes("could not be played")');
+        assert.equal(await evaluate('return document.getElementById("invitationText").textContent;'), 'Still accessible');
+        assert.equal(await evaluate('return document.getElementById("openRsvp").hidden;'), false);
+    } finally {
+        await page('Page.removeScriptToEvaluateOnNewDocument', { identifier: script.identifier });
+    }
+});
+
+test('a guest can actually play a direct HTTPS audio file in the browser', { skip }, async () => {
+    const sampleRate = 8000, samples = sampleRate * 8;
+    const wav = Buffer.alloc(44 + samples * 2);
+    wav.write('RIFF', 0); wav.writeUInt32LE(wav.length - 8, 4); wav.write('WAVEfmt ', 8);
+    wav.writeUInt32LE(16, 16); wav.writeUInt16LE(1, 20); wav.writeUInt16LE(1, 22);
+    wav.writeUInt32LE(sampleRate, 24); wav.writeUInt32LE(sampleRate * 2, 28);
+    wav.writeUInt16LE(2, 32); wav.writeUInt16LE(16, 34); wav.write('data', 36);
+    wav.writeUInt32LE(samples * 2, 40);
+    for (let i = 0; i < samples; i++) wav.writeInt16LE(Math.round(4000 * Math.sin(i * 2 * Math.PI * 440 / sampleRate)), 44 + i * 2);
+    let mediaRequests = 0;
+    onImageRequest = request => {
+        mediaRequests++;
+        page('Fetch.fulfillRequest', { requestId: request.requestId, responseCode: 200,
+            responseHeaders: [{ name: 'Content-Type', value: 'audio/wav' }],
+            body: wav.toString('base64') });
+    };
+    await page('Fetch.enable', { patterns: [{ urlPattern: 'https://music.example.com/*' }] });
+    try {
+        const response = await api(JSON.stringify({ action: 'save-invitation', eventType: 'weddings',
+            title: 'Real music', text: 'Music details', audioUrl: 'https://music.example.com/test.wav' }), 'valid-session');
+        const invitation = (await response.json()).invitation;
+        await open('/rsvp/i/' + invitation.id);
+        await waitFor('!document.getElementById("openMusicInvitation").hidden || !document.getElementById("invitationMusic").hidden');
+        await page('Runtime.evaluate', { expression: `if (!document.getElementById('openMusicInvitation').hidden)
+            document.getElementById('openMusicInvitation').click();
+            else document.getElementById('musicPlayer').play();`, userGesture: true });
+        await waitFor('document.getElementById("musicPlayer").currentTime > 0', 'actual audio playback');
+        assert.ok(mediaRequests > 0);
+        assert.equal(await evaluate('return document.getElementById("musicPlayer").paused;'), false);
+    } finally {
+        await page('Fetch.disable');
+        onImageRequest = undefined;
+    }
+});
+
 test('simplified admin keeps advanced options available and save feedback beside the invitation', { skip }, async () => {
     await signIn('weddings', false);
     assert.equal(await evaluate('return document.getElementById("categoryOptions").open;'), false);
@@ -830,6 +922,7 @@ test('simplified admin keeps advanced options available and save feedback beside
 
     await evaluate('const f = document.getElementById("invitationForm");' +
         'f.elements.title.value = "Simplified wedding"; f.elements.text.value = "Wedding details";' +
+        'f.elements.audioUrl.value = "https://music.example.com/first.mp3";' +
         'f.elements.id.value = "not a code"; f.elements.guestPassword.value = "guest-password";' +
         'f.requestSubmit(); return true;');
     await waitFor('document.getElementById("invitationStatus").textContent.includes("invitation code is invalid")', 'inline save error');
@@ -850,9 +943,17 @@ test('simplified admin keeps advanced options available and save feedback beside
     assert.match(saved.link, new RegExp('/rsvp/i/' + saved.id + '$'));
     const stored = JSON.parse(records.get('rsvp-invitation:' + saved.id));
     assert.equal(stored.backgroundImage, 'https://example.com/wedding.jpg');
+    assert.equal(stored.audioUrl, 'https://music.example.com/first.mp3');
     assert.equal(stored.whatsapp, '+447700900123');
     assert.equal(stored.invitesSent, 12);
     assert.ok(stored.guestPasswordHash && stored.hostPasswordHash);
+    await evaluate('const row = [...document.querySelectorAll("#events .event-item")].find(item => item.textContent.includes("Simplified wedding"));' +
+        '[...row.querySelectorAll("button")].find(button => button.textContent === "Open/Edit").click(); return true;');
+    assert.equal(await evaluate('return document.getElementById("invitationForm").elements.audioUrl.value;'), 'https://music.example.com/first.mp3');
+    await evaluate('const f = document.getElementById("invitationForm"); f.elements.audioUrl.value = "https://music.example.com/changed.mp3";' +
+        'document.getElementById("invitationStatus").textContent = ""; f.requestSubmit(); return true;');
+    await waitFor('document.getElementById("invitationStatus").textContent.includes("Invitation saved")', 'music edit saved');
+    assert.equal(JSON.parse(records.get('rsvp-invitation:' + saved.id)).audioUrl, 'https://music.example.com/changed.mp3');
     assert.equal(await evaluate('return document.getElementById("categoryOptions").open;'), false);
     const previousAppearance = records.get('rsvp-appearance:weddings');
     try {

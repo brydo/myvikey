@@ -297,7 +297,7 @@ test('optional contact fields may be omitted, including WhatsApp for SMS-only in
         const event = await createEvent(instance, fields);
         assert.equal(event.whatsapp, fields.whatsapp === undefined ? '' : invitation.whatsapp);
         assert.equal(event.sms, fields.sms === undefined ? '' : invitation.sms);
-        const { passwordProtected, hostPasswordProtected, invitesSent, backgroundImage, ...stored } = event;
+        const { passwordProtected, hostPasswordProtected, invitesSent, backgroundImage, audioUrl, ...stored } = event;
         assert.deepEqual(JSON.parse(instance.records.get('rsvp-invitation:' + event.id)), stored);
     }
 });
@@ -440,7 +440,7 @@ function browser({ page = 'index', storageFails = false, saved, failSave = false
     if (page === 'admin') {
         node('password').value = 'test-only-password';
         node('invitationForm').elements = Object.fromEntries(
-            ['id', 'title', 'text', 'whatsapp', 'sms', 'invitesSent', 'eventType', 'eventBackground'].map(id => [id, node('editor-' + id)])
+            ['id', 'title', 'text', 'whatsapp', 'sms', 'invitesSent', 'eventType', 'eventBackground', 'audioUrl'].map(id => [id, node('editor-' + id)])
         );
     }
     const event = { id: 'Ab3xQ9k', title: 'Saved party', text: '<img src=x>\nSecond line', whatsapp: invitation.whatsapp, sms: invitation.sms };

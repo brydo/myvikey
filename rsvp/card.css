@@ -84,6 +84,8 @@ h1 { font-family: var(--heading-font); font-size: clamp(2.2rem, 8vw, 3rem); font
 #invitationText { padding: 28px 16px; border: 1px solid #dcc6a5; margin: 8px 0 24px; font-size: 1.15rem; background: #fffdf9; }
 #invitationHelp, #contactHint { margin: 16px 0; }
 #shareInvitation { overflow-wrap: anywhere; margin-top: 16px; }
+#invitationMusic { margin: 16px 0; }
+#musicPlayer { width: 100%; max-width: 360px; }
 #sendOptions .rsvp-btn { margin: 12px 8px 0 0; text-decoration: none; }
 .rsvp-section { padding: 18px 24px 0; }
 label { display: block; margin-bottom: 6px; font-weight: 600; }
