@@ -143,12 +143,15 @@ test('music links are per invitation, editable, clearable, and protected with gu
     assert.equal((await save(app, { id: first.id, eventType: 'weddings' })).audioUrl, first.audioUrl);
     assert.equal((await save(app, { id: first.id, eventType: 'weddings', audioUrl: 'https://music.example.com/new.mp3' })).audioUrl, 'https://music.example.com/new.mp3');
     assert.equal((await save(app, { id: first.id, eventType: 'weddings', audioUrl: '' })).audioUrl, '');
+    const r2Url = '/api/audio?file=' + encodeURIComponent('weddings/Our song (1).mp3');
+    assert.equal((await save(app, { id: first.id, eventType: 'weddings', audioUrl: r2Url })).audioUrl, r2Url);
     assert.equal((await (await app.post({ action: 'get-invitation', id: second.id })).json()).invitation.audioUrl, second.audioUrl);
     for (const audioUrl of ['http://example.com/song.mp3', 'javascript:alert(1)', 'https://user:pass@example.com/song.mp3',
-        'https://exa mple.com/song.mp3', 'https://' + 'x'.repeat(2041), 42]) {
+        'https://exa mple.com/song.mp3', 'https://' + 'x'.repeat(2041), 42, '/api/audio?file=../song.mp3',
+        '/api/audio?file=song.mp3&other=1', '/api/audio?file=notes.txt', '/api/audio?file=%ZZ']) {
         const response = await app.post({ ...invitation, audioUrl }, { admin: true });
         assert.equal(response.status, 400);
-        assert.match((await response.json()).error, /music link/i);
+        assert.match((await response.json()).error, /audio/i);
     }
 });
 

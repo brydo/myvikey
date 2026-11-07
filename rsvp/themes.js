@@ -25,6 +25,20 @@ export function safeBackground(value) {
     }
 }
 
+export function safeAudioUrl(value) {
+    if (typeof value !== 'string' || value.length > 2048) return false;
+    if (!value.startsWith('/api/audio?file=')) return safeBackground(value);
+    try {
+        const encoded = value.slice('/api/audio?file='.length);
+        const key = decodeURIComponent(encoded);
+        return !!key && encodeURIComponent(key) === encoded && !key.startsWith('/') &&
+            !key.includes('../') && !/[\u0000-\u001f\u007f]/.test(key) &&
+            /\.(mp3|wav|m4a|ogg|aac|flac)$/i.test(key);
+    } catch {
+        return false;
+    }
+}
+
 export const copyFields = {
     brand: { label: 'Brand', max: 100, default: 'V I Key® · RSVP' },
     tagline: { label: 'Tagline', max: 100, default: 'Together is a beautiful place to be' },

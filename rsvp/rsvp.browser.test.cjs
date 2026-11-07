@@ -20,6 +20,7 @@ const model = runInNewContext(themesSource + '\n({ buttonHover, contrastIssues, 
 const idsSource = readFileSync(`${__dirname}/invitation-id.js`, 'utf8').replace(/^export /gm, '');
 const apiSource = themesSource + '\n' + idsSource + '\n' + readFileSync(`${root}/functions/api/rsvp.js`, 'utf8')
     .replace(/^import .*;\n/gm, '').replace('export async function', 'async function');
+const audioSource = readFileSync(`${root}/functions/api/audio.js`, 'utf8').replace('export async function', 'async function');
 const categories = ['celebration', 'events', 'weddings', 'parties', 'engagements'];
 const authSource = readFileSync(`${root}/functions/lib/auth.js`, 'utf8')
     .replace(/^import .*;\n/gm, '').replace(/^export /gm, '');
@@ -54,6 +55,22 @@ const responseHolds = {};
 const hiddenInvitationKeys = new Set();
 const completedRequests = {};
 let onImageRequest;
+let audioListFailure = false;
+const audioRecords = new Map();
+const audioContext = { URL, Response };
+runInNewContext(audioSource, audioContext);
+const audioBucket = {
+    async head(key) { const data = audioRecords.get(key); return data ? { size: data.length } : null; },
+    async get(key, options) {
+        const data = audioRecords.get(key);
+        if (!data) return null;
+        const range = options && options.range;
+        return { size: data.length, body: range ? data.subarray(range.offset, range.offset + range.length) : data };
+    },
+    async list() {
+        return { objects: [...audioRecords].map(([key, data]) => ({ key, size: data.length, uploaded: new Date(0) })), truncated: false };
+    }
+};
 
 function hold(key) {
     let release;
@@ -98,6 +115,18 @@ async function startServer() {
     const types = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.css': 'text/css' };
     server = createServer(async (request, response) => {
         const url = new URL(request.url, 'http://localhost');
+        if (request.method === 'GET' && url.pathname === '/api/audio') {
+            if (!url.searchParams.has('file') && holds['audio-list']) await holds['audio-list'];
+            if (!url.searchParams.has('file') && audioListFailure) {
+                response.writeHead(503);
+                return response.end('Unavailable');
+            }
+            const result = await audioContext.onRequestGet({ request: new Request(origin + request.url, { headers: request.headers }),
+                env: { AUDIO_FILES: audioBucket } });
+            response.writeHead(result.status, Object.fromEntries(result.headers));
+            response.end(Buffer.from(await result.arrayBuffer()));
+            return;
+        }
         if (request.method === 'POST') {
             let body = '';
             for await (const chunk of request) body += chunk;
@@ -911,6 +940,86 @@ test('a guest can actually play a direct HTTPS audio file in the browser', { ski
     } finally {
         await page('Fetch.disable');
         onImageRequest = undefined;
+    }
+});
+
+test('R2 music selector preserves links, supports refresh, edits and guest playback', { skip }, async () => {
+    const sampleRate = 8000, samples = sampleRate * 8;
+    const wav = Buffer.alloc(44 + samples * 2);
+    wav.write('RIFF', 0); wav.writeUInt32LE(wav.length - 8, 4); wav.write('WAVEfmt ', 8);
+    wav.writeUInt32LE(16, 16); wav.writeUInt16LE(1, 20); wav.writeUInt16LE(1, 22);
+    wav.writeUInt32LE(sampleRate, 24); wav.writeUInt32LE(sampleRate * 2, 28);
+    wav.writeUInt16LE(2, 32); wav.writeUInt16LE(16, 34); wav.write('data', 36);
+    wav.writeUInt32LE(samples * 2, 40);
+    for (let i = 0; i < samples; i++) wav.writeInt16LE(Math.round(4000 * Math.sin(i * 2 * Math.PI * 440 / sampleRate)), 44 + i * 2);
+    const key = 'weddings/Our song (1).wav';
+    const storedUrl = '/api/audio?file=' + encodeURIComponent(key);
+    audioRecords.set(key, wav);
+    audioRecords.set('notes.txt', Buffer.from('not audio'));
+    try {
+        await signIn('weddings', false);
+        await evaluate('const f = document.getElementById("invitationForm"); f.elements.title.value = "R2 wedding";' +
+            'f.elements.text.value = "Details"; f.elements.audioUrl.value = "https://example.com/old.mp3";' +
+            'document.getElementById("musicOptions").open = true; return true;');
+        await waitFor('document.getElementById("audioFilesStatus").textContent.includes("audio file(s) available")', 'audio list');
+        assert.deepEqual(await evaluate('return [...document.getElementById("audioFiles").options].map(option => option.textContent);'),
+            ['No music', key, 'Current music link (not in this list)']);
+        assert.equal(await evaluate('return document.getElementById("audioFiles").value;'), 'https://example.com/old.mp3');
+        await evaluate('const s = document.getElementById("audioFiles"); s.value = ' + JSON.stringify(storedUrl) +
+            '; s.dispatchEvent(new Event("change", { bubbles: true })); document.getElementById("invitationForm").requestSubmit(); return true;');
+        await waitFor('document.getElementById("invitationStatus").textContent.includes("Invitation saved")');
+        const id = await evaluate('return document.getElementById("invitationForm").elements.id.value;');
+        assert.equal(JSON.parse(records.get('rsvp-invitation:' + id)).audioUrl, storedUrl);
+        await signIn('weddings', false);
+        await waitFor('document.getElementById("events").innerText.includes("R2 wedding")');
+        await evaluate('const row = [...document.querySelectorAll("#events .event-item")].find(item => item.textContent.includes("R2 wedding"));' +
+            '[...row.querySelectorAll("button")].find(button => button.textContent === "Open/Edit").click();' +
+            'document.getElementById("musicOptions").open = true; return true;');
+        await waitFor('document.getElementById("audioFilesStatus").textContent.includes("audio file(s) available")');
+        assert.equal(await evaluate('return document.getElementById("audioFiles").value;'), storedUrl);
+        audioListFailure = true;
+        await evaluate('document.getElementById("refreshAudioFiles").click(); return true;');
+        await waitFor('document.getElementById("audioFilesStatus").textContent.includes("Could not load")');
+        assert.equal(await evaluate('return document.getElementById("invitationForm").elements.audioUrl.value;'), storedUrl);
+        audioListFailure = false;
+        await open('/rsvp/i/' + id);
+        await waitFor('!document.getElementById("openMusicInvitation").hidden || !document.getElementById("invitationMusic").hidden');
+        assert.equal(await evaluate('return document.getElementById("musicPlayer").getAttribute("controlslist");'), 'nodownload');
+        await page('Runtime.evaluate', { expression: `if (!document.getElementById('openMusicInvitation').hidden)
+            document.getElementById('openMusicInvitation').click();
+            else document.getElementById('musicPlayer').play();`, userGesture: true });
+        await waitFor('document.getElementById("musicPlayer").currentTime > 0', 'R2 audio playback');
+        await signIn('weddings', false);
+        await waitFor('document.getElementById("events").innerText.includes("R2 wedding")');
+        await evaluate('const row = [...document.querySelectorAll("#events .event-item")].find(item => item.textContent.includes("R2 wedding"));' +
+            '[...row.querySelectorAll("button")].find(button => button.textContent === "Open/Edit").click();' +
+            'document.getElementById("removeAudio").click(); document.getElementById("invitationForm").requestSubmit(); return true;');
+        await waitFor('document.getElementById("invitationStatus").textContent.includes("Invitation saved")');
+        assert.equal(JSON.parse(records.get('rsvp-invitation:' + id)).audioUrl, '');
+    } finally {
+        audioListFailure = false;
+        audioRecords.clear();
+    }
+});
+
+test('empty and delayed R2 lists do not overwrite a new audio choice', { skip }, async () => {
+    audioRecords.clear();
+    await signIn('parties', false);
+    await evaluate('document.getElementById("musicOptions").open = true; return true;');
+    await waitFor('document.getElementById("audioFilesStatus").textContent.includes("No audio files")');
+    audioRecords.set('new.mp3', Buffer.from('audio'));
+    const release = hold('audio-list');
+    try {
+        await evaluate('document.getElementById("refreshAudioFiles").click();' +
+            'const f = document.getElementById("invitationForm"); f.elements.audioUrl.value = "https://example.com/new.mp3";' +
+            'f.elements.audioUrl.dispatchEvent(new Event("input", { bubbles: true })); return true;');
+        release();
+        await waitFor('document.getElementById("audioFilesStatus").textContent.includes("audio file(s) available")');
+        assert.equal(await evaluate('return document.getElementById("invitationForm").elements.audioUrl.value;'), 'https://example.com/new.mp3');
+        assert.equal(await evaluate('return document.getElementById("audioFiles").value;'), 'https://example.com/new.mp3');
+    } finally {
+        release();
+        audioRecords.clear();
     }
 });
 

@@ -78,11 +78,22 @@
                 <label for="eventBackground">Background image for this invitation (optional)</label>
                 <input id="eventBackground" name="eventBackground" type="url" maxlength="2048" placeholder="https://example.com/wedding-bg.jpg" aria-describedby="eventBackgroundHint">
                 <p id="eventBackgroundHint">This image affects only this invitation. Leave blank to use the category background. Use a public HTTPS image URL.</p>
-                <details class="admin-options">
+                <details class="admin-options" id="musicOptions">
                     <summary>Music for this invitation (optional)</summary>
-                    <label for="audioUrl">Music file URL</label>
-                    <input id="audioUrl" name="audioUrl" type="url" maxlength="2048" placeholder="https://example.com/song.mp3" aria-describedby="audioUrlHint">
-                    <p id="audioUrlHint">Use a direct public HTTPS link to an audio file you have permission to share; do not include passwords or private access tokens. Music plays automatically where allowed; otherwise guests tap to open the invitation and play it. Leave blank for no music. This only affects this invitation.</p>
+                    <label for="audioFiles">Choose an audio file from R2</label>
+                    <select id="audioFiles" aria-describedby="audioFilesStatus">
+                        <option value="">Open this section to load audio files</option>
+                    </select>
+                    <button id="refreshAudioFiles" class="rsvp-btn" type="button">Refresh audio list</button>
+                    <button id="removeAudio" class="rsvp-btn" type="button">Remove music</button>
+                    <p id="audioFilesStatus" role="status" aria-live="polite"></p>
+                    <details>
+                        <summary>Use a different audio link</summary>
+                        <label for="audioUrl">Music file URL</label>
+                        <input id="audioUrl" name="audioUrl" type="text" maxlength="2048" placeholder="https://example.com/song.mp3" aria-describedby="audioUrlHint">
+                        <p id="audioUrlHint">Use a direct public HTTPS link to an audio file you have permission to share; do not include passwords or private access tokens. Leave blank for no music.</p>
+                    </details>
+                    <p>Music plays automatically where allowed; otherwise guests tap to open the invitation and play it. This setting only affects this invitation. Save the invitation to apply changes.</p>
                 </details>
                 <details class="admin-options">
                     <summary>Contact numbers and invite count (optional)</summary>

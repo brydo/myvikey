@@ -1,5 +1,6 @@
 import './theme-client.js';
 import { invitationId, invitationPath } from './invitation-id.js';
+import { safeAudioUrl } from './themes.js';
 
 (function () {
     'use strict';
@@ -309,6 +310,66 @@ import { invitationId, invitationPath } from './invitation-id.js';
     var appearanceStatus = document.getElementById('appearanceStatus');
     var invitationStatus = document.getElementById('invitationStatus');
     var editorMode = document.getElementById('editorMode');
+    var musicOptions = document.getElementById('musicOptions');
+    var audioFiles = document.getElementById('audioFiles');
+    var audioFilesStatus = document.getElementById('audioFilesStatus');
+    var audioOptions = [];
+    var audioListLoaded = false;
+    var audioListVersion = 0;
+    function renderAudioFiles() {
+        var current = editor.elements.audioUrl.value.trim();
+        audioFiles.replaceChildren();
+        function option(value, label) {
+            var item = document.createElement('option');
+            item.value = value;
+            item.textContent = label;
+            audioFiles.appendChild(item);
+        }
+        option('', 'No music');
+        audioOptions.forEach(function (item) { option(item.url, item.key); });
+        if (current && !audioOptions.some(function (item) { return item.url === current; })) {
+            option(current, 'Current music link (not in this list)');
+        }
+        audioFiles.value = current;
+    }
+    async function loadAudioFiles() {
+        var session = token;
+        var version = ++audioListVersion;
+        audioFilesStatus.textContent = 'Loading audio files…';
+        try {
+            var response = await fetch('/api/audio', { cache: 'no-store' });
+            if (!response.ok) throw new Error('Audio list is unavailable.');
+            var data = await response.json();
+            if (!data.success || !Array.isArray(data.files)) throw new Error('Audio list is unavailable.');
+            if (session !== token || version !== audioListVersion) return;
+            var skipped = 0;
+            audioOptions = data.files.reduce(function (items, file) {
+                if (!file || typeof file.key !== 'string') { skipped++; return items; }
+                var url = '/api/audio?file=' + encodeURIComponent(file.key);
+                if (!safeAudioUrl(url)) { skipped++; return items; }
+                items.push({ key: file.key, url: url });
+                return items;
+            }, []);
+            audioListLoaded = true;
+            renderAudioFiles();
+            audioFilesStatus.textContent = audioOptions.length ? audioOptions.length + ' audio file(s) available.' :
+                'No audio files found in the R2 audio bucket.';
+            if (skipped) audioFilesStatus.textContent += ' Some file names cannot be used; rename them in R2.';
+        } catch (error) {
+            if (session !== token || version !== audioListVersion) return;
+            audioFilesStatus.textContent = 'Could not load audio files. Please refresh the list or use a direct link.';
+        }
+    }
+    musicOptions.addEventListener('toggle', function () {
+        if (this.open && !audioListLoaded) loadAudioFiles();
+    });
+    document.getElementById('refreshAudioFiles').addEventListener('click', loadAudioFiles);
+    audioFiles.addEventListener('change', function () { editor.elements.audioUrl.value = audioFiles.value; });
+    editor.elements.audioUrl.addEventListener('input', renderAudioFiles);
+    document.getElementById('removeAudio').addEventListener('click', function () {
+        editor.elements.audioUrl.value = '';
+        renderAudioFiles();
+    });
     var categoryNames = { celebration: 'Classic celebration', events: 'Events', weddings: 'Weddings',
         parties: 'Parties', engagements: 'Engagements' };
     // Unsaved edits per category survive late appearance reads, category switches and failed saves.
@@ -506,6 +567,7 @@ import { invitationId, invitationPath } from './invitation-id.js';
         });
         editor.elements.eventBackground.value = invitation.backgroundImage || '';
         editor.elements.audioUrl.value = invitation.audioUrl || '';
+        renderAudioFiles();
         editor.elements.invitesSent.value = invitation.invitesSent || 0;
         editor.elements.eventType.value = theme(invitation.eventType);
         editorMode.textContent = 'Editing: ' + invitation.title + '. Choose New invitation to create another.';
@@ -532,6 +594,7 @@ import { invitationId, invitationPath } from './invitation-id.js';
 
     function resetInvitationEditor() {
         editor.reset();
+        renderAudioFiles();
         editorMode.textContent = 'Creating a new invitation.';
         invitationMessage('');
         var protectionStatus = document.getElementById('guestProtectionStatus');
@@ -852,6 +915,10 @@ import { invitationId, invitationPath } from './invitation-id.js';
         token = '';
         cursor = '';
         refreshVersion++;
+        audioListVersion++;
+        audioListLoaded = false;
+        audioOptions = [];
+        audioFilesStatus.textContent = '';
         loadVersion++;
         invitations = [];
         pendingInvitations.clear();
@@ -982,6 +1049,7 @@ import { invitationId, invitationPath } from './invitation-id.js';
             editor.hidden = false;
             eventsPanel.hidden = false;
             repliesPanel.hidden = false;
+            if (musicOptions.open && !audioListLoaded) loadAudioFiles();
             await refresh();
         } catch (error) {
             status(error.message || 'Unable to sign in. Please try again.', true);
