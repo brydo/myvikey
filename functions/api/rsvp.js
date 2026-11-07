@@ -172,8 +172,15 @@ export async function onRequestPost({ request, env }) {
       return reply({ success: true, cursor });
     }
     if (body.action === 'save-invitation') {
+      if (body.id !== undefined && !validId(body.id)) {
+        return reply({ success: false, error: 'The invitation code is invalid. To create a new invitation, choose New invitation and leave the code blank.' }, 400);
+      }
+      if (body.backgroundImage !== undefined &&
+          (typeof body.backgroundImage !== 'string' || !safeBackground(body.backgroundImage))) {
+        return reply({ success: false, error: 'The invitation background must be a safe HTTPS image URL or blank.' }, 400);
+      }
       const fields = invitationFields(body);
-      if (!fields || (body.id !== undefined && !validId(body.id))) {
+      if (!fields) {
         return reply({ success: false, error: 'Enter a title, invitation text, and valid WhatsApp/text numbers in +countrycode format.' }, 400);
       }
       let id = body.id;
@@ -191,7 +198,7 @@ export async function onRequestPost({ request, env }) {
       }
       const raw = body.id ? await env.FORM_SUBMISSIONS.get(INVITATIONS + id) : null;
       if (body.id && !raw) {
-        return reply({ success: false, error: 'Invitation not found' }, 404);
+        return reply({ success: false, error: 'Invitation not found. Check the code, or choose New invitation to create a new one.' }, 404);
       }
       const invitation = { ...(raw ? JSON.parse(raw) : {}), id, ...fields };
       if ((body.guestPassword !== undefined && typeof body.guestPassword !== 'string') ||
