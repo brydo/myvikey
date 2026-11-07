@@ -79,6 +79,12 @@
                 <input id="eventBackground" name="eventBackground" type="url" maxlength="2048" placeholder="https://example.com/wedding-bg.jpg" aria-describedby="eventBackgroundHint">
                 <p id="eventBackgroundHint">This image affects only this invitation. Leave blank to use the category background. Use a public HTTPS image URL.</p>
                 <details class="admin-options">
+                    <summary>Music for this invitation (optional)</summary>
+                    <label for="audioUrl">Music file URL</label>
+                    <input id="audioUrl" name="audioUrl" type="url" maxlength="2048" placeholder="https://example.com/song.mp3" aria-describedby="audioUrlHint">
+                    <p id="audioUrlHint">Use a direct public HTTPS link to an audio file you have permission to share; do not include passwords or private access tokens. Music plays automatically where allowed; otherwise guests tap to open the invitation and play it. Leave blank for no music. This only affects this invitation.</p>
+                </details>
+                <details class="admin-options">
                     <summary>Contact numbers and invite count (optional)</summary>
                     <label for="invitesSent">Total invites sent</label>
                     <input id="invitesSent" name="invitesSent" type="number" min="0" max="100000" step="1" value="0">

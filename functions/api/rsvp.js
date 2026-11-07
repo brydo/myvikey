@@ -10,9 +10,9 @@ const HOST_SESSION_SECONDS = 30 * 60;
 const validId = validInvitationId;
 
 function invitationDTO(invitation, id) {
-  const { title, text, whatsapp = '', sms = '', invitesSent = 0, backgroundImage = '' } = invitation;
+  const { title, text, whatsapp = '', sms = '', invitesSent = 0, backgroundImage = '', audioUrl = '' } = invitation;
   return { id, eventType: theme(invitation.eventType),
-    title, text, whatsapp, sms, invitesSent, backgroundImage,
+    title, text, whatsapp, sms, invitesSent, backgroundImage, audioUrl,
     passwordProtected: !!invitation.guestPasswordHash,
     hostPasswordProtected: !!invitation.hostPasswordHash };
 }
@@ -71,6 +71,10 @@ function invitationFields(body) {
   if (body.backgroundImage !== undefined) {
     if (typeof body.backgroundImage !== 'string' || !safeBackground(body.backgroundImage)) return null;
     result.backgroundImage = body.backgroundImage;
+  }
+  if (body.audioUrl !== undefined) {
+    if (typeof body.audioUrl !== 'string' || !safeBackground(body.audioUrl)) return null;
+    result.audioUrl = body.audioUrl;
   }
   return result;
 }
@@ -178,6 +182,10 @@ export async function onRequestPost({ request, env }) {
       if (body.backgroundImage !== undefined &&
           (typeof body.backgroundImage !== 'string' || !safeBackground(body.backgroundImage))) {
         return reply({ success: false, error: 'The invitation background must be a safe HTTPS image URL or blank.' }, 400);
+      }
+      if (body.audioUrl !== undefined &&
+          (typeof body.audioUrl !== 'string' || !safeBackground(body.audioUrl))) {
+        return reply({ success: false, error: 'The music link must be a safe HTTPS audio URL or blank.' }, 400);
       }
       const fields = invitationFields(body);
       if (!fields) {

@@ -79,6 +79,28 @@ import { invitationId, invitationPath } from './invitation-id.js';
         var eventId = shortRoute ? shortRoute[1] : new URLSearchParams(window.location.search).get('id');
         var unlock = document.getElementById('guestUnlock');
         var openRsvp = document.getElementById('openRsvp');
+        var openMusicInvitation = document.getElementById('openMusicInvitation');
+        var musicPlayer = document.getElementById('musicPlayer');
+        var musicPanel = document.getElementById('invitationMusic');
+        var musicStatus = document.getElementById('musicStatus');
+        var musicAttempt = 0;
+        function showMusicInvitation() {
+            openMusicInvitation.hidden = true;
+            document.getElementById('invitationText').hidden = false;
+            musicPanel.hidden = false;
+            openRsvp.hidden = false;
+        }
+        openMusicInvitation.addEventListener('click', function () {
+            var attempt = ++musicAttempt;
+            showMusicInvitation();
+            musicStatus.textContent = '';
+            musicPlayer.play().catch(function () {
+                if (attempt === musicAttempt) musicStatus.textContent = 'Music could not be played. Try the player controls, or continue without music.';
+            });
+        });
+        musicPlayer.addEventListener('error', function () {
+            if (!musicPanel.hidden) musicStatus.textContent = 'Music could not be loaded. You can continue without it.';
+        });
         openRsvp.addEventListener('click', function () {
             form.hidden = false;
             openRsvp.hidden = true;
@@ -105,7 +127,25 @@ import { invitationId, invitationPath } from './invitation-id.js';
                 document.getElementById('invitationHelp').hidden = true;
                 form.elements.event.value = invitation.title;
                 form.querySelector('button').disabled = false;
-                openRsvp.hidden = false;
+                if (invitation.audioUrl) {
+                    document.getElementById('invitationText').hidden = true;
+                    openRsvp.hidden = true;
+                    openMusicInvitation.hidden = false;
+                    musicPanel.hidden = true;
+                    musicStatus.textContent = '';
+                    musicPlayer.src = invitation.audioUrl;
+                    var attempt = ++musicAttempt;
+                    musicPlayer.play().then(function () {
+                        if (attempt === musicAttempt) showMusicInvitation();
+                    }).catch(function () {
+                        // The open button remains available when autoplay is blocked or the audio fails.
+                    });
+                } else {
+                    openMusicInvitation.hidden = true;
+                    musicPanel.hidden = true;
+                    document.getElementById('invitationText').hidden = false;
+                    openRsvp.hidden = false;
+                }
                 status('');
                 // Reveal once saved settings and the chosen image (both bounded) have settled too.
                 return Promise.all([themed, window.RSVPThemes.ready]);
@@ -173,6 +213,11 @@ import { invitationId, invitationPath } from './invitation-id.js';
                 if (error.status === 401 && unlock) {
                     saveGuestToken(eventId, '');
                     invitation = null;
+                    musicAttempt++;
+                    musicPlayer.pause();
+                    musicPlayer.removeAttribute('src');
+                    musicPanel.hidden = true;
+                    openMusicInvitation.hidden = true;
                     form.hidden = true;
                     openRsvp.hidden = true;
                     unlock.hidden = false;
@@ -460,6 +505,7 @@ import { invitationId, invitationPath } from './invitation-id.js';
             editor.elements[field].value = invitation[field] || '';
         });
         editor.elements.eventBackground.value = invitation.backgroundImage || '';
+        editor.elements.audioUrl.value = invitation.audioUrl || '';
         editor.elements.invitesSent.value = invitation.invitesSent || 0;
         editor.elements.eventType.value = theme(invitation.eventType);
         editorMode.textContent = 'Editing: ' + invitation.title + '. Choose New invitation to create another.';
@@ -506,6 +552,7 @@ import { invitationId, invitationPath } from './invitation-id.js';
                 payload[field] = editor.elements[field].value.trim();
             });
             payload.backgroundImage = editor.elements.eventBackground.value.trim();
+            payload.audioUrl = editor.elements.audioUrl.value.trim();
             payload.invitesSent = Number(editor.elements.invitesSent.value) || 0;
             if (editor.elements.id.value.trim()) payload.id = editor.elements.id.value.trim();
             if (editor.elements.guestPassword && editor.elements.guestPassword.value) {
@@ -776,7 +823,7 @@ import { invitationId, invitationPath } from './invitation-id.js';
             pendingInvitations.forEach(function (saved, id) {
                 var index = items.findIndex(function (item) { return item.id === id; });
                 var fields = ['id', 'eventType', 'title', 'text', 'whatsapp', 'sms', 'invitesSent',
-                    'backgroundImage', 'passwordProtected', 'hostPasswordProtected'];
+                    'backgroundImage', 'audioUrl', 'passwordProtected', 'hostPasswordProtected'];
                 if (index >= 0 && fields.every(function (field) { return items[index][field] === saved[field]; })) {
                     pendingInvitations.delete(id);
                 } else if (index < 0) {

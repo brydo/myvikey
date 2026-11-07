@@ -53,7 +53,7 @@ async function save(app, fields = {}) {
     assert.equal(response.status, 200, await response.clone().text());
     const data = await response.json();
     assert.deepEqual(Object.keys(data.invitation).sort(),
-        ['id', 'eventType', 'title', 'text', 'whatsapp', 'sms', 'invitesSent', 'backgroundImage', 'passwordProtected', 'hostPasswordProtected'].sort());
+        ['id', 'eventType', 'title', 'text', 'whatsapp', 'sms', 'invitesSent', 'backgroundImage', 'audioUrl', 'passwordProtected', 'hostPasswordProtected'].sort());
     return data.invitation;
 }
 
@@ -128,6 +128,27 @@ test('per-event background images round-trip, survive omission and reject unsafe
     assert.equal(cleared.backgroundImage, '');
     for (const backgroundImage of ['http://example.com/x.jpg', 'javascript:alert(1)', 'https://exa mple.com/x.jpg', 'https://' + 'x'.repeat(2041), 42]) {
         assert.equal((await app.post({ ...invitation, backgroundImage }, { admin: true })).status, 400, String(backgroundImage));
+    }
+});
+
+test('music links are per invitation, editable, clearable, and protected with guest passwords', async () => {
+    const app = api();
+    const first = await save(app, { eventType: 'weddings', audioUrl: 'https://music.example.com/first.mp3', guestPassword: 'guest secret' });
+    const second = await save(app, { eventType: 'weddings', audioUrl: 'https://music.example.com/second.mp3' });
+    const other = await save(app, { eventType: 'parties' });
+    assert.equal(other.audioUrl, '');
+    assert.equal((await app.post({ action: 'get-invitation', id: first.id })).status, 401);
+    const guest = await unlock(app, first.id);
+    assert.equal((await (await app.post({ action: 'get-invitation', id: first.id }, { guest })).json()).invitation.audioUrl, first.audioUrl);
+    assert.equal((await save(app, { id: first.id, eventType: 'weddings' })).audioUrl, first.audioUrl);
+    assert.equal((await save(app, { id: first.id, eventType: 'weddings', audioUrl: 'https://music.example.com/new.mp3' })).audioUrl, 'https://music.example.com/new.mp3');
+    assert.equal((await save(app, { id: first.id, eventType: 'weddings', audioUrl: '' })).audioUrl, '');
+    assert.equal((await (await app.post({ action: 'get-invitation', id: second.id })).json()).invitation.audioUrl, second.audioUrl);
+    for (const audioUrl of ['http://example.com/song.mp3', 'javascript:alert(1)', 'https://user:pass@example.com/song.mp3',
+        'https://exa mple.com/song.mp3', 'https://' + 'x'.repeat(2041), 42]) {
+        const response = await app.post({ ...invitation, audioUrl }, { admin: true });
+        assert.equal(response.status, 400);
+        assert.match((await response.json()).error, /music link/i);
     }
 });
 
