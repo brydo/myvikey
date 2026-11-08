@@ -15,6 +15,14 @@ const chrome = [process.env.CHROME_PATH, '/usr/bin/chromium', '/usr/bin/chromium
     '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'].find(file => file && existsSync(file));
 const skip = chrome && typeof WebSocket === 'function' ? false : 'Chromium (or CHROME_PATH) and Node 22+ WebSocket are required';
 
+// The main landing look lives in one settings block in index.html; tests follow it.
+const landingSource = readFileSync(`${__dirname}/index.html`, 'utf8');
+const landingVar = name => new RegExp('--' + name + ':\\s*([^;]+);').exec(landingSource)[1].trim();
+const landing = {
+    image: /url\("([^"]+)"\)/.exec(landingVar('rsvp-landing-background'))[1],
+    surface: landingVar('showcase-surface'), ink: landingVar('showcase-ink'), heading: landingVar('showcase-heading'),
+    deep: landingVar('showcase-deep'), emerald: landingVar('showcase-emerald'), accent: landingVar('showcase-accent')
+};
 const themesSource = readFileSync(`${__dirname}/themes.js`, 'utf8').replace(/^export /gm, '');
 const model = runInNewContext(themesSource + '\n({ buttonHover, contrastIssues, defaultCardStyle })', { URL });
 const idsSource = readFileSync(`${__dirname}/invitation-id.js`, 'utf8').replace(/^export /gm, '');
@@ -336,7 +344,7 @@ after(async () => {
 });
 
 test('the main landing background stays isolated, can be swapped in one setting and can be reverted', { skip }, async () => {
-    const image = 'https://pub-aa80f5e009854a94b9bcd90cda60268c.r2.dev/gemini.jfif';
+    const image = landing.image;
     for (const viewport of [{ width: 390, height: 844 }, { width: 1440, height: 900 }]) {
         await page('Emulation.setDeviceMetricsOverride', { ...viewport, deviceScaleFactor: 1, mobile: false });
         for (const route of ['/rsvp/', '/rsvp/index.html', '/rsvp/?utm_source=share']) {
@@ -389,9 +397,9 @@ test('the landing box uses the emerald showcase style and reverts to the categor
     `);
     for (const state of ['rsvp-theme-loading', 'rsvp-theme-neutral', 'rsvp-theme-ready']) {
         await evaluate('document.body.className = ' + JSON.stringify(state) + '; return true;');
-        assert.deepEqual(await appearance(), { card: rgb('#f7fcf9'), text: rgb('#143b30'),
-            heading: rgb('#064e3b'), banner: 'rgba(0, 0, 0, 0)',
-            image: 'linear-gradient(90deg, rgb(4, 120, 87), rgb(5, 150, 105), rgb(141, 217, 188))',
+        assert.deepEqual(await appearance(), { card: rgb(landing.surface), text: rgb(landing.ink),
+            heading: rgb(landing.heading), banner: 'rgba(0, 0, 0, 0)',
+            image: 'linear-gradient(90deg, ' + [landing.deep, landing.emerald, landing.accent].map(rgb).join(', ') + ')',
             before: 'none', after: 'none' }, state);
     }
     await evaluate('document.getElementById("rsvp-landing-card").remove(); return true;');
@@ -494,7 +502,7 @@ test('invitation, open RSVP button, form fields, receipt and landing pages rende
             color: rgb(palette.textColor), borderTopColor: rgb(palette.buttonBorder) }, type + ' send button');
         await open(type === 'celebration' ? '/rsvp/' : '/rsvp/' + type + '/');
         assert.equal((await styles('.rsvp-card', ['backgroundColor'])).backgroundColor,
-            rgb(type === 'celebration' ? '#f7fcf9' : palette.surface), type + ' landing');
+            rgb(type === 'celebration' ? landing.surface : palette.surface), type + ' landing');
         if (type !== 'celebration') {
             assert.equal((await styles('.landing-copy h1', ['color'])).color, rgb(palette.headingColor));
         }

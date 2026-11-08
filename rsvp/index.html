@@ -7,9 +7,16 @@
     <title>RSVP Portal · VIKEY®</title>
     <link rel="stylesheet" href="/rsvp/card.css">
     <style id="rsvp-landing-background">
-        /* Base landing page background styling */
+        /* Main landing page look: edit these values only. Tests read them from here. */
         html.rsvp-landing {
             --rsvp-landing-background: url("https://pub-aa80f5e009854a94b9bcd90cda60268c.r2.dev/gemini.jfif");
+            --showcase-emerald: #059669;
+            --showcase-deep: #047857;
+            --showcase-ink: #143b30;
+            --showcase-surface: #f7fcf9;
+            --showcase-border: #b6dfcf;
+            --showcase-heading: #064e3b;
+            --showcase-accent: #8dd9bc;
         }
         html.rsvp-landing body,
         html.rsvp-landing body:is(.rsvp-theme-loading, .rsvp-theme-neutral) {
@@ -17,25 +24,17 @@
         }
     </style>
     <style id="rsvp-landing-card">
-        html.rsvp-landing {
-            --showcase-emerald: #059669;
-            --showcase-deep: #047857;
-            --showcase-ink: #143b30;
-            --showcase-surface: #f7fcf9;
-            --showcase-border: #b6dfcf;
-        }
-
         html.rsvp-landing .wrap > .rsvp-card {
             --card-surface: var(--showcase-surface);
             --card-text: var(--showcase-ink);
-            --card-heading: #064e3b;
+            --card-heading: var(--showcase-heading);
             background: var(--showcase-surface);
             border: 1px solid var(--showcase-border);
             box-shadow: 0 20px 60px rgba(4, 78, 59, 0.22);
         }
         html.rsvp-landing .wrap > .rsvp-card > .rsvp-banner {
             height: 12px;
-            background: linear-gradient(90deg, var(--showcase-deep), var(--showcase-emerald), #8dd9bc);
+            background: linear-gradient(90deg, var(--showcase-deep), var(--showcase-emerald), var(--showcase-accent));
         }
         html.rsvp-landing .wrap > .rsvp-card > .rsvp-banner::before,
         html.rsvp-landing .wrap > .rsvp-card > .rsvp-banner::after {
