@@ -20,8 +20,8 @@
         /* Theme overrides for landing card surface */
         html.rsvp-landing .wrap > .rsvp-card {
             --rsvp-landing-card-colour: #ffffff;
-            --rsvp-landing-card-text: #1e293b;
-            --rsvp-landing-card-heading: #0f172a;
+            --rsvp-landing-card-text: #0f172a;
+            --rsvp-landing-card-heading: #064e3b;
             --card-surface: var(--rsvp-landing-card-colour);
             --card-text: var(--rsvp-landing-card-text);
             --card-heading: var(--rsvp-landing-card-heading);
@@ -35,38 +35,55 @@
             content: none;
         }
 
-        /* Showcase Demo Box Styling */
+        /* Tech-inspired Emerald Showcase Box */
         .rsvp-demo-showcase {
             margin-top: 2rem;
             padding: 1.5rem;
-            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-            border: 1px solid #e2e8f0;
+            background: rgba(15, 23, 42, 0.03);
+            border: 1px solid #10b981;
             border-radius: 12px;
             text-align: center;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.08);
         }
         .rsvp-demo-showcase h3 {
             font-size: 1.1rem;
-            color: #0f172a;
+            color: #065f46;
             margin-bottom: 0.5rem;
+            font-weight: 600;
         }
         .rsvp-demo-showcase p {
             font-size: 0.95rem;
-            color: #475569;
-            margin-bottom: 1rem;
+            color: #334155;
+            margin-bottom: 1.25rem;
         }
-        .rsvp-demo-btn {
-            display: inline-block;
-            background-color: #0f172a;
-            color: #ffffff;
-            padding: 0.75rem 1.5rem;
-            border-radius: 8px;
-            font-weight: 500;
-            text-decoration: none;
-            transition: background-color 0.2s ease, transform 0.1s ease;
+
+        /* Fixed Button Link & Contrast */
+        html.rsvp-landing .wrap .rsvp-demo-btn,
+        a.rsvp-demo-btn {
+            display: inline-block !important;
+            background-color: #059669 !important;
+            color: #ffffff !important;
+            padding: 0.8rem 1.75rem !important;
+            border-radius: 8px !important;
+            font-weight: 600 !important;
+            font-size: 0.95rem !important;
+            text-decoration: none !important;
+            letter-spacing: 0.3px;
+            box-shadow: 0 4px 14px rgba(5, 150, 105, 0.35);
+            transition: all 0.2s ease-in-out;
         }
-        .rsvp-demo-btn:hover {
-            background-color: #1e293b;
-            transform: translateY(-1px);
+        html.rsvp-landing .wrap .rsvp-demo-btn:hover,
+        a.rsvp-demo-btn:hover {
+            background-color: #047857 !important;
+            color: #ffffff !important;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(5, 150, 105, 0.45);
+        }
+
+        /* Accent styling for category choices */
+        .occasion-chooser nav a:hover {
+            border-color: #10b981 !important;
+            color: #047857 !important;
         }
     </style>
     <script>
