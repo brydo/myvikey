@@ -468,6 +468,7 @@ function browser({ page = 'index', storageFails = false, saved, failSave = false
                     (id === 'rsvpForm' && page !== 'index') || (id === 'receipt' && page !== 'view')) return null;
                 return node(id);
             },
+            querySelectorAll() { return []; },
             querySelector(selector) {
                 if (selector === 'nav a') {
                     const link = node('body').querySelector('nav')?.querySelector('a');
@@ -494,6 +495,7 @@ function browser({ page = 'index', storageFails = false, saved, failSave = false
             location: { origin: 'https://example.com', search: search === undefined ? (page === 'index' ? '?id=' + event.id : '') : search, assign(path) { redirects.push(path); } }
         },
         fetch: async (path, options) => {
+            if (path === '/api/images') return { ok: true, json: async () => ({ success: true, files: [] }) };
             const payload = JSON.parse(options.body);
             requests.push(payload);
             if (payload.action === 'get-appearance' && appearanceFails) throw Error('offline');

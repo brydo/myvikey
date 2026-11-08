@@ -21,6 +21,9 @@ const idsSource = readFileSync(`${__dirname}/invitation-id.js`, 'utf8').replace(
 const apiSource = themesSource + '\n' + idsSource + '\n' + readFileSync(`${root}/functions/api/rsvp.js`, 'utf8')
     .replace(/^import .*;\n/gm, '').replace('export async function', 'async function');
 const audioSource = readFileSync(`${root}/functions/api/audio.js`, 'utf8').replace('export async function', 'async function');
+const imagesSource = readFileSync(`${root}/functions/api/images.js`, 'utf8')
+    .replace(/^import .*$/m, '').replace('export async function', 'async function');
+const imageKeys = ['sponsor/bg.jpg', 'sponsor/head.png', 'notes.txt'];
 const categories = ['celebration', 'events', 'weddings', 'parties', 'engagements'];
 const authSource = readFileSync(`${root}/functions/lib/auth.js`, 'utf8')
     .replace(/^import .*;\n/gm, '').replace(/^export /gm, '');
@@ -123,6 +126,16 @@ async function startServer() {
             }
             const result = await audioContext.onRequestGet({ request: new Request(origin + request.url, { headers: request.headers }),
                 env: { AUDIO_FILES: audioBucket } });
+            response.writeHead(result.status, Object.fromEntries(result.headers));
+            response.end(Buffer.from(await result.arrayBuffer()));
+            return;
+        }
+        if (request.method === 'GET' && url.pathname === '/api/images') {
+            const imagesContext = { Response, URL, validateSession: async (_, value) => value === 'valid-session' };
+            runInNewContext(imagesSource, imagesContext);
+            const result = await imagesContext.onRequestGet({ request: new Request(origin + request.url, { headers: request.headers }),
+                env: { IMAGE_FILES: { list: async () => ({ objects: imageKeys.map(key => ({ key })), truncated: false }) },
+                    IMAGE_PUBLIC_URL: 'https://img.example.com' } });
             response.writeHead(result.status, Object.fromEntries(result.headers));
             response.end(Buffer.from(await result.arrayBuffer()));
             return;
@@ -1304,11 +1317,32 @@ test('empty and delayed R2 lists do not overwrite a new audio choice', { skip },
     }
 });
 
+test('image dropdowns list bucket images and set invitation background and header', { skip }, async () => {
+    await signIn('weddings', false);
+    await waitFor('document.getElementById("eventBackgroundFiles").options.length === 3', 'image list');
+    await evaluate('const f = document.getElementById("invitationForm");' +
+        'f.elements.title.value = "Picker wedding"; f.elements.text.value = "Details"; f.elements.guestPassword.value = "guest-password";' +
+        'f.elements.hostPassword.value = "host-password"; f.elements.whatsapp.value = "+447700900123";' +
+        'const set = (id, value) => { const s = document.getElementById(id); s.value = value; s.dispatchEvent(new Event("change", { bubbles: true })); };' +
+        'set("eventBackgroundFiles", "https://img.example.com/sponsor/bg.jpg");' +
+        'set("eventBannerFiles", "https://img.example.com/sponsor/head.png"); return true;');
+    assert.equal(await evaluate('return document.getElementById("eventBackground").value;'), 'https://img.example.com/sponsor/bg.jpg');
+    assert.equal(await evaluate('return document.getElementById("eventBanner").value;'), 'https://img.example.com/sponsor/head.png');
+    await evaluate('document.getElementById("invitationForm").requestSubmit(); return true;');
+    await waitFor('document.getElementById("invitationStatus").textContent.includes("Invitation saved")', 'picker save');
+    const stored = [...records].filter(([key]) => key.startsWith('rsvp-invitation:'))
+        .map(([, value]) => JSON.parse(value)).find(item => item.title === 'Picker wedding');
+    assert.equal(stored.backgroundImage, 'https://img.example.com/sponsor/bg.jpg');
+    assert.equal(stored.bannerImage, 'https://img.example.com/sponsor/head.png');
+    await evaluate('const s = document.getElementById("eventBannerFiles"); s.value = ""; s.dispatchEvent(new Event("change", { bubbles: true })); return true;');
+    assert.equal(await evaluate('return document.getElementById("eventBanner").value;'), '');
+});
+
 test('simplified admin keeps advanced options available and save feedback beside the invitation', { skip }, async () => {
     await signIn('weddings', false);
     assert.equal(await evaluate('return document.getElementById("categoryOptions").open;'), false);
     assert.equal(await evaluate('return document.querySelectorAll("#invitationForm details[open]").length;'), 0);
-    assert.equal(await evaluate('return document.getElementById("eventBackground").checkVisibility();'), true);
+    assert.equal(await evaluate('return document.getElementById("eventBackgroundFiles").checkVisibility();'), true);
 
     await evaluate('const f = document.getElementById("invitationForm");' +
         'f.elements.title.value = "Simplified wedding"; f.elements.text.value = "Wedding details";' +

@@ -1,6 +1,6 @@
 import './theme-client.js';
 import { invitationId, invitationPath } from './invitation-id.js';
-import { safeAudioUrl } from './themes.js';
+import { safeAudioUrl, safeBackground } from './themes.js';
 
 (function () {
     'use strict';
@@ -375,6 +375,78 @@ import { safeAudioUrl } from './themes.js';
         editor.elements.audioUrl.value = '';
         renderAudioFiles();
     });
+    var imagePickers = Array.prototype.slice.call(document.querySelectorAll('[data-image-picker]'));
+    var imageOptions = [];
+    var imageListLoaded = false;
+    var imageListVersion = 0;
+    function imagePickerInput(picker) { return document.getElementById(picker.getAttribute('data-image-picker')); }
+    function imagePickerStatus(text) {
+        imagePickers.forEach(function (picker) {
+            document.getElementById(picker.id + 'Status').textContent = text;
+        });
+    }
+    function renderImagePickers() {
+        imagePickers.forEach(function (picker) {
+            var input = imagePickerInput(picker);
+            if (!input) return;
+            var current = input.value.trim();
+            picker.replaceChildren();
+            function option(value, label) {
+                var item = document.createElement('option');
+                item.value = value;
+                item.textContent = label;
+                picker.appendChild(item);
+            }
+            option('', picker.getAttribute('data-none-label'));
+            imageOptions.forEach(function (item) { option(item.url, item.key); });
+            if (current && !imageOptions.some(function (item) { return item.url === current; })) {
+                option(current, 'Current image link (not in this list)');
+            }
+            picker.value = current;
+        });
+    }
+    async function loadImageFiles() {
+        if (!imagePickers.length) return;
+        var session = token;
+        var version = ++imageListVersion;
+        imagePickerStatus('Loading images…');
+        try {
+            var response = await fetch('/api/images', { cache: 'no-store', headers: { 'X-Admin-Session': session } });
+            var data = await response.json();
+            if (!response.ok || !data.success || !Array.isArray(data.files)) throw new Error('Image list is unavailable.');
+            if (session !== token || version !== imageListVersion) return;
+            var skipped = 0;
+            imageOptions = data.files.reduce(function (items, file) {
+                if (!file || typeof file.key !== 'string' || typeof file.url !== 'string' || !file.url || !safeBackground(file.url)) {
+                    skipped++;
+                    return items;
+                }
+                items.push({ key: file.key, url: file.url });
+                return items;
+            }, []);
+            imageListLoaded = true;
+            renderImagePickers();
+            imagePickerStatus(imageOptions.length ? imageOptions.length + ' image(s) available.' :
+                'No images found in the image bucket.');
+            if (skipped) imagePickerStatus(imageOptions.length + ' image(s) available. Some file names cannot be used; rename them in R2.');
+        } catch (error) {
+            if (session !== token || version !== imageListVersion) return;
+            renderImagePickers();
+            imagePickerStatus('Could not load images. Please refresh the list or use a different image link.');
+        }
+    }
+    imagePickers.forEach(function (picker) {
+        var input = imagePickerInput(picker);
+        if (!input) return;
+        picker.addEventListener('change', function () {
+            input.value = picker.value;
+            input.dispatchEvent(new Event('input', { bubbles: true }));
+        });
+        input.addEventListener('input', renderImagePickers);
+    });
+    document.querySelectorAll('[data-refresh-images]').forEach(function (button) {
+        button.addEventListener('click', loadImageFiles);
+    });
     var categoryNames = { celebration: 'Classic celebration', events: 'Events', weddings: 'Weddings',
         parties: 'Parties', engagements: 'Engagements' };
     // Unsaved edits per category survive late appearance reads, category switches and failed saves.
@@ -474,6 +546,7 @@ import { safeAudioUrl } from './themes.js';
     function fillAppearance(settings) {
         backgroundInput.value = settings.backgroundImage;
         bannerInput.value = settings.bannerImage || '';
+        renderImagePickers();
         Object.keys(window.RSVPThemes.copyFields).forEach(function (key) {
             appearanceForm.elements['copy-' + key].value = settings.copy[key];
         });
@@ -660,6 +733,7 @@ import { safeAudioUrl } from './themes.js';
         });
         editor.elements.eventBackground.value = invitation.backgroundImage || '';
         editor.elements.eventBanner.value = invitation.bannerImage || '';
+        renderImagePickers();
         editor.elements.audioUrl.value = invitation.audioUrl || '';
         renderAudioFiles();
         editor.elements.invitesSent.value = invitation.invitesSent || 0;
@@ -689,6 +763,7 @@ import { safeAudioUrl } from './themes.js';
     function resetInvitationEditor() {
         editor.reset();
         renderAudioFiles();
+        renderImagePickers();
         editorMode.textContent = 'Creating a new invitation.';
         invitationMessage('');
         var protectionStatus = document.getElementById('guestProtectionStatus');
@@ -1014,6 +1089,11 @@ import { safeAudioUrl } from './themes.js';
         audioListLoaded = false;
         audioOptions = [];
         audioFilesStatus.textContent = '';
+        imageListVersion++;
+        imageListLoaded = false;
+        imageOptions = [];
+        imagePickerStatus('');
+        renderImagePickers();
         loadVersion++;
         invitations = [];
         pendingInvitations.clear();
@@ -1150,6 +1230,7 @@ import { safeAudioUrl } from './themes.js';
             eventsPanel.hidden = false;
             repliesPanel.hidden = false;
             if (musicOptions.open && !audioListLoaded) loadAudioFiles();
+            loadImageFiles();
             await refresh();
         } catch (error) {
             status(error.message || 'Unable to sign in. Please try again.', true);
