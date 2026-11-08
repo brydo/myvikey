@@ -34,6 +34,40 @@
         html.rsvp-landing .wrap > .rsvp-card > .rsvp-banner::after {
             content: none;
         }
+
+        /* Showcase Demo Box Styling */
+        .rsvp-demo-showcase {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            text-align: center;
+        }
+        .rsvp-demo-showcase h3 {
+            font-size: 1.1rem;
+            color: #0f172a;
+            margin-bottom: 0.5rem;
+        }
+        .rsvp-demo-showcase p {
+            font-size: 0.95rem;
+            color: #475569;
+            margin-bottom: 1rem;
+        }
+        .rsvp-demo-btn {
+            display: inline-block;
+            background-color: #0f172a;
+            color: #ffffff;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 500;
+            text-decoration: none;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+        }
+        .rsvp-demo-btn:hover {
+            background-color: #1e293b;
+            transform: translateY(-1px);
+        }
     </style>
     <script>
         // Check for specific invitation target vs general landing view
@@ -67,7 +101,15 @@
                 <p id="invitationText" data-copy="inviteText">
                     Welcome to VIKEY®. Access your invitation to review event details, schedule information, and confirm your attendance.
                 </p>
-                <p id="invitationHelp" data-copy="inviteHelp">
+                
+                <!-- Showcase Demo Box Added Here -->
+                <div class="rsvp-demo-showcase">
+                    <h3>Explore a Live Example</h3>
+                    <p>Experience how our bespoke digital invitations look for guests.</p>
+                    <a href="https://vi-key.uk/rsvp/i/HkPnV59" class="rsvp-demo-btn" target="_blank" rel="noopener noreferrer">Wedding RSVP Demo</a>
+                </div>
+
+                <p id="invitationHelp" data-copy="inviteHelp" style="margin-top: 1.5rem;">
                     Please use the unique link provided by your event host to access your personal invitation and submit your response.
                 </p>
                 <button id="openMusicInvitation" class="rsvp-btn primary" type="button" hidden>View Invitation</button>
