@@ -25,6 +25,68 @@ export function safeBackground(value) {
     }
 }
 
+const noBrand = { id: 'none', name: '', logoUrl: '', address: '' };
+const defaultSponsor = { id: 'vikey', name: 'V I Key® · RSVP', logoUrl: '', address: '' };
+const brandFields = ['id', 'name', 'logoUrl', 'address'];
+
+function brandingText(value, max) {
+    if (typeof value !== 'string') return null;
+    const text = value.replace(/\r\n?/g, '\n').normalize('NFC');
+    if (/[<>\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f-\u009f]/.test(text)) return null;
+    const normalized = text.trim();
+    return normalized.length <= max ? normalized : null;
+}
+
+function normalizeBrandProfile(value) {
+    if (!appearanceObject(value) || typeof value.id !== 'string' ||
+        !/^[a-z0-9][a-z0-9-]{0,39}$/.test(value.id)) return null;
+    if (value.id === 'none') return { ...noBrand };
+    const name = brandingText(value.name, 100);
+    const address = brandingText(value.address, 500);
+    if (!name || address === null || !safeBackground(value.logoUrl)) return null;
+    return { id: value.id, name, logoUrl: value.logoUrl, address };
+}
+
+export function defaultBranding() {
+    return { profiles: [{ ...noBrand }, { ...defaultSponsor }], activeId: 'vikey', updatedAt: 0 };
+}
+
+export function normalizeBranding(value) {
+    const defaults = defaultBranding();
+    if (!appearanceObject(value) || !Array.isArray(value.profiles)) return defaults;
+    const profiles = defaults.profiles;
+    value.profiles.forEach(profile => {
+        const normalized = normalizeBrandProfile(profile);
+        if (!normalized) return;
+        const index = profiles.findIndex(item => item.id === normalized.id);
+        if (index >= 0) profiles[index] = normalized;
+        else if (profiles.length < 24) profiles.push(normalized);
+    });
+    const activeId = typeof value.activeId === 'string' &&
+        profiles.some(profile => profile.id === value.activeId) ? value.activeId : 'vikey';
+    return {
+        profiles, activeId,
+        updatedAt: Number.isSafeInteger(value.updatedAt) && value.updatedAt > 0 ? value.updatedAt : 0
+    };
+}
+
+export function validateBranding(value) {
+    if (!appearanceObject(value) || Object.keys(value).some(key => !['profiles', 'activeId'].includes(key)) ||
+        !Array.isArray(value.profiles) || value.profiles.length < 2 || value.profiles.length > 24 ||
+        typeof value.activeId !== 'string') return null;
+    const ids = new Set();
+    for (const profile of value.profiles) {
+        if (!appearanceObject(profile) || Object.keys(profile).some(key => !brandFields.includes(key)) ||
+            brandFields.some(key => !own(profile, key))) return null;
+        const normalized = normalizeBrandProfile(profile);
+        if (!normalized || ids.has(normalized.id)) return null;
+        if (normalized.id === 'none' && (profile.name !== '' || profile.logoUrl !== '' || profile.address !== '')) return null;
+        ids.add(normalized.id);
+    }
+    if (!ids.has('none') || !ids.has('vikey') || !ids.has(value.activeId)) return null;
+    return normalizeBranding(value);
+}
+
 export function safeAudioUrl(value) {
     if (typeof value !== 'string' || value.length > 2048) return false;
     if (!value.startsWith('/api/audio?file=')) return safeBackground(value);

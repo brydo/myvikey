@@ -75,6 +75,10 @@ body {
     left: auto; right: var(--symbol-right); transform: rotate(30deg);
 }
 .rsvp-head { padding: 14px 20px 0; text-align: center; }
+.brand-lockup { text-align: center; margin-bottom: 12px; }
+.brand-lockup .brand { margin: 0; }
+.brand-lockup img { display: block; max-width: min(100%, 220px); max-height: 80px; object-fit: contain; margin: 0 auto 8px; }
+.brand-address { white-space: pre-wrap; overflow-wrap: anywhere; font-size: .75rem; line-height: 1.4; margin-top: 4px; }
 h1, h2 { font-family: Georgia, "Times New Roman", serif; font-size: 1.9rem; line-height: 1.25; overflow-wrap: anywhere; }
 h1 { font-family: var(--heading-font); font-size: clamp(2.2rem, 8vw, 3rem); font-weight: var(--heading-weight); }
 .brand { color: var(--accent, #825f2d); font-weight: 600; margin-bottom: 12px; letter-spacing: 2px; font-size: .8rem; text-transform: uppercase; }

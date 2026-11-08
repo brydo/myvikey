@@ -1,11 +1,12 @@
 import { validateSession, hashPassword, verifyPassword, generateSessionToken, checkRateLimit, recordFailedAttempt } from '../lib/auth.js';
-import { eventTypes, theme, normalizeAppearance, validateAppearance, styleIssues, safeBackground, safeAudioUrl } from '../../rsvp/themes.js';
+import { eventTypes, theme, normalizeAppearance, validateAppearance, styleIssues, safeBackground, safeAudioUrl, normalizeBranding, validateBranding } from '../../rsvp/themes.js';
 import { validInvitationId, invitationId, generateInvitationId } from '../../rsvp/invitation-id.js';
 
 const PREFIX = 'rsvp:';
 const INVITATIONS = 'rsvp-invitation:';
 const GUEST_SESSIONS = 'rsvp-guest-session:';
 const HOST_SESSIONS = 'rsvp-host-session:';
+const BRANDING = 'rsvp-branding';
 const HOST_SESSION_SECONDS = 30 * 60;
 const validId = validInvitationId;
 
@@ -94,7 +95,7 @@ export async function onRequestPost({ request, env }) {
     return reply({ success: false, error: 'Invalid JSON' }, 400);
   }
 
-  if (['list', 'list-invitations', 'save-invitation', 'save-appearance', 'delete-reply', 'delete-event'].includes(body.action)) {
+  if (['list', 'list-invitations', 'save-invitation', 'save-appearance', 'save-branding', 'delete-reply', 'delete-event'].includes(body.action)) {
     const session = await validateSession(env, request.headers.get('x-admin-session'));
     if (!session || session.userId !== '__admin__') {
       return reply({ success: false, error: 'Unauthorized' }, 401);
@@ -110,7 +111,25 @@ export async function onRequestPost({ request, env }) {
     return reply({ success: false, error: 'RSVP storage is unavailable. Please try again later.' }, 503);
   }
   try {
+    if (body.action === 'save-branding') {
+      if (Object.keys(body).some(key => !['action', 'branding'].includes(key))) {
+        return reply({ success: false, error: 'Invalid sponsor settings.' }, 400);
+      }
+      const branding = validateBranding(body.branding);
+      if (!branding) {
+        return reply({ success: false, error: 'Enter valid sponsor names, optional HTTPS logo URLs and addresses, then choose a profile.' }, 400);
+      }
+      branding.updatedAt = Date.now();
+      await env.FORM_SUBMISSIONS.put(BRANDING, JSON.stringify(branding));
+      return reply({ success: true, branding });
+    }
     if (body.action === 'save-appearance' || body.action === 'get-appearance') {
+      const readBranding = async () => {
+        const raw = await env.FORM_SUBMISSIONS.get(BRANDING);
+        let value;
+        try { value = raw ? JSON.parse(raw) : undefined; } catch { /* Ignore malformed stored settings. */ }
+        return normalizeBranding(value);
+      };
       const readAppearance = async type => {
         const raw = await env.FORM_SUBMISSIONS.get('rsvp-appearance:' + type);
         let value;
@@ -147,7 +166,7 @@ export async function onRequestPost({ request, env }) {
         // KV is eventually consistent, so return the value just written instead of re-reading it.
         appearance[type] = saved && type === body.eventType ? saved : await readAppearance(type);
       }));
-      return reply({ success: true, appearance });
+      return reply({ success: true, appearance, branding: await readBranding() });
     }
     if (body.action === 'delete-reply') {
       if (typeof body.id !== 'string' || !/^[a-zA-Z0-9_-]{1,100}$/.test(body.id)) {

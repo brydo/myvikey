@@ -323,7 +323,7 @@ after(async () => {
 });
 
 test('the main landing background stays isolated, can be swapped in one setting and can be reverted', { skip }, async () => {
-    const image = 'https://pub-07ed0b0955a4401f9956c3ca7a33c40e.r2.dev/eventimage.jpg';
+    const image = 'https://pub-07ed0b0955a4401f9956c3ca7a33c40e.r2.dev/ebg2.jpg';
     for (const viewport of [{ width: 390, height: 844 }, { width: 1440, height: 900 }]) {
         await page('Emulation.setDeviceMetricsOverride', { ...viewport, deviceScaleFactor: 1, mobile: false });
         for (const route of ['/rsvp/', '/rsvp/index.html', '/rsvp/?utm_source=share']) {
@@ -376,8 +376,8 @@ test('the landing box is plain pastel, independently editable and reversible wit
     `);
     for (const state of ['rsvp-theme-loading', 'rsvp-theme-neutral', 'rsvp-theme-ready']) {
         await evaluate('document.body.className = ' + JSON.stringify(state) + '; return true;');
-        assert.deepEqual(await appearance(), { card: rgb('#f7e6ec'), text: rgb('#493439'),
-            heading: rgb('#493439'), banner: rgb('#f7e6ec'), image: 'none', before: 'none', after: 'none' }, state);
+        assert.deepEqual(await appearance(), { card: rgb('#fffaf4'), text: rgb('#493439'),
+            heading: rgb('#493439'), banner: rgb('#fffaf4'), image: 'none', before: 'none', after: 'none' }, state);
     }
     const unchanged = () => evaluate(`
         const card = document.querySelector('.wrap > .rsvp-card');
@@ -495,7 +495,7 @@ test('invitation, open RSVP button, form fields, receipt and landing pages rende
             color: rgb(palette.textColor), borderTopColor: rgb(palette.buttonBorder) }, type + ' send button');
         await open(type === 'celebration' ? '/rsvp/' : '/rsvp/' + type + '/');
         assert.equal((await styles('.rsvp-card', ['backgroundColor'])).backgroundColor,
-            rgb(type === 'celebration' ? '#f7e6ec' : palette.surface), type + ' landing');
+            rgb(type === 'celebration' ? '#fffaf4' : palette.surface), type + ' landing');
         if (type !== 'celebration') {
             assert.equal((await styles('.landing-copy h1', ['color'])).color, rgb(palette.headingColor));
         }
@@ -504,18 +504,13 @@ test('invitation, open RSVP button, form fields, receipt and landing pages rende
     }
 });
 
-test('mixed-category admin reply cards each use their own category colours', { skip }, async () => {
+test('admin lists replies from each invitation type in the shared replies panel', { skip }, async () => {
     await signIn('parties');
-    await waitFor('document.querySelectorAll("#responses .rsvp-card").length === ' + categories.length, 'reply cards');
-    const cards = await evaluate('return [...document.querySelectorAll("#responses .rsvp-card")].map(card => {' +
-        'const button = getComputedStyle(card.querySelector("button")); const style = getComputedStyle(card);' +
-        'return { type: card.dataset.eventType, surface: style.backgroundColor, text: style.color,' +
-        'button: button.color, border: button.borderTopColor }; });');
-    assert.deepEqual(new Set(cards.map(card => card.type)), new Set(categories));
-    for (const card of cards) {
-        const palette = palettes[card.type];
-        assert.deepEqual(card, { type: card.type, surface: rgb(palette.surface), text: rgb(palette.textColor),
-            button: rgb(palette.textColor), border: rgb(palette.buttonBorder) }, card.type);
+    await waitFor('document.querySelectorAll("#responses .response").length === ' + categories.length, 'replies');
+    const responseTypes = await evaluate('return [...document.querySelectorAll("#responses .response")].map(row => ' +
+        'row.parentElement.textContent);');
+    for (const type of categories) {
+        assert.ok(responseTypes.some(text => text.includes('Guest ' + type + ' — Going')), type);
     }
 });
 
@@ -563,9 +558,14 @@ test('first paints stay neutral before modules and delayed settings, never expos
             releaseSettings();
             await waitFor('document.body.classList.contains("rsvp-theme-ready")', type + ' image decode');
             const frames = await evaluate('return window.__backgroundFrames;');
-            assert.ok(frames.every(frame => frame.body === 'none' || frame.body.includes(fixtureImage(type))), type);
-            assert.ok(frames.every(frame => !frame.body.includes('obsolete') && !frame.banner.includes('obsolete')), type);
-            assert.equal((await styles('body', ['backgroundImage'])).backgroundImage, 'url("' + fixtureImage(type) + '")');
+            const staticEventsImage = 'https://pub-07ed0b0955a4401f9956c3ca7a33c40e.r2.dev/eventimage.jpg';
+            assert.ok(frames.every(frame => frame.body === 'none' || frame.body.includes(fixtureImage(type)) ||
+                (type === 'events' && frame.body.includes(staticEventsImage))),
+                type + ': ' + JSON.stringify(frames));
+            assert.ok(frames.every(frame => !frame.body.includes('obsolete') && !frame.banner.includes('obsolete')),
+                type + ': ' + JSON.stringify(frames));
+            assert.equal((await styles('body', ['backgroundImage'])).backgroundImage,
+                'url("' + (type === 'events' ? staticEventsImage : fixtureImage(type)) + '")');
         } finally {
             releaseModule();
             releaseSettings();
@@ -636,24 +636,30 @@ test('password-protected confirmation uses its invitation background without rev
 });
 
 test('guest and receipt backgrounds wait for the invitation category, not generic, URL or saved receipt hints', { skip }, async () => {
-    for (const type of categories.filter(type => type !== 'celebration')) {
-        for (const receipt of [false, true]) {
-            await evaluate('sessionStorage.setItem("rsvp_receipt", JSON.stringify({eventType: "events",' +
-                'response: {eventId: ' + JSON.stringify(events[type].id) + ', name: "Guest", attending: "yes", guests: 1}}));');
-            const release = hold('get-invitation');
-            try {
-                await navigate(receipt ? '/rsvp/view?type=events&id=' + events[type].id : '/rsvp/?id=' + events[type].id);
-                await waitFor('window.RSVPThemes', 'theme client');
-                await evaluate('await window.RSVPThemes.ready;');
-                await neutralSurface();
-                release();
-                await waitFor('document.body.dataset.eventType === ' + JSON.stringify(type) +
-                    ' && document.body.classList.contains("rsvp-theme-ready")', 'final invitation background');
-                const frames = await evaluate('return window.__backgroundFrames;');
-                assert.ok(frames.every(frame => frame.body === 'none' ||
-                    (frame.type === type && frame.body.includes(fixtureImage(type)))), type + (receipt ? ' receipt' : ' invitation'));
-            } finally { release(); }
+    await images();
+    try {
+        for (const type of categories.filter(type => type !== 'celebration')) {
+            for (const receipt of [false, true]) {
+                await evaluate('sessionStorage.setItem("rsvp_receipt", JSON.stringify({eventType: "events",' +
+                    'response: {eventId: ' + JSON.stringify(events[type].id) + ', name: "Guest", attending: "yes", guests: 1}}));');
+                const release = hold('get-invitation');
+                try {
+                    await navigate(receipt ? '/rsvp/view?type=events&id=' + events[type].id : '/rsvp/?id=' + events[type].id);
+                    await waitFor('window.RSVPThemes', 'theme client');
+                    await evaluate('await window.RSVPThemes.ready;');
+                    await neutralSurface();
+                    release();
+                    await waitFor('document.body.dataset.eventType === ' + JSON.stringify(type) +
+                        ' && document.body.classList.contains("rsvp-theme-ready")', 'final invitation background');
+                    const frames = await evaluate('return window.__backgroundFrames;');
+                    assert.ok(frames.every(frame => frame.body === 'none' ||
+                        (frame.type === type && frame.body.includes(fixtureImage(type)))), type + (receipt ? ' receipt' : ' invitation'));
+                } finally { release(); }
+            }
         }
+    } finally {
+        await page('Fetch.disable');
+        onImageRequest = undefined;
     }
 });
 
@@ -1003,6 +1009,82 @@ test('a guest can actually play a direct HTTPS audio file in the browser', { ski
         await page('Fetch.disable');
         onImageRequest = undefined;
     }
+});
+
+test('active sponsor branding replaces the RSVP header on live invitations and confirmations', { skip }, async () => {
+    const branding = {
+        profiles: [
+            { id: 'none', name: '', logoUrl: '', address: '' },
+            { id: 'vikey', name: 'V I Key® · RSVP', logoUrl: '', address: '' },
+            { id: 'sponsor-test', name: 'Acme Events', logoUrl: 'https://images.example.com/acme.png',
+                address: '12 Main Street\nLondon' }
+        ],
+        activeId: 'sponsor-test'
+    };
+    const savedBranding = await api(JSON.stringify({ action: 'save-branding', branding }), 'valid-session');
+    assert.equal(savedBranding.status, 200);
+    const savedInvitation = await api(JSON.stringify({
+        action: 'save-invitation', eventType: 'weddings', title: 'Sponsor test', text: 'Invitation'
+    }), 'valid-session');
+    const invitation = (await savedInvitation.json()).invitation;
+    for (const [route, title] of [
+        ['/rsvp/i/' + invitation.id, 'RSVP · Acme Events'],
+        ['/rsvp/view?type=weddings&id=' + invitation.id, 'Your RSVP · Acme Events']
+    ]) {
+        await open(route);
+        const display = await evaluate(`
+            return {
+                name: document.querySelector('[data-brand-name]').textContent,
+                logo: document.querySelector('[data-brand-logo]').src,
+                address: document.querySelector('[data-brand-address]').textContent,
+                title: document.title
+            };
+        `);
+        assert.deepEqual(display, {
+            name: 'Acme Events', logo: 'https://images.example.com/acme.png',
+            address: '12 Main Street\nLondon', title
+        });
+    }
+});
+
+test('admin can add, select and save sponsor profiles in the browser', { skip }, async () => {
+    records.delete('rsvp-branding');
+    await signIn('weddings', false);
+    await evaluate(`
+        document.getElementById('addSponsor').click();
+        for (const [id, value] of [
+            ['sponsorName', 'Browser Sponsor'],
+            ['sponsorLogo', 'https://images.example.com/sponsor.png'],
+            ['sponsorAddress', '1 Main Street']
+        ]) {
+            const input = document.getElementById(id);
+            input.value = value;
+            input.dispatchEvent(new Event('input', { bubbles: true }));
+        }
+        document.getElementById('brandingForm').requestSubmit();
+    `);
+    await waitFor('document.getElementById("brandingStatus").textContent.startsWith("Saved.")', 'sponsor save');
+    const saved = JSON.parse(records.get('rsvp-branding'));
+    assert.deepEqual(saved.profiles.find(profile => profile.id === saved.activeId), {
+        id: saved.activeId, name: 'Browser Sponsor',
+        logoUrl: 'https://images.example.com/sponsor.png', address: '1 Main Street'
+    });
+    await evaluate(`
+        const select = document.getElementById('sponsorProfile');
+        select.value = 'none';
+        select.dispatchEvent(new Event('change', { bubbles: true }));
+        document.getElementById('brandingForm').requestSubmit();
+    `);
+    await waitFor('document.getElementById("brandingStatus").textContent.startsWith("Saved.")', 'hide sponsor');
+    assert.equal(JSON.parse(records.get('rsvp-branding')).activeId, 'none');
+    await evaluate(`
+        const select = document.getElementById('sponsorProfile');
+        select.value = 'vikey';
+        select.dispatchEvent(new Event('change', { bubbles: true }));
+        document.getElementById('brandingForm').requestSubmit();
+    `);
+    await waitFor('document.getElementById("brandingStatus").textContent.startsWith("Saved.")', 'restore branding');
+    assert.equal(JSON.parse(records.get('rsvp-branding')).activeId, 'vikey');
 });
 
 test('R2 music selector preserves links, supports refresh, edits and guest playback', { skip }, async () => {

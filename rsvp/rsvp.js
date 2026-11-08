@@ -303,6 +303,14 @@ import { safeAudioUrl } from './themes.js';
     var cleanupJobs = [];
     var initialTheme = theme(new URLSearchParams(window.location.search).get('type'));
     var appearanceForm = document.getElementById('appearanceForm');
+    var brandingForm = document.getElementById('brandingForm');
+    var sponsorProfile = document.getElementById('sponsorProfile');
+    var sponsorName = document.getElementById('sponsorName');
+    var sponsorLogo = document.getElementById('sponsorLogo');
+    var sponsorAddress = document.getElementById('sponsorAddress');
+    var brandingStatus = document.getElementById('brandingStatus');
+    var sponsorProfiles = [];
+    var sponsorIdCounter = 0;
     var backgroundInput = document.getElementById('backgroundImage');
     var copyEditor = document.getElementById('copyEditor');
     var styleEditor = document.getElementById('styleEditor');
@@ -396,6 +404,44 @@ import { safeAudioUrl } from './themes.js';
         if (!appearanceStatus) return;
         appearanceStatus.textContent = text;
         appearanceStatus.setAttribute('data-state', state || '');
+    }
+    function renderSponsorOptions(selectedId) {
+        sponsorProfile.replaceChildren();
+        sponsorProfiles.forEach(function (profile) {
+            var option = document.createElement('option');
+            option.value = profile.id;
+            option.textContent = profile.id === 'none' ? 'No sponsor branding' : profile.name || 'New sponsor';
+            sponsorProfile.appendChild(option);
+        });
+        sponsorProfile.value = selectedId;
+    }
+    function showSponsorProfile() {
+        var profile = sponsorProfiles.find(function (item) { return item.id === sponsorProfile.value; });
+        if (!profile) return;
+        sponsorName.value = profile.name;
+        sponsorLogo.value = profile.logoUrl;
+        sponsorAddress.value = profile.address;
+        var disabled = profile.id === 'none';
+        sponsorName.disabled = disabled;
+        sponsorLogo.disabled = disabled;
+        sponsorAddress.disabled = disabled;
+    }
+    function updateSponsorDraft() {
+        var profile = sponsorProfiles.find(function (item) { return item.id === sponsorProfile.value; });
+        if (!profile || profile.id === 'none') return;
+        profile.name = sponsorName.value;
+        profile.logoUrl = sponsorLogo.value;
+        profile.address = sponsorAddress.value;
+        var option = Array.from(sponsorProfile.querySelectorAll('option')).find(function (item) { return item.value === profile.id; });
+        if (option) option.textContent = profile.name || 'New sponsor';
+    }
+    function fillBrandingEditor() {
+        if (!brandingForm) return;
+        var current = window.RSVPThemes.branding();
+        sponsorProfiles = current.profiles.map(function (profile) { return Object.assign({}, profile); });
+        renderSponsorOptions(current.activeId);
+        showSponsorProfile();
+        brandingStatus.textContent = '';
     }
     function draftAppearance() {
         var draft = { backgroundImage: backgroundInput.value.trim(), copy: {}, cardStyle: {} };
@@ -513,6 +559,7 @@ import { safeAudioUrl } from './themes.js';
             appearanceMessage('Default copy and card styles restored in the preview only. Save category settings to publish.', 'draft');
         });
         window.RSVPThemes.ready.then(showBackground);
+        window.RSVPThemes.ready.then(fillBrandingEditor);
         appearanceForm.addEventListener('submit', async function (event) {
             event.preventDefault();
             var session = token;
@@ -550,6 +597,53 @@ import { safeAudioUrl } from './themes.js';
                 if (error.fields && error.fields.length && selectedTheme() === type) showStyleIssues(error.fields);
                 appearanceMessage('Not saved. ' + (error.message || 'Unable to save category settings.') +
                     ' Your unsaved changes are still here.', 'error');
+            } finally { button.disabled = false; }
+        });
+    }
+    if (brandingForm) {
+        sponsorProfile.addEventListener('change', showSponsorProfile);
+        [sponsorName, sponsorLogo, sponsorAddress].forEach(function (input) {
+            input.addEventListener('input', updateSponsorDraft);
+        });
+        document.getElementById('addSponsor').addEventListener('click', function () {
+            if (sponsorProfiles.length >= 24) {
+                brandingStatus.textContent = 'The maximum of 22 sponsor profiles has been reached.';
+                return;
+            }
+            var id;
+            do {
+                id = 'sponsor-' + Date.now().toString(36) + '-' + (++sponsorIdCounter).toString(36);
+            } while (sponsorProfiles.some(function (profile) { return profile.id === id; }));
+            sponsorProfiles.push({ id: id, name: '', logoUrl: '', address: '' });
+            renderSponsorOptions(id);
+            showSponsorProfile();
+            sponsorName.focus();
+            brandingStatus.textContent = 'Enter the new sponsor details, then save to publish them.';
+        });
+        brandingForm.addEventListener('submit', async function (event) {
+            event.preventDefault();
+            updateSponsorDraft();
+            var session = token;
+            var button = document.getElementById('saveBranding');
+            button.disabled = true;
+            brandingStatus.textContent = 'Saving sponsor branding…';
+            try {
+                var data = await post('/api/rsvp', {
+                    action: 'save-branding',
+                    branding: { profiles: sponsorProfiles, activeId: sponsorProfile.value }
+                }, session);
+                if (token !== session) return;
+                window.RSVPThemes.updateBranding(data.branding);
+                previewAppearance();
+                sponsorProfiles = data.branding.profiles.map(function (profile) { return Object.assign({}, profile); });
+                renderSponsorOptions(data.branding.activeId);
+                showSponsorProfile();
+                brandingStatus.textContent = 'Saved. This sponsor now appears on all RSVP invitations and confirmations, regardless of type.';
+            } catch (error) {
+                if (token !== session) return;
+                if (error.status === 401) logout();
+                brandingStatus.textContent = 'Not saved. ' + (error.message || 'Unable to save sponsor branding.') +
+                    ' Your changes are still here.';
             } finally { button.disabled = false; }
         });
     }
@@ -935,6 +1029,7 @@ import { safeAudioUrl } from './themes.js';
         more.hidden = true;
         editor.hidden = true;
         if (appearanceForm) appearanceForm.hidden = true;
+        if (brandingForm) brandingForm.hidden = true;
         drafts = {};
         resetInvitationEditor();
         editor.elements.eventType.value = initialTheme;
@@ -1046,6 +1141,10 @@ import { safeAudioUrl } from './themes.js';
             login.hidden = true;
             actions.hidden = false;
             if (appearanceForm) appearanceForm.hidden = false;
+            if (brandingForm) {
+                brandingForm.hidden = false;
+                fillBrandingEditor();
+            }
             editor.hidden = false;
             eventsPanel.hidden = false;
             repliesPanel.hidden = false;
