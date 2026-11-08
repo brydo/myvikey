@@ -637,8 +637,14 @@ test('header image can be changed independently for each theme and invitation', 
             const id = await evaluate('return document.getElementById("invitationForm").elements.id.value;');
             await open('/rsvp/i/' + id);
             await waitFor('!document.getElementById("openRsvp").hidden && document.body.classList.contains("rsvp-theme-ready")');
+            await waitFor('!document.body.classList.contains("rsvp-banner-unavailable")');
             assert.equal((await styles('body', ['backgroundImage'])).backgroundImage, 'url("' + background + '")');
             assert.equal((await styles('.rsvp-banner', ['backgroundImage'])).backgroundImage, 'url("' + personalBanner + '")');
+            assert.deepEqual(await evaluate(`
+                const banner = document.querySelector('.rsvp-banner');
+                return { firstInCard: banner.parentElement.classList.contains('rsvp-card') &&
+                    banner.parentElement.firstElementChild === banner, position: getComputedStyle(banner).position };
+            `), { firstInCard: true, position: 'relative' });
             await evaluate(`
                 document.getElementById('openRsvp').click();
                 const form = document.getElementById('rsvpForm');
@@ -648,16 +654,90 @@ test('header image can be changed independently for each theme and invitation', 
                 form.requestSubmit();
             `);
             await waitFor('location.pathname === "/rsvp/view" && document.body.classList.contains("rsvp-theme-ready")');
-            assert.equal((await styles('#receipt .rsvp-banner', ['backgroundImage'])).backgroundImage, 'url("' + personalBanner + '")');
+            await waitFor('document.querySelector("#receipt .rsvp-banner")');
+            assert.equal((await styles('#receipt .rsvp-banner', ['backgroundImage'])).backgroundImage, 'url("' + background + '")');
+            await open('/rsvp/admin?type=' + type);
+            await waitFor('document.body.classList.contains("rsvp-theme-ready")');
+            assert.equal((await styles('body > .wrap > .rsvp-card > .rsvp-banner', ['backgroundImage'])).backgroundImage, 'url("' + background + '")');
+            await open(type === 'celebration' ? '/rsvp/' : '/rsvp/' + type + '/');
+            assert.notEqual(await evaluate('return document.body.style.getPropertyValue("--category-banner");'), 'url("' + categoryBanner + '")');
             const other = (await (await api(JSON.stringify({
                 action: 'save-invitation', eventType: type, title: 'Theme header', text: 'Details'
             }), 'valid-session')).json()).invitation;
             await open('/rsvp/i/' + other.id);
             await waitFor('!document.getElementById("openRsvp").hidden && document.body.classList.contains("rsvp-theme-ready")');
+            await waitFor('!document.body.classList.contains("rsvp-banner-unavailable")');
             assert.equal((await styles('.rsvp-banner', ['backgroundImage'])).backgroundImage, 'url("' + categoryBanner + '")');
         }
     } finally {
         previousAppearances.forEach((value, type) => {
+            if (value === undefined) records.delete('rsvp-appearance:' + type);
+            else records.set('rsvp-appearance:' + type, value);
+        });
+        await page('Fetch.disable');
+        onImageRequest = undefined;
+    }
+});
+
+test('slow or broken header images never hide invitation and preview backgrounds', { skip }, async () => {
+    const saved = new Map(categories.map(type => [type, records.get('rsvp-appearance:' + type)]));
+    const pending = [];
+    const broken = new Set();
+    await images(request => {
+        if (request.request.url.includes('held-header')) pending.push(request);
+        else imageResponse(request.requestId, broken.has(request.request.url) ? 404 : 200);
+    });
+    try {
+        for (const type of categories) {
+            const background = fixtureImage(type + '-safe-background');
+            const header = fixtureImage(type + '-broken-header');
+            broken.add(header);
+            records.set('rsvp-appearance:' + type, JSON.stringify({
+                backgroundImage: background, bannerImage: header, updatedAt: 2000000000000
+            }));
+            const invitation = (await (await api(JSON.stringify({
+                action: 'save-invitation', eventType: type, title: 'Independent header', text: 'Details',
+                backgroundImage: background
+            }), 'valid-session')).json()).invitation;
+            await navigate('/rsvp/i/' + invitation.id);
+            await waitFor('window.RSVPThemes && !document.getElementById("openRsvp").hidden && ' +
+                'document.body.classList.contains("rsvp-theme-ready") && document.body.classList.contains("rsvp-banner-failed") && ' +
+                '!document.documentElement.classList.contains("rsvp-invitation-pending")');
+            assert.equal((await styles('body', ['backgroundImage'])).backgroundImage, 'url("' + background + '")', type);
+            assert.equal((await styles('.rsvp-banner', ['backgroundImage'])).backgroundImage, 'none', type);
+        }
+
+        const background = fixtureImage('independent-personal-background');
+        const header = fixtureImage('held-header');
+        const invitation = (await (await api(JSON.stringify({
+            action: 'save-invitation', eventType: 'weddings', title: 'Slow header', text: 'Details',
+            backgroundImage: background, bannerImage: header
+        }), 'valid-session')).json()).invitation;
+        await navigate('/rsvp/i/' + invitation.id);
+        await waitFor('window.RSVPThemes && !document.getElementById("openRsvp").hidden && ' +
+            'document.body.classList.contains("rsvp-theme-ready") && ' +
+            '!document.documentElement.classList.contains("rsvp-invitation-pending")');
+        assert.ok(pending.length, 'header request is still held');
+        assert.equal((await styles('body', ['backgroundImage'])).backgroundImage, 'url("' + background + '")');
+        assert.equal((await styles('.rsvp-banner', ['backgroundImage'])).backgroundImage, 'none');
+        await Promise.all(pending.splice(0).map(item => imageResponse(item.requestId)));
+        await waitFor('!document.body.classList.contains("rsvp-banner-unavailable")');
+        assert.equal((await styles('.rsvp-banner', ['backgroundImage'])).backgroundImage, 'url("' + header + '")');
+
+        await signIn('weddings');
+        await evaluate(`
+            const form = document.getElementById('appearanceForm');
+            document.getElementById('backgroundImage').value = ${JSON.stringify(background)};
+            document.getElementById('bannerImage').value = ${JSON.stringify(fixtureImage('weddings-broken-header'))};
+            form.dispatchEvent(new Event('input', { bubbles: true }));
+        `);
+        await waitFor('document.getElementById("appearancePreview").classList.contains("rsvp-theme-ready") && ' +
+            'document.getElementById("appearancePreview").classList.contains("rsvp-banner-failed")');
+        assert.equal((await styles('#appearancePreview', ['backgroundImage'])).backgroundImage, 'url("' + background + '")');
+        assert.equal((await styles('#appearancePreview .rsvp-banner', ['backgroundImage'])).backgroundImage, 'none');
+        assert.equal(await evaluate('return document.querySelector("[data-banner-warning]").hidden;'), false);
+    } finally {
+        saved.forEach((value, type) => {
             if (value === undefined) records.delete('rsvp-appearance:' + type);
             else records.set('rsvp-appearance:' + type, value);
         });

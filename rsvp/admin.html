@@ -80,7 +80,7 @@
                 <p id="eventBackgroundHint">This image is used for this invitation, its RSVP form and confirmation. Leave blank to use the category background. Use a public HTTPS image URL.</p>
                 <label for="eventBanner">Header image for this invitation (optional)</label>
                 <input id="eventBanner" name="eventBanner" type="url" maxlength="2048" placeholder="https://example.com/header.jpg" aria-describedby="eventBannerHint">
-                <p id="eventBannerHint">Use a public HTTPS image URL. Leave blank to use the theme's header image, or the background image if no theme header is set. This only changes this invitation and its confirmation.</p>
+                <p id="eventBannerHint">Use a public HTTPS image URL. Leave blank to use the theme's header image, or the background image if no theme header is set. This changes only the top of this invitation card, not other pages. If the header image cannot load, its area stays blank; the background is unaffected.</p>
                 <details class="admin-options" id="musicOptions">
                     <summary>Music for this invitation (optional)</summary>
                     <label for="audioFiles">Choose an audio file from R2</label>
@@ -152,7 +152,7 @@
                 <p id="backgroundHint">Use a trusted, publicly accessible image, without passwords or private access tokens. Leave blank for the category’s colour background.</p>
                 <label for="bannerImage">Header image URL for this theme (optional)</label>
                 <input id="bannerImage" type="url" maxlength="2048" placeholder="https://example.com/header.jpg" aria-describedby="bannerHint">
-                <p id="bannerHint">Use a public HTTPS image URL. Leave blank to use the background image. An invitation's own header image takes priority.</p>
+                <p id="bannerHint">Use a public HTTPS image URL. This changes the top of invitation cards in this theme, not other pages. Leave blank to use the background image. An invitation's own header image takes priority. If the header image cannot load, its area stays blank; the background is unaffected.</p>
                 <details>
                     <summary>Edit page wording</summary>
                     <p>Plain text only. Blank text hides optional wording. Keep labels meaningful so guests can understand the form. These display settings are public; do not include private information.</p>
@@ -168,6 +168,7 @@
                 <p id="appearanceStatus" class="appearance-status" role="status" aria-live="polite"></p>
                 <p class="preview-note">Preview below — changes appear here instantly but are only published when saved.</p>
                 <section id="appearancePreview" class="appearance-preview" aria-label="Live category preview">
+                    <p data-banner-warning role="status" aria-live="polite" hidden>The header image could not be loaded. Check that the URL points to a publicly accessible image.</p>
                     <p data-copy="landingHeading"></p>
                     <p data-copy="landingDescription"></p>
                     <article class="rsvp-card">

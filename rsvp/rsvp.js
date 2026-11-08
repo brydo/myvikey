@@ -10,13 +10,9 @@ import { safeAudioUrl } from './themes.js';
         return window.RSVPThemes.theme(type);
     }
 
-    function applyTheme(type, eventBackground, eventBanner) {
+    function applyTheme(type) {
         type = theme(type);
-        if (eventBackground || eventBanner) {
-            window.RSVPThemes.applyEvent(document.body, type, eventBackground, eventBanner);
-        } else {
-            window.RSVPThemes.apply(document.body, type);
-        }
+        window.RSVPThemes.apply(document.body, type);
     }
 
     function status(text, error) {
@@ -121,7 +117,7 @@ import { safeAudioUrl } from './themes.js';
                 // These two fields belong to this invitation, never the category.
                 document.getElementById('heading').removeAttribute('data-copy');
                 document.getElementById('invitationText').removeAttribute('data-copy');
-                applyTheme(invitation.eventType, invitation.backgroundImage, invitation.bannerImage);
+                window.RSVPThemes.applyInvitation(document.body, invitation.eventType, invitation.backgroundImage, invitation.bannerImage);
                 var themed = finishInvitationTheme(true);
                 document.getElementById('heading').textContent = invitation.title;
                 document.getElementById('invitationText').textContent = invitation.text;
@@ -241,12 +237,9 @@ import { safeAudioUrl } from './themes.js';
         back.href = invitationId(receiptId) ?
             invitationPath(receiptId) :
             (theme(receiptParams.get('type')) === 'celebration' ? '/rsvp/' : '/rsvp/' + theme(receiptParams.get('type')) + '/');
-        function receiptTheme(type, eventBackground, eventBanner) {
-            window.RSVPThemes.applyEvent(document.body, type, eventBackground || '', eventBanner || '');
-            if (receipt.children.length) {
-                if (eventBanner) window.RSVPThemes.applyEvent(receipt.children[0], type, '', eventBanner);
-                else window.RSVPThemes.apply(receipt.children[0], type);
-            }
+        function receiptTheme(type, eventBackground) {
+            window.RSVPThemes.applyEvent(document.body, type, eventBackground || '');
+            if (receipt.children.length) window.RSVPThemes.apply(receipt.children[0], type);
             window.RSVPThemes.apply(document.getElementById('sendOptions'), type);
         }
         function resolveReceiptTheme(id) {
@@ -255,7 +248,7 @@ import { safeAudioUrl } from './themes.js';
                 return;
             }
             post('/api/rsvp', { action: 'get-invitation', id: id }, null, guestToken(id)).then(function (data) {
-                receiptTheme(data.invitation.eventType, data.invitation.backgroundImage, data.invitation.bannerImage);
+                receiptTheme(data.invitation.eventType, data.invitation.backgroundImage);
                 finishReceiptTheme(true);
             }).catch(function () {
                 // Keep saved receipt content, but not its unverified background.

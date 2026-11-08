@@ -15,9 +15,11 @@ var settingsState = 'loading';
 var categoryState = 'ready';
 var categoryRevision = 0;
 var backgrounds = new WeakMap();
+var banners = new WeakMap();
 // Per-event background overrides, keyed by the root they were applied to.
 var eventBackgrounds = new Map();
 var eventBanners = new Map();
+var invitationRoots = new WeakSet();
 var defaultDocumentTitle = document.title;
 
 function surface(root, state) {
@@ -36,42 +38,66 @@ function bounded(task, cancel) {
     })]).finally(function () { clearTimeout(timer); });
 }
 
-function backgroundReady(root, url, banner) {
+function backgroundReady(root, url) {
     var gate = root === document.body ?
         (settingsState === 'failed' || categoryState === 'failed' ? 'failed' :
             settingsState === 'loading' || categoryState === 'loading' ? 'loading' : 'ready') : 'ready';
-    var urls = Array.from(new Set([url, banner].filter(Boolean)));
-    var key = JSON.stringify([gate, urls]);
+    var key = JSON.stringify([gate, url]);
     var previous = backgrounds.get(root);
     if (previous && previous.key === key) return previous.ready;
     var current = { key: key };
     backgrounds.set(root, current);
-    surface(root, gate === 'ready' && !urls.length ? 'ready' : gate === 'failed' ? 'failed' : 'loading');
+    surface(root, gate === 'ready' && !url ? 'ready' : gate === 'failed' ? 'failed' : 'loading');
     current.ready = Promise.resolve();
-    if (gate !== 'ready' || !urls.length) return current.ready;
-    var images = [];
-    current.ready = bounded(Promise.all(urls.map(function (src) {
-        var image = new Image();
-        images.push(image);
-        return new Promise(function (resolve, reject) {
-            image.onload = function () {
-                (image.decode ? image.decode() : Promise.resolve()).then(resolve, reject);
-            };
-            image.onerror = reject;
-            image.src = src;
-        });
-    })), function () { images.forEach(function (image) { image.src = ''; }); }).then(function () {
+    if (gate !== 'ready' || !url) return current.ready;
+    var image = new Image();
+    current.ready = bounded(new Promise(function (resolve, reject) {
+        image.onload = function () {
+            (image.decode ? image.decode() : Promise.resolve()).then(resolve, reject);
+        };
+        image.onerror = reject;
+        image.src = url;
+    }), function () { image.src = ''; }).then(function () {
         if (backgrounds.get(root) === current) surface(root, 'ready');
     }, function () {
         if (backgrounds.get(root) === current) surface(root, 'failed');
-    }).finally(function () { images.forEach(function (image) { image.onload = image.onerror = null; }); });
+    }).finally(function () { image.onload = image.onerror = null; });
     return current.ready;
+}
+
+function bannerReady(root, url, background) {
+    var separate = url && url !== background ? url : '';
+    var previous = banners.get(root);
+    if (previous && previous.url === separate) return;
+    var current = { url: separate };
+    banners.set(root, current);
+    var warning = root.classList.contains('appearance-preview') ? root.querySelector('[data-banner-warning]') : null;
+    if (warning) warning.hidden = true;
+    root.classList.remove('rsvp-banner-failed');
+    root.classList.toggle('rsvp-banner-unavailable', !!separate);
+    if (!separate) return;
+    var image = new Image();
+    bounded(new Promise(function (resolve, reject) {
+        image.onload = function () {
+            (image.decode ? image.decode() : Promise.resolve()).then(resolve, reject);
+        };
+        image.onerror = reject;
+        image.src = separate;
+    }), function () { image.src = ''; }).then(function () {
+        if (banners.get(root) === current) root.classList.remove('rsvp-banner-unavailable');
+    }, function () {
+        if (banners.get(root) === current) {
+            root.classList.add('rsvp-banner-failed');
+            if (warning) warning.hidden = false;
+            console.warn('RSVP header image could not be loaded or decoded.');
+        }
+    }).finally(function () { image.onload = image.onerror = null; });
 }
 
 function refreshBackground() {
     var type = targets.get(document.body);
     var settings = eventSettings(document.body, type);
-    return backgroundReady(document.body, settings.backgroundImage, settings.bannerImage || settings.backgroundImage);
+    return backgroundReady(document.body, settings.backgroundImage);
 }
 
 // Invitation lookup owns the final category; a URL hint or saved receipt is provisional.
@@ -168,9 +194,9 @@ function eventSettings(root, type) {
     var settings = appearances[theme(type)];
     var eventBackground = eventBackgrounds.get(root);
     var eventBanner = eventBanners.get(root);
-    if (eventBackground || eventBanner) settings = Object.assign({}, settings, {
+    settings = Object.assign({}, settings, {
         backgroundImage: eventBackground || settings.backgroundImage,
-        bannerImage: eventBanner || settings.bannerImage
+        bannerImage: invitationRoots.has(root) ? eventBanner || settings.bannerImage : ''
     });
     return settings;
 }
@@ -179,15 +205,21 @@ function apply(root, type) {
     type = theme(type);
     targets.set(root, type);
     var settings = eventSettings(root, type);
-    if (root === document.body) backgroundReady(root, settings.backgroundImage, settings.bannerImage || settings.backgroundImage);
+    if (root === document.body) backgroundReady(root, settings.backgroundImage);
     paint(root, type, settings);
+    bannerReady(root, settings.bannerImage, settings.backgroundImage);
 }
 
 // Lets one event override the category background without affecting other events.
-function applyEvent(root, type, eventBackground, eventBanner) {
+function applyEvent(root, type, eventBackground) {
     eventBackgrounds.set(root, safeBackground(eventBackground) ? eventBackground : '');
-    eventBanners.set(root, safeBackground(eventBanner) ? eventBanner : '');
     apply(root, type);
+}
+
+function applyInvitation(root, type, eventBackground, eventBanner) {
+    invitationRoots.add(root);
+    eventBanners.set(root, safeBackground(eventBanner) ? eventBanner : '');
+    applyEvent(root, type, eventBackground);
 }
 
 // Settings this browser saved successfully. KV edge reads can lag a save by about a minute,
@@ -286,7 +318,7 @@ async function load() {
 }
 
 window.RSVPThemes = {
-    theme: theme, apply: apply, applyEvent: applyEvent, update: update, updateBranding: updateBranding, load: load, beginCategory: beginCategory,
+    theme: theme, apply: apply, applyEvent: applyEvent, applyInvitation: applyInvitation, update: update, updateBranding: updateBranding, load: load, beginCategory: beginCategory,
     branding: function () { return branding; },
     background: function (type) { return appearances[theme(type)].backgroundImage; },
     settings: function (type) { return appearances[theme(type)]; },
@@ -294,8 +326,9 @@ window.RSVPThemes = {
     // Previews show the exact draft colours; contrast problems are reported, never silently replaced.
     preview: function (root, type, value) {
         var settings = normalizeAppearance(theme(type), value, { repair: false });
-        backgroundReady(root, settings.backgroundImage, settings.bannerImage || settings.backgroundImage);
+        backgroundReady(root, settings.backgroundImage);
         paint(root, theme(type), settings);
+        bannerReady(root, settings.bannerImage, settings.backgroundImage);
     },
     normalize: function (type, value) { return normalizeAppearance(theme(type), value, { repair: false }); },
     issues: function (type, cardStyle) {
