@@ -1,9 +1,11 @@
-import { eventTypes, theme, normalizeAppearance, defaultCopy, defaultCardStyle, copyFields, styleFields, contrastIssues, buttonHover } from './themes.js';
+import { eventTypes, theme, normalizeAppearance, normalizeBranding, defaultBranding, defaultCopy, defaultCardStyle, copyFields, styleFields, contrastIssues, buttonHover } from './themes.js';
 
 var appearances = {};
 eventTypes.forEach(function (type) { appearances[type] = normalizeAppearance(type, {}); });
+var branding = defaultBranding();
 var targets = new Map();
 var revision = 0;
+var brandingRevision = 0;
 var savedKey = 'rsvp_appearance_saved';
 var readyClass = 'rsvp-theme-ready';
 var loadingClass = 'rsvp-theme-loading';
@@ -15,6 +17,7 @@ var categoryRevision = 0;
 var backgrounds = new WeakMap();
 // Per-event background overrides, keyed by the root they were applied to.
 var eventBackgrounds = new Map();
+var defaultDocumentTitle = document.title;
 
 function surface(root, state) {
     root.classList.toggle(loadingClass, state === 'loading');
@@ -84,6 +87,52 @@ function beginCategory() {
     };
 }
 
+function paintBranding(root) {
+    var profile = branding.profiles.find(function (item) { return item.id === branding.activeId; }) ||
+        branding.profiles.find(function (item) { return item.id === 'vikey'; });
+    if (!profile) return;
+    root.querySelectorAll('[data-branding]').forEach(function (element) {
+        if (element.closest('[data-event-type]') !== root) return;
+        var defaultProfile = profile.id === 'vikey' && profile.name === 'V I Key® · RSVP' &&
+            !profile.logoUrl && !profile.address;
+        var logo = element.querySelector('[data-brand-logo]');
+        var name = element.querySelector('[data-brand-name]');
+        var address = element.querySelector('[data-brand-address]');
+        var hidden = profile.id === 'none';
+        element.hidden = hidden;
+        if (logo) {
+            logo.hidden = hidden || !profile.logoUrl;
+            if (profile.logoUrl) logo.src = profile.logoUrl;
+            else logo.removeAttribute('src');
+        }
+        if (name) {
+            name.hidden = hidden || !profile.name;
+            if (!defaultProfile) name.textContent = profile.name;
+        }
+        if (address) {
+            address.hidden = hidden || !profile.address;
+            address.textContent = profile.address;
+        }
+    });
+    var defaultProfile = branding.activeId === 'vikey' &&
+        profile && profile.name === 'V I Key® · RSVP' && !profile.logoUrl && !profile.address;
+    if (root === document.body && typeof defaultDocumentTitle === 'string') {
+        document.title = branding.activeId === 'none' ?
+            defaultDocumentTitle.replace(/\s*[·-]\s*V I Key®/g, '') :
+            defaultProfile ? defaultDocumentTitle : defaultDocumentTitle.replace(/V I Key®/g, profile.name);
+    }
+    root.querySelectorAll('[data-brand-footer], [data-copy="homeLink"]').forEach(function (element) {
+        if (element.closest('[data-event-type]') !== root) return;
+        if (defaultProfile) {
+            element.hidden = false;
+            if (element.getAttribute('data-brand-footer') !== null) element.textContent = 'V I Key®';
+            return;
+        }
+        element.hidden = branding.activeId === 'none';
+        element.textContent = branding.activeId === 'none' ? '' : 'Home';
+    });
+}
+
 function paint(root, type, settings) {
     type = theme(type);
     root.setAttribute('data-event-type', type);
@@ -106,6 +155,7 @@ function paint(root, type, settings) {
         var key = element.getAttribute('data-copy');
         if (Object.hasOwn(settings.copy, key)) element.textContent = settings.copy[key];
     });
+    paintBranding(root);
 }
 
 function apply(root, type) {
@@ -179,8 +229,19 @@ function update(settings, savedType) {
     });
 }
 
+function updateBranding(value) {
+    if (value === undefined) return;
+    brandingRevision++;
+    branding = normalizeBranding(value);
+    targets.forEach(function (type, root) {
+        if (root.isConnected === false) targets.delete(root);
+        else apply(root, type);
+    });
+}
+
 async function load() {
     var started = revision;
+    var brandingStarted = brandingRevision;
     settingsState = 'loading';
     refreshBackground();
     var controller = new AbortController();
@@ -198,6 +259,7 @@ async function load() {
             return data;
         })(), function () { controller.abort(); });
         if (revision === started) update(data.appearance);
+        if (brandingRevision === brandingStarted) updateBranding(data.branding);
         await refreshBackground();
         return true;
     } catch {
@@ -209,7 +271,8 @@ async function load() {
 }
 
 window.RSVPThemes = {
-    theme: theme, apply: apply, applyEvent: applyEvent, update: update, load: load, beginCategory: beginCategory,
+    theme: theme, apply: apply, applyEvent: applyEvent, update: update, updateBranding: updateBranding, load: load, beginCategory: beginCategory,
+    branding: function () { return branding; },
     background: function (type) { return appearances[theme(type)].backgroundImage; },
     settings: function (type) { return appearances[theme(type)]; },
     copy: function (type, key) { return appearances[theme(type)].copy[key]; },

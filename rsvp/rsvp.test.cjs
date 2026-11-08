@@ -9,7 +9,7 @@ const ids = runInNewContext(idsSource + '\n({ invitationId, invitationPath })');
 const apiSource = themesSource + '\n' + idsSource + '\n' + readFileSync(`${__dirname}/../functions/api/rsvp.js`, 'utf8')
     .replace(/^import .*;\n/gm, '').replace('export async function', 'async function');
 const appearanceModel = runInNewContext(themesSource +
-    '\n({ copyFields, styleFields, defaultCopy, defaultCardStyle, normalizeAppearance, validateAppearance, contrastIssues, buttonHover })', { URL });
+    '\n({ copyFields, styleFields, defaultCopy, defaultCardStyle, normalizeAppearance, validateAppearance, contrastIssues, buttonHover, defaultBranding, normalizeBranding, validateBranding })', { URL });
 const plain = value => JSON.parse(JSON.stringify(value));
 // Saved settings carry a server-owned revision; compare everything else exactly.
 const unrevised = value => { const { updatedAt, ...rest } = plain(value); return rest; };
@@ -1156,13 +1156,14 @@ test('public appearance reads expose only whitelisted category settings and pres
     const response = await instance.post({ action: 'get-appearance' });
     assert.equal(response.headers.get('Cache-Control'), 'no-store');
     const data = await response.json();
-    assert.deepEqual(Object.keys(data).sort(), ['appearance', 'success']);
+    assert.deepEqual(Object.keys(data).sort(), ['appearance', 'branding', 'success']);
     assert.deepEqual(Object.keys(data.appearance).sort(), [...categories].sort());
     for (const type of categories) {
         assert.deepEqual(data.appearance[type], plain(appearanceModel.normalizeAppearance(type, {})));
     }
     assert.equal(instance.calls.length, 0, 'Public settings never list invitations or replies');
     assert.doesNotMatch(JSON.stringify(data), new RegExp(event.id + '|private|' + event.title));
+    assert.deepEqual(data.branding, plain(appearanceModel.defaultBranding()));
 });
 
 test('only trusted admins can persist bounded safe HTTPS category backgrounds', async () => {
@@ -1192,6 +1193,48 @@ test('only trusted admins can persist bounded safe HTTPS category backgrounds', 
     assert.equal(data.appearance.weddings.backgroundImage, '');
     assert.equal((await instance.post({ ...settings, backgroundImage: '' }, 'valid-session')).status, 200);
     assert.equal((await (await instance.post({ action: 'get-appearance' })).json()).appearance.events.backgroundImage, '');
+});
+
+test('sponsor profiles are admin-only, safely validated and available to every RSVP theme', async () => {
+    const instance = api();
+    const branding = appearanceModel.defaultBranding();
+    branding.profiles.push({
+        id: 'sponsor-acme', name: 'Acme Events', logoUrl: 'https://images.example.com/acme.png',
+        address: '12 Main Street\nLondon'
+    });
+    branding.activeId = 'sponsor-acme';
+    const request = { action: 'save-branding', branding: {
+        profiles: branding.profiles, activeId: branding.activeId
+    } };
+    const baseBranding = request.branding;
+    for (const token of [undefined, 'invalid-session', 'other-user']) {
+        assert.equal((await instance.post(request, token)).status, 401);
+    }
+    assert.equal(instance.records.has('rsvp-branding'), false);
+    for (const invalid of [
+        null, [], 'text', { ...baseBranding, unknown: 'private' },
+        { ...baseBranding, activeId: 'missing' },
+        { ...baseBranding, profiles: [...baseBranding.profiles, baseBranding.profiles[2]] },
+        { ...baseBranding, profiles: baseBranding.profiles.map(profile => profile.id === 'sponsor-acme' ?
+            { ...profile, name: '<img src=x>' } : profile) },
+        { ...baseBranding, profiles: baseBranding.profiles.map(profile => profile.id === 'sponsor-acme' ?
+            { ...profile, logoUrl: 'http://images.example.com/acme.png' } : profile) },
+        { ...baseBranding, profiles: baseBranding.profiles.map(profile => profile.id === 'sponsor-acme' ?
+            { ...profile, address: 'x'.repeat(501) } : profile) }
+    ]) {
+        assert.equal((await instance.post({ action: 'save-branding', branding: invalid }, 'valid-session')).status, 400);
+    }
+    assert.equal((await instance.post({ ...request, secret: 'private' }, 'valid-session')).status, 400);
+    const saved = await instance.post(request, 'valid-session');
+    assert.equal(saved.status, 200);
+    const savedBranding = (await saved.json()).branding;
+    assert.equal(savedBranding.activeId, 'sponsor-acme');
+    assert.ok(savedBranding.updatedAt > 0);
+    assert.deepEqual(savedBranding.profiles.find(profile => profile.id === 'sponsor-acme'), branding.profiles[2]);
+    const publicBranding = (await (await instance.post({ action: 'get-appearance' })).json()).branding;
+    assert.deepEqual(publicBranding, savedBranding);
+    assert.doesNotMatch(JSON.stringify(publicBranding), /private|<img|javascript:|http:\/\/images/);
+    assert.equal(instance.records.has('rsvp-appearance:events'), false);
 });
 
 test('every category uses its current saved background across landing, existing invitation, form, receipt and reply card', async () => {
@@ -1555,6 +1598,44 @@ test('admin creates bounded named controls, previews draft changes locally, swit
     assert.equal(fields['copy-tagline'].value, appearanceModel.defaultCopy('events').tagline);
     assert.equal(admin.nodes.backgroundImage.value, halloween);
     assert.equal(admin.nodes.appearancePreview.getAttribute('data-event-type'), 'events');
+});
+
+test('admin sponsor dropdown publishes safe name, logo and address across every live invitation type', async () => {
+    const instance = api();
+    const admin = browser({ page: 'admin', apiPost: instance.post });
+    await signIn(admin);
+    await admin.nodes.addSponsor.click();
+    const sponsorId = admin.nodes.sponsorProfile.value;
+    admin.nodes.sponsorName.value = 'Acme Events';
+    admin.nodes.sponsorName.handlers.input();
+    admin.nodes.sponsorLogo.value = 'https://images.example.com/acme.png';
+    admin.nodes.sponsorLogo.handlers.input();
+    admin.nodes.sponsorAddress.value = '12 Main Street\nLondon';
+    admin.nodes.sponsorAddress.handlers.input();
+    await admin.nodes.brandingForm.handlers.submit({ preventDefault() {} });
+    assert.match(admin.nodes.brandingStatus.textContent, /^Saved\./);
+    assert.equal(admin.themes.branding().activeId, sponsorId);
+
+    for (const type of categories) {
+        const event = await createEvent(instance, { eventType: type });
+        const guest = browser({ search: '?id=' + event.id, apiPost: instance.post });
+        await guest.themes.ready;
+        const name = guest.nodes.body.querySelector('[data-brand-name]');
+        const logo = guest.nodes.body.querySelector('[data-brand-logo]');
+        const address = guest.nodes.body.querySelector('[data-brand-address]');
+        assert.equal(name.textContent, 'Acme Events', type);
+        assert.equal(logo.src, 'https://images.example.com/acme.png', type);
+        assert.equal(logo.hidden, false, type);
+        assert.equal(address.textContent, '12 Main Street\nLondon', type);
+    }
+
+    admin.nodes.sponsorProfile.value = 'none';
+    admin.nodes.sponsorProfile.handlers.change();
+    await admin.nodes.brandingForm.handlers.submit({ preventDefault() {} });
+    const event = await createEvent(instance, { eventType: 'weddings' });
+    const guest = browser({ search: '?id=' + event.id, apiPost: instance.post });
+    await guest.themes.ready;
+    assert.equal(guest.nodes.body.querySelector('[data-branding]').hidden, true);
 });
 
 test('admin appearance save errors retain drafts and saved settings, while expired auth hides protected controls', async () => {

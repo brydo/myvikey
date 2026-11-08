@@ -24,7 +24,7 @@
             <div id="adminActions" class="rsvp-section" hidden>
                 <button id="refresh" class="rsvp-btn" type="button">Refresh</button>
                 <button id="logout" class="rsvp-btn" type="button">Sign out</button>
-                <p class="admin-shortcuts"><a href="#invitationForm">Create or edit an invitation</a> · <a href="#eventsPanel">Your events</a> · <a href="#repliesPanel">Replies</a></p>
+                <p class="admin-shortcuts"><a href="#invitationForm">Create or edit an invitation</a> · <a href="#brandingForm">Sponsor branding</a> · <a href="#eventsPanel">Your events</a> · <a href="#repliesPanel">Replies</a></p>
             </div>
             <p id="message" class="rsvp-section" role="status" aria-live="polite"></p>
             <section id="eventsPanel" class="rsvp-section" hidden>
@@ -123,11 +123,27 @@
                 <p id="invitationStatus" role="status" aria-live="polite"></p>
                 <p id="shareInvitation" role="status"></p>
             </form>
+            <form id="brandingForm" class="rsvp-section" hidden>
+                <h2>RSVP sponsor branding</h2>
+                <p>Choose the sponsor shown on every saved invitation, across all event types. You can add profiles, including a public HTTPS logo, name and address. Changes apply to invitation pages and RSVP confirmations.</p>
+                <label for="sponsorProfile">Active sponsor</label>
+                <select id="sponsorProfile"></select>
+                <button id="addSponsor" class="rsvp-btn" type="button">Add sponsor profile</button>
+                <label for="sponsorName">Sponsor name</label>
+                <input id="sponsorName" maxlength="100" required>
+                <label for="sponsorLogo">Sponsor logo URL (optional)</label>
+                <input id="sponsorLogo" type="url" maxlength="2048" placeholder="https://example.com/logo.png">
+                <label for="sponsorAddress">Sponsor address or details (optional)</label>
+                <textarea id="sponsorAddress" rows="3" maxlength="500"></textarea>
+                <p>Use plain text and public information only. Logo URLs must use HTTPS and must not contain passwords or private access tokens.</p>
+                <button id="saveBranding" class="rsvp-btn primary" type="submit">Save sponsor branding</button>
+                <p id="brandingStatus" role="status" aria-live="polite"></p>
+            </form>
             <form id="appearanceForm" class="rsvp-section" hidden>
               <details class="admin-options" id="categoryOptions">
                 <summary>Advanced: settings for the whole category</summary>
                 <h2>Category copy &amp; card style</h2>
-                <p>These settings affect the event theme selected above and can change all its landing pages, invitations and confirmations. An invitation's own background image takes priority. Invitation titles, messages and replies stay separate.</p>
+                <p>These settings affect the event theme selected above and can change its landing page, invitation copy and card style. The active sponsor branding above overrides the invitation and confirmation header for every type. An invitation's own background image takes priority. Invitation titles, messages and replies stay separate.</p>
                 <label for="backgroundImage">Background image URL (HTTPS)</label>
                 <input id="backgroundImage" type="url" maxlength="2048" placeholder="https://example.com/background.jpg" aria-describedby="backgroundHint">
                 <p id="backgroundHint">Use a trusted, publicly accessible image, without passwords or private access tokens. Leave blank for the category’s colour background.</p>
@@ -151,7 +167,11 @@
                     <article class="rsvp-card">
                         <div class="rsvp-banner" aria-hidden="true"></div>
                         <header class="rsvp-head">
-                            <p class="brand" data-copy="brand"></p>
+                        <div class="brand-lockup" data-branding>
+                            <img data-brand-logo alt="" hidden>
+                            <p class="brand" data-copy="brand" data-brand-name></p>
+                            <p class="brand-address" data-brand-address hidden></p>
+                        </div>
                             <h2 id="previewInvitationTitle">Your invitation title</h2>
                             <p data-copy="tagline"></p>
                         </header>
