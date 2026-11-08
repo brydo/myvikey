@@ -1,4 +1,4 @@
-import { eventTypes, theme, normalizeAppearance, normalizeBranding, defaultBranding, defaultCopy, defaultCardStyle, copyFields, styleFields, contrastIssues, buttonHover } from './themes.js';
+import { eventTypes, theme, normalizeAppearance, normalizeBranding, defaultBranding, defaultCopy, defaultCardStyle, copyFields, styleFields, contrastIssues, buttonHover, safeBackground } from './themes.js';
 
 var appearances = {};
 eventTypes.forEach(function (type) { appearances[type] = normalizeAppearance(type, {}); });
@@ -17,6 +17,7 @@ var categoryRevision = 0;
 var backgrounds = new WeakMap();
 // Per-event background overrides, keyed by the root they were applied to.
 var eventBackgrounds = new Map();
+var eventBanners = new Map();
 var defaultDocumentTitle = document.title;
 
 function surface(root, state) {
@@ -35,38 +36,42 @@ function bounded(task, cancel) {
     })]).finally(function () { clearTimeout(timer); });
 }
 
-function backgroundReady(root, url) {
+function backgroundReady(root, url, banner) {
     var gate = root === document.body ?
         (settingsState === 'failed' || categoryState === 'failed' ? 'failed' :
             settingsState === 'loading' || categoryState === 'loading' ? 'loading' : 'ready') : 'ready';
-    var key = gate + ':' + url;
+    var urls = Array.from(new Set([url, banner].filter(Boolean)));
+    var key = JSON.stringify([gate, urls]);
     var previous = backgrounds.get(root);
     if (previous && previous.key === key) return previous.ready;
     var current = { key: key };
     backgrounds.set(root, current);
-    surface(root, gate === 'ready' && !url ? 'ready' : gate === 'failed' ? 'failed' : 'loading');
+    surface(root, gate === 'ready' && !urls.length ? 'ready' : gate === 'failed' ? 'failed' : 'loading');
     current.ready = Promise.resolve();
-    if (gate !== 'ready' || !url) return current.ready;
-    var image = new Image();
-    current.ready = bounded(new Promise(function (resolve, reject) {
-        image.onload = function () {
-            // Decode before exposing CSS backgrounds, not merely after receiving the bytes.
-            (image.decode ? image.decode() : Promise.resolve()).then(resolve, reject);
-        };
-        image.onerror = reject;
-        image.src = url;
-    }), function () { image.src = ''; }).then(function () {
+    if (gate !== 'ready' || !urls.length) return current.ready;
+    var images = [];
+    current.ready = bounded(Promise.all(urls.map(function (src) {
+        var image = new Image();
+        images.push(image);
+        return new Promise(function (resolve, reject) {
+            image.onload = function () {
+                (image.decode ? image.decode() : Promise.resolve()).then(resolve, reject);
+            };
+            image.onerror = reject;
+            image.src = src;
+        });
+    })), function () { images.forEach(function (image) { image.src = ''; }); }).then(function () {
         if (backgrounds.get(root) === current) surface(root, 'ready');
     }, function () {
         if (backgrounds.get(root) === current) surface(root, 'failed');
-    }).finally(function () { image.onload = image.onerror = null; });
+    }).finally(function () { images.forEach(function (image) { image.onload = image.onerror = null; }); });
     return current.ready;
 }
 
 function refreshBackground() {
     var type = targets.get(document.body);
-    var eventBackground = eventBackgrounds.get(document.body);
-    return backgroundReady(document.body, eventBackground || appearances[theme(type)].backgroundImage);
+    var settings = eventSettings(document.body, type);
+    return backgroundReady(document.body, settings.backgroundImage, settings.bannerImage || settings.backgroundImage);
 }
 
 // Invitation lookup owns the final category; a URL hint or saved receipt is provisional.
@@ -137,9 +142,10 @@ function paint(root, type, settings) {
     type = theme(type);
     root.setAttribute('data-event-type', type);
     var url = settings.backgroundImage;
+    var banner = settings.bannerImage || url;
     root.style.setProperty('--category-image', url ? 'url("' + url + '")' : 'var(--backdrop)');
-    root.style.setProperty('--category-banner', url ? 'url("' + url + '")' : 'var(--banner)');
-    root.style.setProperty('--image-symbol', url ? 'none' : 'initial');
+    root.style.setProperty('--category-banner', banner ? 'url("' + banner + '")' : 'var(--banner)');
+    root.style.setProperty('--image-symbol', banner ? 'none' : 'initial');
     root.setAttribute('data-background-image', url ? 'true' : 'false');
     var style = settings.cardStyle;
     Object.entries({
@@ -158,20 +164,29 @@ function paint(root, type, settings) {
     paintBranding(root);
 }
 
+function eventSettings(root, type) {
+    var settings = appearances[theme(type)];
+    var eventBackground = eventBackgrounds.get(root);
+    var eventBanner = eventBanners.get(root);
+    if (eventBackground || eventBanner) settings = Object.assign({}, settings, {
+        backgroundImage: eventBackground || settings.backgroundImage,
+        bannerImage: eventBanner || settings.bannerImage
+    });
+    return settings;
+}
+
 function apply(root, type) {
     type = theme(type);
     targets.set(root, type);
-    var settings = appearances[type];
-    var eventBackground = eventBackgrounds.get(root);
-    // An event override swaps only the background; the category's copy and card style stay.
-    if (eventBackground) settings = Object.assign({}, settings, { backgroundImage: eventBackground });
-    if (root === document.body) backgroundReady(root, settings.backgroundImage);
+    var settings = eventSettings(root, type);
+    if (root === document.body) backgroundReady(root, settings.backgroundImage, settings.bannerImage || settings.backgroundImage);
     paint(root, type, settings);
 }
 
 // Lets one event override the category background without affecting other events.
-function applyEvent(root, type, eventBackground) {
-    eventBackgrounds.set(root, eventBackground || '');
+function applyEvent(root, type, eventBackground, eventBanner) {
+    eventBackgrounds.set(root, safeBackground(eventBackground) ? eventBackground : '');
+    eventBanners.set(root, safeBackground(eventBanner) ? eventBanner : '');
     apply(root, type);
 }
 
@@ -279,7 +294,7 @@ window.RSVPThemes = {
     // Previews show the exact draft colours; contrast problems are reported, never silently replaced.
     preview: function (root, type, value) {
         var settings = normalizeAppearance(theme(type), value, { repair: false });
-        backgroundReady(root, settings.backgroundImage);
+        backgroundReady(root, settings.backgroundImage, settings.bannerImage || settings.backgroundImage);
         paint(root, theme(type), settings);
     },
     normalize: function (type, value) { return normalizeAppearance(theme(type), value, { repair: false }); },

@@ -401,6 +401,7 @@ export function normalizeAppearance(type, value, { repair = true } = {}) {
     return {
         backgroundImage: own(value, 'backgroundImage') && safeBackground(value.backgroundImage) ?
             value.backgroundImage : defaultBackgrounds[type],
+        bannerImage: own(value, 'bannerImage') && safeBackground(value.bannerImage) ? value.bannerImage : '',
         copy, cardStyle,
         updatedAt: own(value, 'updatedAt') && Number.isSafeInteger(value.updatedAt) && value.updatedAt > 0 ?
             value.updatedAt : 0
@@ -408,8 +409,9 @@ export function normalizeAppearance(type, value, { repair = true } = {}) {
 }
 
 export function validateAppearance(type, value, explicitStyle = appearanceObject(value) ? value.cardStyle : undefined) {
-    if (!appearanceObject(value) || Object.keys(value).some(key => !['backgroundImage', 'copy', 'cardStyle'].includes(key)) ||
-        !own(value, 'backgroundImage') || !safeBackground(value.backgroundImage)) return null;
+    if (!appearanceObject(value) || Object.keys(value).some(key => !['backgroundImage', 'bannerImage', 'copy', 'cardStyle'].includes(key)) ||
+        !own(value, 'backgroundImage') || !safeBackground(value.backgroundImage) ||
+        (own(value, 'bannerImage') && !safeBackground(value.bannerImage))) return null;
     for (const [group, fields, validate] of [
         ['copy', copyFields, copyValue], ['cardStyle', styleFields, styleValue]
     ]) {
