@@ -10,10 +10,10 @@ import { safeAudioUrl } from './themes.js';
         return window.RSVPThemes.theme(type);
     }
 
-    function applyTheme(type, eventBackground) {
+    function applyTheme(type, eventBackground, eventBanner) {
         type = theme(type);
-        if (eventBackground) {
-            window.RSVPThemes.applyEvent(document.body, type, eventBackground);
+        if (eventBackground || eventBanner) {
+            window.RSVPThemes.applyEvent(document.body, type, eventBackground, eventBanner);
         } else {
             window.RSVPThemes.apply(document.body, type);
         }
@@ -121,7 +121,7 @@ import { safeAudioUrl } from './themes.js';
                 // These two fields belong to this invitation, never the category.
                 document.getElementById('heading').removeAttribute('data-copy');
                 document.getElementById('invitationText').removeAttribute('data-copy');
-                applyTheme(invitation.eventType, invitation.backgroundImage);
+                applyTheme(invitation.eventType, invitation.backgroundImage, invitation.bannerImage);
                 var themed = finishInvitationTheme(true);
                 document.getElementById('heading').textContent = invitation.title;
                 document.getElementById('invitationText').textContent = invitation.text;
@@ -241,9 +241,12 @@ import { safeAudioUrl } from './themes.js';
         back.href = invitationId(receiptId) ?
             invitationPath(receiptId) :
             (theme(receiptParams.get('type')) === 'celebration' ? '/rsvp/' : '/rsvp/' + theme(receiptParams.get('type')) + '/');
-        function receiptTheme(type, eventBackground) {
-            window.RSVPThemes.applyEvent(document.body, type, eventBackground || '');
-            if (receipt.children.length) window.RSVPThemes.apply(receipt.children[0], type);
+        function receiptTheme(type, eventBackground, eventBanner) {
+            window.RSVPThemes.applyEvent(document.body, type, eventBackground || '', eventBanner || '');
+            if (receipt.children.length) {
+                if (eventBanner) window.RSVPThemes.applyEvent(receipt.children[0], type, '', eventBanner);
+                else window.RSVPThemes.apply(receipt.children[0], type);
+            }
             window.RSVPThemes.apply(document.getElementById('sendOptions'), type);
         }
         function resolveReceiptTheme(id) {
@@ -252,7 +255,7 @@ import { safeAudioUrl } from './themes.js';
                 return;
             }
             post('/api/rsvp', { action: 'get-invitation', id: id }, null, guestToken(id)).then(function (data) {
-                receiptTheme(data.invitation.eventType, data.invitation.backgroundImage);
+                receiptTheme(data.invitation.eventType, data.invitation.backgroundImage, data.invitation.bannerImage);
                 finishReceiptTheme(true);
             }).catch(function () {
                 // Keep saved receipt content, but not its unverified background.
@@ -312,6 +315,7 @@ import { safeAudioUrl } from './themes.js';
     var sponsorProfiles = [];
     var sponsorIdCounter = 0;
     var backgroundInput = document.getElementById('backgroundImage');
+    var bannerInput = document.getElementById('bannerImage');
     var copyEditor = document.getElementById('copyEditor');
     var styleEditor = document.getElementById('styleEditor');
     var appearancePreview = document.getElementById('appearancePreview');
@@ -444,7 +448,7 @@ import { safeAudioUrl } from './themes.js';
         brandingStatus.textContent = '';
     }
     function draftAppearance() {
-        var draft = { backgroundImage: backgroundInput.value.trim(), copy: {}, cardStyle: {} };
+        var draft = { backgroundImage: backgroundInput.value.trim(), bannerImage: bannerInput.value.trim(), copy: {}, cardStyle: {} };
         Object.keys(window.RSVPThemes.copyFields).forEach(function (key) {
             draft.copy[key] = appearanceForm.elements['copy-' + key].value;
         });
@@ -476,6 +480,7 @@ import { safeAudioUrl } from './themes.js';
     }
     function fillAppearance(settings) {
         backgroundInput.value = settings.backgroundImage;
+        bannerInput.value = settings.bannerImage || '';
         Object.keys(window.RSVPThemes.copyFields).forEach(function (key) {
             appearanceForm.elements['copy-' + key].value = settings.copy[key];
         });
@@ -493,7 +498,7 @@ import { safeAudioUrl } from './themes.js';
     }
     function sameAppearance(type, first, second) {
         var a = window.RSVPThemes.normalize(type, first), b = window.RSVPThemes.normalize(type, second);
-        return a.backgroundImage === b.backgroundImage && JSON.stringify(a.copy) === JSON.stringify(b.copy) &&
+        return a.backgroundImage === b.backgroundImage && a.bannerImage === b.bannerImage && JSON.stringify(a.copy) === JSON.stringify(b.copy) &&
             JSON.stringify(a.cardStyle) === JSON.stringify(b.cardStyle);
     }
     if (appearanceForm) {
@@ -554,6 +559,7 @@ import { safeAudioUrl } from './themes.js';
         document.getElementById('resetAppearance').addEventListener('click', function () {
             var settings = window.RSVPThemes.defaults(editor.elements.eventType.value);
             settings.backgroundImage = backgroundInput.value.trim();
+            settings.bannerImage = bannerInput.value.trim();
             fillAppearance(settings);
             drafts[selectedTheme()] = draftAppearance();
             appearanceMessage('Default copy and card styles restored in the preview only. Save category settings to publish.', 'draft');
@@ -660,6 +666,7 @@ import { safeAudioUrl } from './themes.js';
             editor.elements[field].value = invitation[field] || '';
         });
         editor.elements.eventBackground.value = invitation.backgroundImage || '';
+        editor.elements.eventBanner.value = invitation.bannerImage || '';
         editor.elements.audioUrl.value = invitation.audioUrl || '';
         renderAudioFiles();
         editor.elements.invitesSent.value = invitation.invitesSent || 0;
@@ -709,6 +716,7 @@ import { safeAudioUrl } from './themes.js';
                 payload[field] = editor.elements[field].value.trim();
             });
             payload.backgroundImage = editor.elements.eventBackground.value.trim();
+            payload.bannerImage = editor.elements.eventBanner.value.trim();
             payload.audioUrl = editor.elements.audioUrl.value.trim();
             payload.invitesSent = Number(editor.elements.invitesSent.value) || 0;
             if (editor.elements.id.value.trim()) payload.id = editor.elements.id.value.trim();
@@ -980,7 +988,7 @@ import { safeAudioUrl } from './themes.js';
             pendingInvitations.forEach(function (saved, id) {
                 var index = items.findIndex(function (item) { return item.id === id; });
                 var fields = ['id', 'eventType', 'title', 'text', 'whatsapp', 'sms', 'invitesSent',
-                    'backgroundImage', 'audioUrl', 'passwordProtected', 'hostPasswordProtected'];
+                    'backgroundImage', 'bannerImage', 'audioUrl', 'passwordProtected', 'hostPasswordProtected'];
                 if (index >= 0 && fields.every(function (field) { return items[index][field] === saved[field]; })) {
                     pendingInvitations.delete(id);
                 } else if (index < 0) {

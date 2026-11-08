@@ -297,7 +297,7 @@ test('optional contact fields may be omitted, including WhatsApp for SMS-only in
         const event = await createEvent(instance, fields);
         assert.equal(event.whatsapp, fields.whatsapp === undefined ? '' : invitation.whatsapp);
         assert.equal(event.sms, fields.sms === undefined ? '' : invitation.sms);
-        const { passwordProtected, hostPasswordProtected, invitesSent, backgroundImage, audioUrl, ...stored } = event;
+        const { passwordProtected, hostPasswordProtected, invitesSent, backgroundImage, bannerImage, audioUrl, ...stored } = event;
         assert.deepEqual(JSON.parse(instance.records.get('rsvp-invitation:' + event.id)), stored);
     }
 });
@@ -440,7 +440,7 @@ function browser({ page = 'index', storageFails = false, saved, failSave = false
     if (page === 'admin') {
         node('password').value = 'test-only-password';
         node('invitationForm').elements = Object.fromEntries(
-            ['id', 'title', 'text', 'whatsapp', 'sms', 'invitesSent', 'eventType', 'eventBackground', 'audioUrl'].map(id => [id, node('editor-' + id)])
+            ['id', 'title', 'text', 'whatsapp', 'sms', 'invitesSent', 'eventType', 'eventBackground', 'eventBanner', 'audioUrl'].map(id => [id, node('editor-' + id)])
         );
     }
     const event = { id: 'Ab3xQ9k', title: 'Saved party', text: '<img src=x>\nSecond line', whatsapp: invitation.whatsapp, sms: invitation.sms };
@@ -1136,7 +1136,7 @@ test('malformed and legacy stored settings fall back safely and public reads all
             cardStyle: { textColor: 'url(https://evil)', surface: '#000000', secret: 'private', alignment: 'bad', spacing: 1000 }
         }));
         settings = (await (await instance.post({ action: 'get-appearance' })).json()).appearance[type];
-        assert.deepEqual(Object.keys(settings).sort(), ['backgroundImage', 'cardStyle', 'copy', 'updatedAt']);
+        assert.deepEqual(Object.keys(settings).sort(), ['backgroundImage', 'bannerImage', 'cardStyle', 'copy', 'updatedAt']);
         assert.deepEqual(Object.keys(settings.copy).sort(), Object.keys(appearanceModel.copyFields).sort());
         assert.deepEqual(Object.keys(settings.cardStyle).sort(), Object.keys(appearanceModel.styleFields).sort());
         assert.equal(settings.copy.brand, 'Valid brand');
@@ -1345,6 +1345,42 @@ test('individual invitation background follows the guest through RSVP and receip
         const clearedReceipt = browser({ page: 'view', search: '?id=' + event.id, saved, apiPost: instance.post });
         await clearedReceipt.tick();
         assert.equal(clearedReceipt.nodes.body.style['--category-image'], 'url("' + updatedCategory + '")');
+    }
+});
+
+test('header images are validated and independently follow each invitation across every theme', async () => {
+    const instance = api();
+    const background = 'https://images.example.com/background.jpg';
+    const categoryBanner = 'https://images.example.com/theme-header.jpg';
+    const eventBanner = 'https://images.example.com/invitation-header.jpg';
+    for (const eventType of categories) {
+        const category = { action: 'save-appearance', eventType, backgroundImage: background, bannerImage: categoryBanner };
+        assert.equal((await instance.post(category)).status, 401);
+        assert.equal((await instance.post(category, 'valid-session')).status, 200);
+        const first = await createEvent(instance, { eventType, backgroundImage: background, bannerImage: eventBanner });
+        const second = await createEvent(instance, { eventType, title: 'Other' });
+        const guest = browser({ search: '?id=' + first.id, apiPost: instance.post });
+        const other = browser({ search: '?id=' + second.id, apiPost: instance.post });
+        const saved = { response: { ...valid, eventId: first.id, eventType }, eventType, organiser: invitation };
+        const receipt = browser({ page: 'view', search: '?id=' + first.id, saved, apiPost: instance.post });
+        await Promise.all([guest.tick(), other.tick(), receipt.tick()]);
+        assert.equal(guest.nodes.body.style['--category-image'], 'url("' + background + '")');
+        assert.equal(guest.nodes.body.style['--category-banner'], 'url("' + eventBanner + '")');
+        assert.equal(other.nodes.body.style['--category-banner'], 'url("' + categoryBanner + '")');
+        assert.equal(receipt.nodes.receipt.children[0].style['--category-banner'], 'url("' + eventBanner + '")');
+        const updated = await createEvent(instance, { ...first, eventType, bannerImage: '' });
+        assert.equal(updated.bannerImage, '');
+        const reverted = browser({ search: '?id=' + first.id, apiPost: instance.post });
+        await reverted.tick();
+        assert.equal(reverted.nodes.body.style['--category-banner'], 'url("' + categoryBanner + '")');
+        await instance.post({ ...category, bannerImage: '' }, 'valid-session');
+        const fallback = browser({ search: '?id=' + first.id, apiPost: instance.post });
+        await fallback.tick();
+        assert.equal(fallback.nodes.body.style['--category-banner'], 'url("' + background + '")');
+    }
+    for (const bannerImage of [null, {}, 'http://example.com/image.jpg', 'javascript:alert(1)', 'https://example.com/<img>']) {
+        assert.equal((await instance.post({ action: 'save-appearance', eventType: 'events', backgroundImage: '', bannerImage }, 'valid-session')).status, 400);
+        assert.equal((await instance.post({ action: 'save-invitation', title: 'Event', text: 'Details', bannerImage }, 'valid-session')).status, 400);
     }
 });
 
