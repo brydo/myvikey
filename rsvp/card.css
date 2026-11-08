@@ -305,6 +305,11 @@ summary { cursor: pointer; font-weight: 600; margin-bottom: 16px; }
     --rsvp-banner-color: initial;
     --rsvp-symbol: initial;
 }
+.rsvp-banner-unavailable {
+    --rsvp-banner-image: none;
+    --rsvp-banner-color: #f5f5f5;
+    --rsvp-symbol: none;
+}
 /* While an invitation link loads, only a neutral card with the status message is shown: the stock
    copy, default colours, decoration and occasion links never paint before the invitation's own. */
 .rsvp-invitation-pending .rsvp-card {

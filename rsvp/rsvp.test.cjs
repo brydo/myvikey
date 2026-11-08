@@ -1367,7 +1367,8 @@ test('header images are validated and independently follow each invitation acros
         assert.equal(guest.nodes.body.style['--category-image'], 'url("' + background + '")');
         assert.equal(guest.nodes.body.style['--category-banner'], 'url("' + eventBanner + '")');
         assert.equal(other.nodes.body.style['--category-banner'], 'url("' + categoryBanner + '")');
-        assert.equal(receipt.nodes.receipt.children[0].style['--category-banner'], 'url("' + eventBanner + '")');
+        assert.equal(receipt.nodes.body.style['--category-banner'], 'url("' + background + '")');
+        assert.equal(receipt.nodes.receipt.children[0].style['--category-banner'], 'url("' + background + '")');
         const updated = await createEvent(instance, { ...first, eventType, bannerImage: '' });
         assert.equal(updated.bannerImage, '');
         const reverted = browser({ search: '?id=' + first.id, apiPost: instance.post });
