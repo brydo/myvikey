@@ -1198,7 +1198,7 @@ test('active sponsor branding replaces the RSVP header on live invitations and c
     }), 'valid-session');
     const invitation = (await savedInvitation.json()).invitation;
     for (const [route, title] of [
-        ['/rsvp/i/' + invitation.id, 'RSVP · Acme Events'],
+        ['/rsvp/i/' + invitation.id, 'RSVP Portal · Acme Events'],
         ['/rsvp/view?type=weddings&id=' + invitation.id, 'Your RSVP · Acme Events']
     ]) {
         await open(route);

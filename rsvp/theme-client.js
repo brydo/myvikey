@@ -155,8 +155,8 @@ function paintBranding(root) {
         profile && profile.name === 'V I Key® · RSVP' && !profile.logoUrl && !profile.address;
     if (root === document.body && typeof defaultDocumentTitle === 'string') {
         document.title = active.activeId === 'none' ?
-            defaultDocumentTitle.replace(/\s*[·-]\s*V I Key®/g, '') :
-            defaultProfile ? defaultDocumentTitle : defaultDocumentTitle.replace(/V I Key®/g, profile.name);
+            defaultDocumentTitle.replace(/\s*[·-]\s*V ?I ?Key®/g, '') :
+            defaultProfile ? defaultDocumentTitle : defaultDocumentTitle.replace(/V ?I ?Key®/gi, profile.name);
     }
     root.querySelectorAll('[data-brand-footer], [data-copy="homeLink"]').forEach(function (element) {
         if (element.closest('[data-event-type]') !== root) return;
