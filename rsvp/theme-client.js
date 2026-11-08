@@ -118,9 +118,15 @@ function beginCategory() {
     };
 }
 
+function isMainLanding() {
+    var path = window.location.pathname || '';
+    return /^\/rsvp\/(index\.html)?$/.test(path) && !new URLSearchParams(window.location.search).get('id');
+}
+
 function paintBranding(root) {
-    var profile = branding.profiles.find(function (item) { return item.id === branding.activeId; }) ||
-        branding.profiles.find(function (item) { return item.id === 'vikey'; });
+    var active = isMainLanding() ? defaultBranding() : branding;
+    var profile = active.profiles.find(function (item) { return item.id === active.activeId; }) ||
+        active.profiles.find(function (item) { return item.id === 'vikey'; });
     if (!profile) return;
     root.querySelectorAll('[data-branding]').forEach(function (element) {
         if (element.closest('[data-event-type]') !== root) return;
@@ -145,10 +151,10 @@ function paintBranding(root) {
             address.textContent = profile.address;
         }
     });
-    var defaultProfile = branding.activeId === 'vikey' &&
+    var defaultProfile = active.activeId === 'vikey' &&
         profile && profile.name === 'V I Key® · RSVP' && !profile.logoUrl && !profile.address;
     if (root === document.body && typeof defaultDocumentTitle === 'string') {
-        document.title = branding.activeId === 'none' ?
+        document.title = active.activeId === 'none' ?
             defaultDocumentTitle.replace(/\s*[·-]\s*V I Key®/g, '') :
             defaultProfile ? defaultDocumentTitle : defaultDocumentTitle.replace(/V I Key®/g, profile.name);
     }
@@ -159,8 +165,8 @@ function paintBranding(root) {
             if (element.getAttribute('data-brand-footer') !== null) element.textContent = 'V I Key®';
             return;
         }
-        element.hidden = branding.activeId === 'none';
-        element.textContent = branding.activeId === 'none' ? '' : 'Home';
+        element.hidden = active.activeId === 'none';
+        element.textContent = active.activeId === 'none' ? '' : 'Home';
     });
 }
 
