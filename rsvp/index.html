@@ -3,49 +3,158 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="A little invitation to a lovely celebration. RSVP with V I Key®.">
-    <title>RSVP · V I Key®</title>
+    <meta name="description" content="Manage and respond to event invitations with VIKEY® RSVP.">
+    <title>RSVP Portal · VIKEY®</title>
     <link rel="stylesheet" href="/rsvp/card.css">
     <style id="rsvp-landing-background">
-        /* Change only the URL below to swap the landing-page background.
-           Remove this style block to restore the original themed background.
-           Invitation links and other pages keep their existing backgrounds. */
+        /* Base landing page background styling */
         html.rsvp-landing {
-            --rsvp-landing-background: url("https://pub-07ed0b0955a4401f9956c3ca7a33c40e.r2.dev/.jpg");
+            --rsvp-landing-background: url("https://pub-aa80f5e009854a94b9bcd90cda60268c.r2.dev/gemini.jfif");
         }
-        /* The landing image is independent of shared theme loading and failure states. */
         html.rsvp-landing body,
         html.rsvp-landing body:is(.rsvp-theme-loading, .rsvp-theme-neutral) {
             background-image: var(--rsvp-landing-background) !important;
         }
     </style>
     <style id="rsvp-landing-card">
-        /* Change these colours to restyle only the main landing-page box.
-           Remove this style block to restore the original themed box and flowers.
-           The background image, other pages and invitation links are unaffected. */
+        html.rsvp-landing {
+            --showcase-emerald: #059669;
+            --showcase-deep: #047857;
+            --showcase-ink: #143b30;
+            --showcase-surface: #f7fcf9;
+            --showcase-border: #b6dfcf;
+        }
+
         html.rsvp-landing .wrap > .rsvp-card {
-            --rsvp-landing-card-colour: #fffaf4;
-            --rsvp-landing-card-text: #493439;
-            --rsvp-landing-card-heading: #493439;
-            --card-surface: var(--rsvp-landing-card-colour);
-            --card-text: var(--rsvp-landing-card-text);
-            --card-heading: var(--rsvp-landing-card-heading);
-            background: var(--rsvp-landing-card-colour);
+            --card-surface: var(--showcase-surface);
+            --card-text: var(--showcase-ink);
+            --card-heading: #064e3b;
+            background: var(--showcase-surface);
+            border: 1px solid var(--showcase-border);
+            box-shadow: 0 20px 60px rgba(4, 78, 59, 0.22);
         }
         html.rsvp-landing .wrap > .rsvp-card > .rsvp-banner {
-            background: var(--rsvp-landing-card-colour);
+            height: 12px;
+            background: linear-gradient(90deg, var(--showcase-deep), var(--showcase-emerald), #8dd9bc);
         }
         html.rsvp-landing .wrap > .rsvp-card > .rsvp-banner::before,
         html.rsvp-landing .wrap > .rsvp-card > .rsvp-banner::after {
             content: none;
         }
+
+        html.rsvp-landing .rsvp-head {
+            padding-top: 28px;
+        }
+        html.rsvp-landing .rsvp-card .brand {
+            color: var(--showcase-deep);
+        }
+        html.rsvp-landing .rsvp-card .rsvp-head > p:last-child {
+            color: #355e50;
+        }
+        html.rsvp-landing #invitationText {
+            background: #eaf7f0;
+            border: 1px solid var(--showcase-border);
+            border-radius: 14px;
+            padding: 22px;
+        }
+        html.rsvp-landing .rsvp-demo-showcase {
+            margin-top: 1.5rem;
+            padding: 1.5rem;
+            background: #e1f4e9;
+            border: 1px solid #99d3b9;
+            border-radius: 14px;
+            text-align: center;
+        }
+        html.rsvp-landing .rsvp-demo-showcase h3 {
+            font-size: 1.2rem;
+            color: #065f46;
+            margin-bottom: 0.5rem;
+        }
+        html.rsvp-landing .rsvp-demo-showcase p {
+            font-size: 0.95rem;
+            color: var(--showcase-ink);
+            margin-bottom: 1.25rem;
+        }
+        html.rsvp-landing .wrap a.rsvp-demo-btn {
+            display: inline-block;
+            background: var(--showcase-deep);
+            color: #fff;
+            padding: 0.85rem 1.75rem;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 1rem;
+            text-decoration: none;
+            box-shadow: 0 4px 14px rgba(4, 120, 87, 0.24);
+            transition: background-color 0.2s ease, box-shadow 0.2s ease;
+        }
+        html.rsvp-landing .wrap a.rsvp-demo-btn:hover {
+            background: #065f46;
+            box-shadow: 0 6px 18px rgba(4, 120, 87, 0.3);
+        }
+        html.rsvp-landing .occasion-chooser,
+        html.rsvp-landing .wrap > nav {
+            background: var(--showcase-surface);
+            color: var(--showcase-ink);
+            border: 1px solid var(--showcase-border);
+            box-shadow: 0 12px 32px rgba(4, 78, 59, 0.16);
+        }
+        html.rsvp-landing .occasion-chooser {
+            padding: 26px 24px;
+        }
+        html.rsvp-landing .occasion-chooser h2 {
+            color: #064e3b;
+        }
+        html.rsvp-landing .occasion-chooser nav {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
+            margin-top: 20px;
+        }
+        html.rsvp-landing .occasion-chooser nav a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 54px;
+            padding: 10px;
+            background: #e5f5ec;
+            border: 1px solid #a2d9be;
+            border-radius: 10px;
+            color: #065f46;
+            font-weight: 700;
+            text-decoration: underline;
+            text-underline-offset: 3px;
+            transition: background-color 0.2s ease, border-color 0.2s ease;
+        }
+        html.rsvp-landing .occasion-chooser nav a:hover {
+            background: #ccebd9;
+            border-color: var(--showcase-deep);
+        }
+        html.rsvp-landing .wrap > nav {
+            text-align: center;
+        }
+        html.rsvp-landing .wrap > nav a {
+            color: #065f46;
+            font-weight: 700;
+            text-underline-offset: 3px;
+        }
+        html.rsvp-landing .wrap a:focus-visible {
+            outline: 3px solid #064e3b;
+            outline-offset: 3px;
+        }
+        @media (max-width: 360px) {
+            html.rsvp-landing .occasion-chooser nav {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
     <script>
-        // An invitation link must not paint the stock card first. rsvp.js clears this once the
-        // invitation, its category settings and image are ready; the timer bounds slow or failed loads.
-        if (new URLSearchParams(location.search).get('id') || /^\/rsvp\/i\//.test(location.pathname)) {
+        // Check for specific invitation target vs general landing view
+        const urlParams = new URLSearchParams(window.location.search);
+        const isInvitation = urlParams.get('id') || /^\/rsvp\/i\//.test(window.location.pathname);
+        
+        if (isInvitation) {
             document.documentElement.classList.add('rsvp-invitation-pending');
-            setTimeout(function () { document.documentElement.classList.remove('rsvp-invitation-pending'); }, 8000);
+            setTimeout(() => document.documentElement.classList.remove('rsvp-invitation-pending'), 8000);
         } else {
             document.documentElement.classList.add('rsvp-landing');
         }
@@ -55,94 +164,120 @@
     <main class="wrap">
         <section class="rsvp-card" aria-labelledby="heading">
             <div class="rsvp-banner" aria-hidden="true"></div>
+            
             <header class="rsvp-head">
                 <div class="brand-lockup" data-branding>
                     <img data-brand-logo alt="" hidden>
-                    <p class="brand" data-copy="brand" data-brand-name>V I Key® · RSVP</p>
+                    <p class="brand" data-copy="brand" data-brand-name>VIKEY® · Event Services</p>
                     <p class="brand-address" data-brand-address hidden></p>
                 </div>
-                <h1 id="heading" data-copy="inviteHeading">You're invited.</h1>
-                <p class="eyebrow" data-copy="tagline">Together is a beautiful place to be</p>
+                <h1 id="heading" data-copy="inviteHeading">You are cordially invited.</h1>
+                <p class="eyebrow" data-copy="tagline">An Elegant Event &amp; RSVP Experience</p>
             </header>
-            <div class="rsvp-section invitation">
-                <p id="invitationText" data-copy="inviteText">Make room for a little celebration.
 
-A beautiful invitation, a special gathering, and the people who make it yours.</p>
-                <p id="invitationHelp" data-copy="inviteHelp">Have an invitation? Open the unique event link shared by your host to view the details and send your RSVP.</p>
-                <button id="openMusicInvitation" class="rsvp-btn primary" type="button" hidden>Open invitation</button>
+            <div class="rsvp-section invitation">
+                <p id="invitationText" data-copy="inviteText">
+                    Welcome to VIKEY®. Access your invitation to review event details, schedule information, and confirm your attendance.
+                </p>
+                
+                <!-- Showcase Demo Box -->
+                <div class="rsvp-demo-showcase">
+                    <h3>Explore a Live Example</h3>
+                    <p>Experience how our bespoke digital invitations look for guests.</p>
+                    <a href="https://vi-key.uk/rsvp/i/HkPnV59" class="rsvp-demo-btn" target="_blank" rel="noopener noreferrer">Wedding RSVP Demo</a>
+                </div>
+
+                <p id="invitationHelp" data-copy="inviteHelp" style="margin-top: 1.5rem;">
+                    Please use the unique link provided by your event host to access your personal invitation and submit your response.
+                </p>
+                <button id="openMusicInvitation" class="rsvp-btn primary" type="button" hidden>View Invitation</button>
                 <div id="invitationMusic" hidden>
-                    <audio id="musicPlayer" controls controlslist="nodownload" preload="none" aria-label="Invitation music"></audio>
+                    <audio id="musicPlayer" controls controlslist="nodownload" preload="none" aria-label="Invitation audio track"></audio>
                     <p id="musicStatus" role="status" aria-live="polite"></p>
                 </div>
-                <button id="openRsvp" data-copy="openRsvp" class="rsvp-btn primary" type="button" hidden>Kindly Let Us Know</button>
+                <button id="openRsvp" data-copy="openRsvp" class="rsvp-btn primary" type="button" hidden>Submit Response</button>
             </div>
+
             <p id="message" class="rsvp-section" role="status" aria-live="polite"></p>
+
             <form id="guestUnlock" class="rsvp-section" hidden>
-                <label for="guestPassword">Guest password</label>
+                <label for="guestPassword">Guest Passcode</label>
                 <input id="guestPassword" name="password" type="password" autocomplete="off" required>
-                <button class="rsvp-btn primary" type="submit">Open invitation</button>
+                <button class="rsvp-btn primary" type="submit">Access Invitation</button>
             </form>
+
             <form id="rsvpForm" class="rsvp-section" hidden>
-                <h2 data-copy="replyHeading">Your reply</h2>
-                <label for="name" data-copy="nameLabel">Name</label>
+                <h2 data-copy="replyHeading">Response Details</h2>
+                
+                <label for="name" data-copy="nameLabel">Full Name</label>
                 <input id="name" name="name" autocomplete="name" maxlength="100" required>
-                <label for="event" data-copy="eventLabel">Event</label>
+                
+                <label for="event" data-copy="eventLabel">Event Name</label>
                 <input id="event" name="event" maxlength="100" readonly required>
-                <label for="attending" data-copy="attendingLabel">Attending</label>
+                
+                <label for="attending" data-copy="attendingLabel">Attendance Confirmation</label>
                 <select id="attending" name="attending" required>
-                    <option value="" data-copy="chooseLabel">Please choose</option>
-                    <option value="yes" data-copy="yesLabel">Yes</option>
-                    <option value="maybe" data-copy="maybeLabel">Maybe</option>
-                    <option value="no" data-copy="noLabel">No</option>
+                    <option value="" data-copy="chooseLabel">Select an option</option>
+                    <option value="yes" data-copy="yesLabel">Attending</option>
+                    <option value="maybe" data-copy="maybeLabel">Tentative</option>
+                    <option value="no" data-copy="noLabel">Unable to Attend</option>
                 </select>
-                <label for="guests" data-copy="guestsLabel">Guests</label>
+                
+                <label for="guests" data-copy="guestsLabel">Additional Guests</label>
                 <input id="guests" name="guests" type="number" min="0" max="100" step="1" value="0" aria-describedby="guestsHint" required>
-                <small id="guestsHint" data-copy="guestsHint">Additional guests, not including you. Use 0 if not attending.</small>
-                <label for="notes" data-copy="notesLabel">Notes (optional)</label>
+                <small id="guestsHint" data-copy="guestsHint">Indicate the total number of accompanying guests.</small>
+                
+                <label for="notes" data-copy="notesLabel">Special Requests or Dietary Requirements</label>
                 <textarea id="notes" name="notes" rows="3" maxlength="1000"></textarea>
-                <button data-copy="saveReply" class="rsvp-btn primary" type="submit" disabled>Save RSVP &amp; choose how to send</button>
-                <p data-copy="saveHelp">Your reply will be saved here. You can then open WhatsApp or text/SMS to send it to your host yourself.</p>
+                
+                <button data-copy="saveReply" class="rsvp-btn primary" type="submit" disabled>Confirm &amp; Proceed</button>
+                <p data-copy="saveHelp">Your response will be recorded. You will be provided with options to confirm delivery to your host.</p>
                 <div id="sendOptions" hidden></div>
             </form>
         </section>
 
         <section id="occasionChooser" class="occasion-chooser" aria-labelledby="occasionHeading">
-            <h2 id="occasionHeading" data-copy="occasionHeading">Every occasion, beautifully yours.</h2>
-            <p data-copy="occasionDescription">Explore a theme for your next celebration.</p>
+            <h2 id="occasionHeading" data-copy="occasionHeading">Designed for Extraordinary Events</h2>
+            <p data-copy="occasionDescription">Select a category to explore custom event invitations and themes.</p>
             <nav aria-label="Event themes">
-                <a href="/rsvp/events/">Events</a>
+                <a href="/rsvp/events/">Corporate Events</a>
                 <a href="/rsvp/weddings/">Weddings</a>
-                <a href="/rsvp/parties/">Parties &amp; celebrations</a>
+                <a href="/rsvp/parties/">Celebrations</a>
                 <a href="/rsvp/engagements/">Engagements</a>
             </nav>
         </section>
 
-        <nav aria-label="RSVP navigation"><a href="/" data-brand-footer>V I Key®</a></nav>
-        <noscript><p>Please enable JavaScript to send your RSVP.</p></noscript>
+        <nav aria-label="Footer navigation">
+            <a href="/" data-brand-footer>VIKEY®</a>
+        </nav>
+        
+        <noscript>
+            <p>JavaScript must be enabled to view and submit this invitation.</p>
+        </noscript>
     </main>
 
     <script src="/rsvp/card-render.js"></script>
     <script type="module" src="/rsvp/rsvp.js"></script>
     <script>
-        (function () {
+        (() => {
             if (!document.documentElement.classList.contains('rsvp-landing')) return;
 
-            var landingCopy = {
-                '#heading': 'Bring everyone together.',
-                '.rsvp-head .eyebrow': 'Beautiful moments begin with an invitation.',
-                '#invitationText': 'Create a moment worth remembering with a thoughtful invitation and the people you love.',
-                '#invitationHelp': 'Already have an invitation? Open the personal link from your host to view the event details and RSVP.',
-                '#occasionHeading': 'Make your next occasion feel special.',
-                '[data-copy="occasionDescription"]': 'Explore a style for your celebration.'
+            const landingCopy = {
+                '#heading': 'Seamless Event Invitations',
+                '.rsvp-head .eyebrow': 'Elevated RSVP experiences for memorable occasions.',
+                '#invitationText': 'Host elegant gatherings with bespoke digital invitations and real-time response management.',
+                '#invitationHelp': 'Already registered? Open your private invitation link to view schedule details and confirm your attendance.',
+                '#occasionHeading': 'Tailored to Your Occasion',
+                '[data-copy="occasionDescription"]': 'Discover curated themes and bespoke layouts for every celebration.'
             };
 
-            Object.entries(landingCopy).forEach(function (entry) {
-                var element = document.querySelector(entry[0]);
+            for (const [selector, copy] of Object.entries(landingCopy)) {
+                const element = document.querySelector(selector);
                 if (element) {
-                    element.textContent = entry[1];
+                    element.textContent = copy;
                     element.removeAttribute('data-copy');
                 }
-            });
+            }
         })();
     </script>
 </body>
