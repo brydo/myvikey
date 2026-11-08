@@ -181,7 +181,7 @@
                 </p>
                 
                 <!-- Showcase Demo Box -->
-                <div class="rsvp-demo-showcase">
+                <div class="rsvp-demo-showcase" hidden>
                     <h3>Explore a Live Example</h3>
                     <p>Experience how our bespoke digital invitations look for guests.</p>
                     <a href="https://vi-key.uk/rsvp/i/HkPnV59" class="rsvp-demo-btn" target="_blank" rel="noopener noreferrer">Wedding RSVP Demo</a>
@@ -262,6 +262,7 @@
         (() => {
             if (!document.documentElement.classList.contains('rsvp-landing')) return;
 
+            document.querySelector('.rsvp-demo-showcase').hidden = false;
             const landingCopy = {
                 '#heading': 'Seamless Event Invitations',
                 '.rsvp-head .eyebrow': 'Elevated RSVP experiences for memorable occasions.',

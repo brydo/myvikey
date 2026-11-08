@@ -969,6 +969,26 @@ async function syntheticInvitation() {
     return created.invitation;
 }
 
+test('the demo showcase appears on the landing page but not on invitations', { skip }, async () => {
+    for (const route of ['/rsvp/', '/rsvp/?utm_source=share']) {
+        await open(route);
+        assert.equal(await evaluate('return document.querySelector(".rsvp-demo-showcase").checkVisibility();'), true, route);
+    }
+
+    for (const type of categories) {
+        const created = await (await api(JSON.stringify({ action: 'save-invitation', eventType: type,
+            title: 'Demo visibility ' + type, text: 'Invitation details' }), 'valid-session')).json();
+        assert.ok(created.success, type);
+        for (const route of ['/rsvp/i/' + created.invitation.id, '/rsvp/?id=' + created.invitation.id]) {
+            await open(route);
+            await waitFor('!document.getElementById("openRsvp").hidden', route);
+            assert.equal(await evaluate('return document.querySelector(".rsvp-demo-showcase").checkVisibility();'), false, route);
+            await evaluate('document.getElementById("openRsvp").click(); return true;');
+            assert.equal(await evaluate('return document.querySelector(".rsvp-demo-showcase").checkVisibility();'), false, route + ' after opening RSVP');
+        }
+    }
+});
+
 function assertOnlyFinalInvitation(frames, label) {
     const painted = frames.filter(frame => frame.card);
     assert.ok(painted.length > 2, label + ': sampled frames');
