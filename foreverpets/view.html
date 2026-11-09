@@ -6,12 +6,19 @@
     <title>Forever Pet · V I Key®</title>
     <style>
         :root {
-            --bg-base: #12110F;
-            --card-bg: rgba(255, 255, 255, 0.04);
-            --gold: #c9a96e;
-            --text-color: #e8e6e3;
-            --text-muted: #a8a4a0;
-            --card-border: rgba(255, 255, 255, 0.08);
+            color-scheme: dark;
+            --bg-base: #161f21;
+            --card-bg: #1e2a2d;
+            --card-border: #2f4145;
+            --card-border-hover: #4a6a6b;
+            --accent: #7cc4b8;
+            --accent-hover: #93d1c7;
+            --accent-glow: rgba(124, 196, 184, 0.12);
+            --accent-cta-bg: rgba(124, 196, 184, 0.1);
+            --accent-cta-border: rgba(124, 196, 184, 0.3);
+            --text-color: #d9e2e0;
+            --text-muted: #93a5a4;
+            --footer-bg: #121a1c;
         }
 
         * {
@@ -49,7 +56,7 @@
         }
 
         .memorial-name {
-            color: var(--gold);
+            color: var(--accent);
             font-size: 2.2rem;
             font-weight: 600;
             margin-bottom: 8px;
@@ -66,10 +73,10 @@
             width: 280px;
             height: 280px;
             border-radius: 50%;
-            border: 3px solid var(--gold);
+            border: 3px solid var(--accent);
             margin: 0 auto 30px;
             overflow: hidden;
-            background-color: rgba(201, 169, 110, 0.1);
+            background-color: var(--accent-cta-bg);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -104,7 +111,7 @@
         }
 
         .audio-section h3 {
-            color: var(--gold);
+            color: var(--accent);
             margin-bottom: 16px;
             font-size: 0.95rem;
             text-transform: uppercase;
@@ -127,7 +134,7 @@
         }
 
         .password-prompt h2 {
-            color: var(--gold);
+            color: var(--accent);
             margin-bottom: 12px;
             font-size: 1.3rem;
         }
@@ -150,30 +157,30 @@
             font-size: 1rem;
             background-color: var(--bg-base);
             color: var(--text-color);
-            border: 1px solid rgba(255, 255, 255, 0.12);
+            border: 1px solid var(--card-border);
             border-radius: 8px;
             outline: none;
             transition: border-color 0.3s;
         }
 
         .password-input input:focus {
-            border-color: var(--gold);
+            border-color: var(--accent);
         }
 
         .password-input button {
             padding: 12px 24px;
             font-size: 0.95rem;
             font-weight: 600;
-            color: var(--gold);
-            background-color: rgba(201, 169, 110, 0.1);
-            border: 1px solid rgba(201, 169, 110, 0.3);
+            color: var(--accent);
+            background-color: var(--accent-cta-bg);
+            border: 1px solid var(--accent-cta-border);
             border-radius: 8px;
             cursor: pointer;
             transition: background-color 0.3s;
         }
 
         .password-input button:hover {
-            background-color: rgba(201, 169, 110, 0.2);
+            background-color: rgba(124, 196, 184, 0.2);
         }
 
         .error-msg {
@@ -194,7 +201,7 @@
         }
 
         .back-link a {
-            color: var(--gold);
+            color: var(--accent);
             text-decoration: none;
             font-size: 0.9rem;
             text-transform: uppercase;
@@ -239,12 +246,12 @@
         .footer-btn:hover {
             transform: translateY(-3px);
             background-color: rgba(255, 255, 255, 0.08);
-            border-color: var(--gold);
+            border-color: var(--accent);
         }
 
         /* Brand Colors */
         .whatsapp-icon { fill: #25D366; }
-        .email-icon { color: var(--gold); font-size: 1.2rem; line-height: 1; }
+        .email-icon { color: var(--accent); font-size: 1.2rem; line-height: 1; }
         .facebook-icon { fill: #1877F2; }
         .instagram-icon { fill: #E4405F; }
         .tiktok-icon { fill: #ff0050; }
@@ -274,7 +281,7 @@
             bottom: 0;
             left: 0;
             width: 100%;
-            background-color: #0d0c0a;
+            background-color: var(--footer-bg);
             border-top: 1px solid var(--card-border);
             padding: 15px 20px;
             display: flex;
@@ -321,7 +328,7 @@
         .footer-btn .tiktok-icon {
             width: 1em;
             height: 1em;
-            fill: #e8e6e3;
+            fill: var(--text-color);
             display: inline-block;
             vertical-align: middle;
         }
@@ -333,7 +340,7 @@
         }
 
         .footer-btn:hover {
-            color: var(--gold);
+            color: var(--accent);
         }
 
 
@@ -458,7 +465,7 @@
             }
             const contentData = await contentResp.json();
             if (!contentData.success || !contentData.content) {
-                showMessage('<p style="color: #ff6b6b;">Memorial not found.</p><p><a href="/foreverpets/" style="color: var(--gold);">&larr; Back to Forever Pets</a></p>');
+                showMessage('<p style="color: #ff6b6b;">Memorial not found.</p><p><a href="/foreverpets/" style="color: var(--accent);">&larr; Back to Forever Pets</a></p>');
                 return;
             }
             displayMemorial(contentData.content);
