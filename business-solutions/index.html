@@ -11,18 +11,20 @@
     <title>Business NFC Solutions · V I Key®</title>
     <style>
         :root {
-            color-scheme: light;
-            --bg-base: #f3f7f6;
-            --bg-gradient: radial-gradient(circle at top, #ffffff 0%, #f3f7f6 75%);
-            --card-bg: #ffffff;
-            --card-bg-subtle: #f7faf9;
-            --card-border: #dfe8e5;
-            --card-border-hover: #a8c9bf;
-            --accent: #0f766e;
-            --accent-hover: #0b5f59;
-            --accent-glow: rgba(15, 118, 110, 0.1);
-            --text-color: #1f2933;
-            --text-muted: #596873;
+            color-scheme: dark;
+            --bg-base: #161f21;
+            --bg-gradient: radial-gradient(circle at top, #1f2b2e 0%, #161f21 70%);
+            --card-bg: #1e2a2d;
+            --card-bg-subtle: #233134;
+            --card-border: #2f4145;
+            --card-border-hover: #4a6a6b;
+            --accent: #7cc4b8;
+            --accent-hover: #93d1c7;
+            --accent-glow: rgba(124, 196, 184, 0.12);
+            --text-color: #d9e2e0;
+            --text-muted: #93a5a4;
+            --on-accent: #10201f;
+            --footer-bg: #121a1c;
         }
 
         * {
@@ -118,7 +120,7 @@
             border-radius: 16px;
             margin-bottom: 25px;
             border: 1px solid var(--card-border);
-            box-shadow: 0 8px 24px rgba(31, 41, 51, 0.04);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
         }
 
         p {
@@ -179,7 +181,7 @@
             padding: 14px 32px;
             font-size: 1rem;
             font-weight: 600;
-            color: #ffffff;
+            color: var(--on-accent);
             background-color: var(--accent);
             border: 1px solid var(--accent);
             border-radius: 10px;
@@ -214,9 +216,8 @@
             bottom: 0;
             left: 0;
             width: 100%;
-            background-color: rgba(255, 255, 255, 0.96);
+            background-color: var(--footer-bg);
             border-top: 1px solid var(--card-border);
-            box-shadow: 0 -4px 16px rgba(31, 41, 51, 0.04);
             padding: 12px 20px;
             display: flex;
             justify-content: center;
@@ -243,7 +244,7 @@
         .footer-btn .whatsapp-icon { fill: #25D366; }
         .footer-btn .facebook-icon { fill: #1877F2; }
         .footer-btn .instagram-icon { fill: #E4405F; }
-        .footer-btn .tiktok-icon { fill: #1f2933; }
+        .footer-btn .tiktok-icon { fill: var(--text-color); }
         .footer-btn .email-icon { font-size: 20px; line-height: 1; }
 
         .footer-btn:hover {
