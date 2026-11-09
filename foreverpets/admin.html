@@ -6,12 +6,12 @@
     <title>Admin · Forever Pets · V I Key®</title>
     <style>
         :root {
-            --bg-color: #12110F;
-            --card-bg: rgba(255,255,255,0.04);
-            --gold: #c9a96e;
-            --text-color: #e8e6e3;
-            --text-muted: #a8a4a0;
-            --card-border: rgba(255,255,255,0.08);
+            --bg-color: #161f21;
+            --card-bg: #1e2a2d;
+            --accent: #7cc4b8;
+            --text-color: #d9e2e0;
+            --text-muted: #93a5a4;
+            --card-border: #2f4145;
         }
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
@@ -22,7 +22,7 @@
             padding: 20px;
         }
         .container { max-width: 600px; margin: 0 auto; }
-        h1 { color: var(--gold); text-align: center; margin: 30px 0 10px; font-size: 1.5rem; letter-spacing: 1px; }
+        h1 { color: var(--accent); text-align: center; margin: 30px 0 10px; font-size: 1.5rem; letter-spacing: 1px; }
         p.sub { text-align: center; color: var(--text-muted); margin-bottom: 30px; font-size: 0.9rem; }
         section {
             background-color: var(--card-bg);
@@ -31,7 +31,7 @@
             padding: 24px;
             margin-bottom: 20px;
         }
-        h2 { color: var(--gold); font-size: 1.1rem; margin-bottom: 16px; font-weight: 500; }
+        h2 { color: var(--accent); font-size: 1.1rem; margin-bottom: 16px; font-weight: 500; }
         label { display: block; color: var(--text-muted); font-size: 0.85rem; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
         input[type="text"], input[type="password"], textarea, select {
             width: 100%;
@@ -46,20 +46,20 @@
             transition: border-color 0.3s;
             font-family: inherit;
         }
-        input:focus, textarea:focus, select:focus { border-color: var(--gold); }
+        input:focus, textarea:focus, select:focus { border-color: var(--accent); }
         textarea { min-height: 80px; max-height: 80px; resize: none; }
         button {
             padding: 12px 24px;
             font-size: 0.95rem;
             font-weight: 600;
-            color: var(--gold);
-            background-color: rgba(201,169,110,0.1);
-            border: 1px solid rgba(201,169,110,0.3);
+            color: var(--accent);
+            background-color: rgba(124, 196, 184,0.1);
+            border: 1px solid rgba(124, 196, 184,0.3);
             border-radius: 8px;
             cursor: pointer;
             transition: background-color 0.3s;
         }
-        button:hover { background-color: rgba(201,169,110,0.2); }
+        button:hover { background-color: rgba(124, 196, 184,0.2); }
         button.secondary {
             color: var(--text-muted);
             background-color: transparent;
@@ -78,7 +78,7 @@
         .msg.err { color: #ff6b6b; }
         .btn-row { display: flex; align-items: center; }
         .status { font-size: 0.85rem; color: var(--text-muted); text-align: center; margin-top: 20px; }
-        .status a { color: var(--gold); text-decoration: none; }
+        .status a { color: var(--accent); text-decoration: none; }
         .page-list { margin-top: 12px; }
         .page-list-item {
             display: flex;
@@ -90,7 +90,7 @@
             margin-bottom: 8px;
             font-size: 0.9rem;
         }
-        .page-list-item .id { color: var(--gold); font-weight: 600; }
+        .page-list-item .id { color: var(--accent); font-weight: 600; }
         .page-list-item .dob { color: var(--text-muted); font-size: 0.85rem; margin-left: 8px; }
         .page-list-item .badges { font-size: 0.8rem; color: var(--text-muted); }
         .page-list-item .badge { margin-left: 6px; }
@@ -102,7 +102,7 @@
             margin-top: 60px;
             text-align: center;
         }
-        .login-section h2 { color: var(--gold); font-size: 1.2rem; margin-bottom: 8px; }
+        .login-section h2 { color: var(--accent); font-size: 1.2rem; margin-bottom: 8px; }
         .login-section p { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 24px; }
         .login-section input { max-width: 300px; text-align: center; }
         .logout-btn {
@@ -126,7 +126,7 @@
             background: rgba(255,255,255,0.02);
         }
         .photo-position-section .section-label {
-            color: var(--gold);
+            color: var(--accent);
             font-size: 0.85rem;
             text-transform: uppercase;
             letter-spacing: 0.5px;
@@ -143,11 +143,11 @@
             width: 200px;
             height: 200px;
             border-radius: 50%;
-            border: 3px solid var(--gold);
+            border: 3px solid var(--accent);
             overflow: hidden;
             position: relative;
             cursor: grab;
-            background: rgba(201,169,110,0.08);
+            background: rgba(124, 196, 184,0.08);
             flex-shrink: 0;
             touch-action: none;
         }
@@ -179,7 +179,7 @@
             text-transform: none;
             letter-spacing: 0;
         }
-        .slider-group label .val { color: var(--gold); font-weight: 600; }
+        .slider-group label .val { color: var(--accent); font-weight: 600; }
         input[type="range"] {
             -webkit-appearance: none;
             appearance: none;
@@ -196,7 +196,7 @@
             width: 18px;
             height: 18px;
             border-radius: 50%;
-            background: var(--gold);
+            background: var(--accent);
             cursor: pointer;
             border: none;
         }
@@ -204,7 +204,7 @@
             width: 18px;
             height: 18px;
             border-radius: 50%;
-            background: var(--gold);
+            background: var(--accent);
             cursor: pointer;
             border: none;
         }
@@ -781,7 +781,7 @@
 
         function setPageListStatus(text) {
             const status = document.createElement('div');
-            status.style.color = '#a8a4a0';
+            status.style.color = '#93a5a4';
             status.style.fontSize = '0.9rem';
             status.textContent = text;
             document.getElementById('pageList').replaceChildren(status);
