@@ -13,18 +13,22 @@
     <meta name="twitter:card" content="summary_large_image">
     <style>
         :root {
-            --bg-base: #12110F;
-            --bg-gradient: radial-gradient(circle at top, #1c1a16 0%, #12110F 70%);
-            --card-bg: rgba(255, 255, 255, 0.04);
-            --card-border: rgba(255, 255, 255, 0.08);
-            --card-border-hover: rgba(255, 255, 255, 0.14);
-            --gold: #c9a96e;
-            --gold-hover: #d4b883;
-            --gold-glow: rgba(201, 169, 110, 0.15);
-            --gold-cta-bg: rgba(201, 169, 110, 0.1);
-            --gold-cta-border: rgba(201, 169, 110, 0.3);
-            --text-color: #e8e6e3;
-            --text-muted: #a8a4a0;
+            color-scheme: dark;
+            --bg-base: #161f21;
+            --bg-gradient: radial-gradient(circle at top, #1f2b2e 0%, #161f21 70%);
+            --card-bg: #1e2a2d;
+            --card-bg-subtle: #233134;
+            --card-border: #2f4145;
+            --card-border-hover: #4a6a6b;
+            --accent: #7cc4b8;
+            --accent-hover: #93d1c7;
+            --accent-glow: rgba(124, 196, 184, 0.12);
+            --accent-cta-bg: rgba(124, 196, 184, 0.1);
+            --accent-cta-border: rgba(124, 196, 184, 0.3);
+            --text-color: #d9e2e0;
+            --text-muted: #93a5a4;
+            --on-accent: #10201f;
+            --footer-bg: #121a1c;
         }
 
         * {
@@ -70,8 +74,8 @@
         }
 
         .nav-link.active, .nav-link:hover {
-            color: var(--gold);
-            border-bottom: 1px solid var(--gold);
+            color: var(--accent);
+            border-bottom: 1px solid var(--accent);
         }
 
         /* Main Content Packaging */
@@ -82,7 +86,7 @@
         }
 
         h1, h2, h3 {
-            color: var(--gold);
+            color: var(--accent);
             text-align: center;
             margin-bottom: 20px;
             font-weight: 500;
@@ -103,12 +107,12 @@
             font-size: 1.05rem;
         }
 
-        strong { color: var(--gold); }
+        strong { color: var(--accent); }
 
         .divider-icon {
             text-align: center;
             font-size: 1.8rem;
-            color: var(--gold);
+            color: var(--accent);
             margin: 30px 0;
         }
 
@@ -133,13 +137,13 @@
         .feature-card:hover, .sample-card:hover {
             border-color: var(--card-border-hover);
             transform: translateY(-4px);
-            box-shadow: 0 0 15px var(--gold-glow);
+            box-shadow: 0 0 15px var(--accent-glow);
         }
 
         .feature-icon { font-size: 2.2rem; margin-bottom: 12px; }
         .sample-icon { font-size: 2.5rem; margin-bottom: 12px; }
-        .feature-card h3 { font-size: 0.95rem; font-weight: 600; margin-bottom: 8px; color: var(--gold); }
-        .sample-card h3 { font-size: 1.1rem; font-weight: 600; margin-bottom: 8px; color: var(--gold); }
+        .feature-card h3 { font-size: 0.95rem; font-weight: 600; margin-bottom: 8px; color: var(--accent); }
+        .sample-card h3 { font-size: 1.1rem; font-weight: 600; margin-bottom: 8px; color: var(--accent); }
         .feature-card p, .sample-card p { font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 0; }
         .sample-card p { font-size: 0.9rem; }
 
@@ -149,38 +153,38 @@
             padding: 14px 32px;
             font-size: 1rem;
             font-weight: 600;
-            color: var(--gold);
-            background-color: var(--gold-cta-bg);
-            border: 1px solid var(--gold-cta-border);
+            color: var(--accent);
+            background-color: var(--accent-cta-bg);
+            border: 1px solid var(--accent-cta-border);
             border-radius: 8px;
             text-decoration: none;
             transition: background-color 0.3s, box-shadow 0.3s;
         }
 
         .cta-link:hover {
-            background-color: rgba(201, 169, 110, 0.2);
-            box-shadow: 0 0 20px var(--gold-glow);
+            background-color: rgba(124, 196, 184, 0.2);
+            box-shadow: 0 0 20px var(--accent-glow);
         }
 
         .memorial-viewer { max-width: 700px; margin: 0 auto; padding: 0 20px 40px; }
         .memorial-header { text-align: center; margin-bottom: 40px; }
         .memorial-icon { font-size: 3.5rem; margin-bottom: 16px; }
-        .memorial-name { color: var(--gold); font-size: 2.2rem; font-weight: 600; margin-bottom: 8px; letter-spacing: 1px; }
+        .memorial-name { color: var(--accent); font-size: 2.2rem; font-weight: 600; margin-bottom: 8px; letter-spacing: 1px; }
         .memorial-dates { color: var(--text-muted); font-size: 1.1rem; margin-bottom: 20px; }
 
         .photo-circle {
             width: 280px;
             height: 280px;
             border-radius: 50%;
-            border: 3px solid var(--gold);
+            border: 3px solid var(--accent);
             margin: 0 auto 30px;
             overflow: hidden;
-            background-color: rgba(201, 169, 110, 0.1);
+            background-color: var(--accent-cta-bg);
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 3rem;
-            color: var(--gold);
+            color: var(--accent);
         }
 
         .photo-circle img { width: 100%; height: 100%; object-fit: cover; }
@@ -195,7 +199,7 @@
         }
 
         .memorial-text { font-size: 1.05rem; line-height: 1.8; }
-        .audio-section h3 { font-size: 0.95rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 16px; color: var(--gold); }
+        .audio-section h3 { font-size: 0.95rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 16px; color: var(--accent); }
         .audio-section audio { width: 100%; max-width: 400px; margin: 0 auto; }
 
         .memorial-password {
@@ -207,7 +211,7 @@
             margin-top: 30px;
         }
 
-        .memorial-password h2 { font-size: 1.3rem; margin-bottom: 12px; color: var(--gold); }
+        .memorial-password h2 { font-size: 1.3rem; margin-bottom: 12px; color: var(--accent); }
         .memorial-password p { color: var(--text-muted); margin-bottom: 24px; }
 
         .password-input { max-width: 300px; margin: 0 auto 16px; display: flex; gap: 8px; }
@@ -217,18 +221,18 @@
             font-size: 1rem;
             background-color: var(--bg-base);
             color: var(--text-color);
-            border: 1px solid rgba(255, 255, 255, 0.12);
+            border: 1px solid var(--card-border);
             border-radius: 8px;
             outline: none;
         }
-        .password-input input:focus { border-color: var(--gold); }
+        .password-input input:focus { border-color: var(--accent); }
         .password-input button {
             padding: 12px 24px;
             font-size: 0.95rem;
             font-weight: 600;
-            color: var(--gold);
-            background-color: rgba(201, 169, 110, 0.1);
-            border: 1px solid rgba(201, 169, 110, 0.3);
+            color: var(--accent);
+            background-color: var(--accent-cta-bg);
+            border: 1px solid var(--accent-cta-border);
             border-radius: 8px;
             cursor: pointer;
             transition: background-color 0.3s;
@@ -237,7 +241,7 @@
         .error-msg { color: #ff6b6b; margin-top: 12px; font-size: 0.9rem; }
 
         .back-link { text-align: center; margin-top: 30px; }
-        .back-link a { color: var(--gold); text-decoration: none; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; }
+        .back-link a { color: var(--accent); text-decoration: none; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; }
 
         /* Persistent Footer */
         footer {
@@ -245,7 +249,7 @@
             bottom: 0;
             left: 0;
             width: 100%;
-            background-color: #0d0c0a;
+            background-color: var(--footer-bg);
             border-top: 1px solid var(--card-border);
             padding: 15px 20px;
             display: flex;
@@ -292,7 +296,7 @@
         .footer-btn .tiktok-icon {
             width: 1em;
             height: 1em;
-            fill: #e8e6e3;
+            fill: var(--text-color);
             display: inline-block;
             vertical-align: middle;
         }
@@ -303,7 +307,7 @@
             line-height: 1;
         }
 
-        .footer-btn:hover { color: var(--gold); }
+        .footer-btn:hover { color: var(--accent); }
 
         @media (max-width: 480px) {
             section { padding: 20px; }
@@ -329,7 +333,7 @@
 
     <div class="page-nav">
         <a href="/" class="nav-link">Our Story</a>
-        <span style="color:#444">|</span>
+        <span style="color:var(--card-border-hover)">|</span>
         <a href="/our-services/" class="nav-link">Our Services</a>
     </div>
 
