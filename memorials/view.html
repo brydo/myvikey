@@ -6,12 +6,12 @@
     <title>Memorial · V I Key®</title>
     <style>
         :root {
-            --bg-base: #12110F;
-            --card-bg: rgba(255, 255, 255, 0.04);
-            --gold: #c9a96e;
-            --text-color: #e8e6e3;
-            --text-muted: #a8a4a0;
-            --card-border: rgba(255, 255, 255, 0.08);
+            --bg-base: #161f21;
+            --card-bg: #1e2a2d;
+            --accent: #7cc4b8;
+            --text-color: #d9e2e0;
+            --text-muted: #93a5a4;
+            --card-border: #2f4145;
         }
 
         * {
@@ -44,7 +44,7 @@
         }
 
         .memorial-name {
-            color: var(--gold);
+            color: var(--accent);
             font-size: 2.2rem;
             font-weight: 600;
             margin-bottom: 8px;
@@ -61,10 +61,10 @@
             width: 280px;
             height: 280px;
             border-radius: 50%;
-            border: 3px solid var(--gold);
+            border: 3px solid var(--accent);
             margin: 0 auto 30px;
             overflow: hidden;
-            background-color: rgba(201, 169, 110, 0.1);
+            background-color: rgba(124, 196, 184, 0.1);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -99,7 +99,7 @@
         }
 
         .audio-section h3 {
-            color: var(--gold);
+            color: var(--accent);
             margin-bottom: 16px;
             font-size: 0.95rem;
             text-transform: uppercase;
@@ -122,7 +122,7 @@
         }
 
         .password-prompt h2 {
-            color: var(--gold);
+            color: var(--accent);
             margin-bottom: 12px;
             font-size: 1.3rem;
         }
@@ -152,23 +152,23 @@
         }
 
         .password-input input:focus {
-            border-color: var(--gold);
+            border-color: var(--accent);
         }
 
         .password-input button {
             padding: 12px 24px;
             font-size: 0.95rem;
             font-weight: 600;
-            color: var(--gold);
-            background-color: rgba(201, 169, 110, 0.1);
-            border: 1px solid rgba(201, 169, 110, 0.3);
+            color: var(--accent);
+            background-color: rgba(124, 196, 184, 0.1);
+            border: 1px solid rgba(124, 196, 184, 0.3);
             border-radius: 8px;
             cursor: pointer;
             transition: background-color 0.3s;
         }
 
         .password-input button:hover {
-            background-color: rgba(201, 169, 110, 0.2);
+            background-color: rgba(124, 196, 184, 0.2);
         }
 
         .error-msg {
@@ -189,7 +189,7 @@
         }
 
         .back-link a {
-            color: var(--gold);
+            color: var(--accent);
             text-decoration: none;
             font-size: 0.9rem;
             text-transform: uppercase;
@@ -224,8 +224,8 @@
         }
 
         .footer-btn:hover {
-            background-color: rgba(201, 169, 110, 0.15);
-            border-color: var(--gold);
+            background-color: rgba(124, 196, 184, 0.15);
+            border-color: var(--accent);
             transform: translateY(-2px);
         }
 
@@ -238,11 +238,11 @@
         }
 
         .footer-btn:hover svg {
-            fill: var(--gold);
+            fill: var(--accent);
         }
 
         .footer-btn:hover .email-icon {
-            color: var(--gold);
+            color: var(--accent);
         }
 
         @media (max-width: 480px) {
@@ -270,7 +270,7 @@
             bottom: 0;
             left: 0;
             width: 100%;
-            background-color: #0d0c0a;
+            background-color: #121a1c;
             border-top: 1px solid var(--card-border);
             padding: 15px 20px;
             display: flex;
@@ -317,7 +317,7 @@
         .footer-btn .tiktok-icon {
             width: 1em;
             height: 1em;
-            fill: #e8e6e3;
+            fill: #d9e2e0;
             display: inline-block;
             vertical-align: middle;
         }
@@ -329,7 +329,7 @@
         }
 
         .footer-btn:hover {
-            color: var(--gold);
+            color: var(--accent);
         }
 
 
@@ -459,7 +459,7 @@
             }
             const contentData = await contentResp.json();
             if (!contentData.success || !contentData.content) {
-                showMessage('<p style="color: #ff6b6b;">Memorial not found.</p><p><a href="/memorials/" style="color: var(--gold);">&larr; Back to Memorials</a></p>');
+                showMessage('<p style="color: #ff6b6b;">Memorial not found.</p><p><a href="/memorials/" style="color: var(--accent);">&larr; Back to Memorials</a></p>');
                 return;
             }
             displayMemorial(contentData.content);

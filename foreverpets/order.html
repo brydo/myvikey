@@ -7,18 +7,18 @@
   <meta name="description" content="Keep your beloved pet close with our Forever Pets Keyring.">
   <style>
         :root {
-            --bg-base: #12110F;
-            --bg-gradient: radial-gradient(circle at top, #1c1a16 0%, #12110F 70%);
-            --card-bg: rgba(255, 255, 255, 0.04);
-            --card-border: rgba(255, 255, 255, 0.08);
+            --bg-base: #161f21;
+            --bg-gradient: radial-gradient(circle at top, #1f2b2e 0%, #161f21 70%);
+            --card-bg: #1e2a2d;
+            --card-border: #2f4145;
             --card-border-hover: rgba(255, 255, 255, 0.14);
-            --gold: #c9a96e;
-            --gold-hover: #d4b883;
-            --gold-glow: rgba(201, 169, 110, 0.15);
-            --gold-cta-bg: rgba(201, 169, 110, 0.1);
-            --gold-cta-border: rgba(201, 169, 110, 0.3);
-            --text-color: #e8e6e3;
-            --text-muted: #a8a4a0;
+            --accent: #7cc4b8;
+            --accent-hover: #93d1c7;
+            --accent-glow: rgba(124, 196, 184, 0.15);
+            --accent-cta-bg: rgba(124, 196, 184, 0.1);
+            --accent-cta-border: rgba(124, 196, 184, 0.3);
+            --text-color: #d9e2e0;
+            --text-muted: #93a5a4;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -84,7 +84,7 @@
 
         .price-summary h2 {
             font-size: 1.25rem;
-            color: var(--gold);
+            color: var(--accent);
             margin: 0 0 8px 0;
             font-weight: 500;
         }
@@ -107,11 +107,11 @@
         }
 
         .description-card h3 {
-            color: var(--gold);
+            color: var(--accent);
             font-size: 1.1rem;
             margin-bottom: 12px;
             font-weight: 500;
-            border-bottom: 1px solid var(--gold-cta-border);
+            border-bottom: 1px solid var(--accent-cta-border);
             padding-bottom: 6px;
         }
 
@@ -126,7 +126,7 @@
         }
 
         .lead-quote {
-            color: var(--gold);
+            color: var(--accent);
             font-style: italic;
             font-size: 1.05rem;
             text-align: center;
@@ -143,13 +143,13 @@
         }
 
         .festive-header {
-            background: var(--gold-cta-bg);
+            background: var(--accent-cta-bg);
             padding: 20px;
             border-radius: 8px;
             text-align: center;
             color: var(--text-color);
             margin-bottom: 24px;
-            border: 1px solid var(--gold-cta-border);
+            border: 1px solid var(--accent-cta-border);
         }
 
         .festive-icon {
@@ -161,7 +161,7 @@
             font-size: 1.5rem;
             font-weight: 600;
             margin: 0;
-            color: var(--gold);
+            color: var(--accent);
         }
 
         .festive-subtitle {
@@ -178,7 +178,7 @@
             margin-top: 24px;
             margin-bottom: 16px;
             padding-bottom: 8px;
-            border-bottom: 1px solid var(--gold-cta-border);
+            border-bottom: 1px solid var(--accent-cta-border);
         }
 
         .step-number {
@@ -187,9 +187,9 @@
             justify-content: center;
             width: 32px;
             height: 32px;
-            background: var(--gold-cta-bg);
-            color: var(--gold);
-            border: 1px solid var(--gold-cta-border);
+            background: var(--accent-cta-bg);
+            color: var(--accent);
+            border: 1px solid var(--accent-cta-border);
             border-radius: 50%;
             font-weight: 700;
             font-size: 1rem;
@@ -199,7 +199,7 @@
         .step-title {
             font-size: 1.1rem;
             font-weight: 600;
-            color: var(--gold);
+            color: var(--accent);
             margin: 0;
         }
 
@@ -218,14 +218,14 @@
 
         .field-note {
             font-size: 0.85rem;
-            color: var(--gold);
+            color: var(--accent);
             margin-top: 6px;
             line-height: 1.5;
             font-style: italic;
         }
 
         .note-link {
-            color: var(--gold-hover);
+            color: var(--accent-hover);
             text-decoration: underline;
             font-weight: 600;
         }
@@ -253,8 +253,8 @@
         input[type="text"]:focus,
         input[type="email"]:focus,
         textarea:focus {
-            border-color: var(--gold);
-            box-shadow: 0 0 10px var(--gold-glow);
+            border-color: var(--accent);
+            box-shadow: 0 0 10px var(--accent-glow);
         }
 
         textarea {
@@ -281,7 +281,7 @@
 
         .consent-box input[type="checkbox"] {
             margin-top: 3px;
-            accent-color: var(--gold);
+            accent-color: var(--accent);
             transform: scale(1.1);
             flex-shrink: 0;
         }
@@ -314,13 +314,13 @@
 
         .tag-option input[type="checkbox"] {
             transform: scale(1.2);
-            accent-color: var(--gold);
+            accent-color: var(--accent);
             flex-shrink: 0;
         }
 
         .tag-option .tag-price {
             font-weight: 700;
-            color: var(--gold);
+            color: var(--accent);
             margin-left: auto;
         }
 
@@ -343,10 +343,10 @@
         .security-note {
             margin-top: 10px;
             padding: 10px 12px;
-            background: rgba(201, 169, 110, 0.08);
-            border: 1px solid var(--gold-cta-border);
+            background: rgba(124, 196, 184, 0.08);
+            border: 1px solid var(--accent-cta-border);
             border-radius: 6px;
-            color: var(--gold);
+            color: var(--accent);
             font-size: 0.9rem;
             font-weight: 500;
             text-align: center;
@@ -381,15 +381,15 @@
         .pay-confirm-box input[type="checkbox"] {
             margin-top: 3px;
             transform: scale(1.1);
-            accent-color: var(--gold);
+            accent-color: var(--accent);
         }
 
         button {
             width: 100%;
-            background-color: var(--gold-cta-bg);
-            color: var(--gold);
+            background-color: var(--accent-cta-bg);
+            color: var(--accent);
             padding: 14px;
-            border: 1px solid var(--gold-cta-border);
+            border: 1px solid var(--accent-cta-border);
             border-radius: 8px;
             font-size: 1.05rem;
             font-weight: 600;
@@ -398,8 +398,8 @@
         }
 
         button:hover {
-            background-color: rgba(201, 169, 110, 0.2);
-            box-shadow: 0 0 20px var(--gold-glow);
+            background-color: rgba(124, 196, 184, 0.2);
+            box-shadow: 0 0 20px var(--accent-glow);
         }
 
         button:disabled {
@@ -413,7 +413,7 @@
             bottom: 0;
             left: 0;
             width: 100%;
-            background-color: #0d0c0a;
+            background-color: #121a1c;
             border-top: 1px solid var(--card-border);
             padding: 15px 20px;
             display: flex;
@@ -434,14 +434,14 @@
         }
 
         .footer-btn:hover {
-            color: var(--gold);
+            color: var(--accent);
             transform: translateY(-2px);
         }
 
         .footer-btn .whatsapp-icon { width: 1.2em; height: 1.2em; fill: #25D366; display: inline-block; vertical-align: middle; }
         .footer-btn .facebook-icon { width: 1.2em; height: 1.2em; fill: #1877F2; display: inline-block; vertical-align: middle; }
         .footer-btn .instagram-icon { width: 1.2em; height: 1.2em; fill: #E4405F; display: inline-block; vertical-align: middle; }
-        .footer-btn .tiktok-icon { width: 1.2em; height: 1.2em; fill: #e8e6e3; display: inline-block; vertical-align: middle; }
+        .footer-btn .tiktok-icon { width: 1.2em; height: 1.2em; fill: #d9e2e0; display: inline-block; vertical-align: middle; }
         .footer-btn .email-icon { font-size: 1.2em; display: inline-block; line-height: 1; }
 
         .honeypot {
@@ -466,13 +466,13 @@
                 text-align: center;
                 margin-bottom: 16px;
                 padding: 12px 20px;
-                background-color: var(--gold-cta-bg);
-                color: var(--gold);
+                background-color: var(--accent-cta-bg);
+                color: var(--accent);
                 font-weight: 600;
                 font-size: 1.05rem;
                 text-decoration: none;
                 border-radius: 8px;
-                border: 1px solid var(--gold-cta-border);
+                border: 1px solid var(--accent-cta-border);
                 width: 100%;
             }
             footer { gap: 24px; padding: 12px; }
@@ -595,9 +595,9 @@
     </div>
 
     <div class="payment-box">
-     <div style="background:var(--gold-cta-bg);border:1px solid var(--gold-cta-border);border-radius:8px;padding:15px;margin-bottom:15px;text-align:center;">
+     <div style="background:var(--accent-cta-bg);border:1px solid var(--accent-cta-border);border-radius:8px;padding:15px;margin-bottom:15px;text-align:center;">
       <p style="font-size:0.9rem;color:var(--text-muted);margin-bottom:5px;">Your Order Total</p>
-      <p id="orderTotal" style="font-size:2rem;font-weight:700;color:var(--gold);margin:0;">£14.99</p>
+      <p id="orderTotal" style="font-size:2rem;font-weight:700;color:var(--accent);margin:0;">£14.99</p>
      </div>
      <p>Tap the link below to pay. <strong>Enter the exact total shown above as the payment amount.</strong> Use your name and postcode as the reference so we can match it to your order.</p>
      

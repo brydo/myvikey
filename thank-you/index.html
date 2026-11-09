@@ -7,18 +7,18 @@
   <meta name="description" content="Thank you for your order. Here are your order instructions and next steps.">
   <style>
         :root {
-            --bg-base: #12110F;
-            --bg-gradient: radial-gradient(circle at top, #1c1a16 0%, #12110F 70%);
-            --card-bg: rgba(255, 255, 255, 0.04);
-            --card-border: rgba(255, 255, 255, 0.08);
+            --bg-base: #161f21;
+            --bg-gradient: radial-gradient(circle at top, #1f2b2e 0%, #161f21 70%);
+            --card-bg: #1e2a2d;
+            --card-border: #2f4145;
             --card-border-hover: rgba(255, 255, 255, 0.14);
-            --gold: #c9a96e;
-            --gold-hover: #d4b883;
-            --gold-glow: rgba(201, 169, 110, 0.15);
-            --gold-cta-bg: rgba(201, 169, 110, 0.1);
-            --gold-cta-border: rgba(201, 169, 110, 0.3);
-            --text-color: #e8e6e3;
-            --text-muted: #a8a4a0;
+            --accent: #7cc4b8;
+            --accent-hover: #93d1c7;
+            --accent-glow: rgba(124, 196, 184, 0.15);
+            --accent-cta-bg: rgba(124, 196, 184, 0.1);
+            --accent-cta-border: rgba(124, 196, 184, 0.3);
+            --text-color: #d9e2e0;
+            --text-muted: #93a5a4;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -73,7 +73,7 @@
         .thankyou-title {
             font-size: 1.75rem;
             font-weight: 600;
-            color: var(--gold);
+            color: var(--accent);
             margin-bottom: 8px;
         }
 
@@ -94,12 +94,12 @@
         }
 
         .next-steps-card h2 {
-            color: var(--gold);
+            color: var(--accent);
             font-size: 1.15rem;
             font-weight: 600;
             margin-bottom: 16px;
             padding-bottom: 8px;
-            border-bottom: 1px solid var(--gold-cta-border);
+            border-bottom: 1px solid var(--accent-cta-border);
             text-align: center;
         }
 
@@ -127,7 +127,7 @@
         }
 
         .step-content strong {
-            color: var(--gold);
+            color: var(--accent);
         }
 
         .contact-actions {
@@ -143,10 +143,10 @@
             justify-content: center;
             gap: 10px;
             width: 100%;
-            background-color: var(--gold-cta-bg);
-            color: var(--gold);
+            background-color: var(--accent-cta-bg);
+            color: var(--accent);
             padding: 14px;
-            border: 1px solid var(--gold-cta-border);
+            border: 1px solid var(--accent-cta-border);
             border-radius: 8px;
             font-size: 1.05rem;
             font-weight: 600;
@@ -156,8 +156,8 @@
         }
 
         .cta-button:hover {
-            background-color: rgba(201, 169, 110, 0.2);
-            box-shadow: 0 0 20px var(--gold-glow);
+            background-color: rgba(124, 196, 184, 0.2);
+            box-shadow: 0 0 20px var(--accent-glow);
             transform: translateY(-2px);
         }
 
@@ -171,7 +171,7 @@
         }
 
         .home-link:hover {
-            color: var(--gold);
+            color: var(--accent);
         }
 
         footer {
@@ -179,7 +179,7 @@
             bottom: 0;
             left: 0;
             width: 100%;
-            background-color: #0d0c0a;
+            background-color: #121a1c;
             border-top: 1px solid var(--card-border);
             padding: 15px 20px;
             display: flex;
@@ -200,14 +200,14 @@
         }
 
         .footer-btn:hover {
-            color: var(--gold);
+            color: var(--accent);
             transform: translateY(-2px);
         }
 
         .footer-btn .whatsapp-icon { width: 1.2em; height: 1.2em; fill: #25D366; display: inline-block; vertical-align: middle; }
         .footer-btn .facebook-icon { width: 1.2em; height: 1.2em; fill: #1877F2; display: inline-block; vertical-align: middle; }
         .footer-btn .instagram-icon { width: 1.2em; height: 1.2em; fill: #E4405F; display: inline-block; vertical-align: middle; }
-        .footer-btn .tiktok-icon { width: 1.2em; height: 1.2em; fill: #e8e6e3; display: inline-block; vertical-align: middle; }
+        .footer-btn .tiktok-icon { width: 1.2em; height: 1.2em; fill: #d9e2e0; display: inline-block; vertical-align: middle; }
         .footer-btn .email-icon { font-size: 1.2em; display: inline-block; line-height: 1; }
 
         @media (max-width: 768px) {
