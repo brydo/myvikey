@@ -1,284 +1,152 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en-GB">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Manage and respond to event invitations with VIKEY® RSVP.">
-    <title>RSVP Portal · VIKEY®</title>
-    <link rel="stylesheet" href="/rsvp/card.css">
-    <style id="rsvp-landing-background">
-        /* Base landing page background styling */
-        html.rsvp-landing {
-            --rsvp-landing-background: url("https://pub-aa80f5e009854a94b9bcd90cda60268c.r2.dev/gemini.jfif");
-        }
-        html.rsvp-landing body,
-        html.rsvp-landing body:is(.rsvp-theme-loading, .rsvp-theme-neutral) {
-            background-image: var(--rsvp-landing-background) !important;
-        }
-    </style>
-    <style id="rsvp-landing-card">
-        html.rsvp-landing {
-            --showcase-emerald: #059669;
-            --showcase-deep: #047857;
-            --showcase-ink: #143b30;
-            --showcase-surface: #f7fcf9;
-            --showcase-border: #b6dfcf;
-        }
-
-        html.rsvp-landing .wrap > .rsvp-card {
-            --card-surface: var(--showcase-surface);
-            --card-text: var(--showcase-ink);
-            --card-heading: #064e3b;
-            background: var(--showcase-surface);
-            border: 1px solid var(--showcase-border);
-            box-shadow: 0 20px 60px rgba(4, 78, 59, 0.22);
-        }
-        html.rsvp-landing .wrap > .rsvp-card > .rsvp-banner {
-            height: 12px;
-            background: linear-gradient(90deg, var(--showcase-deep), var(--showcase-emerald), #8dd9bc);
-        }
-        html.rsvp-landing .wrap > .rsvp-card > .rsvp-banner::before,
-        html.rsvp-landing .wrap > .rsvp-card > .rsvp-banner::after {
-            content: none;
-        }
-
-        html.rsvp-landing .rsvp-head {
-            padding-top: 28px;
-        }
-        html.rsvp-landing .rsvp-card .brand {
-            color: var(--showcase-deep);
-        }
-        html.rsvp-landing .rsvp-card .rsvp-head > p:last-child {
-            color: #355e50;
-        }
-        html.rsvp-landing #invitationText {
-            background: #eaf7f0;
-            border: 1px solid var(--showcase-border);
-            border-radius: 14px;
-            padding: 22px;
-        }
-        html.rsvp-landing .rsvp-demo-showcase {
-            margin-top: 1.5rem;
-            padding: 1.5rem;
-            background: #e1f4e9;
-            border: 1px solid #99d3b9;
-            border-radius: 14px;
-            text-align: center;
-        }
-        html.rsvp-landing .rsvp-demo-showcase h3 {
-            font-size: 1.2rem;
-            color: #065f46;
-            margin-bottom: 0.5rem;
-        }
-        html.rsvp-landing .rsvp-demo-showcase p {
-            font-size: 0.95rem;
-            color: var(--showcase-ink);
-            margin-bottom: 1.25rem;
-        }
-        html.rsvp-landing .wrap a.rsvp-demo-btn {
-            display: inline-block;
-            background: var(--showcase-deep);
-            color: #fff;
-            padding: 0.85rem 1.75rem;
-            border-radius: 10px;
-            font-weight: 700;
-            font-size: 1rem;
-            text-decoration: none;
-            box-shadow: 0 4px 14px rgba(4, 120, 87, 0.24);
-            transition: background-color 0.2s ease, box-shadow 0.2s ease;
-        }
-        html.rsvp-landing .wrap a.rsvp-demo-btn:hover {
-            background: #065f46;
-            box-shadow: 0 6px 18px rgba(4, 120, 87, 0.3);
-        }
-        html.rsvp-landing .occasion-chooser,
-        html.rsvp-landing .wrap > nav {
-            background: var(--showcase-surface);
-            color: var(--showcase-ink);
-            border: 1px solid var(--showcase-border);
-            box-shadow: 0 12px 32px rgba(4, 78, 59, 0.16);
-        }
-        html.rsvp-landing .occasion-chooser {
-            padding: 26px 24px;
-        }
-        html.rsvp-landing .occasion-chooser h2 {
-            color: #064e3b;
-        }
-        html.rsvp-landing .occasion-chooser nav {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 10px;
-            margin-top: 20px;
-        }
-        html.rsvp-landing .occasion-chooser nav a {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 54px;
-            padding: 10px;
-            background: #e5f5ec;
-            border: 1px solid #a2d9be;
-            border-radius: 10px;
-            color: #065f46;
-            font-weight: 700;
-            text-decoration: underline;
-            text-underline-offset: 3px;
-            transition: background-color 0.2s ease, border-color 0.2s ease;
-        }
-        html.rsvp-landing .occasion-chooser nav a:hover {
-            background: #ccebd9;
-            border-color: var(--showcase-deep);
-        }
-        html.rsvp-landing .wrap > nav {
-            text-align: center;
-        }
-        html.rsvp-landing .wrap > nav a {
-            color: #065f46;
-            font-weight: 700;
-            text-underline-offset: 3px;
-        }
-        html.rsvp-landing .wrap a:focus-visible {
-            outline: 3px solid #064e3b;
-            outline-offset: 3px;
-        }
-        @media (max-width: 360px) {
-            html.rsvp-landing .occasion-chooser nav {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
-    <script>
-        // Check for specific invitation target vs general landing view
-        const urlParams = new URLSearchParams(window.location.search);
-        const isInvitation = urlParams.get('id') || /^\/rsvp\/i\//.test(window.location.pathname);
-        
-        if (isInvitation) {
-            document.documentElement.classList.add('rsvp-invitation-pending');
-            setTimeout(() => document.documentElement.classList.remove('rsvp-invitation-pending'), 8000);
-        } else {
-            document.documentElement.classList.add('rsvp-landing');
-        }
-    </script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>V I Key® Lost & Found demo</title>
+<style>
+:root{--bg:#eef3f4;--card:#fff;--ink:#12303b;--mute:#566b73;--line:#cfdadd;--brass:#a8761c;--brassbg:#f6ead2;--ok:#1f6b4a;--on:#fff;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0c1a20;--card:#14282f;--ink:#e6f0f2;--mute:#9bb2b9;--line:#2a444d;--brass:#e0b25a;--brassbg:#2e2614;--ok:#6fd1a2;--on:#1a1405}}
+:root[data-theme="dark"]{--bg:#0c1a20;--card:#14282f;--ink:#e6f0f2;--mute:#9bb2b9;--line:#2a444d;--brass:#e0b25a;--brassbg:#2e2614;--ok:#6fd1a2;--on:#1a1405}
+*{box-sizing:border-box}html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:520px;margin:0 auto;padding:16px 16px 48px}
+h1,h2{font-family:Georgia,"Times New Roman",serif;margin:0 0 8px;line-height:1.2}
+h1{font-size:27px}h2{font-size:21px}
+p{margin:0 0 12px;color:var(--mute)}
+nav{display:flex;gap:6px;margin:4px 0 18px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:4px}
+nav a{flex:1;text-align:center;padding:9px 4px;border-radius:9px;color:var(--mute);text-decoration:none;font-size:14px}
+nav a[aria-current="page"]{background:var(--ink);color:var(--bg);font-weight:600}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:14px}
+label{display:block;font-weight:600;font-size:14px;margin:12px 0 4px}
+input,textarea,select{width:100%;font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:11px}
+textarea{min-height:76px}
+.chk{display:flex;gap:8px;align-items:center;margin:8px 0;color:var(--ink);font-weight:400}
+.chk input{width:auto}
+button,.btn{display:block;width:100%;text-align:center;text-decoration:none;font:inherit;font-weight:600;border:0;border-radius:10px;padding:12px 16px;background:var(--brass);color:var(--on);cursor:pointer;margin-top:12px}
+button.ghost{background:transparent;color:var(--mute);border:1px solid var(--line)}
+.btn.wa{background:#1f8f4e;color:#fff}.btn.sms{background:#2f6fb3;color:#fff}.btn.call{background:var(--ink);color:var(--bg)}
+:focus-visible{outline:3px solid var(--brass);outline-offset:2px}
+.tag{border:2px dashed var(--brass);background:var(--brassbg);border-radius:14px;padding:16px;margin-bottom:14px}
+.tag b{font-family:Georgia,serif;font-size:24px;display:block}
+.alert{border:2px solid #b3261e;background:#fde8e6;color:#5c110c;border-radius:14px;padding:14px 16px;margin-bottom:14px}
+.alert b{display:block;font-size:18px;color:#8f1a12}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .alert{background:#3a1512;color:#ffd9d5;border-color:#ff9b92}:root:not([data-theme="light"]) .alert b{color:#ffb4ab}}
+:root[data-theme="dark"] .alert{background:#3a1512;color:#ffd9d5;border-color:#ff9b92}:root[data-theme="dark"] .alert b{color:#ffb4ab}
+.ok{color:var(--ok);font-weight:600}
+.note{font-size:13px;color:var(--mute);border-top:1px solid var(--line);padding-top:12px;margin-top:20px}
+[hidden]{display:none!important}
+</style>
 </head>
-<body class="rsvp-theme-loading">
-    <main class="wrap">
-        <section class="rsvp-card" aria-labelledby="heading">
-            <div class="rsvp-banner" aria-hidden="true"></div>
-            
-            <header class="rsvp-head">
-                <div class="brand-lockup" data-branding>
-                    <img data-brand-logo alt="" hidden>
-                    <p class="brand" data-copy="brand" data-brand-name>VIKEY® · Event Services</p>
-                    <p class="brand-address" data-brand-address hidden></p>
-                </div>
-                <h1 id="heading" data-copy="inviteHeading">You are cordially invited.</h1>
-                <p class="eyebrow" data-copy="tagline">An Elegant Event &amp; RSVP Experience</p>
-            </header>
+<body>
+<main>
+<h1>V I Key® Lost & Found</h1>
+<p>Working demo. Set up a tag, then see what a finder sees.</p>
+<nav aria-label="Views"><a href="#setup" id="n-setup">Owner setup</a><a href="#finder" id="n-finder">Finder view</a><a href="#manage" id="n-manage">Manage</a></nav>
 
-            <div class="rsvp-section invitation">
-                <p id="invitationText" data-copy="inviteText">
-                    Welcome to VIKEY®. Access your invitation to review event details, schedule information, and confirm your attendance.
-                </p>
-                
-                <!-- Showcase Demo Box -->
-                <div class="rsvp-demo-showcase">
-                    <h3>Explore a Live Example</h3>
-                    <p>Experience how our bespoke digital invitations look for guests.</p>
-                    <a href="https://vi-key.uk/rsvp/i/HkPnV59" class="rsvp-demo-btn" target="_blank" rel="noopener noreferrer">Wedding RSVP Demo</a>
-                </div>
+<section id="v-setup">
+<div class="card">
+<h2>Claim your tag</h2>
+<label for="code">Claim code (any code works in this demo)</label><input id="code" placeholder="K7M2-9QX4">
+<label for="name">Pet’s name</label><input id="name" autocomplete="off">
+<label for="desc">What do they look like?</label><input id="desc">
+<label for="needs">Care needs</label><input id="needs">
+<label for="temper">Temperament</label>
+<select id="temper"><option>Friendly</option><option>Shy, approach gently</option><option>Nervous, may bolt</option><option>Do not chase, call me</option></select>
+<label for="note">Message for the finder</label><textarea id="note"></textarea>
+<label for="phone">Your mobile number</label><input id="phone" type="tel" autocomplete="off">
+<label>Buttons to show finders</label>
+<label class="chk"><input type="checkbox" id="m-call"> Call</label>
+<label class="chk"><input type="checkbox" id="m-wa"> WhatsApp</label>
+<label class="chk"><input type="checkbox" id="m-sms"> Text</label>
+<button id="save">Save and open my manage page</button>
+</div>
+</section>
 
-                <p id="invitationHelp" data-copy="inviteHelp" style="margin-top: 1.5rem;">
-                    Please use the unique link provided by your event host to access your personal invitation and submit your response.
-                </p>
-                <button id="openMusicInvitation" class="rsvp-btn primary" type="button" hidden>View Invitation</button>
-                <div id="invitationMusic" hidden>
-                    <audio id="musicPlayer" controls controlslist="nodownload" preload="none" aria-label="Invitation audio track"></audio>
-                    <p id="musicStatus" role="status" aria-live="polite"></p>
-                </div>
-                <button id="openRsvp" data-copy="openRsvp" class="rsvp-btn primary" type="button" hidden>Submit Response</button>
-            </div>
+<section id="v-finder" hidden>
+<div id="f-lost" class="alert" role="alert" hidden><b id="f-lostt"></b>The owner is looking for them right now.</div>
+<div class="tag"><b id="f-name"></b><span id="f-desc" style="color:var(--mute)"></span></div>
+<div class="card">
+<h2>You may have found a much-loved pet</h2>
+<p id="f-note"></p>
+<p><b>Care needs:</b> <span id="f-needs"></span><br><b>Temperament:</b> <span id="f-temper"></span></p>
+<button id="reveal">Contact the owner</button>
+<p id="f-check" hidden>Checking you’re a person… (a real version uses Cloudflare Turnstile)</p>
+<p id="f-deny" hidden>The owner shares contact details only while this is marked lost.</p>
+<div id="f-btns" hidden>
+<label class="chk"><input type="checkbox" id="geo"> Include my location in the message</label>
+<a class="btn call" id="b-call" hidden>Call</a>
+<a class="btn wa" id="b-wa" hidden target="_blank" rel="noopener">WhatsApp</a>
+<a class="btn sms" id="b-sms" hidden>Text</a>
+</div>
+</div>
+</section>
 
-            <p id="message" class="rsvp-section" role="status" aria-live="polite"></p>
+<section id="v-manage" hidden>
+<div class="card">
+<h2>Your private manage page</h2>
+<p id="m-saved" class="ok" hidden>Saved. Open Finder view to test your buttons.</p>
+<p id="m-status"></p>
+<button id="lostbtn"></button>
+<label for="mode">Who can see my contact buttons?</label>
+<select id="mode"><option value="always">Always (recommended for pets)</option><option value="lostonly">Only while marked lost</option></select>
+<button class="ghost" id="del">Delete my tag data</button>
+</div>
+</section>
 
-            <form id="guestUnlock" class="rsvp-section" hidden>
-                <label for="guestPassword">Guest Passcode</label>
-                <input id="guestPassword" name="password" type="password" autocomplete="off" required>
-                <button class="rsvp-btn primary" type="submit">Access Invitation</button>
-            </form>
-
-            <form id="rsvpForm" class="rsvp-section" hidden>
-                <h2 data-copy="replyHeading">Response Details</h2>
-                
-                <label for="name" data-copy="nameLabel">Full Name</label>
-                <input id="name" name="name" autocomplete="name" maxlength="100" required>
-                
-                <label for="event" data-copy="eventLabel">Event Name</label>
-                <input id="event" name="event" maxlength="100" readonly required>
-                
-                <label for="attending" data-copy="attendingLabel">Attendance Confirmation</label>
-                <select id="attending" name="attending" required>
-                    <option value="" data-copy="chooseLabel">Select an option</option>
-                    <option value="yes" data-copy="yesLabel">Attending</option>
-                    <option value="maybe" data-copy="maybeLabel">Tentative</option>
-                    <option value="no" data-copy="noLabel">Unable to Attend</option>
-                </select>
-                
-                <label for="guests" data-copy="guestsLabel">Additional Guests</label>
-                <input id="guests" name="guests" type="number" min="0" max="100" step="1" value="0" aria-describedby="guestsHint" required>
-                <small id="guestsHint" data-copy="guestsHint">Indicate the total number of accompanying guests.</small>
-                
-                <label for="notes" data-copy="notesLabel">Special Requests or Dietary Requirements</label>
-                <textarea id="notes" name="notes" rows="3" maxlength="1000"></textarea>
-                
-                <button data-copy="saveReply" class="rsvp-btn primary" type="submit" disabled>Confirm &amp; Proceed</button>
-                <p data-copy="saveHelp">Your response will be recorded. You will be provided with options to confirm delivery to your host.</p>
-                <div id="sendOptions" hidden></div>
-            </form>
-        </section>
-
-        <section id="occasionChooser" class="occasion-chooser" aria-labelledby="occasionHeading">
-            <h2 id="occasionHeading" data-copy="occasionHeading">Designed for Extraordinary Events</h2>
-            <p data-copy="occasionDescription">Select a category to explore custom event invitations and themes.</p>
-            <nav aria-label="Event themes">
-                <a href="/rsvp/events/">Corporate Events</a>
-                <a href="/rsvp/weddings/">Weddings</a>
-                <a href="/rsvp/parties/">Celebrations</a>
-                <a href="/rsvp/engagements/">Engagements</a>
-            </nav>
-        </section>
-
-        <nav aria-label="Footer navigation">
-            <a href="/" data-brand-footer>VIKEY®</a>
-        </nav>
-        
-        <noscript>
-            <p>JavaScript must be enabled to view and submit this invitation.</p>
-        </noscript>
-    </main>
-
-    <script src="/rsvp/card-render.js"></script>
-    <script type="module" src="/rsvp/rsvp.js"></script>
-    <script>
-        (() => {
-            if (!document.documentElement.classList.contains('rsvp-landing')) return;
-
-            const landingCopy = {
-                '#heading': 'Seamless Event Invitations',
-                '.rsvp-head .eyebrow': 'Elevated RSVP experiences for memorable occasions.',
-                '#invitationText': 'Host elegant gatherings with bespoke digital invitations and real-time response management.',
-                '#invitationHelp': 'Already registered? Open your private invitation link to view schedule details and confirm your attendance.',
-                '#occasionHeading': 'Tailored to Your Occasion',
-                '[data-copy="occasionDescription"]': 'Discover curated themes and bespoke layouts for every celebration.'
-            };
-
-            for (const [selector, copy] of Object.entries(landingCopy)) {
-                const element = document.querySelector(selector);
-                if (element) {
-                    element.textContent = copy;
-                    element.removeAttribute('data-copy');
-                }
-            }
-        })();
-    </script>
+<p class="note">Demo only. Everything is kept in this browser, including the number, so nothing is sent anywhere. In the real version the number is encrypted on the server, revealed only through a bot check, and lost mode expires after 14 days.</p>
+</main>
+<script>
+(function(){
+var K='vikey-lf-demo',DAYS=14;
+var DEF={name:'Biscuit',desc:'Small brown spaniel, white chest',needs:'Needs daily medication',temper:'Friendly',note:'Thank you for helping! Biscuit loves cuddles.',phone:'07123 456789',m:{call:true,wa:true,sms:true},mode:'always',lost:false,until:0,claimed:false};
+function load(){try{var r=localStorage.getItem(K);if(r)return Object.assign({},DEF,JSON.parse(r))}catch(e){}return Object.assign({},DEF)}
+function save(){try{localStorage.setItem(K,JSON.stringify(s))}catch(e){}}
+var s=load(),$=function(i){return document.getElementById(i)};
+function isLost(){return s.lost&&s.until>Date.now()}
+function digits(p){var d=String(p).replace(/\D/g,'');if(d.charAt(0)==='0')d='44'+d.slice(1);return d}
+function show(v){['setup','finder','manage'].forEach(function(n){$('v-'+n).hidden=n!==v;var a=$('n-'+n);n===v?a.setAttribute('aria-current','page'):a.removeAttribute('aria-current')});
+if(v==='finder')finder();if(v==='manage')manage();if(v==='setup')fill()}
+function route(){var h=(location.hash||'#setup').slice(1);show(['setup','finder','manage'].indexOf(h)>-1?h:'setup')}
+function fill(){['name','desc','needs','note','phone'].forEach(function(k){$(k).value=s[k]});$('temper').value=s.temper;$('m-call').checked=s.m.call;$('m-wa').checked=s.m.wa;$('m-sms').checked=s.m.sms}
+function finder(){
+$('f-lost').hidden=!isLost();$('f-lostt').textContent=(s.name||'This pet')+' is missing. Please act quickly.';
+$('f-name').textContent=s.name||'A pet';$('f-desc').textContent=s.desc;$('f-note').textContent=s.note;
+$('f-needs').textContent=s.needs||'None listed';$('f-temper').textContent=s.temper;
+$('f-btns').hidden=true;$('f-deny').hidden=true;$('f-check').hidden=true;$('reveal').hidden=false;$('geo').checked=false}
+function links(loc){
+var d=digits(s.phone),t='Hi, I found '+(s.name||'your pet')+'.'+(loc?' I am here: '+loc:'');
+$('b-call').href='tel:+'+d;$('b-wa').href='https://wa.me/'+d+'?text='+encodeURIComponent(t);$('b-sms').href='sms:+'+d+'?body='+encodeURIComponent(t);
+$('b-call').hidden=!s.m.call;$('b-wa').hidden=!s.m.wa;$('b-sms').hidden=!s.m.sms}
+$('reveal').addEventListener('click',function(){
+$('f-deny').hidden=true;
+if(s.mode==='lostonly'&&!isLost()){$('f-deny').hidden=false;return}
+$('reveal').hidden=true;$('f-check').hidden=false;
+setTimeout(function(){$('f-check').hidden=true;links('');$('f-btns').hidden=false},700)});
+$('geo').addEventListener('change',function(){
+if(!$('geo').checked){links('');return}
+if(!navigator.geolocation){return}
+navigator.geolocation.getCurrentPosition(function(p){links('https://maps.google.com/?q='+p.coords.latitude.toFixed(5)+','+p.coords.longitude.toFixed(5))},function(){$('geo').checked=false},{timeout:6000})});
+function manage(){
+$('m-saved').hidden=!s.claimed;
+$('m-status').textContent=isLost()?'Lost mode is ON until '+new Date(s.until).toLocaleDateString('en-GB')+'. It switches off automatically after '+DAYS+' days.':'Lost mode is off.';
+$('lostbtn').textContent=isLost()?'Mark as found':'Mark as lost';$('mode').value=s.mode}
+$('lostbtn').addEventListener('click',function(){
+if(isLost()){s.lost=false;s.until=0}else{s.lost=true;s.until=Date.now()+DAYS*864e5}
+save();manage()});
+$('mode').addEventListener('change',function(){s.mode=$('mode').value;save()});
+$('save').addEventListener('click',function(){
+['name','desc','needs','note','phone'].forEach(function(k){s[k]=$(k).value.trim()});
+s.temper=$('temper').value;s.m={call:$('m-call').checked,wa:$('m-wa').checked,sms:$('m-sms').checked};
+s.claimed=true;save();location.hash='#manage'});
+$('del').addEventListener('click',function(){
+if($('del').dataset.arm!=='1'){$('del').dataset.arm='1';$('del').textContent='Tap again to confirm delete';return}
+$('del').dataset.arm='0';$('del').textContent='Delete my tag data';
+s=Object.assign({},DEF,{name:'',desc:'',needs:'',note:'',phone:'',claimed:false,m:{call:true,wa:true,sms:true}});save();location.hash='#setup';fill()});
+window.addEventListener('hashchange',route);route();
+})();
+</script>
 </body>
 </html>
