@@ -1,0 +1,25 @@
+name = "vikey-lostfound-worker"
+main = "src/index.ts"
+compatibility_date = "2025-01-01"
+workers_dev = false
+
+# Only these two routes. Nothing else on vi-key.uk is touched.
+routes = [
+  { pattern = "vi-key.uk/found/*", zone_name = "vi-key.uk" },
+  { pattern = "vi-key.uk/manage/*", zone_name = "vi-key.uk" },
+]
+
+# New dedicated KV namespace. No ID is committed: wrangler (v4.45+) creates and
+# binds a new namespace automatically on first `wrangler deploy`.
+# See README "Provisioning KV" for the manual fallback.
+[[kv_namespaces]]
+binding = "TAGS"
+
+[vars]
+PUBLIC_BASE_URL = "https://vi-key.uk"
+LOST_MODE_DAYS = "14"
+# Public Turnstile site key: replace with your widget's site key.
+TURNSTILE_SITE_KEY = "REPLACE_WITH_TURNSTILE_SITE_KEY"
+
+# Secrets (never committed), set with `wrangler secret put <NAME>`:
+#   ENCRYPTION_KEY, ADMIN_HASH_SALT, TURNSTILE_SECRET
