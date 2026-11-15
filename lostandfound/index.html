@@ -49,7 +49,9 @@
             border-radius: 9px;
             color: var(--muted);
             text-decoration: none;
-            font-size: 14px;
+            font-size: .9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
         nav a:hover { background: var(--card-subtle); color: var(--accent); }
         h1, h2, h3 { color: var(--accent); text-align: center; font-weight: 500; letter-spacing: .5px; line-height: 1.2; }
@@ -108,6 +110,7 @@
         .footer-btn .email-icon { font-size: 1em; line-height: 1; }
         .footer-btn:hover { color: var(--accent); }
         @media (max-width: 480px) {
+            nav a { font-size: .85rem; letter-spacing: .3px; }
             footer { gap: 20px; padding: 10px 12px; padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px)); }
         }
     </style>
@@ -116,8 +119,8 @@
 <main>
     <img src="https://pub-07ed0b0955a4401f9956c3ca7a33c40e.r2.dev/transparentlogo.png" alt="VI Key Logo" class="tdc-logo">
     <nav aria-label="Main">
-        <a href="/">Our story</a>
-        <a href="/our-services/">Our services</a>
+        <a href="/">Our Story</a>
+        <a href="/our-services/">Our Services</a>
     </nav>
 
     <div class="hero">
