@@ -33,6 +33,7 @@ nav a{color:var(--mute)}
 nav a[aria-current=page]{color:var(--accent);font-weight:700}
 nav a:hover{background:var(--card-subtle);color:var(--accent)}
 :focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+.photo{display:block;width:100%;max-height:320px;object-fit:cover;border-radius:12px;margin:8px 0}
 [hidden]{display:none!important}
 </style>
 </head>
@@ -73,6 +74,7 @@ nav a:hover{background:var(--card-subtle);color:var(--accent)}
 <section id="finder" hidden>
 <div id="lost-banner" class="banner" hidden></div>
 <h1 id="finder-name"></h1>
+<img id="finder-photo" class="photo" src="https://pub-07ed0b0955a4401f9956c3ca7a33c40e.r2.dev/1794150367150.jpg" alt="Photo of Biscuit">
 <div class="card">
 <p id="finder-desc"></p>
 <p id="finder-temper"></p>
@@ -182,6 +184,7 @@ function renderFinder(){
   var kind=state.kind==='pet'?'pet':'item', canContact=state.mode==='always'||lost();
   $('lost-banner').hidden=!lost();$('lost-banner').textContent='🚨 This '+kind+' has been reported LOST. Please contact the owner.';
   $('finder-name').textContent=state.name;
+  $('finder-photo').alt='Photo of '+state.name;
   $('finder-desc').textContent=state.desc;$('finder-desc').hidden=!state.desc;
   $('finder-temper').textContent='Temperament: '+tempers[state.temper];$('finder-temper').hidden=kind!=='pet';
   $('finder-needs').textContent='Care needs: '+state.needs;$('finder-needs').hidden=!state.needs;
