@@ -28,6 +28,7 @@ textarea{min-height:80px}
 .err{background:var(--danger-bg);border:1px solid var(--danger);color:var(--danger);border-radius:8px;padding:10px;margin:12px 0}
 .okmsg{border:1px solid var(--ok);color:var(--ok);border-radius:8px;padding:10px;margin:12px 0}
 .small{font-size:.85rem;color:var(--mute)}
+.photo-note{background:var(--card-subtle);border:1px solid var(--accent);border-radius:10px;padding:10px 12px;margin:6px 0 12px;color:var(--fg);font-weight:600}
 nav{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
 nav a{color:var(--mute)}
 nav a[aria-current=page]{color:var(--accent);font-weight:700}
@@ -75,7 +76,7 @@ nav a:hover{background:var(--card-subtle);color:var(--accent)}
 <div id="lost-banner" class="banner" hidden></div>
 <h1 id="finder-name"></h1>
 <img id="finder-photo" class="photo" src="https://pub-07ed0b0955a4401f9956c3ca7a33c40e.r2.dev/Demoonlylost.jpg" alt="Photo of Biscuit">
-<p class="small">This demo uses a sample photo. Real tag owners can upload or change their photo from Manage.</p>
+<p class="photo-note"><strong>Demo photo:</strong> This demo uses a sample photo. Real tag owners can upload or change their photo from Manage.</p>
 <div class="card">
 <p id="finder-desc"></p>
 <p id="finder-temper"></p>
