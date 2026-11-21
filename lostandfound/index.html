@@ -79,6 +79,9 @@
         .button:hover { background: var(--accent-hover); }
         .button.secondary { background: transparent; color: var(--ink); border: 1px solid var(--line); }
         .note { font-size: .9rem; }
+        .demo-qr { display: none; text-align: center; margin-top: 14px; }
+        .demo-qr img { width: 140px; height: 140px; border-radius: 8px; }
+        @media (hover: hover) and (pointer: fine) { .demo-qr { display: block; } }
         :focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
         footer {
             position: fixed;
@@ -149,6 +152,10 @@
         <h2>Try the demo</h2>
         <p>Try it before you buy! This demo shows exactly what a finder would see. Nothing is saved, so feel free to use made-up details. You'll add your real info once you have your own tag.</p>
         <a class="button" href="/demo/">Open the demo</a>
+        <div class="demo-qr">
+            <img src="/qr/qr-demo.png" alt="QR code that opens the demo on your phone" width="140" height="140">
+            <p class="note">Scan to try the demo on your phone.</p>
+        </div>
     </section>
 
     <section class="card">
