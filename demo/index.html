@@ -17,7 +17,8 @@ h1{font-size:1.5rem;margin:.4em 0}h2{font-size:1.1rem;margin:1.2em 0 .4em}
 a{color:var(--accent)}
 label{display:block;font-weight:600;margin:12px 0 4px}
 .hint{color:var(--mute);font-size:.875rem;font-weight:400}
-input[type=text],input[type=tel],textarea{width:100%;padding:10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--fg);font:inherit}
+input[type=text],input[type=tel],input[type=file],textarea{width:100%;padding:10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--fg);font:inherit}
+input[type=file]::file-selector-button{margin-right:12px;padding:6px 12px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--fg);font:inherit;cursor:pointer}
 textarea{min-height:80px}
 .opt{display:flex;gap:8px;align-items:center;font-weight:400;margin:6px 0}
 .opt input{width:20px;height:20px;accent-color:var(--accent)}
@@ -47,6 +48,9 @@ textarea{min-height:80px}
 <input type="text" id="name" name="name" maxlength="40" value="Bailey" required>
 <label for="desc">Description <span class="hint">(optional)</span></label>
 <input type="text" id="desc" name="desc" maxlength="120" value="Golden Labrador, medium-large, with a soft golden coat and a white patch on his chest.">
+<label for="photo">Photo <span class="hint">(optional)</span></label>
+<input type="file" id="photo" name="photo" accept="image/*">
+<p class="hint">On a real tag, you add or change your photo from your private manage page after activating, and finders see a default V I Key image if you don't. In this demo, your photo stays on your device and is never uploaded. If you skip it, a sample photo is used.</p>
 <label for="temper">Temperament <span class="hint">(optional)</span></label>
 <input type="text" id="temper" name="temper" maxlength="120" value="Friendly and gentle. He loves attention and will happily come to you.">
 <label for="needs">Care needs <span class="hint">(optional)</span></label>
@@ -60,9 +64,6 @@ textarea{min-height:80px}
 <label class="opt"><input type="checkbox" name="methods" value="Call" checked> Call</label>
 <label class="opt"><input type="checkbox" name="methods" value="WhatsApp" checked> WhatsApp</label>
 <label class="opt"><input type="checkbox" name="methods" value="Text" checked> Text</label>
-<label for="photo">Photo <span class="hint">(optional)</span></label>
-<input type="file" id="photo" accept="image/*">
-<p class="hint">On a real tag, you add or change your photo from your private manage page after activating, and finders see a default V I Key image if you don't. In this demo, your photo stays on your device and is never uploaded. If you skip it, a sample photo is used.</p>
 <p class="small" id="setup-error" role="alert" hidden>Choose at least one contact method.</p>
 <button class="btn" type="submit">Activate tag</button>
 </form>
