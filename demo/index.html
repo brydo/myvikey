@@ -15,12 +15,19 @@ h1,h2{color:var(--accent);font-weight:500;letter-spacing:.5px;line-height:1.2}
 h1{font-size:1.5rem;margin:.4em 0}h2{font-size:1.1rem;margin:1.2em 0 .4em}
 .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin:12px 0;box-shadow:0 8px 24px rgba(0,0,0,.18)}
 a{color:var(--accent)}
+label{display:block;font-weight:600;margin:12px 0 4px}
+.hint{color:var(--mute);font-size:.875rem;font-weight:400}
+input[type=text],input[type=tel],textarea{width:100%;padding:10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--fg);font:inherit}
+textarea{min-height:80px}
+.opt{display:flex;gap:8px;align-items:center;font-weight:400;margin:6px 0}
+.opt input{width:20px;height:20px;accent-color:var(--accent)}
 .btn{display:block;width:100%;text-align:center;padding:12px 16px;margin:10px 0;border:0;border-radius:10px;background:var(--accent);color:var(--accent-fg);font:inherit;font-weight:600;cursor:pointer}
 .btn:not(.sec):not(.danger):hover{background:var(--accent-hover)}
 .btn.sec{background:transparent;color:var(--fg);border:1px solid var(--line)}
 .btn.danger{background:var(--danger-solid);color:#fff}
 .banner{background:var(--danger-bg);border:2px solid var(--danger);color:#ffd9d5;border-radius:12px;padding:14px 16px;font-weight:700;font-size:1.1rem}
 .small{font-size:.85rem;color:var(--mute)}
+.step{color:var(--mute);font-size:.85rem;text-transform:uppercase;letter-spacing:1px;margin:0}
 :focus-visible{outline:3px solid var(--accent);outline-offset:3px}
 .photo{display:block;width:100%;max-height:320px;object-fit:contain;border-radius:12px;margin:8px 0}
 [hidden]{display:none!important}
@@ -29,50 +36,111 @@ a{color:var(--accent)}
 <body>
 <main>
 <img src="https://pub-07ed0b0955a4401f9956c3ca7a33c40e.r2.dev/transparentlogo.png" alt="VI Key Logo" class="tdc-logo">
-<p class="small"><strong>Demo only.</strong> This shows what a finder sees when they scan a tag. Nothing is called, sent or saved, and the bot check is simulated. Refresh to reset.</p>
+<p class="small"><strong>Demo only.</strong> Nothing is called, sent or saved, and your details never leave this page. Please don't enter real personal information. Refresh to reset.</p>
 
+<section id="setup">
+<p class="step">Step 1 of 3 · Owner sets up the tag</p>
+<h1>Activate your V I Key® tag</h1>
+<p>On a real tag, you scan it and fill in this short form. It takes about a minute.</p>
+<form class="card" id="setup-form" autocomplete="off">
+<label for="name">Pet name</label>
+<input type="text" id="name" name="name" maxlength="40" value="Bailey" required>
+<label for="desc">Description <span class="hint">(optional)</span></label>
+<input type="text" id="desc" name="desc" maxlength="120" value="Golden Labrador, medium-large, with a soft golden coat and a white patch on his chest.">
+<label for="temper">Temperament <span class="hint">(optional)</span></label>
+<input type="text" id="temper" name="temper" maxlength="120" value="Friendly and gentle. He loves attention and will happily come to you.">
+<label for="needs">Care needs <span class="hint">(optional)</span></label>
+<input type="text" id="needs" name="needs" maxlength="120" value="Needs daily medication. Please call his owner as soon as possible.">
+<label for="note">Note for the finder <span class="hint">(optional)</span></label>
+<textarea id="note" name="note" maxlength="200">Thank you for helping Bailey get home safe!</textarea>
+<label for="phone">Your mobile number</label>
+<input type="tel" id="phone" name="phone" maxlength="30" value="07123 456789" required>
+<p class="hint">On a real tag, this is stored encrypted and only shown to finders after a bot check.</p>
+<label>How can a finder contact you?</label>
+<label class="opt"><input type="checkbox" name="methods" value="Call" checked> Call</label>
+<label class="opt"><input type="checkbox" name="methods" value="WhatsApp" checked> WhatsApp</label>
+<label class="opt"><input type="checkbox" name="methods" value="Text" checked> Text</label>
+<p class="small" id="setup-error" role="alert" hidden>Choose at least one contact method.</p>
+<button class="btn" type="submit">Activate tag</button>
+</form>
+</section>
+
+<section id="finder" hidden>
+<p class="step">Step 2 of 3 · What a finder sees</p>
 <div id="lost-banner" class="banner" hidden>🚨 This pet has been reported LOST. Please contact the owner.</div>
-<h1>Biscuit</h1>
-<img class="photo" src="https://pub-07ed0b0955a4401f9956c3ca7a33c40e.r2.dev/Demoonlylost.jpg" alt="Photo of Biscuit">
+<h1 id="f-name"></h1>
+<img class="photo" src="https://pub-07ed0b0955a4401f9956c3ca7a33c40e.r2.dev/Demoonlylost.jpg" alt="Sample photo">
+<p class="small">Sample photo. Owners can upload their own from the manage page.</p>
 <div class="card">
-<p>Small brown spaniel, white chest</p>
-<p><strong>Temperament:</strong> Friendly</p>
-<p><strong>Care needs:</strong> Needs daily medication</p>
-<p><strong>Message from the owner:</strong><br>Thank you for helping!</p>
+<p id="f-desc"></p>
+<p id="f-temper"></p>
+<p id="f-needs"></p>
+<p id="f-note" style="white-space:pre-line"></p>
 </div>
 <button class="btn" id="contact" type="button">Contact the owner</button>
 <div id="contact-result" class="card" hidden>
-<button class="btn demo-contact" type="button" data-label="Call">Call</button>
-<button class="btn demo-contact" type="button" data-label="WhatsApp">WhatsApp</button>
-<button class="btn demo-contact" type="button" data-label="Text">Text</button>
+<div id="f-buttons"></div>
 <p class="small">On a real tag, these open your phone's call, WhatsApp or text app, and you can include your location in the message.</p>
 </div>
 
 <div class="card">
-<h2>Owner's lost mode</h2>
+<p class="step">Step 3 of 3 · Lost mode</p>
+<h2>If your pet goes missing</h2>
 <p class="small">Owners switch this on from their private manage page. It shows a red alert to finders and switches off after 14 days.</p>
 <button class="btn danger" id="toggle-lost" type="button">Mark as lost</button>
 </div>
+<button class="btn sec" id="restart" type="button">Back to setup</button>
+</section>
 </main>
 <script>
 (function(){
 'use strict';
+var $=function(id){return document.getElementById(id)};
 var lost=false;
-var banner=document.getElementById('lost-banner');
-var toggle=document.getElementById('toggle-lost');
-document.getElementById('contact').addEventListener('click',function(){
-  this.hidden=true;
-  document.getElementById('contact-result').hidden=false;
+function setLost(value){
+  lost=value;
+  $('lost-banner').hidden=!lost;
+  $('toggle-lost').textContent=lost?'Mark as found':'Mark as lost';
+  $('toggle-lost').className=lost?'btn':'btn danger';
+}
+function show(view){
+  $('setup').hidden=view!=='setup';
+  $('finder').hidden=view!=='finder';
+  window.scrollTo(0,0);
+}
+$('setup-form').addEventListener('submit',function(e){
+  e.preventDefault();
+  var form=this;
+  var methods=Array.from(form.querySelectorAll('[name=methods]:checked'),function(el){return el.value});
+  $('setup-error').hidden=methods.length>0;
+  if(!methods.length)return;
+  var name=form.elements.name.value.trim();
+  $('f-name').textContent=name;
+  $('f-desc').textContent=form.elements.desc.value.trim();$('f-desc').hidden=!form.elements.desc.value.trim();
+  [['temper','Temperament: '],['needs','Care needs: ']].forEach(function(f){
+    var v=form.elements[f[0]].value.trim(),el=$('f-'+f[0]);
+    el.replaceChildren();
+    if(v){var b=document.createElement('strong');b.textContent=f[1];el.append(b,v)}
+    el.hidden=!v;
+  });
+  var note=form.elements.note.value.trim();
+  $('f-note').replaceChildren();
+  if(note){var nb=document.createElement('strong');nb.textContent='Message from the owner:';$('f-note').append(nb,'\n'+note)}
+  $('f-note').hidden=!note;
+  $('f-buttons').replaceChildren();
+  methods.forEach(function(label){
+    var button=document.createElement('button');
+    button.type='button';button.className='btn';button.textContent=label;
+    button.addEventListener('click',function(){button.textContent=label+' — demo only, nothing sent'});
+    $('f-buttons').appendChild(button);
+  });
+  $('contact').hidden=false;$('contact-result').hidden=true;
+  setLost(false);
+  show('finder');
 });
-document.querySelectorAll('.demo-contact').forEach(function(button){
-  button.addEventListener('click',function(){button.textContent=button.dataset.label+' — demo only, nothing sent'});
-});
-toggle.addEventListener('click',function(){
-  lost=!lost;
-  banner.hidden=!lost;
-  toggle.textContent=lost?'Mark as found':'Mark as lost';
-  toggle.className=lost?'btn':'btn danger';
-});
+$('contact').addEventListener('click',function(){this.hidden=true;$('contact-result').hidden=false});
+$('toggle-lost').addEventListener('click',function(){setLost(!lost)});
+$('restart').addEventListener('click',function(){show('setup')});
 })();
 </script>
 </body>
