@@ -60,8 +60,9 @@ textarea{min-height:80px}
 <label class="opt"><input type="checkbox" name="methods" value="Call" checked> Call</label>
 <label class="opt"><input type="checkbox" name="methods" value="WhatsApp" checked> WhatsApp</label>
 <label class="opt"><input type="checkbox" name="methods" value="Text" checked> Text</label>
-<label>Photo <span class="hint">(optional)</span></label>
-<p class="hint">Not part of this form. After activating a real tag, you can upload a photo from your private manage page. Without one, finders see a default V I Key image. This demo skips that step and shows a sample photo.</p>
+<label for="photo">Photo <span class="hint">(optional)</span></label>
+<input type="file" id="photo" accept="image/*">
+<p class="hint">On a real tag, you add or change your photo from your private manage page after activating, and finders see a default V I Key image if you don't. In this demo, your photo stays on your device and is never uploaded. If you skip it, a sample photo is used.</p>
 <p class="small" id="setup-error" role="alert" hidden>Choose at least one contact method.</p>
 <button class="btn" type="submit">Activate tag</button>
 </form>
@@ -71,8 +72,8 @@ textarea{min-height:80px}
 <p class="step">Step 2 of 3 · What a finder sees</p>
 <div id="lost-banner" class="banner" hidden>🚨 This pet has been reported LOST. Please contact the owner.</div>
 <h1 id="f-name"></h1>
-<img class="photo" src="https://pub-07ed0b0955a4401f9956c3ca7a33c40e.r2.dev/Demoonlylost.jpg" alt="Sample photo">
-<p class="small">Sample photo for this demo. On a real tag, you upload your own from the manage page after activating, or finders see a default V I Key image.</p>
+<img class="photo" id="f-photo" src="" alt="">
+<p class="small" id="f-photo-note"></p>
 <div class="card">
 <p id="f-desc"></p>
 <p id="f-temper"></p>
@@ -98,7 +99,7 @@ textarea{min-height:80px}
 (function(){
 'use strict';
 var $=function(id){return document.getElementById(id)};
-var lost=false;
+var lost=false,photoUrl=null,samplePhoto='https://pub-07ed0b0955a4401f9956c3ca7a33c40e.r2.dev/Demoonlylost.jpg';
 function setLost(value){
   lost=value;
   $('lost-banner').hidden=!lost;
@@ -118,6 +119,12 @@ $('setup-form').addEventListener('submit',function(e){
   if(!methods.length)return;
   var name=form.elements.name.value.trim();
   $('f-name').textContent=name;
+  var file=form.elements.photo.files[0];
+  if(photoUrl){URL.revokeObjectURL(photoUrl);photoUrl=null}
+  if(file&&file.type.indexOf('image/')===0)photoUrl=URL.createObjectURL(file);
+  $('f-photo').src=photoUrl||samplePhoto;
+  $('f-photo').alt=photoUrl?'Photo of '+name:'Sample photo';
+  $('f-photo-note').textContent=photoUrl?'Your photo, shown only on this device.':'Sample photo for this demo. On a real tag, finders see the photo you upload, or a default V I Key image if you add none.';
   $('f-desc').textContent=form.elements.desc.value.trim();$('f-desc').hidden=!form.elements.desc.value.trim();
   [['temper','Temperament: '],['needs','Care needs: ']].forEach(function(f){
     var v=form.elements[f[0]].value.trim(),el=$('f-'+f[0]);
