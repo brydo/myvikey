@@ -41,7 +41,7 @@ textarea{min-height:80px}
 <section id="setup">
 <p class="step">Step 1 of 3 · Owner sets up the tag</p>
 <h1>Activate your V I Key® tag</h1>
-<p>On a real tag, you scan it and fill in this short form. It takes about a minute.</p>
+<p>On a real tag, you scan it, enter its claim code and fill in this short form. It takes about a minute. This demo skips the claim code.</p>
 <form class="card" id="setup-form" autocomplete="off">
 <label for="name">Pet name</label>
 <input type="text" id="name" name="name" maxlength="40" value="Bailey" required>
@@ -60,6 +60,8 @@ textarea{min-height:80px}
 <label class="opt"><input type="checkbox" name="methods" value="Call" checked> Call</label>
 <label class="opt"><input type="checkbox" name="methods" value="WhatsApp" checked> WhatsApp</label>
 <label class="opt"><input type="checkbox" name="methods" value="Text" checked> Text</label>
+<label>Photo <span class="hint">(optional)</span></label>
+<p class="hint">Not part of this form. After activating a real tag, you can upload a photo from your private manage page. Without one, finders see a default V I Key image. This demo skips that step and shows a sample photo.</p>
 <p class="small" id="setup-error" role="alert" hidden>Choose at least one contact method.</p>
 <button class="btn" type="submit">Activate tag</button>
 </form>
@@ -70,7 +72,7 @@ textarea{min-height:80px}
 <div id="lost-banner" class="banner" hidden>🚨 This pet has been reported LOST. Please contact the owner.</div>
 <h1 id="f-name"></h1>
 <img class="photo" src="https://pub-07ed0b0955a4401f9956c3ca7a33c40e.r2.dev/Demoonlylost.jpg" alt="Sample photo">
-<p class="small">Sample photo. Owners can upload their own from the manage page.</p>
+<p class="small">Sample photo for this demo. On a real tag, you upload your own from the manage page after activating, or finders see a default V I Key image.</p>
 <div class="card">
 <p id="f-desc"></p>
 <p id="f-temper"></p>
