@@ -44,11 +44,15 @@ textarea{min-height:80px}
 <p>On a real tag, you scan it and fill in this short form. It takes about a minute.</p>
 <form class="card" id="setup-form" autocomplete="off">
 <label for="name">Pet name</label>
-<input type="text" id="name" name="name" maxlength="40" value="Biscuit" required>
+<input type="text" id="name" name="name" maxlength="40" value="Bailey" required>
 <label for="desc">Description <span class="hint">(optional)</span></label>
-<input type="text" id="desc" name="desc" maxlength="120" value="Small brown spaniel, white chest">
+<input type="text" id="desc" name="desc" maxlength="120" value="Golden Labrador, medium-large, with a soft golden coat and a white patch on his chest.">
+<label for="temper">Temperament <span class="hint">(optional)</span></label>
+<input type="text" id="temper" name="temper" maxlength="120" value="Friendly and gentle. He loves attention and will happily come to you.">
+<label for="needs">Care needs <span class="hint">(optional)</span></label>
+<input type="text" id="needs" name="needs" maxlength="120" value="Needs daily medication. Please call his owner as soon as possible.">
 <label for="note">Note for the finder <span class="hint">(optional)</span></label>
-<textarea id="note" name="note" maxlength="200">Thank you for helping!</textarea>
+<textarea id="note" name="note" maxlength="200">Thank you for helping Bailey get home safe!</textarea>
 <label for="phone">Your mobile number</label>
 <input type="tel" id="phone" name="phone" maxlength="30" value="07123 456789" required>
 <p class="hint">On a real tag, this is stored encrypted and only shown to finders after a bot check.</p>
@@ -69,6 +73,8 @@ textarea{min-height:80px}
 <p class="small">Sample photo. Owners can upload their own from the manage page.</p>
 <div class="card">
 <p id="f-desc"></p>
+<p id="f-temper"></p>
+<p id="f-needs"></p>
 <p id="f-note" style="white-space:pre-line"></p>
 </div>
 <button class="btn" id="contact" type="button">Contact the owner</button>
@@ -111,8 +117,16 @@ $('setup-form').addEventListener('submit',function(e){
   var name=form.elements.name.value.trim();
   $('f-name').textContent=name;
   $('f-desc').textContent=form.elements.desc.value.trim();$('f-desc').hidden=!form.elements.desc.value.trim();
+  [['temper','Temperament: '],['needs','Care needs: ']].forEach(function(f){
+    var v=form.elements[f[0]].value.trim(),el=$('f-'+f[0]);
+    el.replaceChildren();
+    if(v){var b=document.createElement('strong');b.textContent=f[1];el.append(b,v)}
+    el.hidden=!v;
+  });
   var note=form.elements.note.value.trim();
-  $('f-note').textContent='Message from the owner:\n'+note;$('f-note').hidden=!note;
+  $('f-note').replaceChildren();
+  if(note){var nb=document.createElement('strong');nb.textContent='Message from the owner:';$('f-note').append(nb,'\n'+note)}
+  $('f-note').hidden=!note;
   $('f-buttons').replaceChildren();
   methods.forEach(function(label){
     var button=document.createElement('button');
