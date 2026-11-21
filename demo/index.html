@@ -6,7 +6,7 @@
 <meta name="robots" content="noindex,nofollow">
 <title>Lost &amp; Found demo · V I Key®</title>
 <style>
-:root{color-scheme:dark;--bg:#161f21;--bg-gradient:radial-gradient(circle at top,#1f2b2e 0%,#161f21 70%);--card:#1e2a2d;--card-subtle:#233134;--fg:#d9e2e0;--mute:#93a5a4;--line:#2f4145;--accent:#7cc4b8;--accent-hover:#93d1c7;--accent-fg:#10201f;--danger:#ff9b92;--danger-bg:#3a1512;--danger-solid:#a63d34;--ok:#7cc4b8}
+:root{color-scheme:dark;--bg:#161f21;--bg-gradient:radial-gradient(circle at top,#1f2b2e 0%,#161f21 70%);--card:#1e2a2d;--fg:#d9e2e0;--mute:#93a5a4;--line:#2f4145;--accent:#7cc4b8;--accent-hover:#93d1c7;--accent-fg:#10201f;--danger:#ff9b92;--danger-bg:#3a1512;--danger-solid:#a63d34}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg-gradient);background-color:var(--bg);color:var(--fg);font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
 main{max-width:520px;margin:0 auto;padding:16px}
@@ -14,25 +14,13 @@ main{max-width:520px;margin:0 auto;padding:16px}
 h1,h2{color:var(--accent);font-weight:500;letter-spacing:.5px;line-height:1.2}
 h1{font-size:1.5rem;margin:.4em 0}h2{font-size:1.1rem;margin:1.2em 0 .4em}
 .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin:12px 0;box-shadow:0 8px 24px rgba(0,0,0,.18)}
-label{display:block;font-weight:600;margin:12px 0 4px}
-.hint{color:var(--mute);font-size:.875rem;font-weight:400}
-input[type=text],input[type=tel],select,textarea{width:100%;padding:10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--fg);font:inherit}
-textarea{min-height:80px}
-.opt{display:flex;gap:8px;align-items:center;font-weight:400;margin:6px 0}
-.opt input{width:20px;height:20px}
-.btn{display:block;width:100%;text-align:center;padding:12px 16px;margin:10px 0;border:0;border-radius:10px;background:var(--accent);color:var(--accent-fg);font:inherit;font-weight:600;text-decoration:none;cursor:pointer}
+a{color:var(--accent)}
+.btn{display:block;width:100%;text-align:center;padding:12px 16px;margin:10px 0;border:0;border-radius:10px;background:var(--accent);color:var(--accent-fg);font:inherit;font-weight:600;cursor:pointer}
 .btn:not(.sec):not(.danger):hover{background:var(--accent-hover)}
 .btn.sec{background:transparent;color:var(--fg);border:1px solid var(--line)}
 .btn.danger{background:var(--danger-solid);color:#fff}
 .banner{background:var(--danger-bg);border:2px solid var(--danger);color:#ffd9d5;border-radius:12px;padding:14px 16px;font-weight:700;font-size:1.1rem}
-.err{background:var(--danger-bg);border:1px solid var(--danger);color:var(--danger);border-radius:8px;padding:10px;margin:12px 0}
-.okmsg{border:1px solid var(--ok);color:var(--ok);border-radius:8px;padding:10px;margin:12px 0}
 .small{font-size:.85rem;color:var(--mute)}
-.photo-note{background:var(--card-subtle);border:1px solid var(--accent);border-radius:10px;padding:10px 12px;margin:6px 0 12px;color:var(--fg);font-weight:600}
-nav{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
-nav a{color:var(--mute)}
-nav a[aria-current=page]{color:var(--accent);font-weight:700}
-nav a:hover{background:var(--card-subtle);color:var(--accent)}
 :focus-visible{outline:3px solid var(--accent);outline-offset:3px}
 .photo{display:block;width:100%;max-height:320px;object-fit:contain;border-radius:12px;margin:8px 0}
 [hidden]{display:none!important}
@@ -41,196 +29,50 @@ nav a:hover{background:var(--card-subtle);color:var(--accent)}
 <body>
 <main>
 <img src="https://pub-07ed0b0955a4401f9956c3ca7a33c40e.r2.dev/transparentlogo.png" alt="VI Key Logo" class="tdc-logo">
-<p class="small"><strong>Demo only.</strong> This simulates the real tag in this browser; it does not activate a tag or create a private manage link. The security check is simulated. Don't enter personal information.</p>
-<nav aria-label="Demo views">
-<a href="#setup" id="nav-setup">Activate</a>
-<a href="#finder" id="nav-finder">Finder view</a>
-<a href="#manage" id="nav-manage">Manage</a>
-</nav>
-<section id="setup">
-<h1>Activate your V I Key® tag</h1>
-<p>Enter a claim code and tell us what this tag is for. Any code works in this demo.</p>
-<form class="card" id="claim" autocomplete="off">
-<label for="code">Claim code</label>
-<input type="text" id="code" required maxlength="16" autocapitalize="characters">
-<div id="claim-fields"></div>
-<p class="small">On a real tag, your number is encrypted and shown only after a bot check. See the <a href="https://vi-key.uk/privacy/#general">general V I Key privacy section</a>.</p>
-<button class="btn" type="submit">Activate tag</button>
-</form>
-</section>
-<section id="activated" hidden>
-<h1>Tag activated ✅</h1>
+<p class="small"><strong>Demo only.</strong> This shows what a finder sees when they scan a tag. Nothing is called, sent or saved, and the bot check is simulated. Refresh to reset.</p>
+
+<div id="lost-banner" class="banner" hidden>🚨 This pet has been reported LOST. Please contact the owner.</div>
+<h1>Biscuit</h1>
+<img class="photo" src="https://pub-07ed0b0955a4401f9956c3ca7a33c40e.r2.dev/Demoonlylost.jpg" alt="Photo of Biscuit">
 <div class="card">
-<h2>Save your private manage link</h2>
-<p>On a real tag, the private manage link is shown only once. Anyone with it can edit or delete the tag, and it cannot be recovered if lost.</p>
-<p class="small">This demo does not create or send a private link. Use Manage above to continue.</p>
-</div>
-<div class="card">
-<h2>Check your contact buttons</h2>
-<p class="small">On a real tag, you can test the contact buttons here. This demo does not call or message anyone.</p>
-<div id="test-buttons"></div>
-</div>
-<a class="btn sec" href="#manage">Go to manage page</a>
-</section>
-<section id="finder" hidden>
-<div id="lost-banner" class="banner" hidden></div>
-<h1 id="finder-name"></h1>
-<img id="finder-photo" class="photo" src="https://pub-07ed0b0955a4401f9956c3ca7a33c40e.r2.dev/Demoonlylost.jpg" alt="Photo of Biscuit">
-<p class="photo-note"><strong>Demo photo:</strong> This demo uses a sample photo. Real tag owners can upload or change their photo from Manage.</p>
-<div class="card">
-<p id="finder-desc"></p>
-<p id="finder-temper"></p>
-<p id="finder-needs"></p>
-<p id="finder-note" style="white-space:pre-line"></p>
+<p>Small brown spaniel, white chest</p>
+<p><strong>Temperament:</strong> Friendly</p>
+<p><strong>Care needs:</strong> Needs daily medication</p>
+<p><strong>Message from the owner:</strong><br>Thank you for helping!</p>
 </div>
 <button class="btn" id="contact" type="button">Contact the owner</button>
-<div id="unavailable" class="card" hidden></div>
 <div id="contact-result" class="card" hidden>
-<p class="small">Demo: the real tag checks for bots before showing contact buttons.</p>
-<div id="finder-buttons"></div>
-<label class="opt"><input type="checkbox" id="location"> Include my location in the message</label>
-<p class="small">On a real tag, your phone adds your location to the message. This demo does not request or send your location.</p>
+<button class="btn demo-contact" type="button" data-label="Call">Call</button>
+<button class="btn demo-contact" type="button" data-label="WhatsApp">WhatsApp</button>
+<button class="btn demo-contact" type="button" data-label="Text">Text</button>
+<p class="small">On a real tag, these open your phone's call, WhatsApp or text app, and you can include your location in the message.</p>
 </div>
-</section>
-<section id="manage" hidden>
-<h1>Manage your tag</h1>
-<div class="okmsg" id="message" role="status" hidden></div>
-<p class="small">On a real tag, changes can take up to about a minute to show for finders.</p>
+
 <div class="card">
-<h2>Lost mode</h2>
-<div id="manage-lost-banner" class="banner" hidden></div>
-<p id="not-lost">Not marked lost. Lost mode shows a red alert to finders and switches off automatically after 14 days.</p>
-<button class="btn danger" id="mark-lost" type="button">Mark as lost</button>
-<button class="btn sec" id="renew" type="button" hidden>Renew for 14 days</button>
-<button class="btn" id="mark-found" type="button" hidden>Mark as found</button>
+<h2>Owner's lost mode</h2>
+<p class="small">Owners switch this on from their private manage page. It shows a red alert to finders and switches off after 14 days.</p>
+<button class="btn danger" id="toggle-lost" type="button">Mark as lost</button>
 </div>
-<form class="card" id="update" autocomplete="off">
-<h2>Details</h2>
-<div id="update-fields"></div>
-<button class="btn" type="submit">Save changes</button>
-</form>
-<form class="card" id="delete">
-<h2>Delete this tag</h2>
-<p class="small">On a real tag, this permanently deletes all details and the tag can no longer be used.</p>
-<label class="opt"><input type="checkbox" id="confirm-delete" required> Yes, permanently delete this tag</label>
-<button class="btn danger" type="submit">Delete tag</button>
-</form>
-</section>
-<section id="deleted" hidden>
-<h1>Tag deleted</h1>
-<p>All demo details for this tag have been removed. A real deleted tag can no longer be used.</p>
-<button class="btn sec" id="restart" type="button">Restart demo</button>
-</section>
 </main>
 <script>
 (function(){
 'use strict';
-var sample={kind:'pet',name:'Biscuit',desc:'Small brown spaniel, white chest',needs:'Needs daily medication',temper:'friendly',note:'Thank you for helping!',phone:'07123 456789',methods:['call','whatsapp','sms'],mode:'always',until:0};
-var state=Object.assign({},sample), days=14, $=function(id){return document.getElementById(id)};
-var labels={call:'Call',whatsapp:'WhatsApp',sms:'Text'};
-var tempers={friendly:'Friendly',shy:'Shy (approach gently)',nervous:'Nervous (may bolt)',nochase:'Do not chase (call me)'};
-var fields='<label for="PREFIX-kind">This tag is for a</label><select id="PREFIX-kind" name="kind"><option value="pet">Pet</option><option value="item">Item</option></select>'+
-'<label for="PREFIX-name">Name <span class="hint">(pet name or item label, max 40)</span></label><input type="text" id="PREFIX-name" name="name" maxlength="40" required>'+
-'<label for="PREFIX-desc">Description <span class="hint">(max 120)</span></label><input type="text" id="PREFIX-desc" name="desc" maxlength="120">'+
-'<div class="pet-only"><label for="PREFIX-needs">Care needs <span class="hint">(optional, max 120)</span></label><input type="text" id="PREFIX-needs" name="needs" maxlength="120">'+
-'<label for="PREFIX-temper">Temperament</label><select id="PREFIX-temper" name="temper"><option value="friendly">Friendly</option><option value="shy">Shy (approach gently)</option><option value="nervous">Nervous (may bolt)</option><option value="nochase">Do not chase (call me)</option></select></div>'+
-'<label for="PREFIX-note">Note for the finder <span class="hint">(max 200)</span></label><textarea id="PREFIX-note" name="note" maxlength="200"></textarea>'+
-'<label for="PREFIX-phone">Your mobile number</label><input type="tel" id="PREFIX-phone" name="phone" maxlength="30" required autocomplete="tel">'+
-'<div class="hint">On a real tag, stored encrypted and only shown after a bot check.</div>'+
-'<label>How can a finder contact you?</label><label class="opt"><input type="checkbox" name="methods" value="call"> Call</label><label class="opt"><input type="checkbox" name="methods" value="whatsapp"> WhatsApp</label><label class="opt"><input type="checkbox" name="methods" value="sms"> Text message</label>'+
-'<label>When can a finder contact you?</label><label class="opt"><input type="radio" name="mode" value="always" required> Always (recommended: a finder can reach you before you know your pet is missing)</label><label class="opt"><input type="radio" name="mode" value="lostonly"> Only while the tag is marked lost</label><div class="err" role="alert" hidden></div>';
-['claim','update'].forEach(function(prefix){
-  $(prefix+'-fields').innerHTML=fields.replace(/PREFIX/g,prefix);
-  $(prefix+'-kind').addEventListener('change',function(){togglePet(prefix)});
+var lost=false;
+var banner=document.getElementById('lost-banner');
+var toggle=document.getElementById('toggle-lost');
+document.getElementById('contact').addEventListener('click',function(){
+  this.hidden=true;
+  document.getElementById('contact-result').hidden=false;
 });
-function togglePet(prefix){
-  var pet=$(prefix+'-kind').value==='pet';
-  $(prefix+'-fields').querySelector('.pet-only').hidden=!pet;
-  if(pet&&!$(prefix+'-temper').value)$(prefix+'-temper').value='friendly';
-}
-function fill(prefix){
-  var form=$(prefix);
-  ['kind','name','desc','needs','temper','note','phone'].forEach(function(k){form.elements[k].value=state[k]});
-  form.querySelectorAll('[name=methods]').forEach(function(el){el.checked=state.methods.indexOf(el.value)!==-1});
-  form.querySelectorAll('[name=mode]').forEach(function(el){el.checked=el.value===state.mode});
-  form.querySelector('.err').hidden=true;
-  togglePet(prefix);
-}
-function read(form){
-  var values={}, errors=[];
-  ['kind','name','desc','needs','temper','note','phone'].forEach(function(k){values[k]=form.elements[k].value.trim()});
-  if(values.kind==='item'){values.needs='';values.temper=''}
-  var phone=values.phone.replace(/[\s\-().]/g,'');
-  if(phone.indexOf('+440')===0)phone='+44'+phone.slice(4);
-  if(phone.indexOf('00')===0)phone='+'+phone.slice(2);
-  else if(phone.charAt(0)==='0')phone='+44'+phone.slice(1);
-  if(!/^\+[1-9]\d{7,14}$/.test(phone))errors.push('Enter a valid mobile number, e.g. 07123 456789 or +44 7123 456789.');
-  if(!values.name)errors.push('Name is required.');
-  if(/[\u0000-\u0008\u000B-\u001F\u007F]/.test(values.name+values.desc+values.needs+values.note))errors.push('Details contain invalid characters.');
-  values.methods=Array.from(form.querySelectorAll('[name=methods]:checked'),function(el){return el.value});
-  if(!values.methods.length)errors.push('Choose at least one contact method.');
-  values.mode=form.querySelector('[name=mode]:checked').value;
-  var error=form.querySelector('.err');error.textContent=errors.join(' ');error.hidden=!errors.length;
-  return errors.length?null:values;
-}
-function buttons(container){
-  container.replaceChildren();
-  state.methods.forEach(function(method){
-    var button=document.createElement('button');button.type='button';button.className='btn';button.textContent=labels[method]+' (demo)';
-    button.addEventListener('click',function(){button.textContent=labels[method]+' — demo only, nothing sent'});
-    container.appendChild(button);
-  });
-}
-function lost(){return state.until>Date.now()}
-function renderFinder(){
-  var kind=state.kind==='pet'?'pet':'item', canContact=state.mode==='always'||lost();
-  $('lost-banner').hidden=!lost();$('lost-banner').textContent='🚨 This '+kind+' has been reported LOST. Please contact the owner.';
-  $('finder-name').textContent=state.name;
-  $('finder-photo').alt='Photo of '+state.name;
-  $('finder-desc').textContent=state.desc;$('finder-desc').hidden=!state.desc;
-  $('finder-temper').textContent='Temperament: '+tempers[state.temper];$('finder-temper').hidden=kind!=='pet';
-  $('finder-needs').textContent='Care needs: '+state.needs;$('finder-needs').hidden=!state.needs;
-  $('finder-note').textContent='Message from the owner:\n'+state.note;$('finder-note').hidden=!state.note;
-  $('contact').hidden=!canContact;$('unavailable').hidden=canContact;
-  $('unavailable').textContent='The owner has chosen to be contactable only while this '+kind+' is marked lost.';
-  $('contact-result').hidden=true;$('location').checked=false;
-  buttons($('finder-buttons'));
-}
-function renderManage(){
-  var active=lost();
-  $('manage-lost-banner').hidden=!active;
-  $('manage-lost-banner').textContent='Marked LOST until '+new Intl.DateTimeFormat('en-GB',{dateStyle:'long',timeStyle:'short',timeZone:'Europe/London'}).format(state.until||Date.now());
-  $('not-lost').hidden=active;$('mark-lost').hidden=active;$('renew').hidden=!active;$('mark-found').hidden=!active;
-  fill('update');
-}
-function route(){
-  var view=location.hash.slice(1);
-  if(['setup','activated','finder','manage','deleted'].indexOf(view)===-1)view='setup';
-  ['setup','activated','finder','manage','deleted'].forEach(function(id){$(id).hidden=id!==view});
-  ['setup','finder','manage'].forEach(function(id){view===id?$('nav-'+id).setAttribute('aria-current','page'):$('nav-'+id).removeAttribute('aria-current')});
-  if(view==='setup')fill('claim');
-  if(view==='finder')renderFinder();
-  if(view==='manage'){$('message').hidden=true;renderManage()}
-  if(view==='activated')buttons($('test-buttons'));
-}
-function notify(text){$('message').textContent=text;$('message').hidden=false}
-$('claim').addEventListener('submit',function(e){
-  e.preventDefault();var values=read(this);if(!values)return;
-  state=Object.assign({},state,values,{until:0});location.hash='#activated';
+document.querySelectorAll('.demo-contact').forEach(function(button){
+  button.addEventListener('click',function(){button.textContent=button.dataset.label+' — demo only, nothing sent'});
 });
-$('update').addEventListener('submit',function(e){
-  e.preventDefault();var values=read(this);if(!values)return;
-  state=Object.assign({},state,values);renderManage();notify('Saved.');
+toggle.addEventListener('click',function(){
+  lost=!lost;
+  banner.hidden=!lost;
+  toggle.textContent=lost?'Mark as found':'Mark as lost';
+  toggle.className=lost?'btn':'btn danger';
 });
-$('contact').addEventListener('click',function(){$('contact').hidden=true;$('contact-result').hidden=false});
-function markLost(){state.until=Date.now()+days*86400000;renderManage();notify('Lost mode is on.')}
-$('mark-lost').addEventListener('click',markLost);
-$('renew').addEventListener('click',markLost);
-$('mark-found').addEventListener('click',function(){state.until=0;renderManage();notify("Marked as found. Glad they're safe!")});
-$('delete').addEventListener('submit',function(e){e.preventDefault();state=Object.assign({},sample);$('confirm-delete').checked=false;location.hash='#deleted'});
-$('restart').addEventListener('click',function(){state=Object.assign({},sample);$('code').value='';location.hash='#setup'});
-window.addEventListener('hashchange',route);
-route();
 })();
 </script>
 </body>
