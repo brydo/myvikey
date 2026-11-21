@@ -28,6 +28,7 @@ textarea{min-height:80px}
 .btn.danger{background:var(--danger-solid);color:#fff}
 .banner{background:var(--danger-bg);border:2px solid var(--danger);color:#ffd9d5;border-radius:12px;padding:14px 16px;font-weight:700;font-size:1.1rem}
 .small{font-size:.85rem;color:var(--mute)}
+.okmsg{border:1px solid var(--accent);color:var(--accent);border-radius:8px;padding:10px;margin:12px 0;font-weight:600}
 .step{color:var(--mute);font-size:.85rem;text-transform:uppercase;letter-spacing:1px;margin:0}
 :focus-visible{outline:3px solid var(--accent);outline-offset:3px}
 .photo{display:block;width:100%;max-height:320px;object-fit:contain;border-radius:12px;margin:8px 0}
@@ -91,6 +92,11 @@ textarea{min-height:80px}
 <p class="step">Step 3 of 3 · Lost mode</p>
 <h2>If your pet goes missing</h2>
 <p class="small">Owners switch this on from their private manage page. It shows a red alert to finders and switches off after 14 days.</p>
+<div id="lost-status" role="status" hidden>
+<p class="okmsg" id="lost-status-text"></p>
+<div class="banner" id="lost-preview" hidden>🚨 This pet has been reported LOST. Please contact the owner.</div>
+<button class="btn sec" id="see-alert" type="button" hidden>See the alert on the finder page ↑</button>
+</div>
 <button class="btn danger" id="toggle-lost" type="button">Mark as lost</button>
 </div>
 <button class="btn sec" id="restart" type="button">Back to setup</button>
@@ -110,9 +116,13 @@ function showPhoto(src,name,own){
   img.alt=own?'Photo of '+name:'Sample photo';
   $('f-photo-note').textContent=own?'Your photo, shown only on this device.':sampleNote;
 }
-function setLost(value){
+function setLost(value,announce){
   lost=value;
   $('lost-banner').hidden=!lost;
+  $('lost-status').hidden=!announce;
+  $('lost-preview').hidden=!lost;
+  $('see-alert').hidden=!lost;
+  $('lost-status-text').textContent=lost?'✓ Lost mode is on. Finders now see this red alert at the top of the page:':'✓ Marked as found. The red alert has been removed.';
   $('toggle-lost').textContent=lost?'Mark as found':'Mark as lost';
   $('toggle-lost').className=lost?'btn':'btn danger';
 }
@@ -159,7 +169,8 @@ $('setup-form').addEventListener('submit',function(e){
   show('finder');
 });
 $('contact').addEventListener('click',function(){this.hidden=true;$('contact-result').hidden=false});
-$('toggle-lost').addEventListener('click',function(){setLost(!lost)});
+$('toggle-lost').addEventListener('click',function(){setLost(!lost,true)});
+$('see-alert').addEventListener('click',function(){$('lost-banner').scrollIntoView({behavior:'smooth',block:'center'})});
 $('restart').addEventListener('click',function(){show('setup')});
 })();
 </script>
