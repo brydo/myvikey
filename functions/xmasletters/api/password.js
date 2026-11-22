@@ -1,5 +1,6 @@
 import { hashPassword, verifyPassword } from '../../lib/auth.js';
 import { santaExpirationTtl } from '../../lib/retention.js';
+import { validateXmasAdminCookie } from '../../lib/auth.js';
 
 export async function onRequestPost(context) {
   const { request, env } = context;
@@ -11,6 +12,11 @@ export async function onRequestPost(context) {
   }
 
   const { action, id, password } = body;
+  if (action !== 'check' && action !== 'verify') {
+    if (!await validateXmasAdminCookie(env, request)) {
+      return Response.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    }
+  }
   if (!id || typeof id !== 'string') {
     return Response.json({ success: false, error: 'Page ID is required' }, { status: 400 });
   }
