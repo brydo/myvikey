@@ -27,6 +27,7 @@ textarea{min-height:80px}
 .btn.sec{background:transparent;color:var(--fg);border:1px solid var(--line)}
 .btn.danger{background:var(--danger-solid);color:#fff}
 .banner{background:var(--danger-bg);border:2px solid var(--danger);color:#ffd9d5;border-radius:12px;padding:14px 16px;font-weight:700;font-size:1.1rem}
+.mono{font-family:ui-monospace,Menlo,monospace;word-break:break-all;background:var(--bg);padding:10px;border-radius:8px;border:1px solid var(--line)}
 .small{font-size:.85rem;color:var(--mute)}
 .okmsg{border:1px solid var(--accent);color:var(--accent);border-radius:8px;padding:10px;margin:12px 0;font-weight:600}
 .step{color:var(--mute);font-size:.85rem;text-transform:uppercase;letter-spacing:1px;margin:0}
@@ -41,7 +42,7 @@ textarea{min-height:80px}
 <p class="small"><strong>Demo only.</strong> Nothing is called, sent or saved, and your details never leave this page. Please don't enter real personal information. Refresh to reset.</p>
 
 <section id="setup">
-<p class="step">Step 1 of 3 · Owner sets up the tag</p>
+<p class="step">Step 1 of 4 · Owner sets up the tag</p>
 <h1>Activate your V I Key® tag</h1>
 <p>On a real tag, you scan it, enter its claim code and fill in this short form. It takes about a minute.</p>
 <form class="card" id="setup-form" autocomplete="off">
@@ -72,12 +73,40 @@ textarea{min-height:80px}
 <label class="opt"><input type="checkbox" name="methods" value="WhatsApp" checked> WhatsApp</label>
 <label class="opt"><input type="checkbox" name="methods" value="Text" checked> Text</label>
 <p class="small" id="setup-error" role="alert" hidden>Choose at least one contact method.</p>
+<label class="opt"><input type="checkbox" name="detailsConfirmed" value="yes" required> I have completed and checked my information and am ready to activate my tag.</label>
 <button class="btn" type="submit">Activate tag</button>
 </form>
 </section>
 
+<section id="activated" hidden>
+<p class="step">Step 2 of 4 · Save your private manage link</p>
+<h1>Tag activated ✅</h1>
+<div class="card">
+<h2>Save your private manage link</h2>
+<p><strong>On a real tag, this is the only time it is shown.</strong> Anyone with the link can edit or delete the tag, and a lost link cannot be recovered.</p>
+<div class="mono">Example only — not a real manage link</div>
+<button class="btn sec" type="button" data-demo-share>Copy link</button>
+<button class="btn" type="button" data-demo-share>Text my private link to myself</button>
+<button class="btn" type="button" data-demo-share>Share privately with WhatsApp</button>
+<button class="btn" type="button" data-demo-share>Email my private link to myself</button>
+<p class="small">On a real tag, these options open your messaging app with the link pre-filled. Choose yourself as the recipient, check it carefully, then tap Send. On a computer, use Copy link instead.</p>
+<p class="small" id="share-status" role="status"></p>
+</div>
+<div class="card">
+<h2>Check your contact buttons</h2>
+<p class="small">On a real tag, tap each one to make sure it opens on your phone. Finders will see these buttons.</p>
+<div id="test-buttons"></div>
+<p class="small" id="test-status" role="status"></p>
+</div>
+<form id="link-confirm-form">
+<label class="opt"><input type="checkbox" name="linkSaved" required> I have saved my private manage link somewhere safe.</label>
+<button class="btn sec" type="submit">Continue to finder view</button>
+<p class="small">In the real setup, this takes you to the manage page. This demo continues to the finder view.</p>
+</form>
+</section>
+
 <section id="finder" hidden>
-<p class="step">Step 2 of 3 · What a finder sees</p>
+<p class="step">Step 3 of 4 · What a finder sees</p>
 <div id="lost-banner" class="banner" hidden>🚨 This pet has been reported LOST. Please contact the owner.</div>
 <h1 id="f-name"></h1>
 <p id="f-learn" hidden><a href="https://www.vi-key.uk/lostandfound">Learn about V I Key®</a></p>
@@ -96,7 +125,7 @@ textarea{min-height:80px}
 </div>
 
 <div class="card">
-<p class="step">Step 3 of 3 · Lost mode</p>
+<p class="step">Step 4 of 4 · Lost mode</p>
 <h2>If your pet goes missing</h2>
 <p class="small">Owners switch this on from their private manage page. It shows a red alert to finders and switches off after 14 days.</p>
 <div id="lost-status" role="status" hidden>
@@ -143,16 +172,17 @@ function setLost(value,announce){
 }
 function show(view){
   $('setup').hidden=view!=='setup';
+  $('activated').hidden=view!=='activated';
   $('finder').hidden=view!=='finder';
   window.scrollTo(0,0);
 }
-$('setup-form').querySelectorAll('input[required],textarea[required]').forEach(function(field){
+$('setup-form').querySelectorAll('input[type=text][required],input[type=tel][required],textarea[required]').forEach(function(field){
   field.addEventListener('input',function(){this.setCustomValidity('')});
 });
 $('setup-form').addEventListener('submit',function(e){
   e.preventDefault();
   var form=this;
-  var blank=Array.from(form.querySelectorAll('input[required],textarea[required]')).find(function(field){return !field.value.trim()});
+  var blank=Array.from(form.querySelectorAll('input[type=text][required],input[type=tel][required],textarea[required]')).find(function(field){return !field.value.trim()});
   if(blank){blank.setCustomValidity('Please enter something in this field.');blank.reportValidity();return}
   var code=form.elements.code.value.replace(/[\s-]/g,'').toUpperCase();
   $('code-error').hidden=code==='DEMO1234';
@@ -160,6 +190,7 @@ $('setup-form').addEventListener('submit',function(e){
   var methods=Array.from(form.querySelectorAll('[name=methods]:checked'),function(el){return el.value});
   $('setup-error').hidden=methods.length>0;
   if(!methods.length)return;
+  if(!form.elements.detailsConfirmed.checked){form.elements.detailsConfirmed.reportValidity();return}
   petName=form.elements.name.value.trim();
   hideNameUntilLost=form.elements.hideNameUntilLost.checked;
   var file=form.elements.photo.files[0];
@@ -181,14 +212,29 @@ $('setup-form').addEventListener('submit',function(e){
   if(note){var nb=document.createElement('strong');nb.textContent='Message from the owner:';$('f-note').append(nb,'\n'+note)}
   $('f-note').hidden=!note;
   $('f-buttons').replaceChildren();
+  $('test-buttons').replaceChildren();
   methods.forEach(function(label){
     var button=document.createElement('button');
     button.type='button';button.className='btn';button.textContent=label;
     button.addEventListener('click',function(){button.textContent=label+' — demo only, nothing sent'});
     $('f-buttons').appendChild(button);
+    var testButton=document.createElement('button');
+    testButton.type='button';testButton.className='btn';testButton.textContent=label;
+    testButton.addEventListener('click',function(){$('test-status').textContent='Demo only: no app opened and nothing sent.'});
+    $('test-buttons').appendChild(testButton);
   });
   $('contact').hidden=false;$('contact-result').hidden=true;
+  $('share-status').textContent='';$('test-status').textContent='';
+  $('link-confirm-form').elements.linkSaved.checked=false;
   setLost(false);
+  show('activated');
+});
+document.querySelectorAll('[data-demo-share]').forEach(function(button){
+  button.addEventListener('click',function(){$('share-status').textContent='Demo only: no link copied or sent.'});
+});
+$('link-confirm-form').addEventListener('submit',function(e){
+  e.preventDefault();
+  if(!this.elements.linkSaved.checked){this.elements.linkSaved.reportValidity();return}
   show('finder');
 });
 $('contact').addEventListener('click',function(){this.hidden=true;$('contact-result').hidden=false});
