@@ -113,3 +113,14 @@ export async function recordFailedAttempt(env, ip) {
   await env.RATE_LIMIT.put(key, JSON.stringify(data), { expirationTtl: 15 * 60 + 5 * 60 });
   return data;
 }
+
+export async function verifyPagePassword(env, ip, pageId, password, storedHash) {
+  const rateLimitId = `page:${pageId}:${ip}`;
+  const limit = await checkRateLimit(env, rateLimitId);
+  if (!limit.allowed) return { verified: false, lockedUntil: limit.lockedUntil };
+  if (typeof password !== 'string' || !password) return { verified: false };
+  if (await verifyPassword(password, storedHash)) return { verified: true };
+
+  const failed = await recordFailedAttempt(env, rateLimitId);
+  return { verified: false, lockedUntil: failed.lockedUntil || null };
+}

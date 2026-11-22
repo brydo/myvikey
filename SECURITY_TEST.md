@@ -26,6 +26,12 @@ Prerequisites: `SECURITY_SETUP.md` completed, an `__admin__` password hash exist
 - [ ] In DevTools → Network, every admin `set`/`delete` request carries `X-Admin-Session`.
 - [ ] Replay a `set` request with the header removed → `401`.
 - [ ] Replay with a made-up token → `401`.
+- [ ] Call `list-content` on `/api/content` and `/api/pet-content` without an admin session → `401`.
+
+## Protected memorial content
+- [ ] For a page with a password, call `get-content` without a password → `401`; repeat with the correct password → success.
+- [ ] Try three incorrect page passwords from the same IP → the third response is `429` with `Retry-After`; subsequent attempts stay locked until expiry.
+- [ ] For a page without a password, `get-content` remains publicly readable.
 
 ## Session expiry
 - [ ] Wait 30 minutes (or delete the key in `ADMIN_SESSIONS`) → next admin request returns `401` and the UI logs out.

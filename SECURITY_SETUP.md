@@ -9,8 +9,8 @@ The backend (Cloudflare Pages Functions in `functions/`) uses bcrypt-hashed pass
 | Password storage | bcrypt (`bcryptjs`, 12 salt rounds) in `MEMORIAL_PASSWORDS` / `PET_PASSWORDS` / `CARD_PASSWORDS` |
 | Admin login | `POST /api/password` `{action:"verify", id:"__admin__", password}` returns `sessionToken` + `expiresAt` |
 | Session | Stored in `ADMIN_SESSIONS` with a 30-minute TTL; sent as the `X-Admin-Session` header |
-| Protected actions | `set`/`delete` on `/api/password`, `/api/pet-password`, `/api/card-password`, `/api/content`, `/api/pet-content`, `/api/card-content` return `401` without a valid session |
-| Rate limiting | 3 failed admin logins within 5 minutes lock the IP for 15 minutes (`429` + `Retry-After`) |
+| Protected actions | Password changes and content `set`/`delete`/`list` require an admin session; protected memorial content also requires its password or an admin session |
+| Rate limiting | 3 failed admin logins or page-password attempts within 5 minutes lock the relevant IP bucket for 15 minutes (`429` + `Retry-After`) |
 | HTTPS | Plain HTTP requests are rejected with `403` |
 
 > Bootstrap note: until an `__admin__` password exists, `verify` for `__admin__` succeeds without a token and set actions require a session. Create the first admin hash manually (see Troubleshooting).
@@ -67,6 +67,7 @@ Use `SECURITY_TEST.md` for the full checklist. Quick checks (replace `$HOST`):
 - **Rate limiting:** 3 wrong passwords → third response is `429` with `Retry-After` (~900s).
 - **HTTPS:** `curl -i http://$HOST/api/password ...` → `403`.
 - **Expiry:** after 30 minutes the token returns `401`.
+- **Protected memorial content:** a protected page's `/api/content` or `/api/pet-content` `get-content` request returns `401` without its password; a correct password succeeds. `list-content` returns `401` without an admin session.
 
 ## RSVP
 

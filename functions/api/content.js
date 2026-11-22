@@ -1,9 +1,9 @@
 // functions/api/content.js
 // API for managing memorial page content in KV.
 // Actions: set-content, get-content, delete-content, list-content
-// Requires valid session token for modifications.
+// Requires a valid admin session for modifications and listing.
 
-import { validateSession } from '../lib/auth.js';
+import { validateSession, verifyPagePassword } from '../lib/auth.js';
 
 export async function onRequestPost(context) {
   const { request, env } = context;
@@ -20,10 +20,10 @@ export async function onRequestPost(context) {
     return Response.json({ success: false, error: 'Invalid JSON' }, { status: 400 });
   }
 
-  const { action, id, dob, name, photoUrl, text, audioUrl, photoPosition } = body;
+  const { action, id, dob, name, photoUrl, text, audioUrl, photoPosition, password } = body;
 
-  // Require session token for modifications (set, delete)
-  if (action === 'set-content' || action === 'delete-content') {
+  // Require an admin session for modifications and listing.
+  if (action === 'set-content' || action === 'delete-content' || action === 'list-content') {
     const sessionToken = request.headers.get('x-admin-session');
     const session = await validateSession(env, sessionToken);
     if (!session) {
@@ -71,6 +71,22 @@ export async function onRequestPost(context) {
     }
 
     case 'get-content': {
+      const storedPassword = await env.MEMORIAL_PASSWORDS.get(safeId);
+      if (storedPassword) {
+        const adminSession = await validateSession(env, request.headers.get('x-admin-session'));
+        const access = adminSession
+          ? { verified: true }
+          : await verifyPagePassword(env, request.headers.get('cf-connecting-ip') || 'unknown', safeId, password, storedPassword);
+        if (!access.verified) {
+          const headers = access.lockedUntil
+            ? { 'Retry-After': String(Math.ceil((access.lockedUntil - Date.now()) / 1000)) }
+            : {};
+          return Response.json(
+            { success: false, error: access.lockedUntil ? 'Too many failed attempts. Try again later.' : 'Password required' },
+            { status: access.lockedUntil ? 429 : 401, headers }
+          );
+        }
+      }
       const raw = await env.MEMORIAL_CONTENT.get(safeId);
       if (!raw) return Response.json({ success: true, content: null });
       return Response.json({ success: true, content: JSON.parse(raw) });

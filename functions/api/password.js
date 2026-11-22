@@ -2,7 +2,7 @@
 // API for managing memorial page passwords with hashing and rate limiting.
 // Actions: set, delete, verify
 
-import { generateSessionToken, hashPassword, verifyPassword, createSession, validateSession, checkRateLimit, recordFailedAttempt } from '../lib/auth.js';
+import { generateSessionToken, hashPassword, verifyPassword, createSession, validateSession, checkRateLimit, recordFailedAttempt, verifyPagePassword } from '../lib/auth.js';
 
 export async function onRequestPost(context) {
   const { request, env } = context;
@@ -60,7 +60,7 @@ export async function onRequestPost(context) {
     }
 
     case 'verify': {
-      // Rate limiting for admin login
+      // Admin login and page-password checks have separate rate-limit buckets.
       if (safeId === '__admin__') {
         const limit = await checkRateLimit(env, ip);
         if (!limit.allowed) {
@@ -79,35 +79,39 @@ export async function onRequestPost(context) {
       }
 
       if (!password || typeof password !== 'string') {
-        // Record failed attempt for rate limiting
         if (safeId === '__admin__') {
           await recordFailedAttempt(env, ip);
         }
         return Response.json({ success: false, error: 'Password required' }, { status: 401 });
       }
 
-      // Compare plaintext password with stored hash
-      const isValid = await verifyPassword(password, stored);
-      if (isValid) {
-        // Generate session token for admin login
-        if (safeId === '__admin__') {
-          const token = generateSessionToken();
-          const session = await createSession(env, token, '__admin__');
-          return Response.json({ success: true, sessionToken: token, expiresAt: session.expiresAt });
-        }
-        return Response.json({ success: true });
-      }
-
-      // Record failed attempt for rate limiting
-      if (safeId === '__admin__') {
-        const data = await recordFailedAttempt(env, ip);
-        if (data.lockedUntil) {
-          const retryAfter = Math.ceil((data.lockedUntil - Date.now()) / 1000);
+      if (safeId !== '__admin__') {
+        const result = await verifyPagePassword(env, ip, safeId, password, stored);
+        if (result.verified) return Response.json({ success: true });
+        if (result.lockedUntil) {
+          const retryAfter = Math.ceil((result.lockedUntil - Date.now()) / 1000);
           return Response.json(
             { success: false, error: 'Too many failed attempts. Try again later.' },
             { status: 429, headers: { 'Retry-After': retryAfter.toString() } }
           );
         }
+        return Response.json({ success: false, error: 'Incorrect password' }, { status: 401 });
+      }
+
+      const isValid = await verifyPassword(password, stored);
+      if (isValid) {
+        const token = generateSessionToken();
+        const session = await createSession(env, token, '__admin__');
+        return Response.json({ success: true, sessionToken: token, expiresAt: session.expiresAt });
+      }
+
+      const data = await recordFailedAttempt(env, ip);
+      if (data.lockedUntil) {
+        const retryAfter = Math.ceil((data.lockedUntil - Date.now()) / 1000);
+        return Response.json(
+          { success: false, error: 'Too many failed attempts. Try again later.' },
+          { status: 429, headers: { 'Retry-After': retryAfter.toString() } }
+        );
       }
 
       return Response.json({ success: false, error: 'Incorrect password' }, { status: 401 });
