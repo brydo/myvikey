@@ -80,6 +80,7 @@ textarea{min-height:80px}
 <p class="step">Step 2 of 3 · What a finder sees</p>
 <div id="lost-banner" class="banner" hidden>🚨 This pet has been reported LOST. Please contact the owner.</div>
 <h1 id="f-name"></h1>
+<p id="f-learn" hidden><a href="https://www.vi-key.uk/lostandfound">Learn about V I Key®</a></p>
 <img class="photo" id="f-photo" src="" alt="">
 <p class="small" id="f-photo-note"></p>
 <div class="card">
@@ -116,7 +117,8 @@ var lost=false,petName='',hideNameUntilLost=false,ownPhoto=false,samplePhoto='ht
 var sampleNote='Sample photo for this demo. On a real tag, finders see the photo you upload, or a default V I Key image if you add none.';
 function updateName(){
   var showName=!hideNameUntilLost||lost;
-  $('f-name').textContent=showName?petName:'A pet needs to go home';
+  $('f-name').textContent=showName?petName:'Hello! I’m wearing a V I Key® tag.';
+  $('f-learn').hidden=showName;
   $('f-photo').alt=ownPhoto?(showName?'Photo of '+petName:'Photo of the pet'):'Sample photo';
 }
 // data: URLs are used because the site's CSP allows them but not blob:
