@@ -27,6 +27,26 @@ export async function validateXmasAdminCookie(env, request) {
   return { userId: '__admin__' };
 }
 
+export function validateSameOriginMutation(request) {
+  const secFetchSite = request.headers.get('sec-fetch-site');
+  if (secFetchSite && secFetchSite !== 'same-origin') return false;
+
+  const origin = request.headers.get('origin');
+  if (origin) return origin === 'https://vi-key.uk';
+
+  const referer = request.headers.get('referer');
+  if (referer) {
+    try {
+      return new URL(referer).origin === 'https://vi-key.uk';
+    } catch {
+      return false;
+    }
+  }
+
+  const contentType = request.headers.get('content-type') || '';
+  return /^application\/json(?:;|$)/i.test(contentType);
+}
+
 // Hash a password with bcrypt (salt rounds: 12)
 export async function hashPassword(password) {
   const salt = await bcrypt.genSalt(12);
