@@ -22,3 +22,48 @@
 
 /testpage3/*
   X-Robots-Tag: noindex, nofollow
+
+/memorials/view
+  X-Robots-Tag: noindex, nofollow
+
+/memorials/view/*
+  X-Robots-Tag: noindex, nofollow
+
+/memorials/admin
+  X-Robots-Tag: noindex, nofollow
+
+/memorials/admin.html
+  X-Robots-Tag: noindex, nofollow
+
+/foreverpets/view
+  X-Robots-Tag: noindex, nofollow
+
+/foreverpets/view/*
+  X-Robots-Tag: noindex, nofollow
+
+/foreverpets/admin
+  X-Robots-Tag: noindex, nofollow
+
+/foreverpets/admin.html
+  X-Robots-Tag: noindex, nofollow
+
+/mycard/view
+  X-Robots-Tag: noindex, nofollow
+
+/mycard/view/*
+  X-Robots-Tag: noindex, nofollow
+
+/rsvp/view
+  X-Robots-Tag: noindex, nofollow
+
+/rsvp/view/*
+  X-Robots-Tag: noindex, nofollow
+
+/rsvp/i/*
+  X-Robots-Tag: noindex, nofollow
+
+/xmasletters/*
+  X-Robots-Tag: noindex, nofollow
+
+/xmas/submissions.html
+  X-Robots-Tag: noindex, nofollow
