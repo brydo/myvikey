@@ -12,7 +12,7 @@ async function loadApi(path) {
   const authSource = readFileSync(`${__dirname}/../lib/auth.js`, 'utf8')
     .replace(/^import .*$/gm, '')
     .replace(/^export /gm, '');
-  const authContext = { crypto, TextEncoder, Uint8Array, Date };
+  const authContext = { crypto, TextEncoder, Uint8Array, Date, URL };
   runInNewContext(authSource, authContext);
   const source = readFileSync(`${__dirname}/api/${path}`, 'utf8')
     .replace(/^import .*$/gm, '')
@@ -24,6 +24,7 @@ async function loadApi(path) {
     TextEncoder,
     Uint8Array,
     validateXmasAdminCookie: authContext.validateXmasAdminCookie,
+    validateSameOriginMutation: authContext.validateSameOriginMutation,
     santaExpirationTtl: () => 60,
     hashPassword: async value => `hashed:${value}`,
     verifyPassword: async (plain, hash) => hash === `hashed:${plain}`
@@ -32,13 +33,14 @@ async function loadApi(path) {
   return context.onRequestPost;
 }
 
-function request(handler, body, env, cookie = '') {
+function request(handler, body, env, cookie = '', extraHeaders = {}) {
   return handler({
     request: new Request('https://vi-key.uk/xmasletters/api/test', {
       method: 'POST',
       headers: {
         'content-type': 'application/json',
-        ...(cookie ? { cookie } : {})
+        ...(cookie ? { cookie } : {}),
+        ...extraHeaders
       },
       body: JSON.stringify(body)
     }),
@@ -89,4 +91,42 @@ test('Santa public letter reads remain available', async () => {
   const response = await request(contentPost, { action: 'get-content', id: 'child' }, env);
   assert.equal(response.status, 200);
   assert.equal((await response.json()).content.text, 'Public letter');
+});
+
+test('Santa mutations reject cross-origin and cross-site requests', async () => {
+  const contentPost = await loadApi('content.js');
+  const passwordPost = await loadApi('password.js');
+  const env = {
+    PAGE_PASSWORDS: { async get() { return 'stored-admin-hash'; } },
+    XMAS_CONTENT: {
+      async get() { return null; },
+      async put() {},
+      async delete() {},
+      async list() { return { keys: [] }; }
+    }
+  };
+  const cookieValue = await sha32('__admin__:stored-admin-hash');
+  const cookie = `auth___admin__=${cookieValue}`;
+
+  assert.equal((await request(
+    contentPost,
+    { action: 'set-content', id: 'child', text: 'Hello' },
+    env,
+    cookie,
+    { origin: 'https://evil.example' }
+  )).status, 403);
+  assert.equal((await request(
+    passwordPost,
+    { action: 'set', id: 'child', password: 'secret' },
+    env,
+    cookie,
+    { 'sec-fetch-site': 'cross-site' }
+  )).status, 403);
+  assert.equal((await request(
+    contentPost,
+    { action: 'set-content', id: 'child', text: 'Hello' },
+    env,
+    cookie,
+    { origin: 'https://vi-key.uk' }
+  )).status, 200);
 });

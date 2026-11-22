@@ -1,6 +1,6 @@
 import { hashPassword, verifyPassword } from '../../lib/auth.js';
 import { santaExpirationTtl } from '../../lib/retention.js';
-import { validateXmasAdminCookie } from '../../lib/auth.js';
+import { validateXmasAdminCookie, validateSameOriginMutation } from '../../lib/auth.js';
 
 export async function onRequestPost(context) {
   const { request, env } = context;
@@ -13,6 +13,9 @@ export async function onRequestPost(context) {
 
   const { action, id, password } = body;
   if (action !== 'check' && action !== 'verify') {
+    if (!validateSameOriginMutation(request)) {
+      return Response.json({ success: false, error: 'Cross-origin request rejected' }, { status: 403 });
+    }
     if (!await validateXmasAdminCookie(env, request)) {
       return Response.json({ success: false, error: 'Unauthorized' }, { status: 401 });
     }
