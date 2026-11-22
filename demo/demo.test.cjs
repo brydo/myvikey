@@ -6,6 +6,7 @@ const { runInNewContext } = require('node:vm');
 test('demo name visibility follows the checkbox and lost mode', () => {
   const html = readFileSync(`${__dirname}/index.html`, 'utf8');
   assert.match(html, /name="hideNameUntilLost"/);
+  assert.match(html, /<p id="f-learn" hidden><a href="https:\/\/www\.vi-key\.uk\/lostandfound">Learn about V I Key®<\/a><\/p>/);
   const script = html.match(/<script>([\s\S]*?)<\/script>/)[1];
   const nodes = {};
   function node(id) {
@@ -30,17 +31,21 @@ test('demo name visibility follows the checkbox and lost mode', () => {
   const toggle = () => node('toggle-lost').handlers.click();
 
   submit();
-  assert.equal(node('f-name').textContent, 'A pet needs to go home');
+  assert.equal(node('f-name').textContent, 'Hello! I’m wearing a V I Key® tag.');
+  assert.equal(node('f-learn').hidden, false);
   assert.equal(node('f-photo').alt, 'Photo of the pet');
   toggle();
   assert.equal(node('f-name').textContent, 'Bailey');
+  assert.equal(node('f-learn').hidden, true);
   assert.equal(node('f-photo').alt, 'Photo of Bailey');
   toggle();
-  assert.equal(node('f-name').textContent, 'A pet needs to go home');
+  assert.equal(node('f-name').textContent, 'Hello! I’m wearing a V I Key® tag.');
+  assert.equal(node('f-learn').hidden, false);
   assert.equal(node('f-photo').alt, 'Photo of the pet');
   form.elements.hideNameUntilLost.checked = false;
   submit();
   assert.equal(node('f-name').textContent, 'Bailey');
+  assert.equal(node('f-learn').hidden, true);
   toggle();
   toggle();
   assert.equal(node('f-name').textContent, 'Bailey');
