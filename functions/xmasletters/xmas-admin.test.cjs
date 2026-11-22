@@ -24,6 +24,7 @@ async function loadApi(path) {
     TextEncoder,
     Uint8Array,
     validateXmasAdminCookie: authContext.validateXmasAdminCookie,
+    validateXmasPageCookie: authContext.validateXmasPageCookie,
     validateSameOriginMutation: authContext.validateSameOriginMutation,
     santaExpirationTtl: () => 60,
     hashPassword: async value => `hashed:${value}`,
@@ -91,6 +92,35 @@ test('Santa public letter reads remain available', async () => {
   const response = await request(contentPost, { action: 'get-content', id: 'child' }, env);
   assert.equal(response.status, 200);
   assert.equal((await response.json()).content.text, 'Public letter');
+});
+
+test('Santa protected letter content rejects direct API reads', async () => {
+  const contentPost = await loadApi('content.js');
+  const storedHash = 'page-password-hash';
+  const env = {
+    PAGE_PASSWORDS: {
+      async get(key) { return key === 'child' ? storedHash : null; }
+    },
+    XMAS_CONTENT: {
+      async get() { return JSON.stringify({ text: 'Private letter' }); }
+    }
+  };
+
+  assert.equal((await request(
+    contentPost,
+    { action: 'get-content', id: 'child' },
+    env
+  )).status, 401);
+
+  const cookieValue = await sha32('child:' + storedHash);
+  const allowed = await request(
+    contentPost,
+    { action: 'get-content', id: 'child' },
+    env,
+    `auth_child=${cookieValue}`
+  );
+  assert.equal(allowed.status, 200);
+  assert.equal((await allowed.json()).content.text, 'Private letter');
 });
 
 test('Santa mutations reject cross-origin and cross-site requests', async () => {

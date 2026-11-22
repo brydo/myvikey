@@ -27,6 +27,22 @@ export async function validateXmasAdminCookie(env, request) {
   return { userId: '__admin__' };
 }
 
+export async function validateXmasPageCookie(env, request, pageId) {
+  if (!env.PAGE_PASSWORDS) return false;
+  const storedHash = await env.PAGE_PASSWORDS.get(pageId);
+  if (!storedHash) return true;
+  const data = new TextEncoder().encode(pageId + ':' + storedHash);
+  const digest = await crypto.subtle.digest('SHA-256', data);
+  const expected = [...new Uint8Array(digest)]
+    .map((byte) => byte.toString(16).padStart(2, '0'))
+    .join('')
+    .slice(0, 32);
+  const cookieName = 'auth_' + pageId;
+  const cookies = request.headers.get('cookie') || '';
+  return cookies.split(';').map((entry) => entry.trim()).some((entry) =>
+    entry === cookieName + '=' + expected);
+}
+
 export function validateSameOriginMutation(request) {
   const secFetchSite = request.headers.get('sec-fetch-site');
   if (secFetchSite && secFetchSite !== 'same-origin') return false;
