@@ -4,6 +4,7 @@
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
   Permissions-Policy: camera=(), microphone=(), geolocation=()
+  Strict-Transport-Security: max-age=31536000; includeSubDomains
 
 /testpage
   X-Robots-Tag: noindex, nofollow
@@ -67,3 +68,50 @@
 
 /xmas/submissions.html
   X-Robots-Tag: noindex, nofollow
+  Cache-Control: no-store, private
+
+/api/*
+  Cache-Control: no-store, private
+  Pragma: no-cache
+
+/memorials/view
+  Cache-Control: no-store, private
+
+/memorials/view/*
+  Cache-Control: no-store, private
+
+/foreverpets/view
+  Cache-Control: no-store, private
+
+/foreverpets/view/*
+  Cache-Control: no-store, private
+
+/mycard/view
+  Cache-Control: no-store, private
+
+/mycard/view/*
+  Cache-Control: no-store, private
+
+/rsvp/view
+  Cache-Control: no-store, private
+
+/rsvp/view/*
+  Cache-Control: no-store, private
+
+/rsvp/i/*
+  Cache-Control: no-store, private
+
+/rsvp/host
+  Cache-Control: no-store, private
+
+/rsvp/host/*
+  Cache-Control: no-store, private
+
+/xmasletters/*
+  Cache-Control: no-store, private
+
+/xmas/submissions.html
+  Cache-Control: no-store, private
+
+/stock-admin/*
+  Cache-Control: no-store, private
