@@ -38,3 +38,16 @@ test('headers and robots disallow dynamic personal routes', () => {
     assert.match(robots, new RegExp(`Disallow: ${route.replace('*', '\\*')}`, 'i'));
   }
 });
+
+test('sensitive routes prohibit browser and intermediary caching', () => {
+  const headers = readFileSync(`${__dirname}/../_headers`, 'utf8');
+  assert.match(headers, /Strict-Transport-Security:\s*max-age=31536000;\s*includeSubDomains/);
+  assert.match(headers, /\/api\/\*\s*\n\s+Cache-Control:\s*no-store,\s*private\s*\n\s+Pragma:\s*no-cache/);
+  for (const route of [
+    '/memorials/view', '/foreverpets/view', '/mycard/view',
+    '/rsvp/view', '/rsvp/i/*', '/rsvp/host', '/xmasletters/*',
+    '/xmas/submissions.html', '/stock-admin/*'
+  ]) {
+    assert.match(headers, new RegExp(route.replace('*', '\\*').replace('/', '\\/') + '\\s*\\n\\s+Cache-Control: no-store, private'));
+  }
+});
