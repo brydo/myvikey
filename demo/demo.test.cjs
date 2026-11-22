@@ -73,6 +73,9 @@ test('demo requires confirmations and simulates private-link sharing', () => {
   const { html, node, form, linkForm, shareButtons, submit, continueToFinder } = loadDemo();
   assert.match(html, /name="detailsConfirmed" value="yes" required/);
   assert.match(html, /name="linkSaved" required/);
+  assert.match(html, /Don't include your home address, exact location, sensitive personal information/);
+  assert.match(html, /Avoid photos showing people's faces, house numbers, address labels/);
+  assert.match(html, /Don't include an address, exact location, sensitive information/);
   for (const label of ['Copy link', 'Text my private link to myself', 'Share privately with WhatsApp', 'Email my private link to myself']) {
     assert.match(html, new RegExp(`<button class="btn(?: sec)?" type="button" data-demo-share>${label}</button>`));
   }
