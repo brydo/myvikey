@@ -49,21 +49,22 @@ textarea{min-height:80px}
 <p class="hint" id="code-hint">For this demo, enter <strong>DEMO1234</strong>. A real tag has its own unique claim code, supplied separately with the tag.</p>
 <input type="text" id="code" name="code" maxlength="16" autocapitalize="characters" autocomplete="off" aria-describedby="code-hint code-error" required>
 <p class="small" id="code-error" role="alert" hidden>For the demo, enter DEMO1234.</p>
+<p class="hint">All fields are required except the photo. Use fictional details for this demo.</p>
 <label for="name">Pet name</label>
-<input type="text" id="name" name="name" maxlength="40" value="Bailey" required>
-<label for="desc">Description <span class="hint">(optional)</span></label>
-<input type="text" id="desc" name="desc" maxlength="120" value="Golden Labrador, medium-large, with a soft golden coat and a white patch on his chest.">
+<input type="text" id="name" name="name" maxlength="40" placeholder="e.g. Bailey" required>
+<label for="desc">Description</label>
+<input type="text" id="desc" name="desc" maxlength="120" placeholder="e.g. Golden Labrador" required>
 <label for="photo">Photo <span class="hint">(optional)</span></label>
 <input type="file" id="photo" name="photo" accept="image/*">
 <p class="hint">On a real tag, you add or change your photo from your private manage page after activating, and finders see a default V I Key image if you don't. In this demo, your photo stays on your device and is never uploaded. If you skip it, a sample photo is used.</p>
-<label for="temper">Temperament <span class="hint">(optional)</span></label>
-<input type="text" id="temper" name="temper" maxlength="120" value="Friendly and gentle. He loves attention and will happily come to you.">
-<label for="needs">Care needs <span class="hint">(optional)</span></label>
-<input type="text" id="needs" name="needs" maxlength="120" value="Needs daily medication. Please call his owner as soon as possible.">
-<label for="note">Note for the finder <span class="hint">(optional)</span></label>
-<textarea id="note" name="note" maxlength="200">Thank you for helping Bailey get home safe!</textarea>
+<label for="temper">Temperament</label>
+<input type="text" id="temper" name="temper" maxlength="120" placeholder="e.g. Friendly and gentle" required>
+<label for="needs">Care needs <span class="hint">(enter "None" if applicable)</span></label>
+<input type="text" id="needs" name="needs" maxlength="120" required>
+<label for="note">Note for the finder</label>
+<textarea id="note" name="note" maxlength="200" placeholder="e.g. Thank you for helping!" required></textarea>
 <label for="phone">Your mobile number</label>
-<input type="tel" id="phone" name="phone" maxlength="30" value="07123 456789" required>
+<input type="tel" id="phone" name="phone" maxlength="30" placeholder="e.g. 07123 456789" required>
 <p class="hint">On a real tag, this is stored encrypted and only shown to finders after a bot check.</p>
 <label>How can a finder contact you?</label>
 <label class="opt"><input type="checkbox" name="methods" value="Call" checked> Call</label>
@@ -135,9 +136,14 @@ function show(view){
   $('finder').hidden=view!=='finder';
   window.scrollTo(0,0);
 }
+$('setup-form').querySelectorAll('input[required],textarea[required]').forEach(function(field){
+  field.addEventListener('input',function(){this.setCustomValidity('')});
+});
 $('setup-form').addEventListener('submit',function(e){
   e.preventDefault();
   var form=this;
+  var blank=Array.from(form.querySelectorAll('input[required],textarea[required]')).find(function(field){return !field.value.trim()});
+  if(blank){blank.setCustomValidity('Please enter something in this field.');blank.reportValidity();return}
   var code=form.elements.code.value.replace(/[\s-]/g,'').toUpperCase();
   $('code-error').hidden=code==='DEMO1234';
   if(code!=='DEMO1234'){$('code').focus();return}
