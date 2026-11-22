@@ -43,8 +43,12 @@ textarea{min-height:80px}
 <section id="setup">
 <p class="step">Step 1 of 3 · Owner sets up the tag</p>
 <h1>Activate your V I Key® tag</h1>
-<p>On a real tag, you scan it, enter its claim code and fill in this short form. It takes about a minute. This demo skips the claim code.</p>
+<p>On a real tag, you scan it, enter its claim code and fill in this short form. It takes about a minute.</p>
 <form class="card" id="setup-form" autocomplete="off">
+<label for="code">Claim code</label>
+<p class="hint" id="code-hint">For this demo, enter <strong>DEMO1234</strong>. A real tag has its own unique claim code, supplied separately with the tag.</p>
+<input type="text" id="code" name="code" maxlength="16" autocapitalize="characters" autocomplete="off" aria-describedby="code-hint code-error" required>
+<p class="small" id="code-error" role="alert" hidden>For the demo, enter DEMO1234.</p>
 <label for="name">Pet name</label>
 <input type="text" id="name" name="name" maxlength="40" value="Bailey" required>
 <label for="desc">Description <span class="hint">(optional)</span></label>
@@ -134,6 +138,9 @@ function show(view){
 $('setup-form').addEventListener('submit',function(e){
   e.preventDefault();
   var form=this;
+  var code=form.elements.code.value.replace(/[\s-]/g,'').toUpperCase();
+  $('code-error').hidden=code==='DEMO1234';
+  if(code!=='DEMO1234'){$('code').focus();return}
   var methods=Array.from(form.querySelectorAll('[name=methods]:checked'),function(el){return el.value});
   $('setup-error').hidden=methods.length>0;
   if(!methods.length)return;
