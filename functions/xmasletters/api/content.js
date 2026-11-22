@@ -2,7 +2,7 @@
 // API for managing page content (greeting + text + MP3 URL) in XMAS_CONTENT KV.
 // Actions: set-content, get-content, delete-content, list-content
 import { santaExpirationTtl } from '../../lib/retention.js';
-import { validateXmasAdminCookie, validateSameOriginMutation } from '../../lib/auth.js';
+import { validateXmasAdminCookie, validateSameOriginMutation, validateXmasPageCookie } from '../../lib/auth.js';
 
 export async function onRequestPost(context) {
   const { request, env } = context;
@@ -49,6 +49,9 @@ export async function onRequestPost(context) {
     }
 
     case 'get-content': {
+      if (!await validateXmasPageCookie(env, request, safeId)) {
+        return Response.json({ success: false, error: 'Password required' }, { status: 401 });
+      }
       const raw = await env.XMAS_CONTENT.get(safeId);
       if (!raw) return Response.json({ success: true, content: null });
       try {
