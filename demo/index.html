@@ -49,9 +49,10 @@ textarea{min-height:80px}
 <p class="hint" id="code-hint">For this demo, enter <strong>DEMO1234</strong>. A real tag has its own unique claim code, supplied separately with the tag.</p>
 <input type="text" id="code" name="code" maxlength="16" autocapitalize="characters" autocomplete="off" aria-describedby="code-hint code-error" required>
 <p class="small" id="code-error" role="alert" hidden>For the demo, enter DEMO1234.</p>
-<p class="hint">All fields are required except the photo. Use fictional details for this demo.</p>
+<p class="hint">All text fields are required; the photo and name visibility option are optional. Use fictional details for this demo.</p>
 <label for="name">Pet name</label>
 <input type="text" id="name" name="name" maxlength="40" placeholder="e.g. Bailey" required>
+<label class="opt"><input type="checkbox" name="hideNameUntilLost"> Hide my pet's name until I mark the tag lost</label>
 <label for="desc">Description</label>
 <input type="text" id="desc" name="desc" maxlength="120" placeholder="e.g. Golden Labrador" required>
 <label for="photo">Photo <span class="hint">(optional)</span></label>
@@ -111,18 +112,25 @@ textarea{min-height:80px}
 (function(){
 'use strict';
 var $=function(id){return document.getElementById(id)};
-var lost=false,samplePhoto='https://pub-07ed0b0955a4401f9956c3ca7a33c40e.r2.dev/Demoonlylost.jpg';
+var lost=false,petName='',hideNameUntilLost=false,ownPhoto=false,samplePhoto='https://pub-07ed0b0955a4401f9956c3ca7a33c40e.r2.dev/Demoonlylost.jpg';
 var sampleNote='Sample photo for this demo. On a real tag, finders see the photo you upload, or a default V I Key image if you add none.';
+function updateName(){
+  var showName=!hideNameUntilLost||lost;
+  $('f-name').textContent=showName?petName:'A pet needs to go home';
+  $('f-photo').alt=ownPhoto?(showName?'Photo of '+petName:'Photo of the pet'):'Sample photo';
+}
 // data: URLs are used because the site's CSP allows them but not blob:
-function showPhoto(src,name,own){
+function showPhoto(src,own){
   var img=$('f-photo');
-  img.onerror=own?function(){img.onerror=null;showPhoto(samplePhoto,name,false);$('f-photo-note').textContent='Your photo could not be shown (try a JPEG or PNG). '+sampleNote}:null;
+  img.onerror=own?function(){img.onerror=null;showPhoto(samplePhoto,false);$('f-photo-note').textContent='Your photo could not be shown (try a JPEG or PNG). '+sampleNote}:null;
   img.src=src;
-  img.alt=own?'Photo of '+name:'Sample photo';
+  ownPhoto=own;
+  updateName();
   $('f-photo-note').textContent=own?'Your photo, shown only on this device.':sampleNote;
 }
 function setLost(value,announce){
   lost=value;
+  updateName();
   $('lost-banner').hidden=!lost;
   $('lost-status').hidden=!announce;
   $('lost-preview').hidden=!lost;
@@ -150,13 +158,13 @@ $('setup-form').addEventListener('submit',function(e){
   var methods=Array.from(form.querySelectorAll('[name=methods]:checked'),function(el){return el.value});
   $('setup-error').hidden=methods.length>0;
   if(!methods.length)return;
-  var name=form.elements.name.value.trim();
-  $('f-name').textContent=name;
+  petName=form.elements.name.value.trim();
+  hideNameUntilLost=form.elements.hideNameUntilLost.checked;
   var file=form.elements.photo.files[0];
-  showPhoto(samplePhoto,name,false);
+  showPhoto(samplePhoto,false);
   if(file&&file.type.indexOf('image/')===0){
     var reader=new FileReader();
-    reader.onload=function(){showPhoto(reader.result,name,true)};
+    reader.onload=function(){showPhoto(reader.result,true)};
     reader.readAsDataURL(file);
   }
   $('f-desc').textContent=form.elements.desc.value.trim();$('f-desc').hidden=!form.elements.desc.value.trim();
