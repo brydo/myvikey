@@ -75,24 +75,25 @@
                 <input id="title" name="title" maxlength="100" required>
                 <label for="text">Invitation text</label>
                 <textarea id="text" name="text" class="invitation-editor" rows="9" maxlength="5000" placeholder="You're warmly invited…&#10;&#10;Add the date, time, venue and a little something special." required></textarea>
+                <p id="invitationImagePrivacy">Public image links can be opened directly, even when an invitation has a password. Before uploading, remove location and other private metadata. Replacing or deleting an invitation does not delete the hosted images.</p>
                 <label for="eventBackgroundFiles">Background image for this invitation (optional)</label>
-                <select id="eventBackgroundFiles" data-image-picker="eventBackground" data-none-label="Use the category background" aria-describedby="eventBackgroundFilesStatus">
+                <select id="eventBackgroundFiles" data-image-picker="eventBackground" data-none-label="Use the category background" aria-describedby="eventBackgroundFilesStatus invitationImagePrivacy">
                     <option value="">Loading images…</option>
                 </select>
                 <p id="eventBackgroundFilesStatus" role="status" aria-live="polite"></p>
                 <details>
                     <summary>Use a different image link</summary>
-                    <input id="eventBackground" name="eventBackground" type="url" maxlength="2048" placeholder="https://example.com/wedding-bg.jpg" aria-describedby="eventBackgroundHint">
+                    <input id="eventBackground" name="eventBackground" type="url" maxlength="2048" placeholder="https://example.com/wedding-bg.jpg" aria-describedby="eventBackgroundHint invitationImagePrivacy">
                 </details>
                 <p id="eventBackgroundHint">This image is used for this invitation, its RSVP form and confirmation. Leave blank to use the category background. Use a public HTTPS image URL.</p>
                 <label for="eventBannerFiles">Header image for this invitation (optional)</label>
-                <select id="eventBannerFiles" data-image-picker="eventBanner" data-none-label="Use the theme header" aria-describedby="eventBannerFilesStatus">
+                <select id="eventBannerFiles" data-image-picker="eventBanner" data-none-label="Use the theme header" aria-describedby="eventBannerFilesStatus invitationImagePrivacy">
                     <option value="">Loading images…</option>
                 </select>
                 <p id="eventBannerFilesStatus" role="status" aria-live="polite"></p>
                 <details>
                     <summary>Use a different image link</summary>
-                    <input id="eventBanner" name="eventBanner" type="url" maxlength="2048" placeholder="https://example.com/header.jpg" aria-describedby="eventBannerHint">
+                    <input id="eventBanner" name="eventBanner" type="url" maxlength="2048" placeholder="https://example.com/header.jpg" aria-describedby="eventBannerHint invitationImagePrivacy">
                 </details>
                 <p id="eventBannerHint">Use a public HTTPS image URL. Leave blank to use the theme's header image, or the background image if no theme header is set. This changes only the top of this invitation card, not other pages. If the header image cannot load, its area stays blank; the background is unaffected.</p>
                 <button type="button" class="rsvp-btn" data-refresh-images>Refresh image list</button>
@@ -162,24 +163,25 @@
                 <summary>Advanced: settings for the whole category</summary>
                 <h2>Category copy &amp; card style</h2>
                 <p>These settings affect the event theme selected above and can change its landing page, invitation copy and card style. The active sponsor branding above overrides the invitation and confirmation header for every type. An invitation's own background image takes priority. Invitation titles, messages and replies stay separate.</p>
+                <p id="themeImagePrivacy">Theme images use public links. Remove location and other private metadata before uploading. Changing a theme does not delete its previously hosted images.</p>
                 <label for="backgroundImageFiles">Background image for this theme</label>
-                <select id="backgroundImageFiles" data-image-picker="backgroundImage" data-none-label="Colour background (no image)" aria-describedby="backgroundImageFilesStatus">
+                <select id="backgroundImageFiles" data-image-picker="backgroundImage" data-none-label="Colour background (no image)" aria-describedby="backgroundImageFilesStatus themeImagePrivacy">
                     <option value="">Loading images…</option>
                 </select>
                 <p id="backgroundImageFilesStatus" role="status" aria-live="polite"></p>
                 <details>
                     <summary>Use a different image link</summary>
-                    <input id="backgroundImage" type="url" maxlength="2048" placeholder="https://example.com/background.jpg" aria-describedby="backgroundHint">
+                    <input id="backgroundImage" type="url" maxlength="2048" placeholder="https://example.com/background.jpg" aria-describedby="backgroundHint themeImagePrivacy">
                 </details>
                 <p id="backgroundHint">Use a trusted, publicly accessible image, without passwords or private access tokens. Leave blank for the category’s colour background.</p>
                 <label for="bannerImageFiles">Header image for this theme (optional)</label>
-                <select id="bannerImageFiles" data-image-picker="bannerImage" data-none-label="Use the background image" aria-describedby="bannerImageFilesStatus">
+                <select id="bannerImageFiles" data-image-picker="bannerImage" data-none-label="Use the background image" aria-describedby="bannerImageFilesStatus themeImagePrivacy">
                     <option value="">Loading images…</option>
                 </select>
                 <p id="bannerImageFilesStatus" role="status" aria-live="polite"></p>
                 <details>
                     <summary>Use a different image link</summary>
-                    <input id="bannerImage" type="url" maxlength="2048" placeholder="https://example.com/header.jpg" aria-describedby="bannerHint">
+                    <input id="bannerImage" type="url" maxlength="2048" placeholder="https://example.com/header.jpg" aria-describedby="bannerHint themeImagePrivacy">
                 </details>
                 <p id="bannerHint">Use a public HTTPS image URL. This changes the top of invitation cards in this theme, not other pages. Leave blank to use the background image. An invitation's own header image takes priority. If the header image cannot load, its area stays blank; the background is unaffected.</p>
                 <button type="button" class="rsvp-btn" data-refresh-images>Refresh image list</button>
