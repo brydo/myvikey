@@ -75,6 +75,12 @@ Memorials, MyCard and RSVP link to images hosted separately, including the publi
 
 Replacing an image link or deleting a page does not delete the hosted image. Review whether an image is shared by other pages before removing it from its hosting provider; check that it is no longer accessible and handle provider caches or backups under their retention policies.
 
+## Santa order deletion
+
+The Santa submissions viewer at `/xmas/submissions.html` lists stored `sub_` order records in pages. Deleting a record removes the order from `FORM_SUBMISSIONS` and its entry in any legacy submissions index. It does not remove copies sent by email, personalised pages or separately hosted files; handle and verify those separately. KV changes can take time to propagate, and concurrent updates to the legacy index are not atomic. Review the complete set of pages, order records, email copies and files when fulfilling a deletion request or the annual Santa deletion deadline; this viewer does not automate that deadline.
+
+The submissions list API now returns `{ submissions, cursor }`; request the next page using `cursor` until it is null. The viewer sends `FORM_VIEWER_SECRET` in the `X-Form-Viewer-Secret` header instead of a URL query parameter. The legacy query parameter remains supported for existing clients.
+
 ## RSVP
 
 The standalone RSVP section is served at `/rsvp/`, with confirmation at

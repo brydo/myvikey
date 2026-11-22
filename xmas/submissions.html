@@ -210,6 +210,8 @@
                 <tbody id="tableBody"></tbody>
             </table>
         </div>
+        <button class="refresh-btn" id="loadMore" onclick="loadMoreSubmissions()" style="display:none;">Load more</button>
+        <p>Deleting a submission removes its stored order record only. Emails, personalised pages and separately hosted files must be handled separately.</p>
     </div>
 
     <div class="modal-overlay" id="modalOverlay">
@@ -222,6 +224,14 @@
 
     <script>
         let secret = null;
+        let submissions = [];
+        let nextCursor = null;
+
+        function escapeHtml(value) {
+            return String(value == null ? '' : value).replace(/[&<>"']/g, function(char) {
+                return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char];
+            });
+        }
 
         function doLogin() {
             secret = document.getElementById('secretInput').value.trim();
@@ -234,20 +244,39 @@
             document.getElementById('loginBox').style.display = 'block';
             document.getElementById('dashboard').style.display = 'none';
             document.getElementById('secretInput').value = '';
+            submissions = [];
+            nextCursor = null;
+            document.getElementById('tableBody').textContent = '';
+            document.getElementById('modalContent').textContent = '';
+            closeModal();
         }
 
         async function loadSubmissions() {
+            await fetchSubmissions(null);
+        }
+
+        async function loadMoreSubmissions() {
+            if (nextCursor) await fetchSubmissions(nextCursor);
+        }
+
+        async function fetchSubmissions(cursor) {
             try {
-                const resp = await fetch(`/api/submissions?secret=${encodeURIComponent(secret)}`);
+                const url = '/api/submissions' + (cursor ? '?cursor=' + encodeURIComponent(cursor) : '');
+                const resp = await fetch(url, { headers: { 'X-Form-Viewer-Secret': secret }, cache: 'no-store' });
                 if (resp.status === 401) {
                     alert('Wrong password');
                     return;
                 }
+                if (!resp.ok) throw new Error('Unable to load submissions');
                 const data = await resp.json();
+                if (!Array.isArray(data.submissions)) throw new Error('Invalid submissions response');
+                submissions = cursor ? submissions.concat(data.submissions) : data.submissions;
+                nextCursor = data.cursor || null;
                 document.getElementById('loginBox').style.display = 'none';
                 document.getElementById('dashboard').style.display = 'block';
-                renderTable(data);
-                renderStats(data);
+                document.getElementById('loadMore').style.display = nextCursor ? 'inline-block' : 'none';
+                renderTable(submissions);
+                renderStats(submissions);
             } catch (err) {
                 alert('Failed to load submissions');
             }
@@ -258,8 +287,8 @@
             const today = new Date().toDateString();
             const todayCount = subs.filter(s => new Date(s.timestamp).toDateString() === today).length;
             document.getElementById('stats').innerHTML =
-                '<div class="stat-card"><div class="label">Total Orders</div><div class="value">' + total + '</div></div>' +
-                '<div class="stat-card"><div class="label">Today</div><div class="value">' + todayCount + '</div></div>';
+                '<div class="stat-card"><div class="label">Orders loaded</div><div class="value">' + total + '</div></div>' +
+                '<div class="stat-card"><div class="label">Loaded orders today</div><div class="value">' + todayCount + '</div></div>';
         }
 
         function renderTable(subs) {
@@ -271,28 +300,38 @@
             tbody.innerHTML = subs.map(function(s) {
                 var date = new Date(s.timestamp).toLocaleString('en-GB', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
                 return '<tr>' +
-                    '<td>' + date + '</td>' +
-                    '<td>' + (s.parent_name || '—') + '</td>' +
-                    '<td>' + (s.email || '—') + '</td>' +
-                    '<td>' + (s.child_name || '—') + '</td>' +
+                    '<td>' + escapeHtml(date) + '</td>' +
+                    '<td>' + escapeHtml(s.parent_name || '—') + '</td>' +
+                    '<td>' + escapeHtml(s.email || '—') + '</td>' +
+                    '<td>' + escapeHtml(s.child_name || '—') + '</td>' +
                     '<td>—</td>' +
                     '<td class="actions">' +
-                        '<button class="btn-sm btn-view" onclick="viewDetail(\'' + s.id + '\')">View</button>' +
-                        '<button class="btn-sm btn-delete" onclick="deleteSub(\'' + s.id + '\')">Delete</button>' +
+                        '<button class="btn-sm btn-view" data-action="view" data-id="' + escapeHtml(s.id) + '">View</button>' +
+                        '<button class="btn-sm btn-delete" data-action="delete" data-id="' + escapeHtml(s.id) + '">Delete</button>' +
                     '</td>' +
                 '</tr>';
             }).join('');
         }
 
+        document.getElementById('tableBody').addEventListener('click', function(event) {
+            const button = event.target.closest('button[data-action]');
+            if (!button) return;
+            if (button.dataset.action === 'view') viewDetail(button.dataset.id);
+            if (button.dataset.action === 'delete') deleteSub(button.dataset.id);
+        });
+
         async function viewDetail(id) {
             try {
-                const resp = await fetch(`/api/submissions?secret=${encodeURIComponent(secret)}&id=${id}`);
+                const resp = await fetch('/api/submissions?id=' + encodeURIComponent(id), {
+                    headers: { 'X-Form-Viewer-Secret': secret }, cache: 'no-store'
+                });
+                if (!resp.ok) throw new Error('Unable to load submission');
                 const data = await resp.json();
                 const rows = Object.entries(data)
                     .filter(function(k) { return k[0] !== 'id'; })
                     .map(function(entry) {
                         var k = entry[0], v = entry[1];
-                        return '<div class="detail-row"><div class="detail-label">' + k + '</div><div class="detail-value">' + (Array.isArray(v) ? v.join(', ') : v) + '</div></div>';
+                        return '<div class="detail-row"><div class="detail-label">' + escapeHtml(k) + '</div><div class="detail-value">' + escapeHtml(Array.isArray(v) ? v.join(', ') : v) + '</div></div>';
                     }).join('');
                 document.getElementById('modalContent').innerHTML = rows;
                 document.getElementById('modalOverlay').classList.add('active');
@@ -306,10 +345,13 @@
         }
 
         async function deleteSub(id) {
-            if (!confirm('Delete this submission? This cannot be undone.')) return;
+            if (!confirm('Delete this stored order record? Emails, personalised pages and hosted files are not deleted. This cannot be undone.')) return;
             try {
-                await fetch(`/api/submissions?secret=${encodeURIComponent(secret)}&id=${id}`, { method: 'DELETE' });
-                loadSubmissions();
+                const resp = await fetch('/api/submissions?id=' + encodeURIComponent(id), {
+                    method: 'DELETE', headers: { 'X-Form-Viewer-Secret': secret }
+                });
+                if (!resp.ok) throw new Error('Unable to delete submission');
+                await loadSubmissions();
             } catch (err) {
                 alert('Failed to delete');
             }
