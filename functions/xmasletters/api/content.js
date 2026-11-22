@@ -2,6 +2,7 @@
 // API for managing page content (greeting + text + MP3 URL) in XMAS_CONTENT KV.
 // Actions: set-content, get-content, delete-content, list-content
 import { santaExpirationTtl } from '../../lib/retention.js';
+import { validateXmasAdminCookie } from '../../lib/auth.js';
 
 export async function onRequestPost(context) {
   const { request, env } = context;
@@ -14,6 +15,12 @@ export async function onRequestPost(context) {
   }
 
   const { action, id, text, greeting, audioUrl } = body;
+
+  if (['set-content', 'delete-content', 'list-content'].includes(action)) {
+    if (!await validateXmasAdminCookie(env, request)) {
+      return Response.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    }
+  }
 
   if (!id && action !== 'list-content') {
     return Response.json({ success: false, error: 'Page ID is required' }, { status: 400 });

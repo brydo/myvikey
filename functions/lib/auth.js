@@ -10,6 +10,23 @@ export function generateSessionToken() {
   return Array.from(arr, (byte) => byte.toString(16).padStart(2, '0')).join('');
 }
 
+export async function validateXmasAdminCookie(env, request) {
+  if (!env.PAGE_PASSWORDS) return null;
+  const adminHash = await env.PAGE_PASSWORDS.get('__admin__');
+  if (!adminHash) return null;
+  const data = new TextEncoder().encode('__admin__:' + adminHash);
+  const digest = await crypto.subtle.digest('SHA-256', data);
+  const expected = [...new Uint8Array(digest)]
+    .map((byte) => byte.toString(16).padStart(2, '0'))
+    .join('')
+    .slice(0, 32);
+  const cookies = request.headers.get('cookie') || '';
+  const cookie = cookies.split(';').map((entry) => entry.trim()).find((entry) =>
+    entry.startsWith('auth___admin__='));
+  if (!cookie || cookie.slice('auth___admin__='.length) !== expected) return null;
+  return { userId: '__admin__' };
+}
+
 // Hash a password with bcrypt (salt rounds: 12)
 export async function hashPassword(password) {
   const salt = await bcrypt.genSalt(12);
