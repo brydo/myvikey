@@ -453,11 +453,11 @@
             document.getElementById('loading').innerHTML = html;
         }
 
-        async function fetchContent() {
+        async function fetchContent(password = '') {
             const contentResp = await fetch('/api/pet-content', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ action: 'get-content', id: memorialId })
+                body: JSON.stringify({ action: 'get-content', id: memorialId, password })
             });
             if (!contentResp.ok) {
                 showMessage('<p style="color: #ff6b6b;">Error loading memorial.</p>');
@@ -548,15 +548,20 @@
                     const contentResp = await fetch('/api/pet-content', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ action: 'get-content', id: memorialId })
+                        body: JSON.stringify({ action: 'get-content', id: memorialId, password })
                     });
 
                     const contentData = await contentResp.json();
                     if (contentData.success && contentData.content) {
                         displayMemorial(contentData.content);
+                    } else {
+                        msgEl.textContent = contentResp.status === 429
+                            ? 'Too many attempts. Try again later.'
+                            : 'Could not load this memorial. Please try again.';
+                        msgEl.className = 'error-msg';
                     }
                 } else {
-                    msgEl.textContent = 'Incorrect password.';
+                    msgEl.textContent = resp.status === 429 ? 'Too many attempts. Try again later.' : 'Incorrect password.';
                     msgEl.className = 'error-msg';
                     document.getElementById('passwordField').value = '';
                     document.getElementById('passwordField').focus();
