@@ -6,5 +6,17 @@ Disallow: /stock-admin/
 Disallow: /memorials/admin.html
 Disallow: /xmasletters/admin.html
 Disallow: /xmas/submissions.html
+Disallow: /memorials/view
+Disallow: /memorials/admin
+Disallow: /memorials/admin.html
+Disallow: /foreverpets/view
+Disallow: /foreverpets/admin
+Disallow: /foreverpets/admin.html
+Disallow: /mycard/view
+Disallow: /mycard/admin
+Disallow: /mycard/admin.html
+Disallow: /rsvp/view
+Disallow: /rsvp/i/
+Disallow: /xmasletters/
 
 Sitemap: https://vi-key.uk/sitemap.xml
