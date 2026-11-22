@@ -7,7 +7,7 @@ function reply(body, status = 200) {
 
 function authorized(request, env) {
   const url = new URL(request.url);
-  const secret = request.headers.get('x-form-viewer-secret') || url.searchParams.get('secret');
+  const secret = request.headers.get('x-form-viewer-secret');
   return !!secret && !!env.FORM_VIEWER_SECRET && secret === env.FORM_VIEWER_SECRET;
 }
 
