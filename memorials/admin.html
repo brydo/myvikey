@@ -224,7 +224,8 @@
             <label for="contentName">Name (e.g. John)</label>
             <input type="text" id="contentName" placeholder="John">
             <label for="contentPhoto">Photo URL (R2 link to image)</label>
-            <input type="text" id="contentPhoto" placeholder="https://pub-xxxxx.r2.dev/john.jpg">
+            <input type="text" id="contentPhoto" placeholder="https://pub-xxxxx.r2.dev/john.jpg" aria-describedby="photoPrivacyHint">
+            <p id="photoPrivacyHint">A public photo link can be opened directly, even when the memorial has a password. Before uploading, remove location and other private metadata from the photo. Replacing or deleting the memorial does not delete the hosted file.</p>
 
             <label>Photo Position (centre the subject in the circular frame)</label>
             <div class="photo-preview-wrap">

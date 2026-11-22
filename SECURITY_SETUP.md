@@ -69,6 +69,12 @@ Use `SECURITY_TEST.md` for the full checklist. Quick checks (replace `$HOST`):
 - **Expiry:** after 30 minutes the token returns `401`.
 - **Protected memorial content:** a protected page's `/api/content` or `/api/pet-content` `get-content` request returns `401` without its password; a correct password succeeds. `list-content` returns `401` without an admin session.
 
+## Hosted images
+
+Memorials, MyCard and RSVP link to images hosted separately, including the public R2 image bucket. A page password does not protect an image's public URL. Remove location and other private metadata before uploading, and use only images appropriate for public access. The site does not strip metadata from these hosted files.
+
+Replacing an image link or deleting a page does not delete the hosted image. Review whether an image is shared by other pages before removing it from its hosting provider; check that it is no longer accessible and handle provider caches or backups under their retention policies.
+
 ## RSVP
 
 The standalone RSVP section is served at `/rsvp/`, with confirmation at
