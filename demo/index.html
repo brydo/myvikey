@@ -46,6 +46,7 @@ textarea{min-height:80px}
 <h1>Activate your V I Key® tag</h1>
 <p>On a real tag, you scan it, enter its claim code and fill in this short form. It takes about a minute.</p>
 <form class="card" id="setup-form" autocomplete="off">
+<p class="hint"><strong>Privacy tip:</strong> On a real tag, details on the finder page can be seen by people who open it. Don't include your home address, exact location, sensitive personal information, or private details about someone else.</p>
 <label for="code">Claim code</label>
 <p class="hint" id="code-hint">For this demo, enter <strong>DEMO1234</strong>. A real tag has its own unique claim code, supplied separately with the tag.</p>
 <input type="text" id="code" name="code" maxlength="16" autocapitalize="characters" autocomplete="off" aria-describedby="code-hint code-error" required>
@@ -58,13 +59,14 @@ textarea{min-height:80px}
 <input type="text" id="desc" name="desc" maxlength="120" placeholder="e.g. Golden Labrador" required>
 <label for="photo">Photo <span class="hint">(optional)</span></label>
 <input type="file" id="photo" name="photo" accept="image/*">
-<p class="hint">On a real tag, you add or change your photo from your private manage page after activating, and finders see a default V I Key image if you don't. In this demo, your photo stays on your device and is never uploaded. If you skip it, a sample photo is used.</p>
+<p class="hint">Use a photo of your pet or item only. Avoid photos showing people's faces, house numbers, address labels, or other identifying details. On a real tag, you add or change your photo from your private manage page after activating, and finders see a default V I Key image if you don't. In this demo, your photo stays on your device and is never uploaded. If you skip it, a sample photo is used.</p>
 <label for="temper">Temperament</label>
 <input type="text" id="temper" name="temper" maxlength="120" placeholder="e.g. Friendly and gentle" required>
 <label for="needs">Care needs <span class="hint">(enter "None" if applicable)</span></label>
 <input type="text" id="needs" name="needs" maxlength="120" required>
 <label for="note">Note for the finder</label>
 <textarea id="note" name="note" maxlength="200" placeholder="e.g. Thank you for helping!" required></textarea>
+<p class="hint">Keep this brief and useful. Don't include an address, exact location, sensitive information, or private details about anyone.</p>
 <label for="phone">Your mobile number</label>
 <input type="tel" id="phone" name="phone" maxlength="30" placeholder="e.g. 07123 456789" required>
 <p class="hint">On a real tag, this is stored encrypted and only shown to finders after a bot check.</p>
