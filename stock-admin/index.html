@@ -235,10 +235,8 @@
     <div class="card">
         <h2>View Current Stock</h2>
         <p>See the current stock level for all 6 tags.</p>
-        <div class="url-box" onclick="copyText(this)">https://vi-key.uk/api/admin?secret=Qnwbevrctxyz123!</div>
+        <div class="url-box">/api/admin</div>
         <div class="btn-row">
-            <button class="copy-btn" onclick="copyUrl(0)">Copy URL</button>
-            <a class="open-btn" href="https://vi-key.uk/api/admin?secret=Qnwbevrctxyz123!" target="_blank">Open in Browser</a>
             <button class="action-btn" onclick="fetchStock()">Fetch Stock Now</button>
         </div>
         <div class="result" id="stockResult"></div>
@@ -250,11 +248,9 @@
     <div class="card">
         <h2>Reset All Tags to 50</h2>
         <p>Set every tag back to 50 units.</p>
-        <div class="url-box" onclick="copyText(this)">https://vi-key.uk/api/admin?secret=Qnwbevrctxyz123!&action=reset</div>
+        <div class="url-box">/api/admin?action=reset</div>
         <div class="btn-row">
-            <button class="copy-btn" onclick="copyUrl(1)">Copy URL</button>
-            <a class="open-btn" href="https://vi-key.uk/api/admin?secret=Qnwbevrctxyz123!&action=reset" target="_blank">Open in Browser</a>
-            <button class="action-btn" onclick="doAction('https://vi-key.uk/api/admin?secret=Qnwbevrctxyz123!&action=reset', 'resetResult')">Reset Now</button>
+            <button class="action-btn" onclick="doAction('/api/admin?action=reset', 'resetResult')">Reset Now</button>
         </div>
         <div class="result" id="resetResult"></div>
     </div>
@@ -269,9 +265,8 @@
             <label>Value:</label>
             <input type="number" id="setallValue" value="20" min="0">
         </div>
-        <div class="url-box" id="setallUrl">https://vi-key.uk/api/admin?secret=Qnwbevrctxyz123!&action=setall&value=20</div>
+        <div class="url-box" id="setallUrl">/api/admin?action=setall&amp;value=20</div>
         <div class="btn-row">
-            <button class="copy-btn" onclick="copyUrl(2)">Copy URL</button>
             <button class="action-btn" onclick="setAll()">Set All Now</button>
         </div>
         <div class="result" id="setallResult"></div>
@@ -296,27 +291,39 @@
             <label>Value:</label>
             <input type="number" id="oneValue" value="10" min="0">
         </div>
-        <div class="url-box" id="oneUrl">https://vi-key.uk/api/admin?secret=Qnwbevrctxyz123!&action=set&tag=tag1&value=10</div>
+        <div class="url-box" id="oneUrl">/api/admin?action=set&amp;tag=tag1&amp;value=10</div>
         <div class="btn-row">
-            <button class="copy-btn" onclick="copyUrl(3)">Copy URL</button>
             <button class="action-btn" onclick="setOne()">Set Tag Now</button>
         </div>
         <div class="result" id="oneResult"></div>
     </div>
 
     <script>
-        // Password Gate
-        const GATE_PASSWORD = "Qnwbevrctxyz123!";
-        function checkGate() {
+        let adminSessionToken = sessionStorage.getItem('adminSessionToken');
+
+        async function checkGate() {
             const input = document.getElementById('gateInput').value;
             const error = document.getElementById('gateError');
-            if (input === GATE_PASSWORD) {
+            try {
+                const resp = await fetch('/api/password', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'verify', id: '__admin__', password: input })
+                });
+                const data = await resp.json();
+                if (!resp.ok || !data.success || !data.sessionToken) throw new Error('Authentication failed');
+                adminSessionToken = data.sessionToken;
+                sessionStorage.setItem('adminSessionToken', adminSessionToken);
                 document.getElementById('gate').style.display = 'none';
                 document.getElementById('content').style.display = 'block';
-            } else {
+            } catch (e) {
                 error.classList.add('show');
                 document.getElementById('gateInput').value = '';
             }
+        }
+        if (adminSessionToken) {
+            document.getElementById('gate').style.display = 'none';
+            document.getElementById('content').style.display = 'block';
         }
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Enter' && document.getElementById('gate').style.display !== 'none') {
@@ -324,7 +331,7 @@
             }
         });
 
-        const BASE = 'https://vi-key.uk/api/admin?secret=Qnwbevrctxyz123!';
+        const BASE = '/api/admin';
 
         // Update URLs when inputs change
         document.getElementById('setallValue').addEventListener('input', updateSetAllUrl);
@@ -333,13 +340,13 @@
 
         function updateSetAllUrl() {
             const val = document.getElementById('setallValue').value;
-            document.getElementById('setallUrl').textContent = `${BASE}&action=setall&value=${val}`;
+            document.getElementById('setallUrl').textContent = `${BASE}?action=setall&value=${val}`;
         }
 
         function updateOneUrl() {
             const tag = document.getElementById('oneTag').value;
             const val = document.getElementById('oneValue').value;
-            document.getElementById('oneUrl').textContent = `${BASE}&action=set&tag=${tag}&value=${val}`;
+            document.getElementById('oneUrl').textContent = `${BASE}?action=set&tag=${tag}&value=${val}`;
         }
 
         function copyUrl(which) {
@@ -368,7 +375,7 @@
             el.textContent = 'Fetching...';
             el.classList.add('show');
             try {
-                const resp = await fetch(`${BASE}`);
+                const resp = await fetch(`${BASE}`, { headers: { 'X-Admin-Session': adminSessionToken }, cache: 'no-store' });
                 const data = await resp.json();
                 el.textContent = JSON.stringify(data, null, 2);
             } catch (e) {
@@ -381,7 +388,8 @@
             el.textContent = 'Working...';
             el.classList.add('show');
             try {
-                const resp = await fetch(url);
+                const separator = url.includes('?') ? '&' : '?';
+                const resp = await fetch(`${url}${separator}_=${Date.now()}`, { headers: { 'X-Admin-Session': adminSessionToken }, cache: 'no-store' });
                 const data = await resp.json();
                 el.textContent = JSON.stringify(data, null, 2);
             } catch (e) {
@@ -391,13 +399,13 @@
 
         function setAll() {
             const val = document.getElementById('setallValue').value;
-            doAction(`${BASE}&action=setall&value=${val}`, 'setallResult');
+            doAction(`${BASE}?action=setall&value=${encodeURIComponent(val)}`, 'setallResult');
         }
 
         function setOne() {
             const tag = document.getElementById('oneTag').value;
             const val = document.getElementById('oneValue').value;
-            doAction(`${BASE}&action=set&tag=${tag}&value=${val}`, 'oneResult');
+            doAction(`${BASE}?action=set&tag=${encodeURIComponent(tag)}&value=${encodeURIComponent(val)}`, 'oneResult');
         }
     </script>
 

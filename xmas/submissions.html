@@ -358,12 +358,6 @@
             }
         }
 
-        var urlParams = new URLSearchParams(window.location.search);
-        var urlSecret = urlParams.get('secret');
-        if (urlSecret) {
-            document.getElementById('secretInput').value = urlSecret;
-            doLogin();
-        }
     </script>
 </body>
 </html>
