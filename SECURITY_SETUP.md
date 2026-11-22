@@ -81,6 +81,10 @@ The Santa submissions viewer at `/xmas/submissions.html` lists stored `sub_` ord
 
 The submissions list API now returns `{ submissions, cursor }`; request the next page using `cursor` until it is null. The viewer sends `FORM_VIEWER_SECRET` in the `X-Form-Viewer-Secret` header instead of a URL query parameter. The legacy query parameter remains supported for existing clients.
 
+## Santa KV retention
+
+New Santa order submissions, Santa letter content and page passwords receive KV expiration TTLs ending on 31 January of the following year (23:59:59 UTC). The `__admin__` password does not expire. Existing KV records are not backdated and are not deleted automatically. Email copies and separately hosted media require their own deletion controls.
+
 ## RSVP
 
 The standalone RSVP section is served at `/rsvp/`, with confirmation at

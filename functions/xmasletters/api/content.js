@@ -1,6 +1,7 @@
 // functions/xmasletters/api/content.js
 // API for managing page content (greeting + text + MP3 URL) in XMAS_CONTENT KV.
 // Actions: set-content, get-content, delete-content, list-content
+import { santaExpirationTtl } from '../../lib/retention.js';
 
 export async function onRequestPost(context) {
   const { request, env } = context;
@@ -31,7 +32,9 @@ export async function onRequestPost(context) {
         audioUrl: (audioUrl || '').trim(),
         updated: new Date().toISOString()
       };
-      await env.XMAS_CONTENT.put(safeId, JSON.stringify(content));
+      await env.XMAS_CONTENT.put(safeId, JSON.stringify(content), {
+        expirationTtl: santaExpirationTtl()
+      });
       return Response.json({ success: true, message: `Content saved for ${safeId}` });
     }
 

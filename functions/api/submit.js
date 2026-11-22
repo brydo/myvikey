@@ -1,4 +1,6 @@
 // Form handler — stores submissions in KV + sends email via Resend
+import { santaExpirationTtl } from '../lib/retention.js';
+
 export async function onRequestPost({ request, env }) {
   try {
     const formData = await request.formData();
@@ -22,7 +24,9 @@ export async function onRequestPost({ request, env }) {
 
     // Store in KV
     const submissionId = `sub_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    await env.FORM_SUBMISSIONS.put(submissionId, JSON.stringify(data));
+    await env.FORM_SUBMISSIONS.put(submissionId, JSON.stringify(data), {
+      expirationTtl: santaExpirationTtl(timestamp)
+    });
 
     // Build email body for you (the shop)
     let shopEmailBody = '<h2>New Christmas Order Submission</h2>';
