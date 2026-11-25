@@ -36,6 +36,11 @@
         .bar { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
         .bar button { margin-top: 0; }
         [hidden] { display: none !important; }
+        .images { display: grid; gap: 16px; grid-template-columns: 1fr 1fr; margin: 16px 0; }
+        @media (max-width: 600px) { .images { grid-template-columns: 1fr; } }
+        .imgbox { border: 1px solid var(--border); border-radius: 10px; padding: 12px; }
+        .imgbox img { display: block; max-width: 100%; max-height: 140px; margin-bottom: 8px; border-radius: 6px; background: #fff; }
+        .imgbox .small { font-size: 0.85rem; opacity: 0.8; margin: 4px 0; }
     </style>
 </head>
 <body>
@@ -103,6 +108,7 @@
                 <a id="viewCardLink" href="#" target="_blank" rel="noopener noreferrer">View my card</a>
                 <button type="button" class="secondary" id="signOutBtn">Sign out</button>
             </div>
+            <div class="images" id="images"></div>
             <form id="editForm"><div class="grid" id="fields"></div>
                 <button type="submit">Save changes</button>
             </form>
