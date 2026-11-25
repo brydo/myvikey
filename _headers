@@ -30,6 +30,13 @@
 /memorials/view/*
   X-Robots-Tag: noindex, nofollow
 
+/admin
+  X-Robots-Tag: noindex, nofollow
+
+/admin/*
+  X-Robots-Tag: noindex, nofollow
+  Cache-Control: no-store, private
+
 /memorials/admin
   X-Robots-Tag: noindex, nofollow
 

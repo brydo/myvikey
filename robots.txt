@@ -2,6 +2,7 @@ User-agent: *
 Allow: /
 
 # Hide admin pages from search engines
+Disallow: /admin/
 Disallow: /stock-admin/
 Disallow: /memorials/admin.html
 Disallow: /xmasletters/admin.html

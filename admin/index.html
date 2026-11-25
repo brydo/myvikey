@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex,nofollow">
+    <title>Admin · V I Key®</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: #0F1115; color: #E6EAF2; min-height: 100vh; display: flex; align-items: center;
+            justify-content: center; padding: 20px; }
+        .panel { background: #161A22; border: 1px solid #2A3140; border-radius: 10px; padding: 28px;
+            width: 100%; max-width: 420px; }
+        h1 { font-size: 1.4rem; margin-bottom: 18px; }
+        input { width: 100%; padding: 12px; border-radius: 6px; border: 1px solid #2A3140; background: #1C2230;
+            color: inherit; font-size: 16px; margin-bottom: 12px; }
+        button, .links a { display: block; width: 100%; padding: 12px; border-radius: 6px; border: 0;
+            background: #4F8CFF; color: #fff; font-size: 16px; text-align: center; text-decoration: none;
+            cursor: pointer; }
+        .links a { background: #1C2230; border: 1px solid #2A3140; margin-bottom: 10px; }
+        .links a:hover { border-color: #4F8CFF; }
+        #logout { background: transparent; border: 1px solid #2A3140; color: #9AA4B2; margin-top: 6px; }
+        #msg { color: #E35D6A; min-height: 1.2em; margin-top: 10px; font-size: 0.9rem; }
+        #info { color: #9AA4B2; font-size: 0.85rem; margin-bottom: 14px; }
+    </style>
+</head>
+<body>
+    <main class="panel">
+        <h1>🔒 V I Key Admin</h1>
+        <form id="loginForm">
+            <input id="password" type="password" placeholder="Admin password" autocomplete="current-password" required autofocus>
+            <button type="submit">Sign in</button>
+        </form>
+        <section id="sections" hidden>
+            <p id="info"></p>
+            <nav class="links">
+                <a href="/rsvp/admin.html">RSVP invitations</a>
+                <a href="/mycard/admin.html">MyCard</a>
+                <a href="/memorials/admin.html">Memorials</a>
+                <a href="/foreverpets/admin.html">Forever Pets</a>
+                <a href="/xmasletters/admin.html">Xmas letters</a>
+                <a href="/stock-admin/">Tag stock</a>
+            </nav>
+            <button id="logout" type="button">Sign out of all sections</button>
+        </section>
+        <p id="msg" role="alert"></p>
+    </main>
+    <script src="/admin/admin.js"></script>
+</body>
+</html>

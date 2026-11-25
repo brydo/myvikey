@@ -10,7 +10,22 @@ export function generateSessionToken() {
   return Array.from(arr, (byte) => byte.toString(16).padStart(2, '0')).join('');
 }
 
+export const ADMIN_SESSION_COOKIE = 'admin_session';
+
+// Accepts the shared admin session set by /api/admin-session after the /admin/ hub login.
+export async function validateSharedAdminCookie(env, request) {
+  if (!env.ADMIN_SESSIONS) return null;
+  const cookies = request.headers.get('cookie') || '';
+  const cookie = cookies.split(';').map((entry) => entry.trim()).find((entry) =>
+    entry.startsWith(ADMIN_SESSION_COOKIE + '='));
+  if (!cookie) return null;
+  const session = await validateSession(env, cookie.slice(ADMIN_SESSION_COOKIE.length + 1));
+  return session && session.userId === '__admin__' ? session : null;
+}
+
 export async function validateXmasAdminCookie(env, request) {
+  const shared = await validateSharedAdminCookie(env, request);
+  if (shared) return shared;
   if (!env.PAGE_PASSWORDS) return null;
   const adminHash = await env.PAGE_PASSWORDS.get('__admin__');
   if (!adminHash) return null;

@@ -1201,6 +1201,30 @@ import { safeAudioUrl, safeBackground } from './themes.js';
         }
     }
 
+    async function openAdmin(sessionToken) {
+        token = sessionToken;
+        try {
+            var jobs = JSON.parse(sessionStorage.getItem('rsvp_delete_jobs'));
+            cleanupJobs = Array.isArray(jobs) ? jobs.filter(function (id) {
+                return !!invitationId(id);
+            }) : [];
+        } catch (error) { cleanupJobs = []; }
+        login.reset();
+        login.hidden = true;
+        actions.hidden = false;
+        if (appearanceForm) appearanceForm.hidden = false;
+        if (brandingForm) {
+            brandingForm.hidden = false;
+            fillBrandingEditor();
+        }
+        editor.hidden = false;
+        eventsPanel.hidden = false;
+        repliesPanel.hidden = false;
+        if (musicOptions.open && !audioListLoaded) loadAudioFiles();
+        loadImageFiles();
+        await refresh();
+    }
+
     login.addEventListener('submit', async function (event) {
         event.preventDefault();
         var button = login.querySelector('button');
@@ -1211,27 +1235,7 @@ import { safeAudioUrl, safeBackground } from './themes.js';
                 action: 'verify', id: '__admin__', password: document.getElementById('password').value
             });
             if (!data.sessionToken) throw new Error('Admin session could not be started.');
-            token = data.sessionToken;
-            try {
-                var jobs = JSON.parse(sessionStorage.getItem('rsvp_delete_jobs'));
-                cleanupJobs = Array.isArray(jobs) ? jobs.filter(function (id) {
-                    return !!invitationId(id);
-                }) : [];
-            } catch (error) { cleanupJobs = []; }
-            login.reset();
-            login.hidden = true;
-            actions.hidden = false;
-            if (appearanceForm) appearanceForm.hidden = false;
-            if (brandingForm) {
-                brandingForm.hidden = false;
-                fillBrandingEditor();
-            }
-            editor.hidden = false;
-            eventsPanel.hidden = false;
-            repliesPanel.hidden = false;
-            if (musicOptions.open && !audioListLoaded) loadAudioFiles();
-            loadImageFiles();
-            await refresh();
+            await openAdmin(data.sessionToken);
         } catch (error) {
             status(error.message || 'Unable to sign in. Please try again.', true);
         } finally {
@@ -1241,4 +1245,9 @@ import { safeAudioUrl, safeBackground } from './themes.js';
     document.getElementById('logout').addEventListener('click', logout);
     document.getElementById('refresh').addEventListener('click', refresh);
     more.addEventListener('click', function () { load(true); });
+
+    // Pick up the session started on the /admin/ hub.
+    var hubToken = '';
+    try { hubToken = sessionStorage.getItem('adminSessionToken') || ''; } catch (error) { /* No shared session. */ }
+    if (hubToken) openAdmin(hubToken);
 })();
