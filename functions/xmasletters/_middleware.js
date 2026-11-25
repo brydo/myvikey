@@ -1,4 +1,4 @@
-import { verifyPassword } from '../lib/auth.js';
+import { verifyPassword, validateSharedAdminCookie } from '../lib/auth.js';
 
 async function hash(str) {
   const data = new TextEncoder().encode(str);
@@ -88,6 +88,7 @@ export async function onRequest(context) {
 
     // Protect admin page
     if (url.pathname === '/xmasletters/admin' || url.pathname === '/xmasletters/admin.html') {
+      if (await validateSharedAdminCookie(env, request)) return next();
       var adminPassword = await env.PAGE_PASSWORDS.get('__admin__');
       if (!adminPassword) return next();
       var expectedAdminHash = await hash('__admin__:' + adminPassword);
