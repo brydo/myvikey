@@ -6,8 +6,8 @@
 
     var FIELDS = [
         ['name', 'Name *', 'text', true], ['title', 'Job title', 'text'], ['company', 'Company', 'text', true],
-        ['companyLogoUrl', 'Company logo image URL', 'url', true], ['companyLogoLinkUrl', 'Company logo link', 'url', true],
-        ['bio', 'About / Bio', 'textarea', true], ['photoUrl', 'Photo URL (https)', 'url', true],
+        ['companyLogoLinkUrl', 'Company logo link', 'url', true],
+        ['bio', 'About / Bio', 'textarea', true],
         ['phone', 'Phone', 'text'], ['whatsapp', 'WhatsApp (number or wa.me link)', 'text'],
         ['email', 'Email shown on card', 'text'], ['website', 'Website', 'url'], ['mapUrl', 'Address / Google Maps link', 'url', true],
         ['facebook', 'Facebook', 'url'], ['instagram', 'Instagram', 'url'], ['tiktok', 'TikTok', 'url'],
@@ -95,8 +95,126 @@
         host.appendChild(accent);
     }
 
+    // Photo and logo: shrunk on the owner's device (re-encoding also drops hidden camera/GPS data), then uploaded.
+    var IMAGES = [
+        { kind: 'photo', field: 'photoUrl', label: 'Your photo', max: 800 },
+        { kind: 'logo', field: 'companyLogoUrl', label: 'Company logo', max: 600 }
+    ];
+    var MAX_BYTES = 200000;
+
+    function shrink(file, maxSide) {
+        return createImageBitmap(file).then(function (bmp) {
+            var scale = Math.min(1, maxSide / Math.max(bmp.width, bmp.height));
+            var c = document.createElement('canvas');
+            c.width = Math.max(1, Math.round(bmp.width * scale));
+            c.height = Math.max(1, Math.round(bmp.height * scale));
+            var g = c.getContext('2d');
+            g.fillStyle = '#fff';
+            g.fillRect(0, 0, c.width, c.height);
+            g.drawImage(bmp, 0, 0, c.width, c.height);
+            return new Promise(function (resolve) {
+                (function attempt(q) {
+                    c.toBlob(function (b) {
+                        if (!b) return resolve(null);
+                        if (b.size <= MAX_BYTES || q <= 0.3) return resolve(b);
+                        attempt(q - 0.1);
+                    }, 'image/jpeg', q);
+                })(0.85);
+            });
+        });
+    }
+
+    function imageUrl(kind, id) { return '/api/card-image?id=' + encodeURIComponent(id) + '&kind=' + kind; }
+
+    async function imageRequest(method, kind, body) {
+        var s = session();
+        if (!s) { show('signin'); message('Your session has expired. Please sign in again.'); return null; }
+        var headers = { 'X-Owner-Session': s.token };
+        if (body) headers['Content-Type'] = 'image/jpeg';
+        var resp = await fetch(imageUrl(kind, s.id), { method: method, headers: headers, body: body });
+        var data = {};
+        try { data = await resp.json(); } catch (e) { /* empty body */ }
+        if (resp.status === 401) { clearSession(); show('signin'); message('Your session has expired. Please sign in again.'); return null; }
+        return { ok: resp.ok && data.success, error: data.error };
+    }
+
+    function buildImages() {
+        var host = $('images');
+        IMAGES.forEach(function (im) {
+            var box = document.createElement('div');
+            box.className = 'imgbox';
+            var h = document.createElement('label');
+            h.textContent = im.label;
+            h.htmlFor = 'file_' + im.kind;
+            var preview = document.createElement('img');
+            preview.id = 'prev_' + im.kind;
+            preview.alt = im.label;
+            preview.hidden = true;
+            var note = document.createElement('p');
+            note.className = 'small';
+            note.textContent = 'Optional. Large images are shrunk automatically on your device.';
+            var file = document.createElement('input');
+            file.type = 'file';
+            file.id = 'file_' + im.kind;
+            file.accept = 'image/*';
+            var up = document.createElement('button');
+            up.type = 'button';
+            up.className = 'secondary';
+            up.id = 'up_' + im.kind;
+            up.textContent = 'Upload';
+            var rm = document.createElement('button');
+            rm.type = 'button';
+            rm.className = 'secondary';
+            rm.id = 'rm_' + im.kind;
+            rm.textContent = 'Remove';
+            rm.hidden = true;
+            var status = document.createElement('p');
+            status.className = 'small';
+            status.id = 'st_' + im.kind;
+            status.setAttribute('role', 'status');
+            [h, preview, note, file, up, rm, status].forEach(function (n) { box.appendChild(n); });
+            host.appendChild(box);
+
+            function say(t) { status.textContent = t; }
+            up.addEventListener('click', async function () {
+                var f = file.files && file.files[0];
+                if (!f) { say('Choose an image first.'); return; }
+                up.disabled = true;
+                say('Preparing…');
+                try {
+                    var blob = await shrink(f, im.max);
+                    if (!blob || blob.size > 250000) throw new Error('This image is too large. Try a different one.');
+                    say('Uploading…');
+                    var r = await imageRequest('POST', im.kind, blob);
+                    if (!r) return;
+                    if (!r.ok) throw new Error(r.error || 'Upload failed. Please try again.');
+                    showImage(im, true);
+                    file.value = '';
+                    say('Saved.');
+                } catch (e) {
+                    say(e && e.message ? e.message : 'Could not read that image. Try a JPEG or PNG.');
+                } finally { up.disabled = false; }
+            });
+            rm.addEventListener('click', async function () {
+                var r = await imageRequest('DELETE', im.kind);
+                if (!r) return;
+                if (r.ok) { showImage(im, false); say('Removed.'); } else say(r.error || 'Could not remove it.');
+            });
+        });
+    }
+
+    function showImage(im, present) {
+        var s = session();
+        var preview = $('prev_' + im.kind);
+        preview.hidden = !present;
+        if (present && s) preview.src = imageUrl(im.kind, s.id) + '&t=' + Date.now();
+        $('rm_' + im.kind).hidden = !present;
+        $('up_' + im.kind).textContent = present ? 'Replace' : 'Upload';
+    }
+
     function fill(content) {
         content = content || {};
+        IMAGES.forEach(function (im) { showImage(im, !!content[im.field]); $('st_' + im.kind).textContent = ''; });
         FIELDS.forEach(function (f) { $('f_' + f[0]).value = content[f[0]] || ''; });
         $('useAccent').checked = !!content.accentColor;
         if (content.accentColor) $('f_accentColor').value = content.accentColor;
@@ -189,6 +307,7 @@
     });
 
     buildFields();
+    buildImages();
     var existing = session();
     if (params.get('reset') && urlToken) show('reset');
     else if (params.get('verify') && urlToken) show('verify');

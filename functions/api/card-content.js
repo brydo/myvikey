@@ -6,7 +6,7 @@
 // A card's owner (X-Owner-Session) may also read and save that one card.
 
 import { validateSession, verifyPassword } from '../lib/auth.js';
-import { cleanCardId, validateOwnerSession } from '../lib/card-owner.js';
+import { cleanCardId, validateOwnerSession, imageKey } from '../lib/card-owner.js';
 
 const TEXT_FIELDS = { name: 100, title: 100, company: 100, bio: 1000, customLabel: 40 };
 const URL_FIELDS = {
@@ -170,6 +170,15 @@ export async function onRequestPost(context) {
         } catch {}
       }
       content.photoPosition = finalPosition || '50% 50%';
+
+      // Owners cannot type image addresses; their photo and logo come only from their uploads.
+      if (ownerSession) {
+        const origin = new URL(request.url).origin;
+        for (const [kind, field] of [['photo', 'photoUrl'], ['logo', 'companyLogoUrl']]) {
+          content[field] = await env.CARD_PASSWORDS.get(imageKey(kind, safeId))
+            ? `${origin}/api/card-image?id=${encodeURIComponent(safeId)}&kind=${kind}&v=${Date.now()}` : '';
+        }
+      }
       content.updated = new Date().toISOString();
 
       await env.CARD_CONTENT.put(safeId, JSON.stringify(content));

@@ -16,7 +16,7 @@ function createApp() {
   env.CARD_CONTENT.m.set('bob', JSON.stringify({ name: 'Bob' }));
   const emails = [];
   const sent = emails;
-  const ctx = { Response, URL, Date, Math, TextEncoder, Uint8Array, crypto, console, btoa,
+  const ctx = { Response, URL, Date, Math, TextEncoder, Uint8Array, crypto, console, btoa, atob,
     fetch: async (_url, init) => { emails.push(JSON.parse(init.body)); return { ok: true }; } };
   runInNewContext(strip('../lib/card-owner.js'), ctx);
   ctx.hashPassword = async (p) => 'h:' + p;
@@ -27,13 +27,17 @@ function createApp() {
   runInNewContext(strip('card-owner.js'), ctx);
   const content = { ...ctx };
   runInNewContext(strip('card-content.js'), content);
+  const images = { ...ctx };
+  runInNewContext(strip('card-image.js'), images);
+  const image = (method, query, body, headers = {}) => images['onRequest' + method[0] + method.slice(1).toLowerCase()]({ env, request: new Request('https://vi-key.uk/api/card-image?' + query, {
+    method, headers: { 'cf-connecting-ip': '1.1.1.1', ...headers }, body }) });
   const call = (fn, path, body, headers = {}) => fn({ env, request: new Request('https://vi-key.uk/api/' + path, {
     method: 'POST', headers: { 'content-type': 'application/json', 'cf-connecting-ip': '1.1.1.1', ...headers },
     body: JSON.stringify(body) }) });
   const owner = (body, headers) => call(ctx.onRequestPost, 'card-owner', body, headers);
   const card = (body, headers) => call(content.onRequestPost, 'card-content', body, headers);
   const tokenFrom = (i) => emails[i].html.match(/[?](?:verify|reset)=([0-9a-f]{64})/)[1];
-  return { env, emails, owner, card, tokenFrom };
+  return { env, emails, owner, card, image, tokenFrom };
 }
 
 async function claimed(app, id = 'anna', email = 'anna@example.com', password = 'secret-pass') {
@@ -180,4 +184,49 @@ test('admin lists claimed and unclaimed cards without exposing codes; reissue re
   const fresh = await (await app.owner({ action: 'create-claim', id: old.id }, admin)).json();
   assert.equal((await app.owner({ action: 'claim', id: old.id, code: old.code, email: 'a@example.com', password: 'secret-pass' })).status, 401);
   assert.equal((await app.owner({ action: 'claim', id: old.id, code: fresh.code, email: 'a@example.com', password: 'secret-pass' })).status, 200);
+});
+
+// SOI, JFIF, an EXIF (GPS) segment, a comment, 10x10 frame header, then scan data.
+const jpeg = (w = 10, h = 10) => Buffer.from([
+  0xff, 0xd8, 0xff, 0xe0, 0, 4, 0x4a, 0x46,
+  0xff, 0xe1, 0, 8, 0x47, 0x50, 0x53, 0x21, 0x21, 0x21,
+  0xff, 0xfe, 0, 4, 0x68, 0x69,
+  0xff, 0xc0, 0, 11, 8, h >> 8, h & 255, w >> 8, w & 255, 1, 1, 0x11, 0,
+  0xff, 0xda, 0, 4, 1, 0, 0x12, 0x34, 0xff, 0xd9]);
+
+test('owner uploads photo and logo; metadata is stripped and the card links to them', async () => {
+  const app = createApp();
+  await claimed(app);
+  const session = await login(app);
+  const h = { 'x-owner-session': session, 'content-type': 'image/jpeg' };
+  assert.equal((await app.image('POST', 'id=anna&kind=photo', jpeg(), h)).status, 200);
+  assert.equal((await app.image('POST', 'id=anna&kind=logo', jpeg(), h)).status, 200);
+  const stored = Buffer.from(app.env.CARD_PASSWORDS.m.get('image:photo:anna'), 'base64');
+  assert.equal(stored.includes(Buffer.from('GPS!!!')), false);
+  assert.equal(stored.includes(Buffer.from([0xff, 0xe1])), false);
+  const served = await app.image('GET', 'id=anna&kind=photo');
+  assert.equal(served.headers.get('content-type'), 'image/jpeg');
+  assert.deepEqual(Buffer.from(await served.arrayBuffer()), stored);
+  // Saving details must not let the owner point at an outside image, and keeps their uploads.
+  await app.card({ action: 'set-content', id: 'anna', name: 'Anna', photoUrl: 'https://evil.example/x.jpg' }, { 'x-owner-session': session });
+  const c = JSON.parse(app.env.CARD_CONTENT.m.get('anna'));
+  assert.match(c.photoUrl, /^https:\/\/vi-key\.uk\/api\/card-image\?id=anna&kind=photo/);
+  assert.match(c.companyLogoUrl, /kind=logo/);
+  assert.equal((await app.image('DELETE', 'id=anna&kind=photo', undefined, h)).status, 200);
+  assert.equal((await app.image('GET', 'id=anna&kind=photo')).status, 404);
+  assert.equal(JSON.parse(app.env.CARD_CONTENT.m.get('anna')).photoUrl, '');
+});
+
+test('image upload needs the owner of that card, a small JPEG and a sane size', async () => {
+  const app = createApp();
+  await claimed(app);
+  const session = await login(app);
+  const h = { 'x-owner-session': session };
+  assert.equal((await app.image('POST', 'id=anna&kind=photo', jpeg())).status, 401);
+  assert.equal((await app.image('POST', 'id=bob&kind=photo', jpeg(), h)).status, 401);
+  assert.equal((await app.image('POST', 'id=anna&kind=photo', Buffer.from('<svg onload=1>'), h)).status, 400);
+  assert.equal((await app.image('POST', 'id=anna&kind=photo', jpeg(5000, 5000), h)).status, 400);
+  assert.equal((await app.image('POST', 'id=anna&kind=photo', Buffer.alloc(250001, 1), h)).status, 413);
+  assert.equal((await app.image('POST', 'id=anna&kind=banner', jpeg(), h)).status, 400);
+  assert.equal((await app.image('POST', 'id=anna&kind=photo', jpeg(), { ...h, origin: 'https://evil.example' })).status, 403);
 });

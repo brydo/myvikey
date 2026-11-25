@@ -52,6 +52,9 @@ export function passwordProblem(password) {
   return '';
 }
 
+// Owner-uploaded images live in CARD_PASSWORDS as base64 JPEG text.
+export function imageKey(kind, id) { return 'image:' + kind + ':' + id; }
+
 export async function readJson(store, key) {
   const raw = await store.get(key);
   if (!raw) return null;
