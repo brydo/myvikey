@@ -271,26 +271,33 @@ test('subcontractor: admin-only creation, invite link sets password once, sign i
   assert.equal((await app.sub({ action: 'create', name: 'Y', email: 'SUB@example.com', allowance: 5 }, ADMIN)).status, 400);
 });
 
-test('subcontractor creates cards within the allowance and only sees their own', async () => {
+test('admin allocates cards (codes emailed to admin only); subcontractor sees a read-only list with names', async () => {
   const app = createApp();
   const s = await newSub(app);
   const h = { 'x-sub-session': s.token };
-  assert.equal((await app.sub({ action: 'create-batch', count: 6 }, h)).status, 400);
-  const batch = await (await app.sub({ action: 'create-batch', count: 3 }, h)).json();
+  assert.equal((await app.sub({ action: 'allocate', id: s.id, count: 2 }, h)).status, 401);
+  assert.equal((await app.sub({ action: 'create-batch', count: 1 }, h)).status, 400);
+  assert.equal((await app.sub({ action: 'allocate', id: s.id, count: 6 }, ADMIN)).status, 400);
+  const batch = await (await app.sub({ action: 'allocate', id: s.id, count: 3 }, ADMIN)).json();
   assert.equal(batch.cards.length, 3);
   assert.equal(batch.remaining, 2);
-  assert.equal(app.emails.at(-1).to, 'sub@example.com');
-  assert.equal((await app.sub({ action: 'create-batch', count: 3 }, h)).status, 400);
-  const me = await (await app.sub({ action: 'me' }, h)).json();
-  assert.equal(me.used, 3);
-  assert.equal(JSON.stringify(me).includes(batch.cards[0].code), false);
-  await app.owner({ action: 'claim', id: batch.cards[0].id, code: batch.cards[0].code, email: 'c@example.com', password: 'secret-pass' });
-  assert.equal(JSON.stringify(me).includes('c@example.com'), false);
-  // reissue only for their own, unclaimed cards
-  assert.equal((await app.sub({ action: 'reissue', id: 'anna' }, h)).status, 404);
-  const fresh = await (await app.sub({ action: 'reissue', id: batch.cards[1].id }, h)).json();
-  assert.equal((await app.owner({ action: 'claim', id: batch.cards[1].id, code: batch.cards[1].code, email: 'd@example.com', password: 'secret-pass' })).status, 401);
-  assert.ok(fresh.code);
+  assert.equal(app.emails.at(-1).to, 'brydo@outlook.com');
+  assert.ok(app.emails.at(-1).html.includes(batch.cards[0].code));
+  assert.equal((await app.sub({ action: 'allocate', id: s.id, count: 3 }, ADMIN)).status, 400);
+
+  const c = batch.cards[0];
+  await app.owner({ action: 'claim', id: c.id, code: c.code, email: 'cust@example.com', password: 'secret-pass' });
+  await app.owner({ action: 'verify-email', token: app.tokenFrom(app.emails.length - 1) });
+  const session = await login(app, c.id);
+  await app.card({ action: 'set-content', id: c.id, name: 'Jane Customer', phone: '+44 7700 900123' }, { 'x-owner-session': session });
+
+  const raw = await (await app.sub({ action: 'me' }, h)).text();
+  const me = JSON.parse(raw);
+  assert.equal(me.allocated, 3);
+  assert.equal(me.claimed, 1);
+  assert.deepEqual(me.cards.find((x) => x.id === c.id).name, 'Jane Customer');
+  assert.equal(me.cards.filter((x) => x.claimed).length, 1);
+  for (const secret of [c.code, 'cust@example.com', '7700', 'mycard/?id=', batch.cards[1].code]) assert.equal(raw.includes(secret), false);
   assert.equal((await app.sub({ action: 'me' })).status, 401);
   assert.equal((await app.sub({ action: 'me' }, { 'x-owner-session': s.token })).status, 401);
 });
@@ -323,7 +330,7 @@ test('only the admin sets a subcontractor logo; it replaces the owner logo on th
   const app = createApp();
   const s = await newSub(app);
   const h = { 'x-sub-session': s.token };
-  const batch = await (await app.sub({ action: 'create-batch', count: 1 }, h)).json();
+  const batch = await (await app.sub({ action: 'allocate', id: s.id, count: 1 }, ADMIN)).json();
   const card = batch.cards[0];
   const claim = await app.owner({ action: 'claim', id: card.id, code: card.code, email: 'c@example.com', password: 'secret-pass' });
   assert.equal(claim.status, 200);

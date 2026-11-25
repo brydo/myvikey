@@ -520,6 +520,14 @@
                 setMsg('subMsg', u.ok ? '✓ Updated.' : '✗ ' + (u.data.error || 'Failed'), u.ok);
                 listSubs();
             });
+            btn('Allocate cards', async function () {
+                var left = Math.max(0, s.allowance - s.used);
+                var v = window.prompt('How many cards to allocate to ' + s.name + '? (' + left + ' left in their allowance)', String(Math.min(left, 10) || 1));
+                if (v === null) return;
+                var u = await subApi({ action: 'allocate', id: s.id, count: Number(v) });
+                setMsg('subMsg', u.ok ? '✓ ' + u.data.cards.length + ' cards allocated. ' + (u.data.emailed ? 'URLs and codes emailed to ' + u.data.emailedTo + '.' : 'The email could not be sent, so the codes were NOT delivered; check Resend.') : '✗ ' + (u.data.error || 'Failed'), u.ok && u.data.emailed);
+                listSubs();
+            });
             btn(s.hasLogo ? 'Replace logo' : 'Set logo', function () { pickSubLogo(s); });
             if (s.hasLogo) btn('Remove logo', async function () {
                 var resp = await fetch('/api/card-image?sub=' + encodeURIComponent(s.id) + '&kind=logo', { method: 'DELETE' });

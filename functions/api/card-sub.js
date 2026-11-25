@@ -1,18 +1,19 @@
 // functions/api/card-sub.js
 // MyCard subcontractors: the admin gives a subcontractor a card allowance; they sign in with email + password,
-// create blank cards (claim codes) up to that allowance, and can see which of their cards are claimed.
-// They never see customer details. The admin can switch them off at any time.
-// Admin actions (X-Admin-Session): create, list, update, resend-invite
+// and see a read-only list of the cards the admin allocated to them: claimed or not, and the name on each claimed card.
+// They never see card URLs, claim codes, emails or other customer details. The admin can switch them off at any time.
+// Admin actions (X-Admin-Session): create, list, update, resend-invite, allocate
 // Public actions: login, logout, forgot, reset
-// Subcontractor actions (X-Sub-Session): me, create-batch, reissue
+// Subcontractor actions (X-Sub-Session): me
 
 import { hashPassword, verifyPassword, validateSession } from '../lib/auth.js';
 import {
-  cleanCardId, cleanEmail, passwordProblem, readJson, sha256Hex, randomToken, generateClaimCode, claimHash,
+  cleanEmail, passwordProblem, readJson, sha256Hex, randomToken,
   isLimited, bump, sendEmail, listKeys, baseUrl, createCards
 } from '../lib/card-owner.js';
 
 const MAX_BATCH = 100;
+const DEFAULT_BATCH_EMAIL = 'brydo@outlook.com';
 const MAX_ALLOWANCE = 10000;
 const SESSION_TTL_SEC = 30 * 60;
 const INVITE_TTL_SEC = 3 * 24 * 3600;
@@ -77,7 +78,8 @@ export async function onRequestPost(context) {
     case 'create':
     case 'list':
     case 'update':
-    case 'resend-invite': {
+    case 'resend-invite':
+    case 'allocate': {
       if (!await validateSession(env, request.headers.get('x-admin-session'))) return fail('Unauthorized', 401);
 
       if (action === 'list') {
@@ -113,6 +115,22 @@ export async function onRequestPost(context) {
 
       if (action === 'resend-invite') {
         return json({ success: true, emailed: await sendSetupLink(env, sub, 'invite') });
+      }
+
+      if (action === 'allocate') {
+        const count = Number(body.count);
+        const remaining = Math.max(0, sub.allowance - await usage(store, id));
+        if (!Number.isInteger(count) || count < 1 || count > MAX_BATCH) return fail(`Enter a number from 1 to ${MAX_BATCH}`);
+        if (count > remaining) return fail(`${sub.name} has ${remaining} card${remaining === 1 ? '' : 's'} left in their allowance. Raise the allowance first.`);
+        const cards = await createCards(env, count, id);
+        const to = env.BATCH_EMAIL_TO || DEFAULT_BATCH_EMAIL;
+        const csv = 'Card ID,URL,Claim code\n' + cards.map((c) => `${c.id},${c.url},${c.code}`).join('\n') + '\n';
+        const rows = cards.map((c) => `<tr><td>${c.id}</td><td>${c.url}</td><td><b>${c.code}</b></td></tr>`).join('');
+        const emailed = await sendEmail(env, to, `MyCard: ${count} cards for ${sub.name}`,
+          `<p>${count} new MyCard${count === 1 ? '' : 's'} allocated to ${esc(sub.name)}. Keep this email private: each claim code lets its holder take over that card.</p>` +
+          `<table border="1" cellpadding="6" cellspacing="0"><tr><th>Card ID</th><th>URL</th><th>Claim code</th></tr>${rows}</table>`,
+          [{ filename: 'mycard-batch.csv', content: btoa(csv) }]);
+        return json({ success: true, cards, emailed, emailedTo: emailed ? to : '', remaining: remaining - count });
       }
 
       if (body.name !== undefined) {
@@ -185,47 +203,21 @@ export async function onRequestPost(context) {
       return json({ success: true });
     }
 
-    case 'me':
-    case 'create-batch':
-    case 'reissue': {
+    case 'me': {
       const auth = await subSession(env, request.headers.get('x-sub-session'));
       if (!auth) return fail('Please sign in again.', 401);
       const { id: subId, sub } = auth;
-      const used = await usage(store, subId);
-
-      if (action === 'me') {
-        const ids = await listKeys(store, 'subcard:' + subId + ':');
-        const cards = await Promise.all(ids.map(async (id) => ({
-          id, url: `${baseUrl(env)}/mycard/?id=${id}`,
-          claimed: !!await store.get('owner:' + id), created: await store.get('subcard:' + subId + ':' + id) || ''
-        })));
-        cards.sort((a, b) => String(b.created).localeCompare(String(a.created)));
-        return json({ success: true, name: sub.name, allowance: sub.allowance, used, cards });
-      }
-
-      if (action === 'create-batch') {
-        const count = Number(body.count);
-        const remaining = Math.max(0, sub.allowance - used);
-        if (!Number.isInteger(count) || count < 1 || count > MAX_BATCH) return fail(`Enter a number from 1 to ${MAX_BATCH}`);
-        if (count > remaining) return fail(`You have ${remaining} card${remaining === 1 ? '' : 's'} left in your allowance.`);
-        if (await isLimited(env, 'sub:batch:' + subId, 10)) return tooMany();
-        await bump(env, 'sub:batch:' + subId, HOUR);
-        const cards = await createCards(env, count, subId);
-        const csv = 'Card ID,URL,Claim code\n' + cards.map((c) => `${c.id},${c.url},${c.code}`).join('\n') + '\n';
-        const rows = cards.map((c) => `<tr><td>${c.id}</td><td>${c.url}</td><td><b>${c.code}</b></td></tr>`).join('');
-        const emailed = await sendEmail(env, sub.email, `MyCard batch of ${count}`,
-          `<p>${count} new MyCard${count === 1 ? '' : 's'} created. Keep this email private: each claim code lets its holder take over that card.</p>` +
-          `<table border="1" cellpadding="6" cellspacing="0"><tr><th>Card ID</th><th>URL</th><th>Claim code</th></tr>${rows}</table>`,
-          [{ filename: 'mycard-batch.csv', content: btoa(csv) }]);
-        return json({ success: true, cards, emailed, remaining: remaining - count });
-      }
-
-      const cardId = cleanCardId(body.id);
-      if (!cardId || await store.get('cardsub:' + cardId) !== subId) return fail('Card not found', 404);
-      if (await store.get('owner:' + cardId)) return fail('This card has already been claimed.');
-      const code = generateClaimCode();
-      await store.put('claim:' + cardId, JSON.stringify({ h: await claimHash(cardId, code), created: new Date().toISOString() }));
-      return json({ success: true, id: cardId, code });
+      const ids = await listKeys(store, 'subcard:' + subId + ':');
+      const cards = await Promise.all(ids.map(async (id) => {
+        const claimed = !!await store.get('owner:' + id);
+        let name = '';
+        if (claimed) {
+          try { name = String(JSON.parse(await env.CARD_CONTENT.get(id)).name || ''); } catch { /* no details saved yet */ }
+        }
+        return { id, claimed, name, allocated: await store.get('subcard:' + subId + ':' + id) || '' };
+      }));
+      cards.sort((a, b) => String(b.allocated).localeCompare(String(a.allocated)));
+      return json({ success: true, name: sub.name, allocated: cards.length, claimed: cards.filter((c) => c.claimed).length, cards });
     }
 
     default:
