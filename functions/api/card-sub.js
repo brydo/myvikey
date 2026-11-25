@@ -2,14 +2,14 @@
 // MyCard subcontractors: the admin gives a subcontractor a card allowance; they sign in with email + password,
 // and see a read-only list of the cards the admin allocated to them: claimed or not, and the name on each claimed card.
 // They never see card URLs, claim codes, emails or other customer details. The admin can switch them off at any time.
-// Admin actions (X-Admin-Session): create, list, update, resend-invite, allocate
+// Admin actions (X-Admin-Session): create, list, update, resend-invite, allocate, move, delete
 // Public actions: login, logout, forgot, reset
-// Subcontractor actions (X-Sub-Session): me
+// Subcontractor actions (X-Sub-Session): me, request-code (the new code is emailed to the admin, never shown)
 
 import { hashPassword, verifyPassword, validateSession } from '../lib/auth.js';
 import {
-  cleanEmail, passwordProblem, readJson, sha256Hex, randomToken,
-  isLimited, bump, sendEmail, listKeys, baseUrl, createCards
+  cleanCardId, cleanEmail, passwordProblem, readJson, sha256Hex, randomToken, generateClaimCode, claimHash,
+  isLimited, bump, sendEmail, listKeys, baseUrl, createCards, imageKey
 } from '../lib/card-owner.js';
 
 const MAX_BATCH = 100;
@@ -79,7 +79,9 @@ export async function onRequestPost(context) {
     case 'list':
     case 'update':
     case 'resend-invite':
-    case 'allocate': {
+    case 'allocate':
+    case 'move':
+    case 'delete': {
       if (!await validateSession(env, request.headers.get('x-admin-session'))) return fail('Unauthorized', 401);
 
       if (action === 'list') {
@@ -109,12 +111,41 @@ export async function onRequestPost(context) {
         return json({ success: true, id, emailed });
       }
 
+      if (action === 'move') {
+        const cardId = cleanCardId(body.cardId);
+        const from = cardId ? await store.get('cardsub:' + cardId) : null;
+        const to = typeof body.to === 'string' ? body.to : '';
+        const target = to ? (/^sub-[0-9a-f]{8}$/.test(to) ? await readJson(store, 'sub:' + to) : null) : null;
+        if (to && !target) return fail('Subcontractor not found', 404);
+        if (!cardId || !(from || await store.get('claim:' + cardId) || await store.get('owner:' + cardId))) return fail('Card not found', 404);
+        if (to === (from || '')) return fail('That card is already there.');
+        if (target && await usage(store, to) >= target.allowance) return fail(`${target.name} has no allowance left. Raise it first.`);
+        if (from) { await store.delete('subcard:' + from + ':' + cardId); await store.delete('cardsub:' + cardId); }
+        if (to) {
+          await store.put('cardsub:' + cardId, to);
+          await store.put('subcard:' + to + ':' + cardId, new Date().toISOString());
+        }
+        return json({ success: true });
+      }
+
       const id = typeof body.id === 'string' ? body.id : '';
       const sub = /^sub-[0-9a-f]{8}$/.test(id) ? await readJson(store, 'sub:' + id) : null;
       if (!sub) return fail('Subcontractor not found', 404);
 
       if (action === 'resend-invite') {
         return json({ success: true, emailed: await sendSetupLink(env, sub, 'invite') });
+      }
+
+      if (action === 'delete') {
+        // Their cards stay live and become the admin's own (no issuer logo).
+        for (const cardId of await listKeys(store, 'subcard:' + id + ':')) {
+          await store.delete('subcard:' + id + ':' + cardId);
+          await store.delete('cardsub:' + cardId);
+        }
+        await store.delete('sub:' + id);
+        await store.delete('subemail:' + sub.email);
+        await store.delete(imageKey('sublogo', id));
+        return json({ success: true });
       }
 
       if (action === 'allocate') {
@@ -201,6 +232,22 @@ export async function onRequestPost(context) {
       sub.version = (sub.version || 0) + 1;
       await store.put('sub:' + sub.id, JSON.stringify(sub));
       return json({ success: true });
+    }
+
+    case 'request-code': {
+      const auth = await subSession(env, request.headers.get('x-sub-session'));
+      if (!auth) return fail('Please sign in again.', 401);
+      const cardId = cleanCardId(body.id);
+      if (!cardId || await store.get('cardsub:' + cardId) !== auth.id) return fail('Card not found', 404);
+      if (await store.get('owner:' + cardId)) return fail('This card has already been claimed.');
+      if (await isLimited(env, 'sub:req:' + auth.id, 10)) return tooMany();
+      await bump(env, 'sub:req:' + auth.id, HOUR);
+      const code = generateClaimCode();
+      await store.put('claim:' + cardId, JSON.stringify({ h: await claimHash(cardId, code), created: new Date().toISOString() }));
+      const sent = await sendEmail(env, env.BATCH_EMAIL_TO || DEFAULT_BATCH_EMAIL, `MyCard: new code requested by ${auth.sub.name}`,
+        `<p>${esc(auth.sub.name)} asked for a new claim code for card <b>${cardId}</b> (the old code no longer works).</p>` +
+        `<p>URL: ${baseUrl(env)}/mycard/?id=${cardId}<br>New code: <b>${code}</b></p><p>Keep this email private.</p>`);
+      return json({ success: true, emailed: sent });
     }
 
     case 'me': {

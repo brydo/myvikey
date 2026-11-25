@@ -485,6 +485,9 @@
         host.replaceChildren();
         if (!r.ok) { setMsg('subMsg', '✗ ' + (r.data.error || 'Failed'), false); return; }
         if (!r.data.subs.length) setMsg('subMsg', 'No subcontractors yet.', true);
+        var sel = $('moveTo');
+        while (sel.options.length > 1) sel.remove(1);
+        r.data.subs.forEach(function (s) { var o = document.createElement('option'); o.value = s.id; o.textContent = s.name; sel.appendChild(o); });
         r.data.subs.forEach(function (s) {
             var row = document.createElement('div');
             row.style.cssText = 'display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:8px 0;border-top:1px solid rgba(255,255,255,0.12);';
@@ -534,12 +537,24 @@
                 setMsg('subMsg', resp.ok ? '✓ Logo removed.' : '✗ Could not remove it.', resp.ok);
                 listSubs();
             });
+            btn('Delete', async function () {
+                if (!window.confirm('Delete ' + s.name + '? Their ' + s.used + ' cards stay live and become your own cards (the issuer logo is removed). This cannot be undone.')) return;
+                var u = await subApi({ action: 'delete', id: s.id });
+                setMsg('subMsg', u.ok ? '✓ Deleted.' : '✗ ' + (u.data.error || 'Failed'), u.ok);
+                listSubs();
+            });
             if (!s.passwordSet) btn('Resend invite', async function () {
                 var u = await subApi({ action: 'resend-invite', id: s.id });
                 setMsg('subMsg', u.ok && u.data.emailed ? '✓ Invite sent.' : '✗ Could not send the invite.', u.ok && u.data.emailed);
             });
             host.appendChild(row);
         });
+    }
+
+    async function moveCard() {
+        var r = await subApi({ action: 'move', cardId: $('moveCardId').value.trim(), to: $('moveTo').value });
+        setMsg('subMsg', r.ok ? '✓ Card moved.' : '✗ ' + (r.data.error || 'Failed'), r.ok);
+        if (r.ok) { $('moveCardId').value = ''; listSubs(); }
     }
 
     async function createSub() {
@@ -658,6 +673,7 @@
     $('ownersListBtn').addEventListener('click', listOwners);
     $('subCreateBtn').addEventListener('click', createSub);
     $('subListBtn').addEventListener('click', listSubs);
+    $('moveBtn').addEventListener('click', moveCard);
     $('claimCodeBtn').addEventListener('click', function () { ownerAction('create-claim'); });
     $('ownerStatusBtn').addEventListener('click', function () { ownerAction('owner-status'); });
     $('removeOwnerBtn').addEventListener('click', function () { ownerAction('remove-owner'); });

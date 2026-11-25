@@ -358,3 +358,39 @@ test('only the admin sets a subcontractor logo; it replaces the owner logo on th
   assert.equal((await app.image('POST', 'id=anna&kind=logo', jpeg(), { 'x-owner-session': anna })).status, 200);
   assert.equal((await app.card({ action: 'get-content', id: 'anna' })).status, 200);
 });
+
+test('subcontractor can request a new code for a lost one; it goes to the admin, not to them', async () => {
+  const app = createApp();
+  const s = await newSub(app);
+  const h = { 'x-sub-session': s.token };
+  const { cards } = await (await app.sub({ action: 'allocate', id: s.id, count: 2 }, ADMIN)).json();
+  const res = await app.sub({ action: 'request-code', id: cards[0].id }, h);
+  const text = await res.text();
+  assert.equal(res.status, 200);
+  const mail = app.emails.at(-1);
+  assert.equal(mail.to, 'brydo@outlook.com');
+  const code = mail.html.match(/New code: <b>([^<]+)<\/b>/)[1];
+  assert.equal(text.includes(code), false);
+  assert.equal((await app.owner({ action: 'claim', id: cards[0].id, code: cards[0].code, email: 'a@example.com', password: 'secret-pass' })).status, 401);
+  assert.equal((await app.owner({ action: 'claim', id: cards[0].id, code, email: 'a@example.com', password: 'secret-pass' })).status, 200);
+  assert.equal((await app.sub({ action: 'request-code', id: 'anna' }, h)).status, 404);
+  assert.equal((await app.sub({ action: 'request-code', id: cards[0].id }, { 'x-sub-session': 'nope' })).status, 401);
+});
+
+test('admin can move a card between subcontractors and delete one, leaving cards live as admin cards', async () => {
+  const app = createApp();
+  const a = await newSub(app);
+  const b = await (await app.sub({ action: 'create', name: 'Other', email: 'other@example.com', allowance: 1 }, ADMIN)).json();
+  const { cards } = await (await app.sub({ action: 'allocate', id: a.id, count: 2 }, ADMIN)).json();
+  assert.equal((await app.sub({ action: 'move', cardId: cards[0].id, to: b.id }, { 'x-sub-session': a.token })).status, 401);
+  assert.equal((await app.sub({ action: 'move', cardId: cards[0].id, to: b.id }, ADMIN)).status, 200);
+  assert.equal((await app.sub({ action: 'move', cardId: cards[1].id, to: b.id }, ADMIN)).status, 400);
+  const listed = await (await app.sub({ action: 'list' }, ADMIN)).json();
+  assert.deepEqual(listed.subs.map((x) => [x.name, x.used]).sort(), [['Acme <b>Ltd</b>', 1], ['Other', 1]]);
+  assert.equal((await app.sub({ action: 'delete', id: a.id }, { 'x-sub-session': a.token })).status, 401);
+  assert.equal((await app.sub({ action: 'delete', id: a.id }, ADMIN)).status, 200);
+  assert.equal((await app.sub({ action: 'login', email: 'sub@example.com', password: 'sub-secret-1' })).status, 401);
+  assert.equal((await app.sub({ action: 'me' }, { 'x-sub-session': a.token })).status, 401);
+  assert.equal(app.env.CARD_PASSWORDS.m.has('cardsub:' + cards[1].id), false);
+  assert.ok(app.env.CARD_PASSWORDS.m.has('claim:' + cards[1].id));
+});

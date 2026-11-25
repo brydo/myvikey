@@ -60,9 +60,28 @@
             cell(tr, c.id);
             cell(tr, c.claimed ? 'Claimed' : 'Unclaimed');
             cell(tr, c.claimed ? (c.name || '(details not filled in yet)') : '');
+            var td = document.createElement('td');
+            if (!c.claimed) {
+                var b = document.createElement('button');
+                b.type = 'button';
+                b.className = 'secondary';
+                b.style.cssText = 'margin:0;padding:6px 10px;font-size:0.85rem;';
+                b.textContent = 'Lost code?';
+                b.title = 'A new code is emailed to the administrator, not shown here';
+                b.addEventListener('click', function () { requestCode(c.id); });
+                td.appendChild(b);
+            }
+            tr.appendChild(td);
             table.appendChild(tr);
         });
         list.appendChild(table);
+    }
+
+    async function requestCode(id) {
+        if (!window.confirm('Ask the administrator for a new code for ' + id + '? The old code will stop working.')) return;
+        var r = await api({ action: 'request-code', id: id }, true);
+        if (r.status === 401) return;
+        message(r.ok ? (r.data.emailed ? 'Done. The administrator has been sent the new code.' : 'A new code was made but the email failed. Please contact the administrator.') : (r.data.error || 'Could not request a new code.'), r.ok && r.data.emailed);
     }
 
     $('signinForm').addEventListener('submit', async function (e) {
