@@ -244,6 +244,49 @@
         } catch (e) { setMsg('contentMsg', '✗ Error: ' + e.message, false); }
     }
 
+    /* Admin can replace or remove any card's photo/logo, e.g. if an owner uploads something inappropriate. */
+    var IMAGE_KINDS = { photo: { field: 'f_photoUrl', max: 800 }, logo: { field: 'f_companyLogoUrl', max: 600 } };
+
+    async function imageCall(kind, method, body) {
+        var id = safeId();
+        var headers = body ? { 'Content-Type': 'image/jpeg' } : {};
+        var resp = await fetch('/api/card-image?id=' + encodeURIComponent(id) + '&kind=' + kind, { method: method, headers: headers, body: body });
+        var data = await safeJson(resp);
+        return { ok: resp.ok && data.success, error: data.error, url: data.url || '' };
+    }
+
+    function imageApplied(kind, url) {
+        $(IMAGE_KINDS[kind].field).value = url;
+        if (kind === 'photo') buildPhotoPreview(url);
+        schedulePreview();
+    }
+
+    function bindImageTools(kind) {
+        var say = function (t) { $('st_' + kind).textContent = t; };
+        $('up_' + kind).addEventListener('click', async function () {
+            if (!safeId()) { say('Enter a page ID first.'); return; }
+            var f = $('file_' + kind).files[0];
+            if (!f) { say('Choose an image first.'); return; }
+            say('Preparing…');
+            try {
+                var blob = await window.MyCardImage.shrink(f, IMAGE_KINDS[kind].max);
+                if (!blob || blob.size > 250000) { say('Too large. Try a different image.'); return; }
+                var r = await imageCall(kind, 'POST', blob);
+                if (!r.ok) { say(r.error || 'Upload failed.'); return; }
+                imageApplied(kind, r.url);
+                $('file_' + kind).value = '';
+                say('Saved.');
+            } catch (e) { say('Could not read that image.'); }
+        });
+        $('rm_' + kind).addEventListener('click', async function () {
+            if (!safeId()) { say('Enter a page ID first.'); return; }
+            var r = await imageCall(kind, 'DELETE');
+            if (!r.ok) { say(r.error || 'Could not remove it.'); return; }
+            imageApplied(kind, '');
+            say('Removed.');
+        });
+    }
+
     async function loadCard(idOverride) {
         var id = idOverride || safeId();
         if (!id) { setMsg('contentMsg', 'Please enter a page ID.', false); return; }
@@ -508,6 +551,8 @@
     $('loginBtn').addEventListener('click', login);
     $('adminPass').addEventListener('keydown', function (e) { if (e.key === 'Enter') login(); });
     $('logoutBtn').addEventListener('click', logout);
+    bindImageTools('photo');
+    bindImageTools('logo');
     $('saveBtn').addEventListener('click', saveCard);
     $('loadBtn').addEventListener('click', function () { loadCard(); });
     $('newBtn').addEventListener('click', clearForm);

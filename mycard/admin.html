@@ -248,6 +248,7 @@
         .list-actions { margin-top: 6px; display: flex; gap: 8px; flex-wrap: wrap; }
         .list-actions button, .list-actions a { padding: 6px 12px; font-size: 0.8rem; }
         .list-actions a { color: var(--heading-link); border: 1px solid var(--card-border); border-radius: 8px; text-decoration: none; display: inline-block; background: var(--btn-bg); }
+    .img-tools { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; font-size: 0.9rem; }
     </style>
 </head>
 <body>
@@ -285,7 +286,8 @@
 
             <!-- New company logo fields -->
             <div class="field full"><label for="f_companyLogoUrl">Company logo image URL (optional)</label>
-            <input type="text" id="f_companyLogoUrl" placeholder="https://example.com/logo.png" autocomplete="off"></div>
+            <input type="text" id="f_companyLogoUrl" placeholder="https://example.com/logo.png" autocomplete="off">
+            <div class="img-tools"><input type="file" id="file_logo" accept="image/*" aria-label="Choose a logo"> <button type="button" id="up_logo">Upload logo</button> <button type="button" id="rm_logo">Remove logo</button> <span id="st_logo" role="status"></span></div></div>
             <div class="field full"><label for="f_companyLogoLinkUrl">Company logo website link (optional)</label>
             <input type="text" id="f_companyLogoLinkUrl" placeholder="https://example.com" autocomplete="off"></div>
 
@@ -293,6 +295,7 @@
                     <textarea id="f_bio" maxlength="1000"></textarea></div>
                     <div class="field full"><label for="f_photoUrl">Photo URL (https)</label>
                     <input type="text" id="f_photoUrl" autocomplete="off" aria-describedby="photoPrivacyHint">
+                    <div class="img-tools"><input type="file" id="file_photo" accept="image/*" aria-label="Choose a photo"> <button type="button" id="up_photo">Upload photo</button> <button type="button" id="rm_photo">Remove photo</button> <span id="st_photo" role="status"></span></div>
                     <p id="photoPrivacyHint">A public photo link can be opened directly, even when the card has a password. Before uploading, remove location and other private metadata from the photo. Replacing or deleting the card does not delete the hosted file.</p></div>
                 </div>
 
@@ -433,6 +436,7 @@
     </div>
 
     <script src="/mycard/card-render.js"></script>
+    <script src="/mycard/image-shrink.js"></script>
     <script src="/mycard/admin.js"></script>
 </body>
 </html>
