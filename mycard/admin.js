@@ -312,6 +312,28 @@
         } catch (e) { setMsg('passMsg', '✗ Error: ' + e.message, false); }
     }
 
+    async function ownerAction(action) {
+        var id = safeId();
+        var out = $('claimCodeOut');
+        out.style.display = 'none';
+        if (!id) { setMsg('ownerMsg', 'Please enter a Page ID.', false); return; }
+        if (action === 'remove-owner' && !window.confirm('Remove the owner of "' + id + '"? They will lose access and any pending claim code stops working.')) return;
+        try {
+            var r = await api('/api/card-owner', { action: action, id: id });
+            if (!r.ok) { setMsg('ownerMsg', '✗ ' + (r.data.error || 'Failed'), false); return; }
+            if (action === 'create-claim') {
+                out.value = r.data.code;
+                out.style.display = '';
+                out.select();
+                setMsg('ownerMsg', '✓ Claim code for "' + id + '" (shown once, copy it now):', true);
+            } else if (action === 'owner-status') {
+                setMsg('ownerMsg', r.data.claimed ? 'Claimed by ' + r.data.email : (r.data.claimPending ? 'Not claimed yet — a claim code is waiting.' : 'No owner and no claim code.'), true);
+            } else {
+                setMsg('ownerMsg', '✓ Owner removed for "' + id + '".', true);
+            }
+        } catch (e) { setMsg('ownerMsg', '✗ Error: ' + e.message, false); }
+    }
+
     async function copyUrl(id, btn) {
         var url = cardUrl(id);
         var original = btn.textContent;
@@ -412,6 +434,9 @@
     $('setPassBtn').addEventListener('click', setPassword);
     $('delPassBtn').addEventListener('click', deletePassword);
     $('listBtn').addEventListener('click', listCards);
+    $('claimCodeBtn').addEventListener('click', function () { ownerAction('create-claim'); });
+    $('ownerStatusBtn').addEventListener('click', function () { ownerAction('owner-status'); });
+    $('removeOwnerBtn').addEventListener('click', function () { ownerAction('remove-owner'); });
     $('copyNfcUrlBtn').addEventListener('click', copyNfcUrl);
     $('resetPosBtn').addEventListener('click', resetPhotoPosition);
 

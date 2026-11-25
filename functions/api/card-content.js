@@ -3,8 +3,10 @@
 // Actions: set-content, get-content, delete-content, list-content
 // Requires valid session token for modifications and listing.
 // get-content of a password-protected card requires its password (or an admin session).
+// A card's owner (X-Owner-Session) may also read and save that one card.
 
 import { validateSession, verifyPassword } from '../lib/auth.js';
+import { cleanCardId, validateOwnerSession } from '../lib/card-owner.js';
 
 const TEXT_FIELDS = { name: 100, title: 100, company: 100, bio: 1000, customLabel: 40 };
 const URL_FIELDS = {
@@ -73,10 +75,13 @@ export async function onRequestPost(context) {
   const { action, id } = body;
 
   // Require session token for modifications (set, delete)
+  const ownerSession = (action === 'set-content' || action === 'get-content')
+    ? await validateOwnerSession(env, request.headers.get('x-owner-session'), cleanCardId(id))
+    : null;
   if (action === 'set-content' || action === 'delete-content' || action === 'list-content') {
     const sessionToken = request.headers.get('x-admin-session');
     const session = await validateSession(env, sessionToken);
-    if (!session) {
+    if (!session && !ownerSession) {
       return Response.json({ success: false, error: 'Unauthorized' }, { status: 401 });
     }
   }
@@ -176,7 +181,7 @@ export async function onRequestPost(context) {
       if (stored) {
         const session = await validateSession(env, request.headers.get('x-admin-session'));
         const supplied = typeof body.password === 'string' ? body.password : '';
-        if (!session && !(supplied && await verifyPassword(supplied, stored))) {
+        if (!session && !ownerSession && !(supplied && await verifyPassword(supplied, stored))) {
           return Response.json({ success: false, error: 'Password required' }, { status: 401 });
         }
       }
