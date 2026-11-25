@@ -230,3 +230,16 @@ test('image upload needs the owner of that card, a small JPEG and a sane size', 
   assert.equal((await app.image('POST', 'id=anna&kind=banner', jpeg(), h)).status, 400);
   assert.equal((await app.image('POST', 'id=anna&kind=photo', jpeg(), { ...h, origin: 'https://evil.example' })).status, 403);
 });
+
+test('admin can remove an owner-uploaded image; other people cannot', async () => {
+  const app = createApp();
+  await claimed(app);
+  const session = await login(app);
+  await app.image('POST', 'id=anna&kind=photo', jpeg(), { 'x-owner-session': session });
+  assert.equal((await app.image('DELETE', 'id=anna&kind=photo')).status, 401);
+  const removed = await app.image('DELETE', 'id=anna&kind=photo', undefined, { 'x-admin-session': 'admin' });
+  assert.equal(removed.status, 200);
+  assert.equal((await app.image('GET', 'id=anna&kind=photo')).status, 404);
+  const put = await (await app.image('POST', 'id=anna&kind=logo', jpeg(), { 'x-admin-session': 'admin' })).json();
+  assert.match(put.url, /kind=logo/);
+});

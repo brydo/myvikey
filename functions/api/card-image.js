@@ -3,8 +3,10 @@
 // GET    ?id=&kind=photo|logo   public image (JPEG)
 // POST   ?id=&kind=...          owner uploads a JPEG (X-Owner-Session); the browser has already shrunk it
 // DELETE ?id=&kind=...          owner removes the image
+// The admin (X-Admin-Session) may also upload or remove any card's image.
 // Images are re-checked here: JPEG only, size and pixel limits, and EXIF/GPS/comment metadata is stripped.
 
+import { validateSession } from '../lib/auth.js';
 import { cleanCardId, validateOwnerSession, isLimited, bump, imageKey } from '../lib/card-owner.js';
 
 const MAX_IMAGE_BYTES = 250000;
@@ -64,14 +66,16 @@ function parse(request, env) {
   return { id, kind, origin: url.origin };
 }
 
-// Keeps the saved card pointing at the current image (if the card already has details saved).
+// Keeps the saved card pointing at the current image (if the card already has details saved). Returns the new address.
 async function linkToCard(env, id, kind, origin, present) {
+  const url = present ? `${origin}/api/card-image?id=${encodeURIComponent(id)}&kind=${kind}&v=${Date.now()}` : '';
   const raw = await env.CARD_CONTENT.get(id);
-  if (!raw) return;
+  if (!raw) return url;
   let content;
-  try { content = JSON.parse(raw); } catch { return; }
-  content[FIELD[kind]] = present ? `${origin}/api/card-image?id=${encodeURIComponent(id)}&kind=${kind}&v=${Date.now()}` : '';
+  try { content = JSON.parse(raw); } catch { return url; }
+  content[FIELD[kind]] = url;
   await env.CARD_CONTENT.put(id, JSON.stringify(content));
+  return url;
 }
 
 export async function onRequestGet({ request, env }) {
@@ -92,6 +96,9 @@ export async function onRequestGet({ request, env }) {
 async function owned(request, env, p) {
   const origin = request.headers.get('origin');
   if (origin && origin !== p.origin) return fail('Cross-origin request rejected', 403);
+  // The admin can also replace or remove any card's image (e.g. anything inappropriate).
+  const admin = await validateSession(env, request.headers.get('x-admin-session'));
+  if (admin) return null;
   const session = await validateOwnerSession(env, request.headers.get('x-owner-session'), p.id);
   return session ? null : fail('Please sign in again.', 401);
 }
@@ -112,8 +119,8 @@ export async function onRequestPost({ request, env }) {
   const clean = cleanJpeg(bytes);
   if (!clean) return fail('Image must be a JPEG no larger than ' + MAX_PIXELS + 'px.');
   await env.CARD_PASSWORDS.put(imageKey(p.kind, p.id), toBase64(clean));
-  await linkToCard(env, p.id, p.kind, p.origin, true);
-  return json({ success: true });
+  const url = await linkToCard(env, p.id, p.kind, p.origin, true);
+  return json({ success: true, url });
 }
 
 export async function onRequestDelete({ request, env }) {
@@ -123,5 +130,5 @@ export async function onRequestDelete({ request, env }) {
   if (denied) return denied;
   await env.CARD_PASSWORDS.delete(imageKey(p.kind, p.id));
   await linkToCard(env, p.id, p.kind, p.origin, false);
-  return json({ success: true });
+  return json({ success: true, url: '' });
 }
