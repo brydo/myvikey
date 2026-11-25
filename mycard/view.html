@@ -107,8 +107,9 @@
         <div id="cardRoot"></div>
 
         <div id="notFound" class="state" style="display:none;">
-            <h2>Card not found</h2>
-            <p>We couldn't find a card with that ID. Please check the link and try again, or get your own tap-to-share MyCard.</p>
+            <h2>Card not set up yet</h2>
+            <p>This card has no details yet. If this is your card, claim it with the code under the scratch panel, then add your own details. Otherwise, please check the link and try again.</p>
+            <a id="claimLink" href="/mycard/owner?claim=1">Claim this card →</a><br>
             <a href="/mycard/">Get your own tap-to-share MyCard →</a>
         </div>
 
@@ -182,7 +183,11 @@
         async function loadCard(password) {
             var r = await post('/api/card-content', { action: 'get-content', id: cardId, password: password || '' });
             if (r.status === 401) { show('passwordPrompt'); return false; }
-            if (!r.ok || !r.data.success || !r.data.content) { show('notFound'); return true; }
+            if (!r.ok || !r.data.success || !r.data.content) {
+                document.getElementById('claimLink').href = '/mycard/owner?claim=1&id=' + encodeURIComponent(cardId);
+                show('notFound');
+                return true;
+            }
             var c = r.data.content;
             show('');
             MyCard.render(document.getElementById('cardRoot'), c, { url: cardUrl() });
