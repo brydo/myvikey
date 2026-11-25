@@ -8,13 +8,15 @@ const strip = (path) => readFileSync(`${__dirname}/${path}`, 'utf8')
 
 function createApp() {
   const kv = () => { const m = new Map(); return { m,
-    async get(k) { return m.get(k) ?? null; }, async put(k, v) { m.set(k, v); }, async delete(k) { m.delete(k); } }; };
+    async get(k) { return m.get(k) ?? null; }, async put(k, v) { m.set(k, v); }, async delete(k) { m.delete(k); },
+    async list({ prefix = '' } = {}) { return { keys: [...m.keys()].filter(k => k.startsWith(prefix)).map(name => ({ name })), list_complete: true }; } }; };
   const env = { CARD_PASSWORDS: kv(), CARD_CONTENT: kv(), RATE_LIMIT: kv(), ADMIN_SESSIONS: kv(), RESEND_API_KEY: 'key' };
   env.ADMIN_SESSIONS.m.set('admin', JSON.stringify({ userId: '__admin__', expiresAt: Date.now() + 60_000 }));
   env.CARD_CONTENT.m.set('anna', JSON.stringify({ name: 'Anna' }));
   env.CARD_CONTENT.m.set('bob', JSON.stringify({ name: 'Bob' }));
   const emails = [];
-  const ctx = { Response, URL, Date, Math, TextEncoder, Uint8Array, crypto, console,
+  const sent = emails;
+  const ctx = { Response, URL, Date, Math, TextEncoder, Uint8Array, crypto, console, btoa,
     fetch: async (_url, init) => { emails.push(JSON.parse(init.body)); return { ok: true }; } };
   runInNewContext(strip('../lib/card-owner.js'), ctx);
   ctx.hashPassword = async (p) => 'h:' + p;
@@ -83,7 +85,6 @@ test('an owner cannot edit another card, list cards or use owner sessions as adm
 test('only admins can create claim codes', async () => {
   const app = createApp();
   assert.equal((await app.owner({ action: 'create-claim', id: 'anna' })).status, 401);
-  assert.equal((await app.owner({ action: 'create-claim', id: 'nobody' }, { 'x-admin-session': 'admin' })).status, 400);
 });
 
 test('reset email goes only to the registered address and the link works once', async () => {
@@ -118,4 +119,65 @@ test('weak passwords and cross-origin requests are rejected', async () => {
   const { code } = await (await app.owner({ action: 'create-claim', id: 'anna' }, { 'x-admin-session': 'admin' })).json();
   assert.equal((await app.owner({ action: 'claim', id: 'anna', code, email: 'a@example.com', password: 'short' })).status, 400);
   assert.equal((await app.owner({ action: 'login', id: 'anna', password: 'x' }, { origin: 'https://evil.example' })).status, 403);
+});
+
+test('admin can issue a code for a new blank card and the owner adds all details', async () => {
+  const app = createApp();
+  const issued = await (await app.owner({ action: 'create-claim' }, { 'x-admin-session': 'admin' })).json();
+  assert.match(issued.id, /^card-[0-9a-f]{8}$/);
+  assert.equal(await app.env.CARD_CONTENT.get(issued.id), null);
+  const mail = app.emails.length;
+  assert.equal((await app.owner({ action: 'claim', id: issued.id, code: issued.code, email: 'new@example.com', password: 'secret-pass' })).status, 200);
+  assert.equal((await app.owner({ action: 'verify-email', token: app.tokenFrom(mail) })).status, 200);
+  const session = await login(app, issued.id);
+  const saved = await app.card({ action: 'set-content', id: issued.id, name: 'New Owner', phone: '+44 7700 900123' }, { 'x-owner-session': session });
+  assert.equal(saved.status, 200);
+  assert.equal(JSON.parse(await app.env.CARD_CONTENT.get(issued.id)).name, 'New Owner');
+});
+
+test('batch creates unique blank cards, emails the list and codes never expire', async () => {
+  const app = createApp();
+  const res = await (await app.owner({ action: 'create-batch', count: 3 }, { 'x-admin-session': 'admin' })).json();
+  assert.equal(res.cards.length, 3);
+  assert.equal(new Set(res.cards.map(c => c.id)).size, 3);
+  assert.equal(res.emailed, true);
+  assert.equal(res.emailedTo, 'brydo@outlook.com');
+  const mail = app.emails[0];
+  assert.equal(mail.to, 'brydo@outlook.com');
+  for (const c of res.cards) {
+    assert.ok(mail.html.includes(c.code) && mail.html.includes(c.url));
+    assert.ok(Buffer.from(mail.attachments[0].content, 'base64').toString().includes(c.code));
+    assert.equal(app.env.CARD_PASSWORDS.m.get('claim:' + c.id).includes(c.code), false);
+  }
+  const claimEmail = app.emails.length;
+  assert.equal((await app.owner({ action: 'claim', id: res.cards[0].id, code: res.cards[0].code.toLowerCase(), email: 'a@example.com', password: 'secret-pass' })).status, 200);
+  assert.equal(app.emails.length, claimEmail + 1);
+});
+
+test('batch size is limited, admin only, and BATCH_EMAIL_TO overrides the address', async () => {
+  const app = createApp();
+  const admin = { 'x-admin-session': 'admin' };
+  assert.equal((await app.owner({ action: 'create-batch', count: 0 }, admin)).status, 400);
+  assert.equal((await app.owner({ action: 'create-batch', count: 101 }, admin)).status, 400);
+  assert.equal((await app.owner({ action: 'create-batch', count: 1.5 }, admin)).status, 400);
+  assert.equal((await app.owner({ action: 'create-batch', count: 2 })).status, 401);
+  app.env.BATCH_EMAIL_TO = 'other@example.com';
+  await app.owner({ action: 'create-batch', count: 1 }, admin);
+  assert.equal(app.emails.at(-1).to, 'other@example.com');
+});
+
+test('admin lists claimed and unclaimed cards without exposing codes; reissue replaces the old code', async () => {
+  const app = createApp();
+  const admin = { 'x-admin-session': 'admin' };
+  await claimed(app);
+  const batch = await (await app.owner({ action: 'create-batch', count: 2 }, admin)).json();
+  const list = await (await app.owner({ action: 'list-owners' }, admin)).json();
+  assert.deepEqual(list.claimed.map(c => [c.id, c.email]), [['anna', 'anna@example.com']]);
+  assert.equal(list.unclaimed.length, 2);
+  assert.equal(JSON.stringify(list).includes(batch.cards[0].code), false);
+  assert.equal((await app.owner({ action: 'list-owners' })).status, 401);
+  const old = batch.cards[0];
+  const fresh = await (await app.owner({ action: 'create-claim', id: old.id }, admin)).json();
+  assert.equal((await app.owner({ action: 'claim', id: old.id, code: old.code, email: 'a@example.com', password: 'secret-pass' })).status, 401);
+  assert.equal((await app.owner({ action: 'claim', id: old.id, code: fresh.code, email: 'a@example.com', password: 'secret-pass' })).status, 200);
 });

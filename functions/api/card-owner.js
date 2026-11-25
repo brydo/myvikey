@@ -7,10 +7,11 @@
 import { hashPassword, verifyPassword, validateSession } from '../lib/auth.js';
 import {
   cleanCardId, cleanEmail, passwordProblem, readJson, sha256Hex, randomToken,
-  generateClaimCode, claimHash, createOwnerSession, isLimited, bump, sendEmail
+  generateClaimCode, claimHash, createOwnerSession, isLimited, bump, sendEmail, parseClaim, listKeys
 } from '../lib/card-owner.js';
 
-const CLAIM_TTL_SEC = 30 * 24 * 60 * 60;
+const MAX_BATCH = 100;
+const DEFAULT_BATCH_EMAIL = 'brydo@outlook.com';
 const VERIFY_TTL_SEC = 60 * 60;
 const RESET_TTL_SEC = 30 * 60;
 const HOUR = 3600;
@@ -26,6 +27,10 @@ function sameOrigin(request) {
   const origin = request.headers.get('origin');
   if (origin) return origin === new URL(request.url).origin;
   return /^application\/json/i.test(request.headers.get('content-type') || '');
+}
+
+function newCardId() {
+  return 'card-' + randomToken().slice(0, 8);
 }
 
 function baseUrl(env) {
@@ -47,9 +52,57 @@ export async function onRequestPost(context) {
 
   switch (action) {
     case 'create-claim':
+    case 'create-batch':
     case 'owner-status':
+    case 'list-owners':
     case 'remove-owner': {
       if (!await validateSession(env, request.headers.get('x-admin-session'))) return fail('Unauthorized', 401);
+
+      if (action === 'list-owners') {
+        const [owned, pending] = await Promise.all([listKeys(store, 'owner:'), listKeys(store, 'claim:')]);
+        const owners = await Promise.all(owned.map(async (cardId) => {
+          const o = await readJson(store, 'owner:' + cardId);
+          return { id: cardId, email: o ? o.email : '', created: o ? o.created || '' : '' };
+        }));
+        const unclaimed = await Promise.all(pending.map(async (cardId) => {
+          const c = parseClaim(await store.get('claim:' + cardId));
+          return { id: cardId, created: c ? c.created : '' };
+        }));
+        const byDate = (a, b) => String(b.created).localeCompare(String(a.created));
+        return json({ success: true, claimed: owners.sort(byDate), unclaimed: unclaimed.sort(byDate) });
+      }
+
+      if (action === 'create-batch') {
+        const count = Number(body.count);
+        if (!Number.isInteger(count) || count < 1 || count > MAX_BATCH) return fail(`Enter a number from 1 to ${MAX_BATCH}`);
+        const created = new Date().toISOString();
+        const origin = baseUrl(env);
+        const cards = [];
+        while (cards.length < count) {
+          const cardId = newCardId();
+          if (await store.get('claim:' + cardId) || await store.get('owner:' + cardId) || await env.CARD_CONTENT.get(cardId)) continue;
+          const code = generateClaimCode();
+          await store.put('claim:' + cardId, JSON.stringify({ h: await claimHash(cardId, code), created }));
+          cards.push({ id: cardId, url: `${origin}/mycard/?id=${cardId}`, code });
+        }
+        const to = env.BATCH_EMAIL_TO || DEFAULT_BATCH_EMAIL;
+        const csv = 'Card ID,URL,Claim code\n' + cards.map((c) => `${c.id},${c.url},${c.code}`).join('\n') + '\n';
+        const rows = cards.map((c) => `<tr><td>${c.id}</td><td>${c.url}</td><td><b>${c.code}</b></td></tr>`).join('');
+        const emailed = await sendEmail(env, to, `MyCard batch of ${count} (${created.slice(0, 10)})`,
+          `<p>${count} new MyCard${count === 1 ? '' : 's'} created. Keep this email private: each claim code lets its holder take over that card.</p>` +
+          `<table border="1" cellpadding="6" cellspacing="0"><tr><th>Card ID</th><th>URL</th><th>Claim code</th></tr>${rows}</table>`,
+          [{ filename: 'mycard-batch.csv', content: btoa(csv) }]);
+        return json({ success: true, cards, emailed, emailedTo: emailed ? to : '' });
+      }
+
+      if (action === 'create-claim' && !body.id) {
+        const code = generateClaimCode();
+        let cardId = newCardId();
+        while (await store.get('claim:' + cardId) || await store.get('owner:' + cardId) || await env.CARD_CONTENT.get(cardId)) cardId = newCardId();
+        await store.put('claim:' + cardId, JSON.stringify({ h: await claimHash(cardId, code), created: new Date().toISOString() }));
+        return json({ success: true, id: cardId, code });
+      }
+
       if (!id) return fail('Page ID is required');
       const owner = await readJson(store, 'owner:' + id);
       if (action === 'owner-status') {
@@ -62,10 +115,10 @@ export async function onRequestPost(context) {
         return json({ success: true });
       }
       if (owner) return fail('This card has already been claimed. Remove the owner first to issue a new code.');
-      if (!await env.CARD_CONTENT.get(id)) return fail('No card with that Page ID. Save the card first.');
+      // Issuing a new code replaces any earlier one for this card.
       const code = generateClaimCode();
-      await store.put('claim:' + id, await claimHash(id, code), { expirationTtl: CLAIM_TTL_SEC });
-      return json({ success: true, code });
+      await store.put('claim:' + id, JSON.stringify({ h: await claimHash(id, code), created: new Date().toISOString() }));
+      return json({ success: true, id, code });
     }
 
     case 'claim': {
@@ -76,9 +129,9 @@ export async function onRequestPost(context) {
       if (problem) return fail(problem);
       if (await isLimited(env, 'own:claim:ip:' + ip, 10) || await isLimited(env, 'own:claim:id:' + id, 10)) return tooMany();
 
-      const expected = await store.get('claim:' + id);
+      const expected = parseClaim(await store.get('claim:' + id));
       const given = await claimHash(id, body.code);
-      if (!expected || expected !== given) {
+      if (!expected || expected.h !== given) {
         await bump(env, 'own:claim:ip:' + ip, HOUR);
         await bump(env, 'own:claim:id:' + id, HOUR);
         return fail('That Card ID and claim code do not match.', 401);
@@ -107,7 +160,8 @@ export async function onRequestPost(context) {
       const pending = await readJson(store, key);
       if (!pending) return fail('This link is invalid or has expired.', 400);
       await store.delete(key);
-      if (await store.get('claim:' + pending.id) !== pending.claim || await store.get('owner:' + pending.id)) {
+      const current = parseClaim(await store.get('claim:' + pending.id));
+      if (!current || current.h !== pending.claim || await store.get('owner:' + pending.id)) {
         return fail('This card can no longer be claimed with that link.', 400);
       }
       await store.put('owner:' + pending.id, JSON.stringify({

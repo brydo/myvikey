@@ -316,12 +316,15 @@
         var id = safeId();
         var out = $('claimCodeOut');
         out.style.display = 'none';
-        if (!id) { setMsg('ownerMsg', 'Please enter a Page ID.', false); return; }
+        if (!id && action !== 'create-claim') { setMsg('ownerMsg', 'Please enter a Page ID.', false); return; }
         if (action === 'remove-owner' && !window.confirm('Remove the owner of "' + id + '"? They will lose access and any pending claim code stops working.')) return;
         try {
             var r = await api('/api/card-owner', { action: action, id: id });
             if (!r.ok) { setMsg('ownerMsg', '✗ ' + (r.data.error || 'Failed'), false); return; }
             if (action === 'create-claim') {
+                id = r.data.id;
+                $('cardId').value = id;
+                updateNfcUrl();
                 out.value = r.data.code;
                 out.style.display = '';
                 out.select();
@@ -332,6 +335,84 @@
                 setMsg('ownerMsg', '✓ Owner removed for "' + id + '".', true);
             }
         } catch (e) { setMsg('ownerMsg', '✗ Error: ' + e.message, false); }
+    }
+
+    var lastBatchCsv = '';
+
+    async function generateBatch() {
+        var count = Number($('batchCount').value);
+        $('batchDownloadBtn').style.display = 'none';
+        if (!Number.isInteger(count) || count < 1 || count > 100) { setMsg('batchMsg', 'Enter a whole number from 1 to 100.', false); return; }
+        $('batchBtn').disabled = true;
+        setMsg('batchMsg', 'Generating…', true);
+        try {
+            var r = await api('/api/card-owner', { action: 'create-batch', count: count });
+            if (!r.ok) { setMsg('batchMsg', '✗ ' + (r.data.error || 'Failed'), false); return; }
+            lastBatchCsv = 'Card ID,URL,Claim code\n' + r.data.cards.map(function (c) { return [c.id, c.url, c.code].join(','); }).join('\n') + '\n';
+            $('batchDownloadBtn').style.display = '';
+            setMsg('batchMsg', '✓ ' + r.data.cards.length + ' cards created. ' +
+                (r.data.emailed ? 'List emailed to ' + r.data.emailedTo + '.' : 'The email could not be sent — download the CSV now, the codes cannot be shown again.'), !!r.data.emailed);
+            listOwners();
+        } catch (e) { setMsg('batchMsg', '✗ Error: ' + e.message, false); }
+        finally { $('batchBtn').disabled = false; }
+    }
+
+    function downloadBatch() {
+        var url = URL.createObjectURL(new Blob([lastBatchCsv], { type: 'text/csv' }));
+        var a = document.createElement('a');
+        a.href = url;
+        a.download = 'mycard-batch-' + new Date().toISOString().slice(0, 10) + '.csv';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+    }
+
+    async function listOwners() {
+        var host = $('ownersList');
+        try {
+            var r = await api('/api/card-owner', { action: 'list-owners' });
+            if (!r.ok) { setMsg('ownersListMsg', '✗ ' + (r.data.error || 'Failed'), false); return; }
+            $('ownersListMsg').textContent = '';
+            function group(title, rows, detail) {
+                var wrap = document.createElement('div');
+                var h = document.createElement('h3');
+                h.style.cssText = 'margin:16px 0 8px;font-size:1rem;';
+                h.textContent = title + ' (' + rows.length + ')';
+                wrap.appendChild(h);
+                if (!rows.length) {
+                    var none = document.createElement('div');
+                    none.style.color = 'var(--text-muted)';
+                    none.textContent = 'None';
+                    wrap.appendChild(none);
+                }
+                rows.forEach(function (row) {
+                    var item = document.createElement('div');
+                    item.className = 'page-list-item';
+                    var idEl = document.createElement('span');
+                    idEl.className = 'id';
+                    idEl.textContent = row.id;
+                    var info = document.createElement('span');
+                    info.className = 'dob';
+                    info.textContent = detail(row);
+                    var open = document.createElement('button');
+                    open.type = 'button';
+                    open.className = 'secondary';
+                    open.textContent = 'Select';
+                    open.addEventListener('click', function () { $('cardId').value = row.id; updateNfcUrl(); window.scrollTo({ top: 0, behavior: 'smooth' }); });
+                    item.appendChild(idEl);
+                    item.appendChild(info);
+                    item.appendChild(open);
+                    wrap.appendChild(item);
+                });
+                return wrap;
+            }
+            var day = function (iso) { return iso ? iso.slice(0, 10) : 'unknown date'; };
+            host.replaceChildren(
+                group('Claimed', r.data.claimed, function (row) { return row.email + ' · claimed ' + day(row.created); }),
+                group('Unclaimed', r.data.unclaimed, function (row) { return 'code issued ' + day(row.created); })
+            );
+        } catch (e) { setMsg('ownersListMsg', '✗ Error: ' + e.message, false); }
     }
 
     async function copyUrl(id, btn) {
@@ -434,6 +515,9 @@
     $('setPassBtn').addEventListener('click', setPassword);
     $('delPassBtn').addEventListener('click', deletePassword);
     $('listBtn').addEventListener('click', listCards);
+    $('batchBtn').addEventListener('click', generateBatch);
+    $('batchDownloadBtn').addEventListener('click', downloadBatch);
+    $('ownersListBtn').addEventListener('click', listOwners);
     $('claimCodeBtn').addEventListener('click', function () { ownerAction('create-claim'); });
     $('ownerStatusBtn').addEventListener('click', function () { ownerAction('owner-status'); });
     $('removeOwnerBtn').addEventListener('click', function () { ownerAction('remove-owner'); });

@@ -94,16 +94,39 @@ export async function bump(env, key, windowSec) {
   await env.RATE_LIMIT.put(key, JSON.stringify(next), { expirationTtl: ttl });
 }
 
-export async function sendEmail(env, to, subject, html) {
+export async function sendEmail(env, to, subject, html, attachments) {
   if (!env.RESEND_API_KEY) return false;
   try {
+    const payload = { from: 'noreply@vi-key.uk', to, subject, html };
+    if (attachments) payload.attachments = attachments;
     const resp = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: { 'Authorization': 'Bearer ' + env.RESEND_API_KEY, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ from: 'noreply@vi-key.uk', to, subject, html })
+      body: JSON.stringify(payload)
     });
     return resp.ok;
   } catch {
     return false;
   }
+}
+
+// Claim records hold only a hash of the code. Older records were a bare hash string.
+export function parseClaim(raw) {
+  if (!raw) return null;
+  try {
+    const data = JSON.parse(raw);
+    if (data && typeof data.h === 'string') return data;
+  } catch { /* legacy bare hash */ }
+  return { h: raw, created: '' };
+}
+
+export async function listKeys(store, prefix) {
+  const keys = [];
+  let cursor;
+  do {
+    const page = await store.list({ prefix, ...(cursor ? { cursor } : {}) });
+    keys.push(...page.keys.map((k) => k.name.slice(prefix.length)));
+    cursor = page.list_complete === false ? page.cursor : undefined;
+  } while (cursor);
+  return keys;
 }

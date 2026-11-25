@@ -377,7 +377,7 @@
 
             <section>
                 <h2>👤 Owner Access</h2>
-                <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 14px;">Uses the Page ID entered above. Generate a one-time claim code and give it to the card owner. They claim the card at /mycard/owner, confirm their email and can then edit their own details. The code is shown once and expires after 30 days.</p>
+                <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 14px;">Leave the Page ID blank to create a brand-new card (an ID is generated), or enter an existing one to issue it a new code. Owners claim the card at /mycard/owner with the code, then add their own details. Codes never expire, are shown only once and a new code replaces the old one.</p>
                 <div class="btn-row">
                     <button type="button" id="claimCodeBtn">Generate Claim Code</button>
                     <button type="button" class="secondary" id="ownerStatusBtn">Check Owner</button>
@@ -385,6 +385,25 @@
                 </div>
                 <input class="nfc-url" type="text" id="claimCodeOut" readonly aria-label="Claim code" style="display:none; margin-top:12px;">
                 <div class="msg" id="ownerMsg" role="status"></div>
+            </section>
+
+            <section>
+                <h2>📦 Batch of Cards</h2>
+                <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 14px;">Create several blank cards at once for printing (code under a scratch panel). The list is emailed to you and can be downloaded. It is the only time the codes are shown, so keep it private.</p>
+                <label for="batchCount">How many cards? (1–100)</label>
+                <input type="number" id="batchCount" min="1" max="100" value="10" style="max-width:140px;">
+                <div class="btn-row">
+                    <button type="button" id="batchBtn">Generate Batch</button>
+                    <button type="button" class="secondary" id="batchDownloadBtn" style="display:none;">Download CSV</button>
+                </div>
+                <div class="msg" id="batchMsg" role="status"></div>
+            </section>
+
+            <section>
+                <h2>🔎 Claimed &amp; Unclaimed Cards</h2>
+                <button type="button" id="ownersListBtn">Refresh Owners List</button>
+                <div class="msg" id="ownersListMsg" role="status"></div>
+                <div id="ownersList"></div>
             </section>
 
             <section>
