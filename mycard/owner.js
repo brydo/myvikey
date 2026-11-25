@@ -58,6 +58,7 @@
         var host = $('fields');
         FIELDS.forEach(function (f) {
             var wrap = document.createElement('div');
+            wrap.id = 'w_' + f[0];
             if (f[2] === 'textarea' || f[3]) wrap.className = 'full';
             var label = document.createElement('label');
             label.htmlFor = 'f_' + f[0];
@@ -121,6 +122,7 @@
         IMAGES.forEach(function (im) {
             var box = document.createElement('div');
             box.className = 'imgbox';
+            box.id = 'box_' + im.kind;
             var h = document.createElement('label');
             h.textContent = im.label;
             h.htmlFor = 'file_' + im.kind;
@@ -206,6 +208,9 @@
         if (r.status === 401) { clearSession(); show('signin'); message('Your session has expired. Please sign in again.'); return; }
         if (!r.ok) { message(r.data.error || 'Could not load your card.'); return; }
         fill(r.data.content);
+        // Cards issued by a subcontractor show the subcontractor's logo, so owners have no logo options.
+        $('box_logo').hidden = !!r.data.logoLocked;
+        $('w_companyLogoLinkUrl').hidden = !!r.data.logoLocked;
         message('');
     }
 

@@ -403,6 +403,24 @@
             </section>
 
             <section>
+                <h2>🤝 Subcontractors</h2>
+                <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 14px;">Give a subcontractor a card allowance. They sign in at <code>/mycard/sub</code>, create cards up to that allowance and see which are claimed (never customer details). Only you can set their logo: it then shows on all their cards and their card owners cannot change it. Switch them off at any time.</p>
+                <label for="subName">Name</label>
+                <input type="text" id="subName" maxlength="80" autocomplete="off">
+                <label for="subEmail">Email (they get a link to choose their password)</label>
+                <input type="text" id="subEmail" autocomplete="off">
+                <label for="subAllowance">Card allowance</label>
+                <input type="number" id="subAllowance" min="1" max="10000" value="20" style="max-width:140px;">
+                <div class="btn-row">
+                    <button type="button" id="subCreateBtn">Add Subcontractor</button>
+                    <button type="button" class="secondary" id="subListBtn">Refresh List</button>
+                </div>
+                <div class="msg" id="subMsg" role="status"></div>
+                <div id="subList"></div>
+                <input type="file" id="subLogoFile" accept="image/*" hidden>
+            </section>
+
+            <section>
                 <h2>🔎 Claimed &amp; Unclaimed Cards</h2>
                 <button type="button" id="ownersListBtn">Refresh Owners List</button>
                 <div class="msg" id="ownersListMsg" role="status"></div>

@@ -452,10 +452,95 @@
             }
             var day = function (iso) { return iso ? iso.slice(0, 10) : 'unknown date'; };
             host.replaceChildren(
-                group('Claimed', r.data.claimed, function (row) { return row.email + ' · claimed ' + day(row.created); }),
-                group('Unclaimed', r.data.unclaimed, function (row) { return 'code issued ' + day(row.created); })
+                group('Claimed', r.data.claimed, function (row) { return row.email + ' · claimed ' + day(row.created) + (row.sub ? ' · via ' + row.sub : ''); }),
+                group('Unclaimed', r.data.unclaimed, function (row) { return 'code issued ' + day(row.created) + (row.sub ? ' · via ' + row.sub : ''); })
             );
         } catch (e) { setMsg('ownersListMsg', '✗ Error: ' + e.message, false); }
+    }
+
+    /* ===== Subcontractors ===== */
+    function subApi(payload) { return api('/api/card-sub', payload); }
+
+    function pickSubLogo(sub) {
+        var input = $('subLogoFile');
+        input.value = '';
+        input.onchange = async function () {
+            var f = input.files[0];
+            if (!f) return;
+            try {
+                var blob = await window.MyCardImage.shrink(f, 600);
+                if (!blob || blob.size > 250000) { setMsg('subMsg', '✗ That image is too large. Try a different one.', false); return; }
+                var resp = await fetch('/api/card-image?sub=' + encodeURIComponent(sub.id) + '&kind=logo', { method: 'POST', headers: { 'Content-Type': 'image/jpeg' }, body: blob });
+                var d = await safeJson(resp);
+                setMsg('subMsg', resp.ok && d.success ? '✓ Logo saved for ' + sub.name + '.' : '✗ ' + (d.error || 'Failed'), resp.ok && d.success);
+            } catch (e) { setMsg('subMsg', '✗ Could not read that image.', false); }
+            listSubs();
+        };
+        input.click();
+    }
+
+    async function listSubs() {
+        var r = await subApi({ action: 'list' });
+        var host = $('subList');
+        host.replaceChildren();
+        if (!r.ok) { setMsg('subMsg', '✗ ' + (r.data.error || 'Failed'), false); return; }
+        if (!r.data.subs.length) setMsg('subMsg', 'No subcontractors yet.', true);
+        r.data.subs.forEach(function (s) {
+            var row = document.createElement('div');
+            row.style.cssText = 'display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:8px 0;border-top:1px solid rgba(255,255,255,0.12);';
+            if (s.hasLogo) {
+                var img = document.createElement('img');
+                img.src = '/api/card-image?sub=' + encodeURIComponent(s.id) + '&kind=logo&v=' + encodeURIComponent(s.logoV || '');
+                img.alt = 'Logo';
+                img.style.cssText = 'height:36px;max-width:90px;background:#fff;border-radius:4px;';
+                row.appendChild(img);
+            }
+            var info = document.createElement('span');
+            info.style.flex = '1 1 220px';
+            info.textContent = s.name + ' · ' + s.email + ' · ' + s.used + '/' + s.allowance + ' cards · ' +
+                (s.enabled ? 'ON' : 'OFF') + (s.passwordSet ? '' : ' · waiting for password');
+            row.appendChild(info);
+            function btn(label, fn) {
+                var b = document.createElement('button');
+                b.type = 'button';
+                b.className = 'secondary';
+                b.textContent = label;
+                b.addEventListener('click', fn);
+                row.appendChild(b);
+            }
+            btn(s.enabled ? 'Turn off' : 'Turn on', async function () {
+                var u = await subApi({ action: 'update', id: s.id, enabled: !s.enabled });
+                setMsg('subMsg', u.ok ? '✓ Updated.' : '✗ ' + (u.data.error || 'Failed'), u.ok);
+                listSubs();
+            });
+            btn('Change allowance', async function () {
+                var v = window.prompt('New card allowance for ' + s.name + ' (1–10000):', String(s.allowance));
+                if (v === null) return;
+                var u = await subApi({ action: 'update', id: s.id, allowance: Number(v) });
+                setMsg('subMsg', u.ok ? '✓ Updated.' : '✗ ' + (u.data.error || 'Failed'), u.ok);
+                listSubs();
+            });
+            btn(s.hasLogo ? 'Replace logo' : 'Set logo', function () { pickSubLogo(s); });
+            if (s.hasLogo) btn('Remove logo', async function () {
+                var resp = await fetch('/api/card-image?sub=' + encodeURIComponent(s.id) + '&kind=logo', { method: 'DELETE' });
+                setMsg('subMsg', resp.ok ? '✓ Logo removed.' : '✗ Could not remove it.', resp.ok);
+                listSubs();
+            });
+            if (!s.passwordSet) btn('Resend invite', async function () {
+                var u = await subApi({ action: 'resend-invite', id: s.id });
+                setMsg('subMsg', u.ok && u.data.emailed ? '✓ Invite sent.' : '✗ Could not send the invite.', u.ok && u.data.emailed);
+            });
+            host.appendChild(row);
+        });
+    }
+
+    async function createSub() {
+        var r = await subApi({ action: 'create', name: $('subName').value, email: $('subEmail').value, allowance: Number($('subAllowance').value) });
+        if (!r.ok) { setMsg('subMsg', '✗ ' + (r.data.error || 'Failed'), false); return; }
+        setMsg('subMsg', r.data.emailed ? '✓ Added. An email was sent so they can choose a password.' : '✓ Added, but the invite email could not be sent. Use Resend invite.', true);
+        $('subName').value = '';
+        $('subEmail').value = '';
+        listSubs();
     }
 
     async function copyUrl(id, btn) {
@@ -563,6 +648,8 @@
     $('batchBtn').addEventListener('click', generateBatch);
     $('batchDownloadBtn').addEventListener('click', downloadBatch);
     $('ownersListBtn').addEventListener('click', listOwners);
+    $('subCreateBtn').addEventListener('click', createSub);
+    $('subListBtn').addEventListener('click', listSubs);
     $('claimCodeBtn').addEventListener('click', function () { ownerAction('create-claim'); });
     $('ownerStatusBtn').addEventListener('click', function () { ownerAction('owner-status'); });
     $('removeOwnerBtn').addEventListener('click', function () { ownerAction('remove-owner'); });
