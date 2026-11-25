@@ -16,6 +16,7 @@ Disallow: /foreverpets/admin.html
 Disallow: /mycard/view
 Disallow: /mycard/admin
 Disallow: /mycard/owner
+Disallow: /mycard/sub
 Disallow: /mycard/admin.html
 Disallow: /rsvp/view
 Disallow: /rsvp/i/

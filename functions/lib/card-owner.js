@@ -133,3 +133,31 @@ export async function listKeys(store, prefix) {
   } while (cursor);
   return keys;
 }
+
+export function newCardId() {
+  return 'card-' + randomToken().slice(0, 8);
+}
+
+export function baseUrl(env) {
+  return (env.PUBLIC_BASE_URL || 'https://vi-key.uk').replace(/\/$/, '');
+}
+
+// Creates blank cards, each with its own claim code. With a subcontractor id, the cards are recorded as theirs.
+export async function createCards(env, count, subId) {
+  const store = env.CARD_PASSWORDS;
+  const created = new Date().toISOString();
+  const origin = baseUrl(env);
+  const cards = [];
+  while (cards.length < count) {
+    const id = newCardId();
+    if (await store.get('claim:' + id) || await store.get('owner:' + id) || await env.CARD_CONTENT.get(id)) continue;
+    const code = generateClaimCode();
+    await store.put('claim:' + id, JSON.stringify({ h: await claimHash(id, code), created }));
+    if (subId) {
+      await store.put('cardsub:' + id, subId);
+      await store.put('subcard:' + subId + ':' + id, created);
+    }
+    cards.push({ id, url: `${origin}/mycard/?id=${id}`, code });
+  }
+  return cards;
+}

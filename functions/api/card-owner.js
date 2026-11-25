@@ -7,7 +7,8 @@
 import { hashPassword, verifyPassword, validateSession } from '../lib/auth.js';
 import {
   cleanCardId, cleanEmail, passwordProblem, readJson, sha256Hex, randomToken,
-  generateClaimCode, claimHash, createOwnerSession, isLimited, bump, sendEmail, parseClaim, listKeys
+  generateClaimCode, claimHash, createOwnerSession, isLimited, bump, sendEmail, parseClaim, listKeys,
+  newCardId, baseUrl, createCards
 } from '../lib/card-owner.js';
 
 const MAX_BATCH = 100;
@@ -29,12 +30,11 @@ function sameOrigin(request) {
   return /^application\/json/i.test(request.headers.get('content-type') || '');
 }
 
-function newCardId() {
-  return 'card-' + randomToken().slice(0, 8);
-}
-
-function baseUrl(env) {
-  return (env.PUBLIC_BASE_URL || 'https://vi-key.uk').replace(/\/$/, '');
+// Name of the subcontractor a card was issued to, if any.
+async function subName(store, cardId) {
+  const subId = await store.get('cardsub:' + cardId);
+  const sub = subId ? await readJson(store, 'sub:' + subId) : null;
+  return sub ? sub.name : '';
 }
 
 export async function onRequestPost(context) {
@@ -62,11 +62,11 @@ export async function onRequestPost(context) {
         const [owned, pending] = await Promise.all([listKeys(store, 'owner:'), listKeys(store, 'claim:')]);
         const owners = await Promise.all(owned.map(async (cardId) => {
           const o = await readJson(store, 'owner:' + cardId);
-          return { id: cardId, email: o ? o.email : '', created: o ? o.created || '' : '' };
+          return { id: cardId, email: o ? o.email : '', created: o ? o.created || '' : '', sub: await subName(store, cardId) };
         }));
         const unclaimed = await Promise.all(pending.map(async (cardId) => {
           const c = parseClaim(await store.get('claim:' + cardId));
-          return { id: cardId, created: c ? c.created : '' };
+          return { id: cardId, created: c ? c.created : '', sub: await subName(store, cardId) };
         }));
         const byDate = (a, b) => String(b.created).localeCompare(String(a.created));
         return json({ success: true, claimed: owners.sort(byDate), unclaimed: unclaimed.sort(byDate) });
@@ -76,15 +76,7 @@ export async function onRequestPost(context) {
         const count = Number(body.count);
         if (!Number.isInteger(count) || count < 1 || count > MAX_BATCH) return fail(`Enter a number from 1 to ${MAX_BATCH}`);
         const created = new Date().toISOString();
-        const origin = baseUrl(env);
-        const cards = [];
-        while (cards.length < count) {
-          const cardId = newCardId();
-          if (await store.get('claim:' + cardId) || await store.get('owner:' + cardId) || await env.CARD_CONTENT.get(cardId)) continue;
-          const code = generateClaimCode();
-          await store.put('claim:' + cardId, JSON.stringify({ h: await claimHash(cardId, code), created }));
-          cards.push({ id: cardId, url: `${origin}/mycard/?id=${cardId}`, code });
-        }
+        const cards = await createCards(env, count);
         const to = env.BATCH_EMAIL_TO || DEFAULT_BATCH_EMAIL;
         const csv = 'Card ID,URL,Claim code\n' + cards.map((c) => `${c.id},${c.url},${c.code}`).join('\n') + '\n';
         const rows = cards.map((c) => `<tr><td>${c.id}</td><td>${c.url}</td><td><b>${c.code}</b></td></tr>`).join('');

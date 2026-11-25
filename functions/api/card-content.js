@@ -54,6 +54,15 @@ function cleanUrl(v, protocols, label) {
   return { value: t };
 }
 
+// For a card issued by a subcontractor, returns { url } of the subcontractor's logo (empty if none); otherwise null.
+async function issuerLogo(env, id, origin) {
+  const subId = await env.CARD_PASSWORDS.get('cardsub:' + id);
+  if (!subId) return null;
+  let sub = null;
+  try { sub = JSON.parse(await env.CARD_PASSWORDS.get('sub:' + subId)); } catch {}
+  return { url: sub && sub.hasLogo ? `${origin}/api/card-image?sub=${subId}&kind=logo&v=${sub.logoV || ''}` : '' };
+}
+
 export async function onRequestPost(context) {
   const { request, env } = context;
 
@@ -174,10 +183,12 @@ export async function onRequestPost(context) {
       // Owners cannot type image addresses; their photo and logo come only from their uploads.
       if (ownerSession) {
         const origin = new URL(request.url).origin;
+        const locked = await issuerLogo(env, safeId, origin);
         for (const [kind, field] of [['photo', 'photoUrl'], ['logo', 'companyLogoUrl']]) {
-          content[field] = await env.CARD_PASSWORDS.get(imageKey(kind, safeId))
-            ? `${origin}/api/card-image?id=${encodeURIComponent(safeId)}&kind=${kind}&v=${Date.now()}` : '';
+          const own = !(kind === 'logo' && locked) && await env.CARD_PASSWORDS.get(imageKey(kind, safeId));
+          content[field] = own ? `${origin}/api/card-image?id=${encodeURIComponent(safeId)}&kind=${kind}&v=${Date.now()}` : '';
         }
+        if (locked) content.companyLogoLinkUrl = '';
       }
       content.updated = new Date().toISOString();
 
@@ -195,8 +206,11 @@ export async function onRequestPost(context) {
         }
       }
       const raw = await env.CARD_CONTENT.get(safeId);
-      if (!raw) return Response.json({ success: true, content: null });
-      return Response.json({ success: true, content: JSON.parse(raw) });
+      const issuer = await issuerLogo(env, safeId, new URL(request.url).origin);
+      if (!raw) return Response.json({ success: true, content: null, logoLocked: !!issuer });
+      const content = JSON.parse(raw);
+      if (issuer) { content.companyLogoUrl = issuer.url; content.companyLogoLinkUrl = ''; }
+      return Response.json({ success: true, content, logoLocked: !!issuer });
     }
 
     case 'delete-content': {
