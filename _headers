@@ -55,6 +55,10 @@
 /foreverpets/admin.html
   X-Robots-Tag: noindex, nofollow
 
+/mycard/owner
+  X-Robots-Tag: noindex, nofollow
+  Cache-Control: no-store, private
+
 /mycard/view
   X-Robots-Tag: noindex, nofollow
 
